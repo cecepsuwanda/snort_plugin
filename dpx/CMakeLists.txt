@@ -12,9 +12,16 @@ endif ( APPLE )
 include ( FindPkgConfig )
 pkg_search_module ( SNORT3 REQUIRED snort>=3 )
 
+file(GLOB SOURCES
+     "extractor/*.h"
+     "extractor/*.cpp"
+    )
+
+
 add_library (
     dpx MODULE
     dpx.cc
+    ${SOURCES}
 )
 
 if ( APPLE )

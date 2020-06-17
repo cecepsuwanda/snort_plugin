@@ -23,7 +23,19 @@
 #include "framework/module.h"
 #include "log/messages.h"
 #include "profiler/profiler.h"
+
 #include "protocols/packet.h"
+#include "protocols/tcp.h"
+#include "protocols/udp.h"
+#include "protocols/icmp4.h"
+
+#include "extractor/IpFragment.h"
+#include "extractor/StatsEngine.h"
+#include "extractor/ConversationReconstructor.h"
+#include "extractor/Config.h"
+#include "extractor/IpReassembler.h"
+#include "extractor/FiveTuple.h"
+
 
 using namespace snort;
 
@@ -52,12 +64,24 @@ public:
 private:
     uint16_t port;
     uint16_t max;
+
+    FeatureExtractor::Config *config;
+    FeatureExtractor::IpReassembler *reasm;
+    FeatureExtractor::ConversationReconstructor *conv_reconstructor;
+    FeatureExtractor::StatsEngine *stats_engine;
+
+    FeatureExtractor::IpFragment *getIpFragment(Packet *);
 };
 
 Dpx::Dpx(uint16_t p, uint16_t m)
 {
     port = p;
     max = m;
+
+    config = new FeatureExtractor::Config();
+    stats_engine = new FeatureExtractor::StatsEngine(config);
+    reasm = new FeatureExtractor::IpReassembler();
+    conv_reconstructor = new FeatureExtractor::ConversationReconstructor();
 }
 
 void Dpx::show(const SnortConfig*) const
@@ -68,14 +92,85 @@ void Dpx::show(const SnortConfig*) const
 
 void Dpx::eval(Packet* p)
 {
+  if (p->is_ip4() && (p->is_tcp() || p->is_udp() || p->is_icmp())) {
+     FeatureExtractor::IpFragment *frag = getIpFragment(p);
+     FeatureExtractor::Packet *datagr = nullptr;
+
+     FeatureExtractor::Timestamp now = frag->get_end_ts();
+     datagr = reasm->reassemble(frag);
+     if (datagr) {
+          conv_reconstructor->add_packet(datagr);
+     } else {
+          conv_reconstructor->report_time(now);
+     }
+						         
+  }
+
+  FeatureExtractor::Conversation *conv;
+  while ((conv = conv_reconstructor->get_next_conversation()) != nullptr) {
+        FeatureExtractor::ConversationFeatures *cf = stats_engine->calculate_features(conv);
+        conv = nullptr;        // Should not be used anymore, object will commit suicide
+				               
+				       	
+        delete cf;
+  }	
+	
     // precondition - what we registered for
-    assert(p->is_udp());
+    //assert(p->is_udp());
 
-    if ( p->ptrs.dp == port && p->dsize > max )
-        DetectionEngine::queue_event(DPX_GID, DPX_SID);
+    //if ( p->ptrs.dp == port && p->dsize > max )
+        //DetectionEngine::queue_event(DPX_GID, DPX_SID);
 
-    ++dpxstats.total_packets;
+    //++dpxstats.total_packets;
 }
+
+FeatureExtractor::IpFragment *Dpx::getIpFragment(Packet *packet) {
+   FeatureExtractor::IpFragment *f = new FeatureExtractor::IpFragment();
+   FeatureExtractor::Timestamp ts(packet->pkth->ts);
+   f->set_start_ts(ts);
+   f->set_length(packet->pkth->pktlen);
+     
+   if (!packet->is_eth()) {
+      return f;
+				         }
+    f->set_eth2(true);
+    if (!packet->is_ip4()) {
+       return f;
+    }
+
+    f->set_src_ip(packet->ptrs.ip_api.get_src()->get_ip4_value());
+    f->set_dst_ip(packet->ptrs.ip_api.get_dst()->get_ip4_value());
+    f->set_ip_proto((FeatureExtractor::ip_field_protocol_t) packet->ptrs.ip_api.proto());
+    f->set_ip_id((uint16_t) (packet->ptrs.ip_api.id()));
+    f->set_ip_flag_mf(packet->is_fragment());
+    f->set_ip_frag_offset(packet->ptrs.ip_api.off());
+    f->set_ip_payload_length(packet->ptrs.ip_api.pay_len());
+
+    if (f->get_ip_frag_offset() > 0)
+       return f;
+
+    switch (f->get_ip_proto()) {
+       case FeatureExtractor::TCP:
+            f->set_src_port(packet->ptrs.tcph->src_port());
+            f->set_dst_port(packet->ptrs.tcph->dst_port());
+            f->set_tcp_flags(packet->ptrs.tcph->th_flags);
+            break;
+															        case FeatureExtractor::UDP:
+             f->set_src_port(packet->ptrs.udph->src_port());
+             f->set_dst_port(packet->ptrs.udph->dst_port());
+             break;
+	     
+	case FeatureExtractor::ICMP:
+	     f->set_icmp_type((FeatureExtractor::icmp_field_type_t) packet->ptrs.icmph->type);
+	     f->set_icmp_code(packet->ptrs.icmph->code);
+	     break;
+
+	default:
+	     break;
+    }
+    return f;
+}
+
 
 //-------------------------------------------------------------------------
 // module stuff
