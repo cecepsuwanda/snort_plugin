@@ -1,6 +1,54 @@
 #include "Tolah_label.h"
 
 
+
+Ttgl::Ttgl(int tgl, int bln, int thn)
+{
+  _tgl = tgl;
+  _bln = bln;
+  _thn = thn;
+}
+
+string Ttgl::cetak()
+{
+  return  to_string(_bln) + "/" + to_string(_tgl) + "/" + to_string(_thn);
+}
+
+Ttgl::~Ttgl()
+{
+
+}
+
+bool Ttgl::operator< (const Ttgl& tgl_jamObj) const
+{
+  if (this->_thn < tgl_jamObj._thn ) {
+    return true;
+  }
+  if (this->_thn > tgl_jamObj._thn ) {
+    return false;
+  }
+
+  if (this->_bln < tgl_jamObj._bln) {
+    return true;
+  }
+  if (this->_bln > tgl_jamObj._bln) {
+    return false;
+  }
+
+  if (this->_tgl < tgl_jamObj._tgl) {
+    return true;
+  }
+  if (this->_tgl > tgl_jamObj._tgl) {
+    return false;
+  }
+
+
+  return false;
+
+}
+
+
+
 Tolah_label::Tolah_label()
 {
 
@@ -92,14 +140,14 @@ void Tolah_label::baca_file()
                                 {
                                   olah_sisa_at_attacker(str);
                                   field_before = " ";
-                                } 
+                                }
 
                                 if (field_before == "At_Victim: ")
                                 {
-                                    olah_sisa_at_victim(str);
-                                    field_before = " ";
+                                  olah_sisa_at_victim(str);
+                                  field_before = " ";
                                 }
-                                
+
 
                               }
 
@@ -177,6 +225,18 @@ void Tolah_label::baca_file()
 
     }
 
+    Ttgl new_tgl(vec[i]->Date.tanggal, vec[i]->Date.bulan, vec[i]->Date.tahun);
+    auto itr = vec_map.find(new_tgl);
+    if (itr == vec_map.end())
+    {
+      vector<field_filter *> tmp_vec;
+      tmp_vec.push_back(vec[i]);
+      vec_map.insert({new_tgl, tmp_vec});
+    } else {
+      vec_field_filter* tmp_vec = &itr->second;
+      tmp_vec->push_back(vec[i]);
+      //cout << new_tgl.cetak() <<endl;
+    }
 
     //cout << "-------------"<<endl;
   }
@@ -893,15 +953,65 @@ string Tolah_label::labeli(vector<string> row)
   bool is_cetak = false;
   string label = "normal,Nan";
 
-  int i = 0;
+
+  string tmp_row = row[0];
+
+  vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
+  ttanggal tmp = date_frag(data[0]);
+
+
+  Ttgl new_tgl(tmp.tanggal, tmp.bulan, 1999);
+  auto itr = vec_map.find(new_tgl);
+  if (itr != vec_map.end())
+  {
+    vec_field_filter* tmp_vec = &itr->second;
+    auto itr1 = tmp_vec->begin();
+    while ((!is_cetak) and (itr1 != tmp_vec->end())) {
+      field_filter* tmp_field = *itr1;
+
+      if (is_waktu_pass(row, tmp_field)) {
+        if (is_attacker_pass(row[6], tmp_field->Attacker, tmp_field->At_Attacker)) {
+          if (is_victim_pass(row[7], tmp_field->Victim, tmp_field->At_Victim)) {
+            is_cetak = true;
+            label = tmp_field->Name + "," + tmp_field->ID;
+
+          }
+        }
+
+        if (!is_cetak)
+        {
+          if (is_attacker_pass(row[7], tmp_field->Attacker, tmp_field->At_Attacker)) {
+            if (is_victim_pass(row[6], tmp_field->Victim, tmp_field->At_Victim)) {
+              is_cetak = true;
+              label = tmp_field->Name + "," + tmp_field->ID;
+              cout << "Dibalik" << endl;
+            }
+          }
+        }
+        if((tmp.tanggal==29)and(tmp.bulan==3)and(row[7]=="172.16.112.50:23")){
+          cout << new_tgl.cetak() << row[6] << " " << row[7] << endl;
+        }
+        
+        //cout << tmp_field->ID << endl;
+      }
+
+      itr1++;
+    }
+
+    
+  }
+
+  /*int i = 0;
   while ((!is_cetak) and (i < vec.size()))
   {
     //cout << vec[i]->ID << endl;
     //cout << row[0] << endl;
     if (is_date_pass(row, vec[i]))
     {
+
       if (is_waktu_pass(row, vec[i])) {
-        if (is_attacker_pass(row[6], vec[i]->Attacker, vec[i]->At_Attacker)) {
+          //cout << row[6] << " " << row[7] << endl ;
+    if (is_attacker_pass(row[6], vec[i]->Attacker, vec[i]->At_Attacker)) {
           if (is_victim_pass(row[7], vec[i]->Victim, vec[i]->At_Victim)) {
             is_cetak = true;
             label = vec[i]->Name + "," + vec[i]->ID;
@@ -923,7 +1033,7 @@ string Tolah_label::labeli(vector<string> row)
     }
 
     i++;
-  }
+  }*/
 
   return label;
 }

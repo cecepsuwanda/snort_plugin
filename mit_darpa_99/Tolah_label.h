@@ -7,6 +7,22 @@
 using namespace std;
 
 
+class Ttgl
+{
+  private:
+    int _tgl=0;
+    int _bln=0;
+    int _thn=0;
+
+    
+  public: 
+   Ttgl(int tgl,int bln,int thn);
+   ~Ttgl();  
+
+   bool operator< (const Ttgl& tgl_jamObj) const;
+   string cetak(); 
+};
+
 struct twaktu
 {
   int jam, menit, detik;
@@ -41,6 +57,7 @@ struct tip_fragment
   int port;
 };
 
+typedef vector<field_filter *> vec_field_filter;
 
 class Tolah_label
 {
@@ -48,7 +65,8 @@ class Tolah_label
 private:
   string _nm_file;
 
-  vector<field_filter *> vec;
+  vec_field_filter vec;
+  map<Ttgl, vec_field_filter> vec_map;
   
   field_filter *field;
 

@@ -21,12 +21,12 @@ int main()
     Tread_file f;
     Tread_file g;
 
-    g.setnm_f("/home/cecep/python/mit_darpa_99/data/tcp_dataset.csv");
+    g.setnm_f("/home/cecep/python/mit_darpa_99/data/alert_csv_mit_darpa_99.csv");
     g.setseparator(", ");
 
     g.open_file("w+");
 
-    string path = "data/snort_alert_csv/";
+    string path = "data/snort_alert_csv/any_rule/";
     string hari[5] = {"monday", "tuesday", "wednesday", "thursday", "friday"};
     int week[2] = {4, 5};
     string dir[2] = {"out", "in"};
@@ -40,15 +40,16 @@ int main()
             for (int k = 0; k < 2; k++)
             {
 
-                nm_file = path + "tcp_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                nm_file = path + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
                 cout << nm_file << endl;
 
                 f.setnm_f(nm_file);
-                f.setseparator(", ");
+                f.setseparator(",");
 
 
                 if (f.open_file())
                 {
+                    int jml_dt = 0;
                     while (!f.is_eof())
                     {
                         row = f.get_record();
@@ -63,9 +64,9 @@ int main()
 
                             label = olah_label.labeli(row);
 
-                            tmp_str += label + "," + "tcp_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                            tmp_str += label + "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
 
-                            //g.write_file(tmp_str);
+                            g.write_file(tmp_str);
 
                             if (label != "normal,Nan")
                             {
@@ -76,6 +77,12 @@ int main()
                         f.next_record();
                         row.clear();
                         row.shrink_to_fit();
+
+                        if ((jml_dt % 100000) == 0)
+                        {
+                            cout << jml_dt << endl;
+                        }
+                        jml_dt++;
                     }
 
                     f.close_file();

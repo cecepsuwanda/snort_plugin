@@ -163,20 +163,22 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
   switch (opt)
   {
   case 0 : {
-    //cout << value1 << " " << value2 << endl;
+    //cout << value1 << " <= " << value2 << endl;
     pass = stof(value1) <= stof(value2);
     break;
   }
   case 1 : {
-    //cout << value1 << " " << value2 << endl;
+    //cout << value1 << " > " << value2 << endl;
     pass = stof(value1) > stof(value2);
     break;
   }
   case 2 : {
+    //cout << value1 << " == " << value2 << endl;
     pass = value1 == value2;
     break;
   }
   case 3 : {
+    //cout << value1 << " != " << value2 << endl;
     pass = value1 != value2;
     break;
   }

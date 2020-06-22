@@ -199,6 +199,7 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
     {
        return next;
     }else{
+      //cout << tree[next].opt << " " << data[criteriaAttrIndex] << " " << tree[next].attrValue << endl;
       if (df.is_pass(tree[next].opt, data[criteriaAttrIndex], tree[next].attrValue)) {
          return dfs(df, data, next);
       }
@@ -217,6 +218,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     return "dfs failed";
   }
   label = tree[leafNode].attrValue;
+  //cout << label << endl;
   return label;
 }
 
