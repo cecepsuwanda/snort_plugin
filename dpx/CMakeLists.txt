@@ -15,6 +15,8 @@ pkg_search_module ( SNORT3 REQUIRED snort>=3 )
 file(GLOB SOURCES
      "extractor/*.h"
      "extractor/*.cpp"
+     "my_dt/*.h"
+     "my_dt/*.cc"
     )
 
 
