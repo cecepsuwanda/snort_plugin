@@ -168,12 +168,11 @@ FeatureExtractor::IpFragment *ExLogger::getIpFragment(Packet *packet) {
            f->set_dst_port(packet->ptrs.udph->dst_port());
            break;
 
-																				            case FeatureExtractor::ICMP:
+      case FeatureExtractor::ICMP:
            f->set_icmp_type((FeatureExtractor::icmp_field_type_t) packet->ptrs.icmph->type);
            f->set_icmp_code(packet->ptrs.icmph->code);
            break;
-
-																				      	    default:
+      default:
 	   break;
 
    }
@@ -183,7 +182,8 @@ FeatureExtractor::IpFragment *ExLogger::getIpFragment(Packet *packet) {
 void ExLogger::save_csv(FeatureExtractor::ConversationFeatures *cf) {
 
    ofstream myfile;
-   myfile.open ("/home/cecep/cpp/mit_darpa_99/data/snort_alert_csv/alert_ex_data.csv", fstream::in | fstream::out | fstream::app);
+   string path = SnortConfig::get_conf()->log_dir;
+   myfile.open (path+"/alert_ex_data.csv", fstream::in | fstream::out | fstream::app);
 
    const FeatureExtractor::FiveTuple *ft = cf->get_conversation()->get_five_tuple_ptr();
 
@@ -196,30 +196,29 @@ void ExLogger::save_csv(FeatureExtractor::ConversationFeatures *cf) {
    FeatureExtractor::Timestamp ts = cf->get_conversation()->get_start_ts();
    struct timeval tvp = ts.get_timeval();
    
-   //if (SnortConfig::output_use_utc())
-   //    localzone = 0;
-
    int s = (tvp.tv_sec + localzone) % SECONDS_PER_DAY;
    time_t Time = (tvp.tv_sec + localzone) - s;
 
    struct tm ttm;
    struct tm* lt = gmtime_r(&Time, &ttm); 
    
-   myfile << (lt->tm_mon+1) << "/" << lt->tm_mday << "-" << (s/3600) << ":" << ((s % 3600)/60) << ":" << (s % 60) << "." << ((u_int)tvp.tv_usec) << ','; 
+   string tmp_str = to_string(lt->tm_mon+1) + "/" + to_string(lt->tm_mday) + "-" + to_string(s/3600) + ":" + to_string((s % 3600)/60) + ":" + to_string(s % 60) + "." + to_string((u_int)tvp.tv_usec);
+
+   myfile << tmp_str << ','; 
    myfile << (int)sip[0] << "." << (int)sip[1] << "." << (int)sip[2] << "." << (int)sip[3] << ':';
    myfile << ft->get_src_port() << ',';
    myfile << (int)dip[0] << "." << (int)dip[1] << "." << (int)dip[2] << "." << (int)dip[3] << ':';
    myfile << ft->get_dst_port() << ',';
    
-   myfile << std::setprecision(10) << (cf->get_conversation()->get_duration_ms() / 1000) << ",";//<< "duration       : "
-   myfile << cf->get_conversation()->get_protocol_type_str() << ",";//<< "protocol_type  : "
-   myfile << cf->get_conversation()->get_service_str() << ",";//<< "service        : "
-   myfile << cf->get_conversation()->get_state_str() << ",";//<< "flag           : "
-   myfile << std::setprecision(10) <<  cf->get_conversation()->get_src_bytes() << ",";//<< "src_bytes      : "
-   myfile << std::setprecision(10) <<  cf->get_conversation()->get_dst_bytes() << ",";//<< "dst_bytes      : "
-   myfile << cf->get_conversation()->land() << ",";//<< "land           : "
-   myfile << std::setprecision(10) <<  cf->get_conversation()->get_wrong_fragments() << ",";//<< "wrong_fragment : "
-   myfile << std::setprecision(10) <<  cf->get_conversation()->get_urgent_packets() << ",";//<< "urgent         : "
+   myfile << std::setprecision(10) << (cf->get_conversation()->get_duration_ms() / 1000) << ",";//<< "duration    1   : "
+   myfile << cf->get_conversation()->get_protocol_type_str() << ",";//<< "protocol_type  : 2"
+   myfile << cf->get_conversation()->get_service_str() << ",";//<< "service        : 3"
+   myfile << cf->get_conversation()->get_state_str() << ",";//<< "flag           : 4"
+   myfile << std::setprecision(10) <<  cf->get_conversation()->get_src_bytes() << ",";//<< "src_bytes      : 5"
+   myfile << std::setprecision(10) <<  cf->get_conversation()->get_dst_bytes() << ",";//<< "dst_bytes      :6 "
+   myfile << cf->get_conversation()->land() << ",";//<< "land           : 7"
+   myfile << std::setprecision(10) <<  cf->get_conversation()->get_wrong_fragments() << ",";//<< "wrong_fragment : 8"
+   myfile << std::setprecision(10) <<  cf->get_conversation()->get_urgent_packets() << ",";//<< "urgent         :9 "
    //myfile << std::setprecision(3) <<  0 << ",";//<< "hot            : "
    //myfile << std::setprecision(3) <<  0 << ",";//<< "num_failed_logins : "
    //myfile << 0 << ",";//<< "logged_in      : "
@@ -233,25 +232,25 @@ void ExLogger::save_csv(FeatureExtractor::ConversationFeatures *cf) {
    //myfile << 0 << ",";//<< "num_outbound_cmds : "
    //myfile << 0 << ",";//<< "is_host_login     : "
    //myfile << 0 << ",";//<< "is_guest_login    : "
-   myfile << std::setprecision(10) << cf->get_count() << ",";//<< "count             : "
-   myfile << std::setprecision(10) << cf->get_srv_count() << ",";//<< "srv_count         : "
-   myfile << std::setprecision(10) << cf->get_serror_rate() << ","; //<< "serror_rate       : "
-   myfile << std::setprecision(10) << cf->get_srv_serror_rate() << ","; //<< "srv_serror_rate   : "
-   myfile << std::setprecision(10) << cf->get_rerror_rate() << ","; //<< "rerror_rate       : "
-   myfile << std::setprecision(10) << cf->get_srv_rerror_rate() << ","; //<< "srv_rerror_rate   : "
-   myfile << std::setprecision(10) << cf->get_same_srv_rate() << ","; //<< "same_srv_rate     : "
-   myfile << std::setprecision(10) << cf->get_diff_srv_rate() << ","; //<< "diff_srv_rate     : "
-   myfile << std::setprecision(10) << cf->get_srv_diff_host_rate() << ","; //<< "srv_diff_host_rate : "
-   myfile << std::setprecision(10) << cf->get_dst_host_count() << ","; //<< "dst_host_count     : "
-   myfile << std::setprecision(10) << cf->get_dst_host_srv_count() << ","; //<< "dst_host_srv_count : "
-   myfile << std::setprecision(10) << cf->get_dst_host_same_srv_rate() << ","; //<< "dst_host_same_srv_rate : "
-   myfile << std::setprecision(10) << cf->get_dst_host_diff_srv_rate() << ","; //<< "dst_host_diff_srv_rate : "
-   myfile << std::setprecision(10) << cf->get_dst_host_same_src_port_rate() << ","; //<< "dst_host_same_src_port_rate : "
-   myfile << std::setprecision(10) << cf->get_dst_host_srv_diff_host_rate() << ","; //<< "dst_host_srv_diff_host_rate : "
-   myfile << std::setprecision(10) << cf->get_dst_host_serror_rate() << ",";//<< "dst_host_serror_rate        : "
-   myfile << std::setprecision(10) << cf->get_dst_host_srv_serror_rate() << ","; //<< "dst_host_srv_serror_rate    : "
-   myfile << std::setprecision(10) << cf->get_dst_host_rerror_rate() << ",";//<< "dst_host_rerror_rate        : "
-   myfile << std::setprecision(10) << cf->get_dst_host_srv_rerror_rate() << "\n"; //<< "dst_host_srv_rerror_rate    : "
+   myfile << std::setprecision(10) << cf->get_count() << ",";//<< "count             : 10"
+   myfile << std::setprecision(10) << cf->get_srv_count() << ",";//<< "srv_count         : 11"
+   myfile << std::setprecision(10) << cf->get_serror_rate() << ","; //<< "serror_rate       : 12"
+   myfile << std::setprecision(10) << cf->get_srv_serror_rate() << ","; //<< "srv_serror_rate   : 13"
+   myfile << std::setprecision(10) << cf->get_rerror_rate() << ","; //<< "rerror_rate       : 14"
+   myfile << std::setprecision(10) << cf->get_srv_rerror_rate() << ","; //<< "srv_rerror_rate   : 15"
+   myfile << std::setprecision(10) << cf->get_same_srv_rate() << ","; //<< "same_srv_rate     : 16"
+   myfile << std::setprecision(10) << cf->get_diff_srv_rate() << ","; //<< "diff_srv_rate     : 17"
+   myfile << std::setprecision(10) << cf->get_srv_diff_host_rate() << ","; //<< "srv_diff_host_rate : 18"
+   myfile << std::setprecision(10) << cf->get_dst_host_count() << ","; //<< "dst_host_count     : 19"
+   myfile << std::setprecision(10) << cf->get_dst_host_srv_count() << ","; //<< "dst_host_srv_count : 20"
+   myfile << std::setprecision(10) << cf->get_dst_host_same_srv_rate() << ","; //<< "dst_host_same_srv_rate : 21"
+   myfile << std::setprecision(10) << cf->get_dst_host_diff_srv_rate() << ","; //<< "dst_host_diff_srv_rate : 22"
+   myfile << std::setprecision(10) << cf->get_dst_host_same_src_port_rate() << ","; //<< "dst_host_same_src_port_rate : 23"
+   myfile << std::setprecision(10) << cf->get_dst_host_srv_diff_host_rate() << ","; //<< "dst_host_srv_diff_host_rate : 24"
+   myfile << std::setprecision(10) << cf->get_dst_host_serror_rate() << ",";//<< "dst_host_serror_rate        : 25"
+   myfile << std::setprecision(10) << cf->get_dst_host_srv_serror_rate() << ","; //<< "dst_host_srv_serror_rate    : 26"
+   myfile << std::setprecision(10) << cf->get_dst_host_rerror_rate() << ",";//<< "dst_host_rerror_rate        : 27"
+   myfile << std::setprecision(10) << cf->get_dst_host_srv_rerror_rate() << "\n"; //<< "dst_host_srv_rerror_rate    : 28"
    myfile.close();
 }
 
@@ -283,8 +282,7 @@ void ExLogger::alert(Packet* p, const char* msg, const Event& e)
     }	
 	
 	
-    //char timestamp[TIMEBUF_SIZE];
-    //ts_print((const struct timeval*)&p->pkth->ts,timestamp);
+    
     
 	
     //string s = msg;

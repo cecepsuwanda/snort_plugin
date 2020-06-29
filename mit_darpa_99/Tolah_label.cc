@@ -970,8 +970,8 @@ string Tolah_label::labeli(vector<string> row)
       field_filter* tmp_field = *itr1;
 
       if (is_waktu_pass(row, tmp_field)) {
-        if (is_attacker_pass(row[6], tmp_field->Attacker, tmp_field->At_Attacker)) {
-          if (is_victim_pass(row[7], tmp_field->Victim, tmp_field->At_Victim)) {
+        if (is_attacker_pass(row[1], tmp_field->Attacker, tmp_field->At_Attacker)) {
+          if (is_victim_pass(row[2], tmp_field->Victim, tmp_field->At_Victim)) {
             is_cetak = true;
             label = tmp_field->Name + "," + tmp_field->ID;
 
@@ -980,8 +980,8 @@ string Tolah_label::labeli(vector<string> row)
 
         if (!is_cetak)
         {
-          if (is_attacker_pass(row[7], tmp_field->Attacker, tmp_field->At_Attacker)) {
-            if (is_victim_pass(row[6], tmp_field->Victim, tmp_field->At_Victim)) {
+          if (is_attacker_pass(row[2], tmp_field->Attacker, tmp_field->At_Attacker)) {
+            if (is_victim_pass(row[1], tmp_field->Victim, tmp_field->At_Victim)) {
               is_cetak = true;
               label = tmp_field->Name + "," + tmp_field->ID;
               cout << "Dibalik" << endl;

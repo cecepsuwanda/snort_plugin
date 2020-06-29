@@ -21,7 +21,7 @@ int main()
     Tread_file f;
     Tread_file g;
 
-    g.setnm_f("/home/cecep/python/mit_darpa_99/data/alert_csv_mit_darpa_99.csv");
+    /*g.setnm_f("/home/cecep/python/mit_darpa_99/data/alert_csv_mit_darpa_99.csv");
     g.setseparator(", ");
 
     g.open_file("w+");
@@ -38,7 +38,7 @@ int main()
         for (int j = 0; j < 2; j++)
         {
             for (int k = 0; k < 2; k++)
-            {
+            {*/
 
                 nm_file = path + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
                 cout << nm_file << endl;
@@ -90,10 +90,10 @@ int main()
                 } else {
                     cout << "Gagal Buka File !!!" << endl;
                 }
-            }
+        //    }
 
-        }
-    }
+      //  }
+    //}
 
     g.close_file();
 
