@@ -174,6 +174,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
         tree[node_index].children.shrink_to_fit();
         tree.erase(tree.begin() + treeIndex_no);
         tree.erase(tree.begin() + treeIndex_yes);
+        tree.shrink_to_fit();
         cout << "label : " << tree[node_index].attrValue << endl;
       }
 
@@ -251,22 +252,22 @@ void Tdec_tree::test(Tdataframe &df)
           tepat++;
         }
 
-        if((tmp_str1 != "normal") and (tmp_str!="normal"))
+        if((tmp_str1 != "normal.") and (tmp_str!="normal."))
         {
           TP++; 
         }
 
-        if((tmp_str1 == "normal") and (tmp_str=="normal"))
+        if((tmp_str1 == "normal.") and (tmp_str=="normal."))
         {
           TN++; 
         }
 
-        if((tmp_str1 == "normal") and (tmp_str!="normal"))
+        if((tmp_str1 == "normal.") and (tmp_str!="normal."))
         {
           FP++; 
         }
 
-        if((tmp_str1 != "normal") and (tmp_str=="normal"))
+        if((tmp_str1 != "normal.") and (tmp_str=="normal."))
         {
           FN++; 
         }

@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include <map>
 #include <cmath>
+#include <string>
+
+using namespace std;
 
 struct field_filter
 {
@@ -24,8 +27,11 @@ private:
   vector<string> _data_type;
   unordered_map<int, field_filter> _filter;
   map<string, int> _stat_label;
+  
   int _jml_col = 0;
   int _jml_row = 0;
+
+  void to_lower(string &str);
 
 public:
   Tdataframe();

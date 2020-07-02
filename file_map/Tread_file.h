@@ -22,7 +22,7 @@ private:
 	char * _file_in_memory= NULL;
 	struct stat _sb;
 	vector<string> _data;
-	bool is_fmap = true;
+	bool is_fmap = false;
 	int  _posisi=0;
 
 	vector<string> tokenizer(char* str, const char* separator);

@@ -52,7 +52,7 @@ void Tdataframe::read_data_type(string nm_f)
     tmp.read_file();
     int i = 1;
     while (!tmp.is_eof())
-    { 
+    {
       tmp_data = tmp.get_record();
       _data_header.push_back(tmp_data[0]);
       _data_type.push_back(tmp_data[1]);
@@ -64,7 +64,7 @@ void Tdataframe::read_data_type(string nm_f)
     _jml_col = i;
     tmp.close_file();
   } else {
-    cout << "Gagal buka "<< nm_f <<" !!!" << endl;
+    cout << "Gagal buka " << nm_f << " !!!" << endl;
   }
 
   stat_tabel();
@@ -118,6 +118,14 @@ void Tdataframe::add_filter(int idx_col, field_filter filter)
   stat_tabel();
 }
 
+void Tdataframe::to_lower(string &str)
+{
+  for (int i = 0; i < str.length(); ++i)
+  {
+    str[i] = toupper(str[i]);
+  }
+}
+
 bool Tdataframe::is_pass(vector<string> &data)
 {
   bool pass = true;
@@ -126,25 +134,37 @@ bool Tdataframe::is_pass(vector<string> &data)
     unordered_map<int, field_filter>::iterator it = _filter.begin();
     while ((it != _filter.end()) and pass)
     {
+
       switch (it->second.idx_opt)
       {
-      case 0 : {        
+      case 0 : {
         pass = stof(data[it->first]) <= stof(it->second.value);
         break;
       }
       case 1 : {
-        
+
         pass = stof(data[it->first]) > stof(it->second.value);
         break;
       }
       case 2 : {
+        string first_str = data[it->first];
+        string second_str = it->second.value;
 
-        pass = data[it->first] == it->second.value;
+        to_lower(first_str);
+        to_lower(second_str);
+
+        pass = first_str == second_str;
 
         break;
       }
       case 3 : {
-        pass = data[it->first] != it->second.value;
+        string first_str = data[it->first];
+        string second_str = it->second.value;
+
+        to_lower(first_str);
+        to_lower(second_str);
+
+        pass = first_str != second_str;
         break;
       }
       }
@@ -173,11 +193,25 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
     break;
   }
   case 2 : {
-    pass = value1 == value2;
+
+    string first_str = value1;
+    string second_str = value2;
+
+    to_lower(first_str);
+    to_lower(second_str);
+
+    pass = first_str == second_str;
     break;
   }
   case 3 : {
-    pass = value1 != value2;
+
+    string first_str = value1;
+    string second_str = value2;
+
+    to_lower(first_str);
+    to_lower(second_str);
+
+    pass = first_str != second_str;
     break;
   }
   }
@@ -215,6 +249,8 @@ void Tdataframe::stat_tabel()
 
   _stat_label.clear();
 
+  _data.file_map();
+
   int i = 0;
   if (_data.open_file())
   {
@@ -222,21 +258,22 @@ void Tdataframe::stat_tabel()
     while (!_data.is_eof())
     {
       tmp_data = _data.get_record();
+      
       if (is_pass(tmp_data))
-      {
+      {        
         if (_stat_label.size() > 0)
-        {
-          it = _stat_label.find(tmp_data[_jml_col]);
+        {          
+          it = _stat_label.find(tmp_data[_jml_col-1]);
           if (it == _stat_label.end())
           {
-            //cout << _jml_col << " " << tmp_data[_jml_col] << endl;
-            _stat_label.insert(pair<string, int>(tmp_data[_jml_col], 1));
+             //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+            _stat_label.insert(pair<string, int>(tmp_data[_jml_col-1], 1));
           } else {
             it->second += 1;
           }
         } else {
-          //cout << _jml_col << " " << tmp_data[_jml_col] << endl;
-          _stat_label.insert(pair<string, int>(tmp_data[_jml_col], 1));
+           //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+          _stat_label.insert(pair<string, int>(tmp_data[_jml_col-1], 1));
         }
 
         i++;
@@ -398,7 +435,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col
         }
       }
 
-      jml = _jml_row_below + _jml_row_below;
+      jml = _jml_row_below + _jml_row_above;
       p_dt_below = (float) _jml_row_below / jml;
       p_dt_above = (float) _jml_row_above / jml;
 
