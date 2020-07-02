@@ -18,15 +18,23 @@ private:
 	string _nm_f;
 	const char *_separator;
 	FILE *_file = NULL;
-	int _fd=-1;
+	
+	vector<string> _data;
+	
+	bool is_fmap = true;
+	int  _posisi=0;
+	int  _b_posisi=0;
+    int _fd=-1;
 	char * _file_in_memory= NULL;
 	struct stat _sb;
-	vector<string> _data;
-	bool is_fmap = false;
-	int  _posisi=0;
+    
+    int _idx_posisi=0;
+    bool is_index = false;
+	vector<int> _index;
 
 	vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
+
 public:
 	Tread_file();
 	~Tread_file();
@@ -51,5 +59,10 @@ public:
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+
+	void clear_index();
+	void index_on();
+	void index_off();
+	void add_index();
 
 };

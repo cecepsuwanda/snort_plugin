@@ -1,46 +1,38 @@
 
 #include <iostream>
-#include "Tread_file.h"
+#include "Tdataframe.h"
 
 using namespace std;
 
 
 int main()
 {
-    Tread_file f;
-    vector<string> vec;
+   
+    Tdataframe df_train;
+    df_train.read_data("../my_dt/data/test_full_correctd.csv");
+    df_train.read_data_type("../my_dt/data/kddcup.names");
 
-    f.setnm_f("../my_dt/data/corrected");
-    f.setseparator(",");
-    f.file_map();
+    cout << df_train.getjmlrow() << endl;
 
-    if (f.open_file())
-    {
-        f.read_file();
-        while (!f.is_eof())
-        {
-            vec = f.get_record();
+    field_filter filter;
+    filter.idx_opt =2;
+    filter.value ="icmp";    
 
-            for (int i = 0; i < vec.size(); ++i)
-            {
-                cout << vec[i] ;
+    df_train.add_filter(1,filter);
+    
+    cout << df_train.getjmlrow() << endl;
 
-                if ( i < (vec.size() - 1))
-                {
-                    cout << ",";
-                }
+    filter.value ="ecr_i";    
 
-            }
-            cout << endl;
+    df_train.add_filter(2,filter);
+    
+    cout << df_train.getjmlrow() << endl;
 
-            vec.clear();
-            vec.shrink_to_fit();
-            f.next_record();
-        }
-        f.close_file();
-    } else {
-        cout << "Gagal Buka File !!!" << endl;
-    }
+    df_train.stat_tabel();
+    cout << df_train.getjmlrow() << endl;
+
+    df_train.stat_tabel();
+    cout << df_train.getjmlrow() << endl;
 
     return 0;
 }

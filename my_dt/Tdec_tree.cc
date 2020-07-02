@@ -50,7 +50,7 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
   for (int i = 0; i < (df.getjmlcol() - 1) ; ++i)
   {
-    //cout << "Kolom " << i << endl;
+    cout << "Kolom " << i << endl;
     df.get_col_pot_split(i, _col_pot_split);
     df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
 
@@ -108,6 +108,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     tree.push_back(root);
   }
 
+  cout << "tree level : " << counter << endl;
 
   if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
@@ -117,7 +118,6 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     tree[node_index].attrValue = tmp_str;
   } else {
 
-    cout << "tree level : " << counter << endl;
     counter++;
 
     int split_column;
@@ -151,6 +151,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       treeIndex_yes = nextNode.treeIndex;
       tree[node_index].children.push_back(nextNode.treeIndex);
       tree.push_back(nextNode);
+      
       cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
       train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
 
@@ -167,6 +168,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
       if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].attrValue == tree[treeIndex_no].attrValue))
       {
+        cout << "tree level : " << counter << endl;
         cout << "label sama " << endl;
         tree[node_index].isLeaf = true;
         tree[node_index].attrValue = tree[treeIndex_yes].attrValue;

@@ -10,6 +10,7 @@ Tread_file::~Tread_file()
 {
   clear_data();
   close_file();
+  clear_index();
 }
 
 Tread_file::Tread_file(const Tread_file &t)
@@ -31,7 +32,7 @@ void Tread_file::setseparator(const char* separator)
 
 void Tread_file::file_map()
 {
-  is_fmap = !is_fmap;
+  is_fmap = true;
 }
 
 bool Tread_file::open_file(string mode)
@@ -55,6 +56,7 @@ bool Tread_file::open_file()
 
     _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);
     _posisi = 0;
+    _idx_posisi = 0;
 
     return !(_fd == -1);
   } else {
@@ -105,15 +107,34 @@ void Tread_file::read_file()
   if (is_fmap)
   {
     strcpy(str, "");
-    while (( _posisi < _sb.st_size) and (_file_in_memory[_posisi] != '\n') )
+
+    if (is_index and (_index.size() > 0))
     {
+      int p_awal = _index[_idx_posisi];
+
+      while (( p_awal < _sb.st_size) and (_file_in_memory[p_awal] != '\n') )
+      {
+        char tmp = _file_in_memory[p_awal];
+        strncat(str, &tmp, 1);
+        p_awal++;
+      }
+      char tmp = _file_in_memory[p_awal];
+      strncat(str, &tmp, 1);
+      _idx_posisi++;
+
+    } else {
+
+      _b_posisi = _posisi;
+      while (( _posisi < _sb.st_size) and (_file_in_memory[_posisi] != '\n') )
+      {
+        char tmp = _file_in_memory[_posisi];
+        strncat(str, &tmp, 1);
+        _posisi++;
+      }
       char tmp = _file_in_memory[_posisi];
       strncat(str, &tmp, 1);
       _posisi++;
     }
-    char tmp = _file_in_memory[_posisi];
-    strncat(str, &tmp, 1);
-    _posisi++;
     _data = tokenizer(str, _separator);
   } else {
 
@@ -139,12 +160,26 @@ void Tread_file::clear_data()
   _data.shrink_to_fit();
 }
 
+void Tread_file::clear_index()
+{
+  _index.clear();
+  _index.shrink_to_fit();
+}
+
 
 bool Tread_file::is_eof()
 {
   if (is_fmap)
   {
-    return (_posisi == _sb.st_size);
+     if(is_index)
+     {
+       return (_idx_posisi > _index.size());
+     }
+     else
+     {
+       return (_posisi == _sb.st_size);
+     }
+
   } else {
     return feof(_file);
   }
@@ -159,4 +194,19 @@ vector<string> Tread_file::get_record()
 void Tread_file::next_record()
 {
   read_file();
+}
+
+void Tread_file::index_on()
+{
+  is_index=true;
+}
+
+void Tread_file::index_off()
+{
+  is_index=false;
+}
+
+void Tread_file::add_index()
+{
+  _index.push_back(_b_posisi);
 }
