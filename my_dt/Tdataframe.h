@@ -77,5 +77,7 @@ public:
   void next_record();
   vector<string> get_record();
 
+  void clear_memory();
+
 
 };

@@ -42,7 +42,7 @@ map<int, map<string, int>> Tdec_tree::get_potential_splits(Tdataframe &df)
 
 void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
 {
-  cout << "determine_best_split " << endl;
+  //cout << "determine_best_split " << endl;
   float current_overall_metric, best_overall_metric = 999;
   bool first_iteration = true;
   string current_split_value;
@@ -50,7 +50,7 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
   for (int i = 0; i < (df.getjmlcol() - 1) ; ++i)
   {
-    cout << "Kolom " << i << endl;
+    //cout << "Kolom " << i << endl;
     df.get_col_pot_split(i, _col_pot_split);
     df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
 
@@ -106,6 +106,8 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     Node root;
     root.treeIndex = 0;
     tree.push_back(root);
+
+    
   }
 
   cout << "tree level : " << counter << endl;
@@ -116,6 +118,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     cout << "label : " << tmp_str << endl;
     tree[node_index].isLeaf = true;
     tree[node_index].attrValue = tmp_str;
+    df.clear_memory();
   } else {
 
     counter++;
@@ -126,7 +129,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
     determine_best_split(df, split_column, split_value);
 
-    cout << "split_column : " << split_column << " " << df.get_nm_header(split_column) << " split_value : " << split_value << endl;
+    //cout << "split_column : " << split_column << " " << df.get_nm_header(split_column) << " split_value : " << split_value << endl;
 
     Tdataframe df_below, df_above;
     df_below = df;
@@ -137,7 +140,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       string tmp_str = create_leaf(df);
       cout << "label : " << tmp_str << endl;
       tree[node_index].isLeaf = true;
-      tree[node_index].attrValue = tmp_str;
+      tree[node_index].attrValue = tmp_str;      
     } else {
       tree[node_index].criteriaAttrIndex = split_column;
 
@@ -152,7 +155,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       tree[node_index].children.push_back(nextNode.treeIndex);
       tree.push_back(nextNode);
       
-      cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
+      //cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
       train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
 
       Node nextNode1;
@@ -163,9 +166,12 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       tree[node_index].children.push_back(nextNode1.treeIndex);
       tree.push_back(nextNode1);
 
-      cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
+      //cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
       train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth);
 
+      df_above.clear_memory();
+      df_below.clear_memory();
+      
       if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].attrValue == tree[treeIndex_no].attrValue))
       {
         cout << "tree level : " << counter << endl;

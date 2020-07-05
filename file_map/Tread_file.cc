@@ -11,6 +11,7 @@ Tread_file::~Tread_file()
   clear_data();
   close_file();
   clear_index();
+  clear_memory();
 }
 
 Tread_file::Tread_file(const Tread_file &t)
@@ -108,10 +109,9 @@ void Tread_file::read_file()
   {
     strcpy(str, "");
 
-    if (is_index and (_index.size() > 0))
+    if (is_index and (_jml_index > 0))
     {
-      int p_awal = _index[_idx_posisi];
-
+      int p_awal = _idx_in_memory[_idx_posisi];
       while (( p_awal < _sb.st_size) and (_file_in_memory[p_awal] != '\n') )
       {
         char tmp = _file_in_memory[p_awal];
@@ -171,14 +171,14 @@ bool Tread_file::is_eof()
 {
   if (is_fmap)
   {
-     if(is_index)
-     {
-       return (_idx_posisi > _index.size());
-     }
-     else
-     {
-       return (_posisi == _sb.st_size);
-     }
+    if (is_index)
+    {
+      return (_idx_posisi > _jml_index);
+    }
+    else
+    {
+      return (_posisi == _sb.st_size);
+    }
 
   } else {
     return feof(_file);
@@ -198,15 +198,37 @@ void Tread_file::next_record()
 
 void Tread_file::index_on()
 {
-  is_index=true;
+  is_index = true;
 }
 
 void Tread_file::index_off()
 {
-  is_index=false;
+  is_index = false;
 }
 
 void Tread_file::add_index()
 {
   _index.push_back(_b_posisi);
+}
+
+void Tread_file::save_to_memory()
+{
+
+  _jml_index = _index.size();
+  _ukuran_index = (((_jml_index * sizeof(int)) / pagesize) + 1) * pagesize;
+
+  _idx_in_memory = (int*) mmap(NULL, _ukuran_index, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+  for (int i = 0; i < _jml_index; ++i)
+  {
+    _idx_in_memory[i] = _index[i];
+  }
+}
+
+void Tread_file::clear_memory()
+{
+  munmap(_idx_in_memory, _ukuran_index);
+  _idx_in_memory = NULL;
+  _ukuran_index = 0;
+  _jml_index = 0;
 }

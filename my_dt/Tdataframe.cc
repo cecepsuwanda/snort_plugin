@@ -225,7 +225,7 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
 
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
-  _data.clear_index();
+  _data.clear_memory();
   //cout << "split_data"<<endl;
   if (_data_type[split_column] == "continuous.")
   {
@@ -298,6 +298,11 @@ void Tdataframe::stat_tabel()
       _data.next_record();
     }
 
+    if (is_index) {
+      _data.save_to_memory();
+      _data.clear_index();
+    }
+
     _data.close_file();
   } else {
     cout << "Gagal buka file !!!" << endl;
@@ -314,7 +319,7 @@ map<string, int> Tdataframe::get_stat_label()
 
 void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_split)
 {
-  cout << "get_col_pot_split " << idx <<endl;
+  //cout << "get_col_pot_split " << idx <<endl;
   map<string, pot_struct>::iterator it;
   map<string, int>::iterator it_pot_struct;
   vector<string> tmp_data;
@@ -333,7 +338,6 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
           it = _col_pot_split.find(tmp_data[idx]);
           if (it == _col_pot_split.end())
           {
-            cout << "data baru !!! 2" << endl;
             pot_struct p;
             p.jml = 1;
             p.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
@@ -344,7 +348,6 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
             it_pot_struct = it->second.stat_label.find(tmp_data[_jml_col - 1]);
             if (it_pot_struct == it->second.stat_label.end())
             {
-              cout << "data baru !!! 3" << endl;
               it->second.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
             } else {
               it_pot_struct->second += 1;
@@ -352,7 +355,6 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
           }
 
         } else {
-          cout << "data baru !!! 1" << endl;
           pot_struct p;
           p.jml = 1;
           p.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
@@ -365,6 +367,9 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
     }
     _data.close_file();
 
+
+
+
   } else {
     cout << "Gagal buka file !!!" << endl;
   }
@@ -372,7 +377,7 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
 
 void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value)
 {
-  cout << "calculate_overall_metric "<< idx <<endl;
+  //cout << "calculate_overall_metric "<< idx <<endl;
   float best_overall_metric = 999;
   string tmp_split_value;
   map<string, pot_struct>::iterator it, it1;
@@ -569,4 +574,9 @@ void Tdataframe::next_record()
 vector<string> Tdataframe::get_record()
 {
   return _data.get_record();
+}
+
+void Tdataframe::clear_memory()
+{
+  _data.clear_memory();
 }

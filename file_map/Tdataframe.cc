@@ -298,6 +298,11 @@ void Tdataframe::stat_tabel()
       _data.next_record();
     }
 
+    if (is_index) {
+      _data.save_to_memory();
+      _data.clear_index();
+    }
+
     _data.close_file();
   } else {
     cout << "Gagal buka file !!!" << endl;

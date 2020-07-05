@@ -6,12 +6,16 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/ipc.h>     /* general SysV IPC structures          */
+#include <sys/shm.h>	 /* shared memory functions and structs. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
 using namespace std;
+
+#define pagesize  4096
 
 class Tread_file {
 private:
@@ -31,6 +35,9 @@ private:
     int _idx_posisi=0;
     bool is_index = false;
 	vector<int> _index;
+	int *_idx_in_memory=NULL;
+	int _jml_index=0;
+	int _ukuran_index=0;
 
 	vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
@@ -64,5 +71,7 @@ public:
 	void index_on();
 	void index_off();
 	void add_index();
+	void save_to_memory();
+	void clear_memory();
 
 };
