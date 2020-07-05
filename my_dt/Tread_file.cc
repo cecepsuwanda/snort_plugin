@@ -34,6 +34,7 @@ void Tread_file::setseparator(const char* separator)
 void Tread_file::file_map()
 {
   is_fmap = true;
+  //cout << "is_fmap " << is_fmap << endl;
 }
 
 bool Tread_file::open_file(string mode)
@@ -110,7 +111,7 @@ void Tread_file::read_file()
     strcpy(str, "");
 
     if (is_index and (_jml_index > 0))
-    {
+    {      
       int p_awal = _idx_in_memory[_idx_posisi];
       while (( p_awal < _sb.st_size) and (_file_in_memory[p_awal] != '\n') )
       {
@@ -133,9 +134,11 @@ void Tread_file::read_file()
       }
       char tmp = _file_in_memory[_posisi];
       strncat(str, &tmp, 1);
+      //cout << str << endl;
       _posisi++;
     }
     _data = tokenizer(str, _separator);
+    //cout << "Hasil Token : " << _data.size() <<endl;
   } else {
 
     if (fgets(str, 1000, _file) != NULL)
@@ -199,11 +202,13 @@ void Tread_file::next_record()
 void Tread_file::index_on()
 {
   is_index = true;
+  //cout << "is_index on " << is_index << endl;
 }
 
 void Tread_file::index_off()
 {
   is_index = false;
+  //cout << "is_index off " << is_index << endl;
 }
 
 void Tread_file::add_index()
@@ -217,7 +222,7 @@ void Tread_file::save_to_memory()
   _jml_index = _index.size();
   _ukuran_index = (((_jml_index * sizeof(int)) / pagesize) + 1) * pagesize;
 
-  _idx_in_memory = (int*) mmap(NULL, _ukuran_index, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  _idx_in_memory = (int*) mmap(NULL, _ukuran_index, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
   for (int i = 0; i < _jml_index; ++i)
   {

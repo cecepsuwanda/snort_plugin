@@ -50,7 +50,7 @@ void Tdataframe::read_data_type(string nm_f)
   if (tmp.open_file())
   {
     tmp.read_file();
-    int i = 1;
+    int i = 0;
     while (!tmp.is_eof())
     {
       tmp_data = tmp.get_record();
@@ -270,7 +270,7 @@ void Tdataframe::stat_tabel()
 
       if (is_pass(tmp_data))
       {
-
+        //cout << "is_pass" << endl;
         if (is_index) {
           _data.add_index();
         }
@@ -286,7 +286,8 @@ void Tdataframe::stat_tabel()
             it->second += 1;
           }
         } else {
-          //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+           //cout << "data baru" << _jml_col << tmp_data.size() << endl;
+           //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
           _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
         }
 
@@ -542,6 +543,8 @@ void Tdataframe::write_data(vector<string> &data)
 
       _data.close_file();
 
+    }else{
+      cout << "Gagal Buka/Buat File !!!" << endl;
     }
   }
 }
