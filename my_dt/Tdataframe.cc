@@ -116,7 +116,14 @@ void Tdataframe::add_filter(int idx_col, field_filter filter)
 {
   _data.index_off();
   is_index = true;
-  _filter.insert(pair<int, field_filter>(idx_col, filter));
+  
+  unordered_map<int, field_filter>::iterator it; 
+  it = _filter.find(idx_col);
+  if(it == _filter.end()){
+     _filter.insert(pair<int, field_filter>(idx_col, filter));
+  }else{
+    cout << idx_col << "Filter Ganda !!! " << endl;
+  }
   stat_tabel();
   is_index = false;
   _data.index_on();
