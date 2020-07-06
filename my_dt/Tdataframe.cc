@@ -112,18 +112,11 @@ map<string, int> Tdataframe::get_unique_value(int idx_col)
   return tmp;
 }
 
-void Tdataframe::add_filter(int idx_col, field_filter filter)
+void Tdataframe::add_filter(field_filter filter)
 {
   _data.index_off();
   is_index = true;
-  
-  unordered_map<int, field_filter>::iterator it; 
-  it = _filter.find(idx_col);
-  if(it == _filter.end()){
-     _filter.insert(pair<int, field_filter>(idx_col, filter));
-  }else{
-    cout << idx_col << "Filter Ganda !!! " << endl;
-  }
+  _filter.push_back(filter);
   stat_tabel();
   is_index = false;
   _data.index_on();
@@ -142,24 +135,24 @@ bool Tdataframe::is_pass(vector<string> &data)
   bool pass = true;
   if (_filter.size() > 0)
   {
-    unordered_map<int, field_filter>::iterator it = _filter.begin();
+    vector<field_filter>::iterator it = _filter.begin();
     while ((it != _filter.end()) and pass)
     {
 
-      switch (it->second.idx_opt)
+      switch (it->idx_opt)
       {
       case 0 : {
-        pass = stof(data[it->first]) <= stof(it->second.value);
+        pass = stof(data[it->idx_col]) <= stof(it->value);
         break;
       }
       case 1 : {
 
-        pass = stof(data[it->first]) > stof(it->second.value);
+        pass = stof(data[it->idx_col]) > stof(it->value);
         break;
       }
       case 2 : {
-        string first_str = data[it->first];
-        string second_str = it->second.value;
+        string first_str = data[it->idx_col];
+        string second_str = it->value;
 
         to_lower(first_str);
         to_lower(second_str);
@@ -169,8 +162,8 @@ bool Tdataframe::is_pass(vector<string> &data)
         break;
       }
       case 3 : {
-        string first_str = data[it->first];
-        string second_str = it->second.value;
+        string first_str = data[it->idx_col];
+        string second_str = it->value;
 
         to_lower(first_str);
         to_lower(second_str);
@@ -237,19 +230,21 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
   if (_data_type[split_column] == "continuous.")
   {
     field_filter f;
+    f.idx_col = split_column;
     f.idx_opt = 0;
     f.value = split_value;
-    data_below.add_filter(split_column, f);
+    data_below.add_filter(f);
     f.idx_opt = 1;
-    data_above.add_filter(split_column, f);
+    data_above.add_filter(f);
 
   } else {
     field_filter f;
+    f.idx_col = split_column;
     f.idx_opt = 2;
     f.value = split_value;
-    data_below.add_filter(split_column, f);
+    data_below.add_filter(f);
     f.idx_opt = 3;
-    data_above.add_filter(split_column, f);
+    data_above.add_filter(f);
   }
 }
 

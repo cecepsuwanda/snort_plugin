@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
 
     cout << fixed << time_taken << setprecision(5) << endl;
 
-    //dec_tree.save_tree(df_save);
-    //dec_tree.read_tree(df_save);
-    //dec_tree.test(df_test);
+    dec_tree.save_tree(df_save);
+    dec_tree.read_tree(df_save);
+    dec_tree.test(df_test);
     
     return 0;
 }

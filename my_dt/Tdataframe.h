@@ -9,6 +9,7 @@ using namespace std;
 
 struct field_filter
 {
+  int idx_col;
   int idx_opt;
   string value;
 };
@@ -25,7 +26,7 @@ private:
   Tread_file _data;
   vector<string> _data_header;
   vector<string> _data_type;
-  unordered_map<int, field_filter> _filter;
+  vector<field_filter> _filter;
   map<string, int> _stat_label;
   
   int _jml_col = 0;
@@ -54,7 +55,7 @@ public:
   void read_data(string nm_f);
   void write_data(vector<string> &data);
   void read_data_type(string nm_f);
-  void add_filter(int idx_col, field_filter filter);
+  void add_filter(field_filter filter);
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
   map<string, int> get_unique_value(int idx_col);
   int getjmlcol();
