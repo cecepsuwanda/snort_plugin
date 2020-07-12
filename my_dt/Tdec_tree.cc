@@ -105,8 +105,6 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     Node root;
     root.treeIndex = 0;
     tree.push_back(root);
-
-
   }
 
   cout << "tree level : " << counter << endl;
@@ -116,7 +114,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     string tmp_str = create_leaf(df);
     cout << "label : " << tmp_str << endl;
     tree[node_index].isLeaf = true;
-    tree[node_index].attrValue = tmp_str;
+    tree[node_index].label = tmp_str;
     df.clear_memory();
   } else {
 
@@ -147,7 +145,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       string tmp_str = create_leaf(df);
       cout << "label : " << tmp_str << endl;
       tree[node_index].isLeaf = true;
-      tree[node_index].attrValue = tmp_str;
+      tree[node_index].label = tmp_str;
     } else {
       tree[node_index].criteriaAttrIndex = split_column;
 
@@ -179,18 +177,19 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       df_above.clear_memory();
       df_below.clear_memory();
 
-      if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].attrValue == tree[treeIndex_no].attrValue))
+      if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
       {
         cout << "tree level : " << counter << endl;
         cout << "label sama " << endl;
         tree[node_index].isLeaf = true;
-        tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
+        //tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
+        tree[node_index].label = tree[treeIndex_yes].label;
         tree[node_index].children.clear();
         tree[node_index].children.shrink_to_fit();
         tree.erase(tree.begin() + treeIndex_no);
         tree.erase(tree.begin() + treeIndex_yes);
         tree.shrink_to_fit();
-        cout << "label : " << tree[node_index].attrValue << endl;
+        cout << "label : " << tree[node_index].label << endl;
       }
 
     }
@@ -210,14 +209,14 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
   for (int i = 0; i < tree[treeIndex].children.size(); i++) {
     int next = tree[treeIndex].children[i];
 
-    if (tree[next].isLeaf)
-    {
-      return next;
-    } else {
+    //if (tree[next].isLeaf)
+    //{
+     // return next;
+   // } else {
       if (df.is_pass(tree[next].opt, data[criteriaAttrIndex], tree[next].attrValue)) {
         return dfs(df, data, next);
       }
-    }
+   // }
 
   }
 
@@ -231,7 +230,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
   if (leafNode == -1) {
     return "dfs failed";
   }
-  label = tree[leafNode].attrValue;
+  label = tree[leafNode].label;
   return label;
 }
 
@@ -310,7 +309,7 @@ void Tdec_tree::save_tree(Tdataframe &df)
 
   for (int i = 0; i < tree.size(); ++i)
   {
-    tmp_str = to_string(tree[i].criteriaAttrIndex) + "," + tree[i].attrValue + "," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
+    tmp_str = to_string(tree[i].criteriaAttrIndex) + "," + tree[i].attrValue + "," + tree[i].label + "," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
     
     if (tree[i].children.size() > 0)
     {
@@ -349,15 +348,16 @@ void Tdec_tree::read_tree(Tdataframe &df)
       //cout << tmp_data[0] << endl;
       newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
       newnode.attrValue = tmp_data[1];
+      newnode.label = tmp_data[2];
       //cout << tmp_data[2] << endl;
-      newnode.treeIndex = tmp_data[2] == "-1" ? -1 : stoi(tmp_data[2]);
-      newnode.isLeaf = tmp_data[3] == "1";
+      newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
+      newnode.isLeaf = tmp_data[4] == "1";
       //cout << tmp_data[4] << endl;
-      newnode.opt = tmp_data[4] == "-1" ? -1 : stoi(tmp_data[4]);
+      newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
       //cout << tmp_data[5] << endl;
-      newnode.children.push_back(tmp_data[5] == "-1" ? -1 :  stoi(tmp_data[5]));
-      //cout << tmp_data[6] << endl;
       newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
+      //cout << tmp_data[6] << endl;
+      newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
 
       tree.push_back(newnode);
 

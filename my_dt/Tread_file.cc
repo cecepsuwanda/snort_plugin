@@ -180,7 +180,7 @@ bool Tread_file::is_eof()
     }
     else
     {
-      return (_posisi == _sb.st_size);
+      return (_posisi >= _sb.st_size);
     }
 
   } else {

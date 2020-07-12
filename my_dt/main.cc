@@ -13,7 +13,9 @@ int main(int argc, char *argv[])
     df_test.read_data(argv[4]);
     df_test.read_data_type(argv[2]);
 
-    df_save.read_data(argv[5]);
+    cout << "train " << df_train.getjmlrow() << " test " << df_test.getjmlrow() << endl;
+
+    /*df_save.read_data(argv[5]);
 
     Tdec_tree dec_tree;
 
@@ -30,7 +32,7 @@ int main(int argc, char *argv[])
 
     dec_tree.save_tree(df_save);
     dec_tree.read_tree(df_save);
-    dec_tree.test(df_test);
+    dec_tree.test(df_test);*/
     
     return 0;
 }

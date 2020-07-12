@@ -5,6 +5,7 @@ class Node {
 public:
 	int criteriaAttrIndex;
 	string attrValue;
+	string label;
 
 	int treeIndex;
 	bool isLeaf;
@@ -15,6 +16,7 @@ public:
 	Node() {
 		criteriaAttrIndex = -1;
 		attrValue = "-1";
+		label = "-1";
 		treeIndex = -1;
 		isLeaf = false;
 		opt = -1;
