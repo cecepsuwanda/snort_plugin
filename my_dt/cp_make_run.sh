@@ -8,3 +8,4 @@ cp -rf /mnt/e/snort_plugin/my_dt/main.cc .
 make
 clear
 ./my_dt 5 data/kddcup.names data/train_full_corrected.csv data/test_full_correctd.csv data/dc_full_tree_dp5.csv 
+#./my_dt 5 data/rekomendasi.names data/rekomendasi.csv data/rekomendasi.csv data/rekomendasi_tree.csv

@@ -269,9 +269,10 @@ void Tdataframe::stat_tabel()
     while (!_data.is_eof())
     {
       tmp_data = _data.get_record();
-
+      
       if (is_pass(tmp_data))
       {
+        
         //cout << "is_pass" << endl;
         if (is_index) {
           _data.add_index();
@@ -311,7 +312,8 @@ void Tdataframe::stat_tabel()
     cout << "Gagal buka file !!!" << endl;
   }
   _jml_row = i;
-}
+  //cout << _jml_row << endl ;
+} 
 
 map<string, int> Tdataframe::get_stat_label()
 {

@@ -132,9 +132,12 @@ void Tread_file::read_file()
         strncat(str, &tmp, 1);
         _posisi++;
       }
-      char tmp = _file_in_memory[_posisi];
+      char tmp = _file_in_memory[_posisi];      
       strncat(str, &tmp, 1);
-      //cout << str << endl;
+      
+      // if(_b_posisi==0)
+      //    cout << str << endl;
+      
       _posisi++;
     }
     _data = tokenizer(str, _separator);
@@ -180,7 +183,7 @@ bool Tread_file::is_eof()
     }
     else
     {
-      return (_posisi >= _sb.st_size);
+      return (_posisi > _sb.st_size);
     }
 
   } else {
