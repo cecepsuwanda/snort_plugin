@@ -50,9 +50,9 @@ void Tdataframe::read_data_type(string nm_f)
   if (tmp.open_file())
   {
     tmp.read_file();
-    int i = 1;
+    int i = 0;
     while (!tmp.is_eof())
-    { 
+    {
       tmp_data = tmp.get_record();
       _data_header.push_back(tmp_data[0]);
       _data_type.push_back(tmp_data[1]);
@@ -61,10 +61,10 @@ void Tdataframe::read_data_type(string nm_f)
       tmp_data.shrink_to_fit();
       i++;
     }
-    _jml_col = i;    
+    _jml_col = i;
     tmp.close_file();
   } else {
-    cout << "Gagal buka "<< nm_f <<" !!!" << endl;
+    cout << "Gagal buka " << nm_f << " !!!" << endl;
   }
 
   stat_tabel();
@@ -112,10 +112,22 @@ map<string, int> Tdataframe::get_unique_value(int idx_col)
   return tmp;
 }
 
-void Tdataframe::add_filter(int idx_col, field_filter filter)
+void Tdataframe::add_filter(field_filter filter)
 {
-  _filter.insert(pair<int, field_filter>(idx_col, filter));
+  _data.index_off();
+  is_index = true;
+  _filter.push_back(filter);
   stat_tabel();
+  is_index = false;
+  _data.index_on();
+}
+
+void Tdataframe::to_lower(string &str)
+{
+  for (int i = 0; i < str.length(); ++i)
+  {
+    str[i] = toupper(str[i]);
+  }
 }
 
 bool Tdataframe::is_pass(vector<string> &data)
@@ -123,28 +135,40 @@ bool Tdataframe::is_pass(vector<string> &data)
   bool pass = true;
   if (_filter.size() > 0)
   {
-    unordered_map<int, field_filter>::iterator it = _filter.begin();
+    vector<field_filter>::iterator it = _filter.begin();
     while ((it != _filter.end()) and pass)
     {
-      switch (it->second.idx_opt)
+
+      switch (it->idx_opt)
       {
-      case 0 : {        
-        pass = stof(data[it->first]) <= stof(it->second.value);
+      case 0 : {
+        pass = stof(data[it->idx_col]) <= stof(it->value);
         break;
       }
       case 1 : {
-        
-        pass = stof(data[it->first]) > stof(it->second.value);
+
+        pass = stof(data[it->idx_col]) > stof(it->value);
         break;
       }
       case 2 : {
+        string first_str = data[it->idx_col];
+        string second_str = it->value;
 
-        pass = data[it->first] == it->second.value;
+        to_lower(first_str);
+        to_lower(second_str);
+
+        pass = first_str == second_str;
 
         break;
       }
       case 3 : {
-        pass = data[it->first] != it->second.value;
+        string first_str = data[it->idx_col];
+        string second_str = it->value;
+
+        to_lower(first_str);
+        to_lower(second_str);
+
+        pass = first_str != second_str;
         break;
       }
       }
@@ -163,23 +187,35 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
   switch (opt)
   {
   case 0 : {
-    //cout << value1 << " <= " << value2 << endl;
+    //cout << value1 << " " << value2 << endl;
     pass = stof(value1) <= stof(value2);
     break;
   }
   case 1 : {
-    //cout << value1 << " > " << value2 << endl;
+    //cout << value1 << " " << value2 << endl;
     pass = stof(value1) > stof(value2);
     break;
   }
   case 2 : {
-    //cout << value1 << " == " << value2 << endl;
-    pass = value1 == value2;
+
+    string first_str = value1;
+    string second_str = value2;
+
+    to_lower(first_str);
+    to_lower(second_str);
+
+    pass = first_str == second_str;
     break;
   }
   case 3 : {
-    //cout << value1 << " != " << value2 << endl;
-    pass = value1 != value2;
+
+    string first_str = value1;
+    string second_str = value2;
+
+    to_lower(first_str);
+    to_lower(second_str);
+
+    pass = first_str != second_str;
     break;
   }
   }
@@ -189,23 +225,26 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
 
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
+  _data.clear_memory();
   //cout << "split_data"<<endl;
   if (_data_type[split_column] == "continuous.")
   {
     field_filter f;
+    f.idx_col = split_column;
     f.idx_opt = 0;
     f.value = split_value;
-    data_below.add_filter(split_column, f);
+    data_below.add_filter(f);
     f.idx_opt = 1;
-    data_above.add_filter(split_column, f);
+    data_above.add_filter(f);
 
   } else {
     field_filter f;
+    f.idx_col = split_column;
     f.idx_opt = 2;
     f.value = split_value;
-    data_below.add_filter(split_column, f);
+    data_below.add_filter(f);
     f.idx_opt = 3;
-    data_above.add_filter(split_column, f);
+    data_above.add_filter(f);
   }
 }
 
@@ -217,6 +256,12 @@ void Tdataframe::stat_tabel()
 
   _stat_label.clear();
 
+  _data.file_map();
+
+  if (is_index) {
+    _data.clear_index();
+  }
+
   int i = 0;
   if (_data.open_file())
   {
@@ -224,21 +269,29 @@ void Tdataframe::stat_tabel()
     while (!_data.is_eof())
     {
       tmp_data = _data.get_record();
+      
       if (is_pass(tmp_data))
       {
+        
+        //cout << "is_pass" << endl;
+        if (is_index) {
+          _data.add_index();
+        }
+
         if (_stat_label.size() > 0)
         {
-          it = _stat_label.find(tmp_data[_jml_col-1]);
+          it = _stat_label.find(tmp_data[_jml_col - 1]);
           if (it == _stat_label.end())
           {
-             //cout << _jml_col-1 << " " << tmp_data[_jml_col-1] << endl;
-            _stat_label.insert(pair<string, int>(tmp_data[_jml_col-1], 1));
+            //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+            _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
           } else {
             it->second += 1;
           }
         } else {
-           //cout << _jml_col-1 << " " << tmp_data[_jml_col-1] << endl;
-          _stat_label.insert(pair<string, int>(tmp_data[_jml_col-1], 1));
+           //cout << "data baru" << _jml_col << tmp_data.size() << endl;
+           //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+          _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
         }
 
         i++;
@@ -249,12 +302,18 @@ void Tdataframe::stat_tabel()
       _data.next_record();
     }
 
+    if (is_index) {
+      _data.save_to_memory();
+      _data.clear_index();
+    }
+
     _data.close_file();
   } else {
     cout << "Gagal buka file !!!" << endl;
   }
   _jml_row = i;
-}
+  //cout << _jml_row << endl ;
+} 
 
 map<string, int> Tdataframe::get_stat_label()
 {
@@ -323,7 +382,7 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
 
 void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value)
 {
-  //cout << "calculate_overall_metric "<< idx <<endl;
+  // cout << "          calculate_overall_metric "<< get_nm_header(idx) <<endl;
   float best_overall_metric = 999;
   string tmp_split_value;
   map<string, pot_struct>::iterator it, it1;
@@ -400,7 +459,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col
         }
       }
 
-      jml = _jml_row_below + _jml_row_below;
+      jml = _jml_row_below + _jml_row_above;
       p_dt_below = (float) _jml_row_below / jml;
       p_dt_above = (float) _jml_row_above / jml;
 
@@ -421,6 +480,13 @@ void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col
       }
 
       overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+
+      // if(get_nm_header(idx)=="hot")
+      // { 
+      //    cout << "                    split_value " << it->first  << endl;
+      //    cout << "                    jml_row_below " << _jml_row_below << " jml_row_above " << _jml_row_above  << endl;
+      //    cout << "                    overall_metric " << overall_metric << endl;
+      // }  
 
       if (first_iteration or (overall_metric <= best_overall_metric))
       {
@@ -488,6 +554,8 @@ void Tdataframe::write_data(vector<string> &data)
 
       _data.close_file();
 
+    }else{
+      cout << "Gagal Buka/Buat File !!!" << endl;
     }
   }
 }
@@ -520,4 +588,9 @@ void Tdataframe::next_record()
 vector<string> Tdataframe::get_record()
 {
   return _data.get_record();
+}
+
+void Tdataframe::clear_memory()
+{
+  _data.clear_memory();
 }
