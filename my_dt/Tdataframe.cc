@@ -382,7 +382,7 @@ void Tdataframe::get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_sp
 
 void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value)
 {
-  //cout << "calculate_overall_metric "<< idx <<endl;
+  // cout << "          calculate_overall_metric "<< get_nm_header(idx) <<endl;
   float best_overall_metric = 999;
   string tmp_split_value;
   map<string, pot_struct>::iterator it, it1;
@@ -480,6 +480,13 @@ void Tdataframe::calculate_overall_metric(int idx, map<string, pot_struct> &_col
       }
 
       overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+
+      // if(get_nm_header(idx)=="hot")
+      // { 
+      //    cout << "                    split_value " << it->first  << endl;
+      //    cout << "                    jml_row_below " << _jml_row_below << " jml_row_above " << _jml_row_above  << endl;
+      //    cout << "                    overall_metric " << overall_metric << endl;
+      // }  
 
       if (first_iteration or (overall_metric <= best_overall_metric))
       {

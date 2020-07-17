@@ -19,20 +19,22 @@ int main(int argc, char *argv[])
 
     Tdec_tree dec_tree;
 
-    clock_t start, end;
-    start = clock();
+    // clock_t start, end;
+    // start = clock();
 
     dec_tree.train(df_train,0,0,2,stoi(argv[1]));
 
-    end = clock();
+    // end = clock();
 
-    double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+    // double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
 
-    cout << fixed << time_taken << setprecision(5) << endl;
+    // cout << fixed << time_taken << setprecision(5) << endl;
 
     dec_tree.save_tree(df_save);
     dec_tree.read_tree(df_save);
+    cout << "Depth : " << argv[1];
     dec_tree.test(df_test);
-    
+    cout << " train : " << argv[3] << " test : "<< argv[4] << endl;
+
     return 0;
 }
