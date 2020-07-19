@@ -599,7 +599,7 @@ static const InspectApi dpx_api
     mod_ctor,
     mod_dtor
   },
-  IT_PROBE,
+  IT_PACKET,
   PROTO_BIT__ANY_IP,
   nullptr, // buffers
   nullptr, // service
