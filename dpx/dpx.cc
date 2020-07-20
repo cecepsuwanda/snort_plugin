@@ -116,7 +116,7 @@ bool TPkey::operator<(const TPkey& other) const
 class Dpx : public Inspector
 {
 public:
-  Dpx(uint16_t port, uint16_t max);
+  Dpx(string f_model, string f_log);
 
   void show(const SnortConfig*) const override;
   void eval(Packet*) override;
@@ -125,8 +125,11 @@ public:
   void tterm() override;
 
 private:
-  uint16_t port;
-  uint16_t max;
+  /*uint16_t port;
+  uint16_t max;*/
+
+  string file_model;
+  string file_log;
 
   Tdec_tree dec_tree;
   Tdataframe df_save;
@@ -142,14 +145,19 @@ private:
   FeatureExtractor::IpFragment *getIpFragment(Packet *);
 };
 
-Dpx::Dpx(uint16_t p, uint16_t m)
+Dpx::Dpx(string f_model, string f_log)
 {
-  port = p;
-  max = m;
+  /*port = p;
+  max = m;*/
+
+  file_model = f_model;
+  file_log = f_log;
 
   string path = SnortConfig::get_conf()->log_dir;
+  
+  cout << file_model << endl;
 
-  df_save.read_data(path + "/dc_tree.csv");
+  df_save.read_data(path + "/" + file_model); //"/dc_tree.csv"
   dec_tree.read_tree(df_save);
 
   config = new FeatureExtractor::Config();
@@ -160,8 +168,8 @@ Dpx::Dpx(uint16_t p, uint16_t m)
 
 void Dpx::show(const SnortConfig*) const
 {
-  ConfigLogger::log_value("port", port);
-  ConfigLogger::log_value("max", max);
+  /*ConfigLogger::log_value("file_model", file_model);
+  ConfigLogger::log_value("file_log", file_log);*/
 }
 
 vector<string> Dpx::get_attr(FeatureExtractor::ConversationFeatures *cf) {
@@ -415,7 +423,7 @@ void Dpx::eval(Packet* p)
 
     tmp = get_attr(cf);
     tmp_str = dec_tree.guess(df_save, tmp);
-    if (tmp_str == "neptune.") {
+    if (tmp_str != "normal.") {
       for (int i = 0; i < tmp.size(); i++)
       {
         cout << tmp[i];
@@ -485,7 +493,7 @@ FeatureExtractor::IpFragment *Dpx::getIpFragment(Packet *packet) {
 void Dpx::tinit()
 {
   size_t limit = 0;
-  string file = "alert_dpx.csv";
+  string file = file_log;//"alert_dpx.csv";
   csv_log = TextLog_Init(file.c_str(), LOG_BUFFER, limit);
 }
 
@@ -502,13 +510,18 @@ void Dpx::tterm()
 
 static const Parameter dpx_params[] =
 {
-  { "port", Parameter::PT_PORT, nullptr, nullptr,
+  {"file_model",  Parameter::PT_STRING, nullptr, nullptr,
+                        "file model data mining"},
+  {"file_log",  Parameter::PT_STRING, nullptr, nullptr,
+                        "file log"},                      
+
+  /*{ "port", Parameter::PT_PORT, nullptr, nullptr,
     "port to check"
   },
 
   { "max", Parameter::PT_INT, "0:65535", "0",
     "maximum payload before alert"
-  },
+  },*/
 
   { nullptr, Parameter::PT_MAX, nullptr, nullptr, nullptr }
 };
@@ -546,17 +559,24 @@ public:
   { return INSPECT; }
 
 public:
-  uint16_t port;
-  uint16_t max;
+  /*uint16_t port;
+  uint16_t max;*/
+  string file_model;
+  string file_log;
 };
 
 bool DpxModule::set(const char*, Value& v, SnortConfig*)
 {
-  if ( v.is("port") )
+  /*if ( v.is("port") )
     port = v.get_long();
 
   else if ( v.is("max") )
-    max = v.get_long();
+    max = v.get_long();*/
+  if ( v.is("file_model") )
+    file_model = v.get_string();
+
+  else if ( v.is("file_log") )
+    file_log = v.get_string();
 
   else
     return false;
@@ -577,7 +597,7 @@ static void mod_dtor(Module* m)
 static Inspector* dpx_ctor(Module* m)
 {
   DpxModule* mod = (DpxModule*)m;
-  return new Dpx(mod->port, mod->max);
+  return new Dpx(mod->file_model, mod->file_log);
 }
 
 static void dpx_dtor(Inspector* p)
