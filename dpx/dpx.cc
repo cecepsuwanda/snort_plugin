@@ -244,8 +244,8 @@ void Dpx::save_csv(FeatureExtractor::ConversationFeatures *cf, string label) {
   //myfile << ft->get_dst_port() << ',';
 
   //myfile << std::setprecision(10) << (cf->get_conversation()->get_duration_ms() / 1000) << ",";//<< "duration       : "
-  
-  TextLog_Print(csv_log,"%.10f",(cf->get_conversation()->get_duration_ms() / 1000));
+
+  TextLog_Print(csv_log, "%.10f", (cf->get_conversation()->get_duration_ms() / 1000));
   TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << cf->get_conversation()->get_protocol_type_str() << ",";//<< "protocol_type  : "
@@ -261,14 +261,14 @@ void Dpx::save_csv(FeatureExtractor::ConversationFeatures *cf, string label) {
   //myfile << cf->get_conversation()->get_state_str() << ",";//<< "flag           : "
   tmp_str = cf->get_conversation()->get_state_str();
   TextLog_Puts(csv_log, tmp_str.c_str());
-  TextLog_Puts(csv_log, sep.c_str());  
+  TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << std::setprecision(10) <<  cf->get_conversation()->get_src_bytes() << ",";//<< "src_bytes      : "
-  TextLog_Print(csv_log,"%.10f",cf->get_conversation()->get_src_bytes());
-  TextLog_Puts(csv_log, sep.c_str());  
+  TextLog_Print(csv_log, "%.10f", cf->get_conversation()->get_src_bytes());
+  TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << std::setprecision(10) <<  cf->get_conversation()->get_dst_bytes() << ",";//<< "dst_bytes      : "
-  TextLog_Print(csv_log,"%.10f",cf->get_conversation()->get_dst_bytes());
+  TextLog_Print(csv_log, "%.10f", cf->get_conversation()->get_dst_bytes());
   TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << cf->get_conversation()->land() << ",";//<< "land           : "
@@ -278,106 +278,106 @@ void Dpx::save_csv(FeatureExtractor::ConversationFeatures *cf, string label) {
 
 
   //myfile << std::setprecision(10) <<  cf->get_conversation()->get_wrong_fragments() << ",";//<< "wrong_fragment : "
-  TextLog_Print(csv_log,"%.10f",cf->get_conversation()->get_wrong_fragments());
-  TextLog_Puts(csv_log, sep.c_str());  
+  TextLog_Print(csv_log, "%.10f", cf->get_conversation()->get_wrong_fragments());
+  TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) <<  cf->get_conversation()->get_urgent_packets() << ",";//<< "urgent         : "
-  TextLog_Print(csv_log,"%.10f",cf->get_conversation()->get_urgent_packets());
+  TextLog_Print(csv_log, "%.10f", cf->get_conversation()->get_urgent_packets());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_count() << ",";//<< "count             : "
-  TextLog_Print(csv_log,"%.10f",cf->get_count());
+  TextLog_Print(csv_log, "%.10f", cf->get_count());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_srv_count() << ",";//<< "srv_count         : "
-  TextLog_Print(csv_log,"%.10f",cf->get_srv_count());
+  TextLog_Print(csv_log, "%.10f", cf->get_srv_count());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_serror_rate() << ","; //<< "serror_rate       : "
-  TextLog_Print(csv_log,"%.10f",cf->get_serror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_serror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_srv_serror_rate() << ","; //<< "srv_serror_rate   : "
-  TextLog_Print(csv_log,"%.10f",cf->get_srv_serror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_srv_serror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_rerror_rate() << ","; //<< "rerror_rate       : "
-  TextLog_Print(csv_log,"%.10f",cf->get_rerror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_rerror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_srv_rerror_rate() << ","; //<< "srv_rerror_rate   : "
-  TextLog_Print(csv_log,"%.10f",cf->get_srv_rerror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_srv_rerror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_same_srv_rate() << ","; //<< "same_srv_rate     : "
-  TextLog_Print(csv_log,"%.10f",cf->get_same_srv_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_same_srv_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_diff_srv_rate() << ","; //<< "diff_srv_rate     : "
-  TextLog_Print(csv_log,"%.10f",cf->get_diff_srv_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_diff_srv_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_srv_diff_host_rate() << ","; //<< "srv_diff_host_rate : "
-  TextLog_Print(csv_log,"%.10f",cf->get_srv_diff_host_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_srv_diff_host_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_count() << ","; //<< "dst_host_count     : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_count());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_count());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_srv_count() << ","; //<< "dst_host_srv_count : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_srv_count());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_srv_count());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_same_srv_rate() << ","; //<< "dst_host_same_srv_rate : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_same_srv_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_same_srv_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_diff_srv_rate() << ","; //<< "dst_host_diff_srv_rate : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_diff_srv_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_diff_srv_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_same_src_port_rate() << ","; //<< "dst_host_same_src_port_rate : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_same_src_port_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_same_src_port_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_srv_diff_host_rate() << ","; //<< "dst_host_srv_diff_host_rate : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_srv_diff_host_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_srv_diff_host_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_serror_rate() << ",";//<< "dst_host_serror_rate        : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_serror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_serror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
   //myfile << std::setprecision(10) << cf->get_dst_host_srv_serror_rate() << ","; //<< "dst_host_srv_serror_rate    : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_srv_serror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_srv_serror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
 
- // myfile << std::setprecision(10) << cf->get_dst_host_rerror_rate() << ",";//<< "dst_host_rerror_rate        : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_rerror_rate());
+// myfile << std::setprecision(10) << cf->get_dst_host_rerror_rate() << ",";//<< "dst_host_rerror_rate        : "
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_rerror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << std::setprecision(10) << cf->get_dst_host_srv_rerror_rate() << ","; //<< "dst_host_srv_rerror_rate    : "
-  TextLog_Print(csv_log,"%.10f",cf->get_dst_host_srv_rerror_rate());
+  TextLog_Print(csv_log, "%.10f", cf->get_dst_host_srv_rerror_rate());
   TextLog_Puts(csv_log, sep.c_str());
 
   //myfile << label << "\n";
@@ -386,8 +386,8 @@ void Dpx::save_csv(FeatureExtractor::ConversationFeatures *cf, string label) {
   //TextLog_Puts(csv_log, sep.c_str());
   //myfile.close();
 
-    TextLog_NewLine(csv_log);
-    TextLog_Flush(csv_log);
+  TextLog_NewLine(csv_log);
+  TextLog_Flush(csv_log);
 }
 
 void Dpx::eval(Packet* p)
@@ -414,17 +414,17 @@ void Dpx::eval(Packet* p)
     conv = nullptr;        // Should not be used anymore, object will commit suicide
 
     tmp = get_attr(cf);
-    for (int i = 0; i < tmp.size(); i++)
-    {
-      cout << tmp[i];
-      if (i < (tmp.size() - 1))
-      {
-        cout << "  " ;
-      }
-    }
-    //cout << endl;
     tmp_str = dec_tree.guess(df_save, tmp);
-    if (tmp_str != "normal.") {
+    if (tmp_str == "neptune.") {
+      for (int i = 0; i < tmp.size(); i++)
+      {
+        cout << tmp[i];
+        if (i < (tmp.size() - 1))
+        {
+          cout << "  " ;
+        }
+      }
+
       cout << tmp_str << endl;
     }
     save_csv(cf, tmp_str);
@@ -484,15 +484,15 @@ FeatureExtractor::IpFragment *Dpx::getIpFragment(Packet *packet) {
 
 void Dpx::tinit()
 {
-    size_t limit = 0;
-    string file="alert_dpx.csv";
-    csv_log = TextLog_Init(file.c_str(), LOG_BUFFER, limit);
+  size_t limit = 0;
+  string file = "alert_dpx.csv";
+  csv_log = TextLog_Init(file.c_str(), LOG_BUFFER, limit);
 }
 
 void Dpx::tterm()
 {
-    if ( csv_log )
-        TextLog_Term(csv_log);
+  if ( csv_log )
+    TextLog_Term(csv_log);
 }
 
 
