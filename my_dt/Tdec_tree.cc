@@ -274,7 +274,7 @@ void Tdec_tree::test(Tdataframe &df)
           tepat++;
         }
 
-        if ((tmp_str1 != "normal.") and (tmp_str != "normal."))
+       /* if ((tmp_str1 != "normal.") and (tmp_str != "normal."))
         {
           TP++;
         }
@@ -292,7 +292,7 @@ void Tdec_tree::test(Tdataframe &df)
         if ((tmp_str1 != "normal.") and (tmp_str == "normal."))
         {
           FN++;
-        }
+        }*/
 
       } else {
         failed++;
@@ -303,8 +303,8 @@ void Tdec_tree::test(Tdataframe &df)
     }
 
     df.close_file();
-    // cout << "Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
-    cout << " TP : " << TP << " TN : " << TN << " FP : " << FP << " FN : " << FN ;
+    cout << "Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
+    //cout << " TP : " << TP << " TN : " << TN << " FP : " << FP << " FN : " << FN ;
   } else {
     cout << "Gagal buka file !!!" << endl;
   }

@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     // cout << fixed << time_taken << setprecision(5) << endl;
 
     dec_tree.save_tree(df_save);
+    
     dec_tree.read_tree(df_save);
     cout << "Depth : " << argv[1];
     dec_tree.test(df_test);
