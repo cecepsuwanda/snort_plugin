@@ -244,67 +244,43 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
 
 void Tdec_tree::test(Tdataframe &df)
 {
+  
+  Tconf_metrix conf_metrix;
   vector<string> tmp_data;
   string tmp_str, tmp_str1;
-  int TP = 0, TN = 0, FP = 0, FN = 0;
+  
 
   if (df.open_file())
   {
-    int jml_data = 0;
-    int tepat = 0;
+    
     int failed = 0;
     df.read_file();
     while (!df.is_eof()) {
 
       tmp_data = df.get_record();
-      //cout << tmp_data.size() << endl;
 
       tmp_str1 = tmp_data[tmp_data.size() - 1];
-      //cout << tmp_str1 << endl;
 
       tmp_data.erase(tmp_data.end());
-      //cout << tmp_data.size() << endl;
 
       tmp_str = guess(df, tmp_data);
-
       if (tmp_str != "dfs failed")
       {
-        if (tmp_str == tmp_str1)
-        {
-          tepat++;
-        }
-
-       /* if ((tmp_str1 != "normal.") and (tmp_str != "normal."))
-        {
-          TP++;
-        }
-
-        if ((tmp_str1 == "normal.") and (tmp_str == "normal."))
-        {
-          TN++;
-        }
-
-        if ((tmp_str1 == "normal.") and (tmp_str != "normal."))
-        {
-          FP++;
-        }
-
-        if ((tmp_str1 != "normal.") and (tmp_str == "normal."))
-        {
-          FN++;
-        }*/
+        
+        conf_metrix.add_jml(tmp_str1,tmp_str,1);
 
       } else {
         failed++;
       }
 
       df.next_record();
-      jml_data++;
+      
     }
 
     df.close_file();
-    cout << "Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
-    //cout << " TP : " << TP << " TN : " << TN << " FP : " << FP << " FN : " << FN ;
+    //cout << " Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
+    conf_metrix.kalkulasi();
+    cout << conf_metrix << endl;
   } else {
     cout << "Gagal buka file !!!" << endl;
   }

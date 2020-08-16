@@ -33,9 +33,8 @@ int main(int argc, char *argv[])
     dec_tree.save_tree(df_save);
     
     dec_tree.read_tree(df_save);
-    cout << "Depth : " << argv[1];
+    cout << "Depth : " << argv[1] << " train : " << argv[3] << " test : "<< argv[4] << endl;
     dec_tree.test(df_test);
-    cout << " train : " << argv[3] << " test : "<< argv[4] << endl;
-
+    
     return 0;
 }
