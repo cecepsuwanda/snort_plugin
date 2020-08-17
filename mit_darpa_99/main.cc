@@ -9,9 +9,6 @@
 using namespace std;
 
 
-
-
-
 int main()
 {
     Tolah_label olah_label;
@@ -42,7 +39,7 @@ int main()
             for (int k = 0; k < 2; k++)
             {*/
 
-                nm_file = path+"/4w_friday_in.csv"  ; //+ "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                nm_file = path+"/4w_friday_out.csv"  ; //+ "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
                 cout << nm_file << endl;
 
                 f.setnm_f(nm_file);
