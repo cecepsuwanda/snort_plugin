@@ -951,7 +951,7 @@ string Tolah_label::labeli(vector<string> row)
 {
 
   bool is_cetak = false;
-  string label = "normal,Nan";
+  string label = "normal.";//"normal,Nan";
 
 
   string tmp_row = row[0];
@@ -973,12 +973,12 @@ string Tolah_label::labeli(vector<string> row)
         if (is_attacker_pass(row[1], tmp_field->Attacker, tmp_field->At_Attacker)) {
           if (is_victim_pass(row[2], tmp_field->Victim, tmp_field->At_Victim)) {
             is_cetak = true;
-            label = tmp_field->Name + "," + tmp_field->ID;
+            label = tmp_field->Name + "."; //tmp_field->Name + "," + tmp_field->ID;
 
           }
         }
 
-        if (!is_cetak)
+        /*if (!is_cetak)
         {
           if (is_attacker_pass(row[2], tmp_field->Attacker, tmp_field->At_Attacker)) {
             if (is_victim_pass(row[1], tmp_field->Victim, tmp_field->At_Victim)) {
@@ -987,10 +987,10 @@ string Tolah_label::labeli(vector<string> row)
               cout << "Dibalik" << endl;
             }
           }
-        }
-        if((tmp.tanggal==29)and(tmp.bulan==3)and(row[7]=="172.16.112.50:23")){
+        }*/
+        /*if((tmp.tanggal==29)and(tmp.bulan==3)and(row[7]=="172.16.112.50:23")){
           cout << new_tgl.cetak() << row[6] << " " << row[7] << endl;
-        }
+        }*/
         
         //cout << tmp_field->ID << endl;
       }

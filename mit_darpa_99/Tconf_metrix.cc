@@ -73,18 +73,18 @@ void Tconf_metrix::kalkulasi()
 			tmp_data.FN = get_FN(it->first);
 			tmp_data.FP = get_FP(it->first);
 			tmp_data.TN = get_TN(it->first);
-			tmp_data.jml = tmp_data.TP+tmp_data.FN;
+			tmp_data.jml = tmp_data.TP + tmp_data.FN;
 			tmp_data.accuracy = 0;
-			if((tmp_data.TP+tmp_data.FP)>0){
-			  tmp_data.accuracy =  tmp_data.TP / (double)(tmp_data.TP+tmp_data.FP);
+			if ((tmp_data.TP + tmp_data.FP) > 0) {
+				tmp_data.accuracy =  tmp_data.TP / (double)(tmp_data.TP + tmp_data.FP);
 			}
 			tmp_data.recall = 0;
-            if((tmp_data.jml)>0){
-			  tmp_data.recall =  tmp_data.TP / (double) tmp_data.jml;
+			if ((tmp_data.jml) > 0) {
+				tmp_data.recall =  tmp_data.TP / (double) tmp_data.jml;
 			}
 			tmp_data.specificity = 0;
-            if((tmp_data.TN+tmp_data.FP)>0){
-			  tmp_data.specificity =  tmp_data.TN / (double)(tmp_data.TN+tmp_data.FP);
+			if ((tmp_data.TN + tmp_data.FP) > 0) {
+				tmp_data.specificity =  tmp_data.TN / (double)(tmp_data.TN + tmp_data.FP);
 			}
 
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
@@ -181,10 +181,22 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100) << endl;
 
 	if (tc.matrik1.size() > 0) {
-		out << "   Confusion Metrik     : " << endl;
-		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10) << "recall" << setw(13) << "specificity" << endl;  
+
+		out << "   Konfusion Metrik    : " << endl;
+
+		for (auto it = tc.matrik.begin(); it != tc.matrik.end(); ++it)
+		{
+			out << "   " << it->first << endl;
+			for (auto it1 = it->second.begin(); it1 != it->second.end(); ++it1)
+			{
+               out << "      " << it1->first << ":" << it1->second << endl;
+			}
+		}
+
+		out << "   Hasil Kalkulasi     : " << endl;
+		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10) << "recall" << setw(13) << "specificity" << endl;
 		for (auto it = tc.matrik1.begin(); it != tc.matrik1.end(); ++it)
-		{			
+		{
 			out << setw(30) << it->first;
 			out << setw(10) << it->second.TP;
 			out << setw(10) << it->second.FN;
