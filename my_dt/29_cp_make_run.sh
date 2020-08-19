@@ -41,8 +41,8 @@ clear
 # wait
 # ./my_dt 17 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp17.csv
 # wait
-./my_dt 18 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp18.csv
-wait
+#./my_dt 18 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp18.csv
+#wait
 # ./my_dt 19 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp19.csv
 # wait
 # ./my_dt 20 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp20.csv
@@ -65,6 +65,6 @@ wait
 # wait
 # ./my_dt 29 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp29.csv
 # wait
-# ./my_dt 30 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp30.csv
-# wait
+./my_dt 30 data/train.names data/train_corrected.csv data/test_corrected.csv data/dc_tree_dp30.csv
+wait
 #./my_dt 5 data/rekomendasi.names data/rekomendasi.csv data/rekomendasi.csv data/rekomendasi_tree.csv

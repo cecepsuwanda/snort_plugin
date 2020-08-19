@@ -9,12 +9,12 @@
 using namespace std;
 
 
-int main()
+int main(int argc, char *argv[])
 {
     Tolah_label olah_label;
     Tconf_metrix conf_metrix;
 
-    olah_label.setnm_f("data/master_identifications.list");
+    olah_label.setnm_f(argv[1]); //"data/master_identifications.list"
     olah_label.baca_file();
 
     Tread_file f;
@@ -25,7 +25,7 @@ int main()
 
     g.open_file("w+");*/
 
-    string path = "../my_dt/data"; //"data/snort_alert_csv/any_rule/";
+    //string path = "../my_dt/data"; "data/snort_alert_csv/any_rule/";
     /*string hari[5] = {"monday", "tuesday", "wednesday", "thursday", "friday"};
     int week[2] = {4, 5};
     string dir[2] = {"out", "in"};*/
@@ -39,7 +39,7 @@ int main()
             for (int k = 0; k < 2; k++)
             {*/
 
-                nm_file = path+"/4w_friday_out.csv"  ; //+ "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                nm_file = argv[2];//path+"/4w_friday_out.csv"  ; + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
                 cout << nm_file << endl;
 
                 f.setnm_f(nm_file);

@@ -8,4 +8,4 @@ cp -rf /mnt/e/snort_plugin/mit_darpa_99/Tconf_metrix.* .
 cp -rf /mnt/e/snort_plugin/mit_darpa_99/main.cc .
 make
 
-./labeling
+./labeling data/master_identifications.list ../my_dt/data/4w_friday_out.csv
