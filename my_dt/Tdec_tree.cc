@@ -233,12 +233,13 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
 
 string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
 {
-  string label = "";
+  string label = "failed.";
   int leafNode = dfs(df, data, 0);
   if (leafNode == -1) {
-    return "dfs failed";
+    return "dfs_failed.";
+  }else{
+     label = tree[leafNode].label;
   }
-  label = tree[leafNode].label;
   return label;
 }
 

@@ -842,9 +842,9 @@ bool Tolah_label::compare_port(int port1, string port2)
   return is_pass;
 }
 
-int Tolah_label::waktu_to_sec(twaktu waktu, int add12)
+int Tolah_label::waktu_to_sec(twaktu waktu, int add12, int add4)
 {
-  return (((waktu.jam + add12) % 24) * 3600) + (waktu.menit * 60) + waktu.detik;
+  return (((waktu.jam + add12) % 24) * 3600) + (waktu.menit * 60) + (waktu.detik+add4);
 }
 
 bool Tolah_label::is_date_pass(vector<string> &row, field_filter *field)
@@ -873,11 +873,11 @@ bool Tolah_label::is_waktu_pass(vector<string> &row, field_filter *field)
   vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
   twaktu tmp = waktu_frag(data[1]);
 
-  int tmp_sec = waktu_to_sec(tmp, 0);
-  int start_time_sec = waktu_to_sec(field->Start_Time, 12);
-  int duration_sec = waktu_to_sec(field->Duration, 0);
+  int tmp_sec = waktu_to_sec(tmp, 0,0);
+  int start_time_sec = waktu_to_sec(field->Start_Time, 12,-4);
+  int duration_sec = waktu_to_sec(field->Duration, 0,0);
 
-  if (tmp_sec > start_time_sec)
+  if (tmp_sec >= start_time_sec)
   {
     is_pass = (tmp_sec - start_time_sec) <= duration_sec;
   }

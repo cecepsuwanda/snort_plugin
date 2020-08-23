@@ -91,7 +91,7 @@ private:
   tip_fragment ip_frag(string ip_port);
   ttanggal date_frag(string date_str);
   twaktu waktu_frag(string waktu_str);
-  int waktu_to_sec(twaktu waktu, int add12);
+  int waktu_to_sec(twaktu waktu, int add12, int add4);
   bool compare_ip(tip_fragment ip1, tip_fragment ip2);
   bool compare_port(int port1, string port2);
   bool isNumber( std::string token );
