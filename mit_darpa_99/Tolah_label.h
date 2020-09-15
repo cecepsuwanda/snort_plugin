@@ -98,8 +98,9 @@ private:
 
   bool is_date_pass(vector<string> &row, field_filter *field);
   bool is_waktu_pass(vector<string> &row, field_filter *field);
-  bool is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker);
-  bool is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_victim);
+  bool is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker, vector<string> &port_victim);
+  bool is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim);
+  
 
 public:
   Tolah_label();

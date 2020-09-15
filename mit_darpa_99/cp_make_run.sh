@@ -26,7 +26,7 @@ make
 # wait
 # ./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_in.csv
 # wait
-# # ./labeling data/master_identifications.list ../my_dt/data/friday.csv
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_coba.csv
 
 # ./labeling data/master_identifications.list ../my_dt/data/5w_friday_in.csv
 # wait
@@ -46,22 +46,22 @@ make
 # wait
 # ./labeling data/master_identifications.list ../my_dt/data/5w_wednesday_in.csv
 
-./labeling data/master_identifications.list ../my_dt/data/2w_friday_out.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_friday_in.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_monday_out.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_monday_in.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_thursday_out.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_thursday_in.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_out.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_in.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_out.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_in.csv
+# ./labeling data/master_identifications.list ../my_dt/data/2w_friday_out.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_friday_in.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_monday_out.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_monday_in.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_thursday_out.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_thursday_in.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_out.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_in.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_out.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_in.csv

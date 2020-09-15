@@ -844,7 +844,7 @@ bool Tolah_label::compare_port(int port1, string port2)
 
 int Tolah_label::waktu_to_sec(twaktu waktu, int add12, int add4)
 {
-  return (((waktu.jam + add12) % 24) * 3600) + (waktu.menit * 60) + (waktu.detik+add4);
+  return (((waktu.jam + add12) % 24) * 3600) + (waktu.menit * 60) + (waktu.detik + add4);
 }
 
 bool Tolah_label::is_date_pass(vector<string> &row, field_filter *field)
@@ -873,9 +873,9 @@ bool Tolah_label::is_waktu_pass(vector<string> &row, field_filter *field)
   vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
   twaktu tmp = waktu_frag(data[1]);
 
-  int tmp_sec = waktu_to_sec(tmp, 0,0);
-  int start_time_sec = waktu_to_sec(field->Start_Time, 12,-4);
-  int duration_sec = waktu_to_sec(field->Duration, 0,0);
+  int tmp_sec = waktu_to_sec(tmp, 0, 0);
+  int start_time_sec = waktu_to_sec(field->Start_Time, 12, 0);
+  int duration_sec = waktu_to_sec(field->Duration, 0, 0);
 
   if (tmp_sec >= start_time_sec)
   {
@@ -885,7 +885,7 @@ bool Tolah_label::is_waktu_pass(vector<string> &row, field_filter *field)
   return is_pass;
 }
 
-bool Tolah_label::is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker)
+bool Tolah_label::is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker, vector<string> &port_victim)
 {
   bool is_pass = false;
 
@@ -913,10 +913,25 @@ bool Tolah_label::is_attacker_pass(string ip_port, vector<string> &ip_attacker, 
     is_pass = is_pass1;
   }
 
+  if (!is_pass and (tmp_ip.port != 0) and (port_victim.size() > 0))
+  {
+    bool is_pass1 = false;
+    int j = 0;
+    while ( (!is_pass1) and (j < port_victim.size()))
+    {
+      string tmp = port_victim[j];
+      is_pass1 = compare_port(tmp_ip.port, tmp);
+      j++;
+    }
+    is_pass = is_pass1;
+  }
+
+
+
   return is_pass;
 }
 
-bool Tolah_label::is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_victim)
+bool Tolah_label::is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim)
 {
   bool is_pass = false;
 
@@ -931,7 +946,20 @@ bool Tolah_label::is_victim_pass(string ip_port, vector<string> &ip_victim, vect
     j++;
   }
 
-  if (is_pass and (tmp_ip.port != 0) and (port_victim.size() > 0))
+  if (is_pass and (tmp_ip.port != 0) and (port_attacker.size() < 0))
+  {
+    bool is_pass1 = false;
+    int j = 0;
+    while ( (!is_pass1) and (j < port_attacker.size()))
+    {
+      string tmp = port_attacker[j];
+      is_pass1 = compare_port(tmp_ip.port, tmp);
+      j++;
+    }
+    is_pass = is_pass1;
+  }
+
+  if (!is_pass and (tmp_ip.port != 0) and (port_victim.size() > 0))
   {
     bool is_pass1 = false;
     int j = 0;
@@ -970,35 +998,27 @@ string Tolah_label::labeli(vector<string> row)
       field_filter* tmp_field = *itr1;
 
       if (is_waktu_pass(row, tmp_field)) {
-        if (is_attacker_pass(row[1], tmp_field->Attacker, tmp_field->At_Attacker)) {
-          if (is_victim_pass(row[2], tmp_field->Victim, tmp_field->At_Victim)) {
+        if (is_attacker_pass(row[1], tmp_field->Attacker, tmp_field->At_Attacker, tmp_field->At_Victim) ) {
+          if (is_victim_pass(row[2], tmp_field->Victim, tmp_field->At_Attacker, tmp_field->At_Victim)) {
             is_cetak = true;
             label = tmp_field->Name + "."; //tmp_field->Name + "," + tmp_field->ID;
 
           }
-        }
-
-        /*if (!is_cetak)
-        {
-          if (is_attacker_pass(row[2], tmp_field->Attacker, tmp_field->At_Attacker)) {
-            if (is_victim_pass(row[1], tmp_field->Victim, tmp_field->At_Victim)) {
+        } else {
+          if (is_attacker_pass(row[2], tmp_field->Attacker, tmp_field->At_Attacker, tmp_field->At_Victim) ) {
+            if (is_victim_pass(row[1], tmp_field->Victim, tmp_field->At_Attacker, tmp_field->At_Victim)) {
               is_cetak = true;
-              label = tmp_field->Name + "," + tmp_field->ID;
-              cout << "Dibalik" << endl;
+              label = tmp_field->Name + "."; //tmp_field->Name + "," + tmp_field->ID;
+
             }
           }
-        }*/
-        /*if((tmp.tanggal==29)and(tmp.bulan==3)and(row[7]=="172.16.112.50:23")){
-          cout << new_tgl.cetak() << row[6] << " " << row[7] << endl;
-        }*/
-        
-        //cout << tmp_field->ID << endl;
+        }
       }
 
       itr1++;
     }
 
-    
+
   }
 
   /*int i = 0;
