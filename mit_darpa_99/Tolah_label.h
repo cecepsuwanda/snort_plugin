@@ -6,21 +6,19 @@
 #include <regex>
 using namespace std;
 
-
 class Ttgl
 {
-  private:
-    int _tgl=0;
-    int _bln=0;
-    int _thn=0;
+private:
+  int _tgl = 0;
+  int _bln = 0;
+  int _thn = 0;
 
-    
-  public: 
-   Ttgl(int tgl,int bln,int thn);
-   ~Ttgl();  
+public:
+  Ttgl(int tgl, int bln, int thn);
+  ~Ttgl();
 
-   bool operator< (const Ttgl& tgl_jamObj) const;
-   string cetak(); 
+  bool operator<(const Ttgl &tgl_jamObj) const;
+  string cetak();
 };
 
 struct twaktu
@@ -67,10 +65,10 @@ private:
 
   vec_field_filter vec;
   map<Ttgl, vec_field_filter> vec_map;
-  
+
   field_filter *field;
 
-  vector<string> tokenizer(char* str, const char* separator);
+  vector<string> tokenizer(char *str, const char *separator);
 
   bool olah_id(char *str);
   bool olah_date(char *str);
@@ -91,16 +89,21 @@ private:
   tip_fragment ip_frag(string ip_port);
   ttanggal date_frag(string date_str);
   twaktu waktu_frag(string waktu_str);
-  int waktu_to_sec(twaktu waktu, int add12, int add4);
+  int waktu_to_sec(twaktu waktu);
   bool compare_ip(tip_fragment ip1, tip_fragment ip2);
   bool compare_port(int port1, string port2);
-  bool isNumber( std::string token );
+  bool isNumber(std::string token);
+  void datetime_adjustment(ttanggal &tanggal, twaktu &waktu);
 
   bool is_date_pass(vector<string> &row, field_filter *field);
   bool is_waktu_pass(vector<string> &row, field_filter *field);
-  bool is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker, vector<string> &port_victim);
-  bool is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim);
-  
+  bool is_ip_pass(string ip_src, string ip_dst, vector<string> &ip_attacker, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim);
+  bool is_ip_attacker(tip_fragment ip, vector<string> &ip_attacker);
+  bool is_ip_victim(tip_fragment ip, vector<string> &ip_victim);
+  bool is_port_attacker(tip_fragment ip, vector<string> &port_attacker);
+  bool is_port_victim(tip_fragment ip, vector<string> &port_victim);
+
+  void insert_vec_map(field_filter *field);
 
 public:
   Tolah_label();

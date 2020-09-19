@@ -12,10 +12,10 @@ make
 # wait
 # ./labeling data/master_identifications.list ../my_dt/data/4w_friday_in.csv
 # wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_out.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_in.csv
-# wait
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_out.csv
+wait
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_in.csv
+wait
 # ./labeling data/master_identifications.list ../my_dt/data/4w_thursday_out.csv
 # wait
 # ./labeling data/master_identifications.list ../my_dt/data/4w_thursday_in.csv
@@ -26,7 +26,11 @@ make
 # wait
 # ./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_in.csv
 # wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_coba.csv
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_41122222.csv
+wait
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_41084031.csv
+wait
+./labeling data/master_identifications.list ../my_dt/data/4w_monday_41114554.csv
 
 # ./labeling data/master_identifications.list ../my_dt/data/5w_friday_in.csv
 # wait

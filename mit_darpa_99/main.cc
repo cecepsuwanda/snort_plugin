@@ -55,17 +55,17 @@ int main(int argc, char *argv[])
                         if (row.size() > 0) {
                             tmp_str = "";
 
-                            for (int l = 0; l < row.size(); ++l)
+                            /*for (int l = 0; l < row.size(); ++l)
                             {
                                 tmp_str += row[l] + ",";
-                            }
+                            }*/
                             //cout << row[0] <<","<< row[6]<< "," << row[7] << endl;
 
                             label = olah_label.labeli(row);
 
                             conf_metrix.add_jml(label,row[row.size()-1],1);
 
-                            tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                            //tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
 
                             //g.write_file(tmp_str);
 

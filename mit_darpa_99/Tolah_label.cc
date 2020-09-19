@@ -1,7 +1,5 @@
 #include "Tolah_label.h"
 
-
-
 Ttgl::Ttgl(int tgl, int bln, int thn)
 {
   _tgl = tgl;
@@ -11,57 +9,69 @@ Ttgl::Ttgl(int tgl, int bln, int thn)
 
 string Ttgl::cetak()
 {
-  return  to_string(_bln) + "/" + to_string(_tgl) + "/" + to_string(_thn);
+  return to_string(_bln) + "/" + to_string(_tgl) + "/" + to_string(_thn);
 }
 
 Ttgl::~Ttgl()
 {
-
 }
 
-bool Ttgl::operator< (const Ttgl& tgl_jamObj) const
+bool Ttgl::operator<(const Ttgl &tgl_jamObj) const
 {
-  if (this->_thn < tgl_jamObj._thn ) {
+  if (this->_thn < tgl_jamObj._thn)
+  {
     return true;
   }
-  if (this->_thn > tgl_jamObj._thn ) {
+  if (this->_thn > tgl_jamObj._thn)
+  {
     return false;
   }
 
-  if (this->_bln < tgl_jamObj._bln) {
+  if (this->_bln < tgl_jamObj._bln)
+  {
     return true;
   }
-  if (this->_bln > tgl_jamObj._bln) {
+  if (this->_bln > tgl_jamObj._bln)
+  {
     return false;
   }
 
-  if (this->_tgl < tgl_jamObj._tgl) {
+  if (this->_tgl < tgl_jamObj._tgl)
+  {
     return true;
   }
-  if (this->_tgl > tgl_jamObj._tgl) {
+  if (this->_tgl > tgl_jamObj._tgl)
+  {
     return false;
   }
-
 
   return false;
-
 }
-
-
 
 Tolah_label::Tolah_label()
 {
-
 }
 
 Tolah_label::~Tolah_label()
 {
-
 }
 
 void Tolah_label::setnm_f(string nm_f)
 {
   _nm_file = nm_f;
+}
+
+void Tolah_label::datetime_adjustment(ttanggal &tanggal, twaktu &waktu)
+{
+  waktu.jam = waktu.jam + 12;
+  if (waktu.jam >= 24) {
+    waktu.jam = waktu.jam % 24;
+    tanggal.tanggal += 1;
+    if (tanggal.tanggal > 31) {
+      tanggal.tanggal = 1;
+      tanggal.bulan += 1;
+    }
+  }
 }
 
 void Tolah_label::baca_file()
@@ -88,47 +98,61 @@ void Tolah_label::baca_file()
 
         if (olah_id(str))
         {
-
-        } else {
+        }
+        else
+        {
           if (olah_date(str))
           {
-
-          } else {
+          }
+          else
+          {
             if (olah_name(str))
             {
-
-            } else {
+            }
+            else
+            {
               if (olah_category(str))
               {
-
-              } else {
+              }
+              else
+              {
                 if (olah_start_time(str))
                 {
-
-                } else {
+                }
+                else
+                {
                   if (olah_duration(str))
                   {
-
-                  } else {
+                  }
+                  else
+                  {
                     if (olah_at_attacker(str))
                     {
                       field_before = "At_Attacker: ";
-                    } else {
-                      if (olah_at_victim(str)) {
+                    }
+                    else
+                    {
+                      if (olah_at_victim(str))
+                      {
                         field_before = "At_Victim: ";
-                      } else {
+                      }
+                      else
+                      {
                         if (olah_username(str))
                         {
-
-                        } else {
+                        }
+                        else
+                        {
                           if (olah_attacker(str))
                           {
-
-                          } else {
+                          }
+                          else
+                          {
                             if (olah_victim(str))
                             {
-
-                            } else {
+                            }
+                            else
+                            {
 
                               string tmp_str = str;
 
@@ -147,10 +171,7 @@ void Tolah_label::baca_file()
                                   olah_sisa_at_victim(str);
                                   field_before = " ";
                                 }
-
-
                               }
-
                             }
                           }
                         }
@@ -166,7 +187,9 @@ void Tolah_label::baca_file()
     }
 
     fclose(file);
-  } else {
+  }
+  else
+  {
     cout << "Gagal Buka File !!!" << endl;
   }
 
@@ -205,9 +228,6 @@ void Tolah_label::baca_file()
         vec[i]->At_Attacker[j] = tmp_str;
         //cout << vec[i]->At_Attacker[j] << endl;
       }
-
-
-
     }
 
     for (int j = 0; j < vec[i]->At_Victim.size(); ++j)
@@ -221,28 +241,69 @@ void Tolah_label::baca_file()
         vec[i]->At_Victim[j] = tmp_str;
         //cout << vec[i]->At_Victim[j] << endl;
       }
-
-
     }
 
-    Ttgl new_tgl(vec[i]->Date.tanggal, vec[i]->Date.bulan, vec[i]->Date.tahun);
-    auto itr = vec_map.find(new_tgl);
-    if (itr == vec_map.end())
+    datetime_adjustment(vec[i]->Date, vec[i]->Start_Time);
+    
+
+    int start_Time = waktu_to_sec(vec[i]->Start_Time);
+    int duration = waktu_to_sec(vec[i]->Duration);
+
+    if((start_Time+duration)>(24*3600))
     {
-      vector<field_filter *> tmp_vec;
-      tmp_vec.push_back(vec[i]);
-      vec_map.insert({new_tgl, tmp_vec});
-    } else {
-      vec_field_filter* tmp_vec = &itr->second;
-      tmp_vec->push_back(vec[i]);
-      //cout << new_tgl.cetak() <<endl;
+      int new_duration = (start_Time+duration)-(24*3600); 
+      
+      field_filter *tmp_field = new field_filter;
+      tmp_field->ID = vec[i]->ID;
+      tmp_field->Date.bulan = (vec[i]->Date.tanggal+1) > 31 ? vec[i]->Date.bulan +1 : vec[i]->Date.bulan;
+      tmp_field->Date.tanggal = (vec[i]->Date.tanggal+1) > 31 ? ((vec[i]->Date.tanggal+1) % 31) : vec[i]->Date.tanggal+1;
+      tmp_field->Date.tahun = vec[i]->Date.tahun;
+      tmp_field->Name = vec[i]->Name;
+      tmp_field->Category = vec[i]->Category;
+      
+      tmp_field->Start_Time.jam = 0;
+      tmp_field->Start_Time.menit = 0;
+      tmp_field->Start_Time.detik = 0;
+      
+      tmp_field->Duration.jam = new_duration/3600;
+      tmp_field->Duration.menit = (new_duration % 3600)/60; 
+      tmp_field->Duration.detik = (new_duration % 3600)%60;
+   
+      tmp_field->Attacker = vec[i]->Attacker;
+      tmp_field->Victim = vec[i]->Victim;
+      tmp_field->Username = vec[i]->Username;
+      tmp_field->At_Attacker = vec[i]->At_Attacker;
+      tmp_field->At_Victim = vec[i]->At_Victim; 
+      insert_vec_map(tmp_field);
     }
+
+    insert_vec_map(vec[i]);
+
+
 
     //cout << "-------------"<<endl;
   }
 }
 
-vector<string> Tolah_label::tokenizer(char * str, const char* separator)
+void Tolah_label::insert_vec_map(field_filter *field)
+{
+  Ttgl new_tgl(field->Date.tanggal, field->Date.bulan, field->Date.tahun);
+  auto itr = vec_map.find(new_tgl);
+  if (itr == vec_map.end())
+  {    
+    vector<field_filter *> tmp_vec;
+    tmp_vec.push_back(field);
+    vec_map.insert({new_tgl, tmp_vec});
+  }
+  else
+  {    
+    vec_field_filter *tmp_vec = &itr->second;
+    tmp_vec->push_back(field);
+
+  }
+}
+
+vector<string> Tolah_label::tokenizer(char *str, const char *separator)
 {
   char *token;
   vector<string> vec;
@@ -253,7 +314,8 @@ vector<string> Tolah_label::tokenizer(char * str, const char* separator)
     str[len - 1] = 0;
 
   token = strtok(str, separator);
-  while (token != 0) {
+  while (token != 0)
+  {
     //cout << token << endl;
     vec.push_back(token);
     token = strtok(0, separator);
@@ -280,9 +342,7 @@ bool Tolah_label::olah_id(char *str)
     //cout << tmp_str << endl;
 
     field->ID = tmp_str;
-
   }
-
 
   return is_pass;
 }
@@ -300,14 +360,13 @@ bool Tolah_label::olah_date(char *str)
     tmp_str = tmp_str.substr(6);
     //cout << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), "/");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), "/");
 
     //cout << data[0] << "/" << data[1] << "/" << data[2] << endl;
 
     field->Date.bulan = stoi(data[0]);
     field->Date.tanggal = stoi(data[1]);
     field->Date.tahun = stoi(data[2]);
-
   }
 
   return is_pass;
@@ -333,7 +392,6 @@ bool Tolah_label::olah_name(char *str)
       //cout << tmp_str << endl;
     }
 
-
     field->Name = tmp_str;
   }
 
@@ -356,7 +414,6 @@ bool Tolah_label::olah_category(char *str)
     field->Category = tmp_str;
   }
 
-
   return is_pass;
 }
 
@@ -374,7 +431,7 @@ bool Tolah_label::olah_start_time(char *str)
 
     //cout << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ":");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ":");
 
     field->Start_Time.jam = stoi(data[0]);
     field->Start_Time.menit = stoi(data[1]);
@@ -400,7 +457,7 @@ bool Tolah_label::olah_duration(char *str)
 
     //cout << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ":");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ":");
 
     field->Duration.jam = stoi(data[0]);
     field->Duration.menit = stoi(data[1]);
@@ -427,21 +484,23 @@ bool Tolah_label::olah_at_attacker(char *str)
     tmp_str = tmp_str.substr(posisi + 13);
     //cout << "At_Attacker " << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
       field->At_Attacker.push_back(tmp_str);
-    } else {
+    }
+    else
+    {
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if (tmp_str != "\0") {
+        if (tmp_str != "\0")
+        {
           field->At_Attacker.push_back(tmp_str);
         }
       }
     }
-
   }
 
   return is_pass;
@@ -462,22 +521,24 @@ bool Tolah_label::olah_at_victim(char *str)
     tmp_str = tmp_str.substr(posisi + 11);
     //cout << "At_Victim " <<  tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
       field->At_Victim.push_back(tmp_str);
-    } else {
+    }
+    else
+    {
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if (tmp_str != "\0") {
+        if (tmp_str != "\0")
+        {
           field->At_Victim.push_back(tmp_str);
         }
       }
     }
   }
-
 
   return is_pass;
 }
@@ -500,10 +561,8 @@ bool Tolah_label::olah_username(char *str)
     field->Username = tmp_str;
   }
 
-
   return is_pass;
 }
-
 
 bool Tolah_label::olah_attacker(char *str)
 {
@@ -518,24 +577,26 @@ bool Tolah_label::olah_attacker(char *str)
     //cout << tmp_str << endl;
     tmp_str = tmp_str.substr(10);
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
-      if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+      if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+      {
         field->Attacker.push_back(tmp_str);
       }
-    } else {
+    }
+    else
+    {
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+        if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+        {
           field->Attacker.push_back(tmp_str);
         }
       }
     }
-
-
   }
 
   return is_pass;
@@ -554,60 +615,64 @@ bool Tolah_label::olah_victim(char *str)
     //cout << str << endl;
     tmp_str = tmp_str.substr(8);
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
-      if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+      if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+      {
         field->Victim.push_back(tmp_str);
       }
-
-    } else {
+    }
+    else
+    {
 
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+        if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+        {
           field->Victim.push_back(tmp_str);
         }
       }
     }
-
   }
 
   return is_pass;
 }
-
 
 void Tolah_label::olah_sisa_at_attacker(char *str)
 {
 
   string tmp_str = str;
 
-//cout <<"At_Attacker: "<< str << endl;
+  //cout <<"At_Attacker: "<< str << endl;
   int len = strlen(str);
   if (len > 1)
   {
     tmp_str = tmp_str.substr(1);
     //cout << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
-      if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+      if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+      {
         field->At_Attacker.push_back(tmp_str);
       }
-    } else {
+    }
+    else
+    {
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+        if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+        {
           field->At_Attacker.push_back(tmp_str);
         }
       }
     }
-
   }
 }
 
@@ -623,21 +688,24 @@ void Tolah_label::olah_sisa_at_victim(char *str)
     tmp_str = tmp_str.substr(1);
     //cout << tmp_str << endl;
 
-    vector<string> data = tokenizer((char *) tmp_str.c_str(), ", ");
+    vector<string> data = tokenizer((char *)tmp_str.c_str(), ", ");
 
     if (data.size() == 0)
     {
-      if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+      if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+      {
         field->At_Victim.push_back(tmp_str);
       }
-    } else {
+    }
+    else
+    {
       for (int i = 0; i < data.size(); ++i)
       {
         tmp_str = data[i];
-        if ((tmp_str.length() > 0) and (tmp_str != "\0")) {
+        if ((tmp_str.length() > 0) and (tmp_str != "\0"))
+        {
           field->At_Victim.push_back(tmp_str);
         }
-
       }
     }
   }
@@ -647,9 +715,9 @@ ttanggal Tolah_label::date_frag(string date_str)
 {
   ttanggal tmp;
 
-  vector<string> data = tokenizer((char *) date_str.c_str(), "/");
+  vector<string> data = tokenizer((char *)date_str.c_str(), "/");
 
-  tmp.bulan   = stoi(data[0]);
+  tmp.bulan = stoi(data[0]);
   tmp.tanggal = stoi(data[1]);
   if (data.size() == 3)
   {
@@ -663,7 +731,7 @@ twaktu Tolah_label::waktu_frag(string waktu_str)
 {
   twaktu tmp;
 
-  vector<string> data = tokenizer((char *) waktu_str.c_str(), ":");
+  vector<string> data = tokenizer((char *)waktu_str.c_str(), ":");
 
   tmp.jam = stoi(data[0]);
   tmp.menit = stoi(data[1]);
@@ -673,8 +741,10 @@ twaktu Tolah_label::waktu_frag(string waktu_str)
   if (posisi == string::npos)
   {
     tmp.detik = stoi(tmp_detik);
-  } else {
-    data = tokenizer((char *) tmp_detik.c_str(), ".");
+  }
+  else
+  {
+    data = tokenizer((char *)tmp_detik.c_str(), ".");
     tmp.detik = stoi(data[0]);
   }
 
@@ -691,11 +761,10 @@ bool Tolah_label::is_subs(string stack, string needle)
   return is_pass;
 }
 
-bool Tolah_label::isNumber( std::string token )
+bool Tolah_label::isNumber(std::string token)
 {
-  return std::regex_match( token, std::regex( ( "((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?" ) ) );
+  return std::regex_match(token, std::regex(("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?")));
 }
-
 
 tip_fragment Tolah_label::ip_frag(string ip_port)
 {
@@ -704,24 +773,27 @@ tip_fragment Tolah_label::ip_frag(string ip_port)
 
   if (is_subs(ip_port, ":"))
   {
-    data = tokenizer((char *) ip_port.c_str(), ":");
+    data = tokenizer((char *)ip_port.c_str(), ":");
     tmp.port = stoi(data[1]);
     string ip = data[0];
-    data = tokenizer((char *) ip.c_str(), ".");
+    data = tokenizer((char *)ip.c_str(), ".");
     tmp.part1 = isNumber(data[0]) ? data[0] : "0";
     tmp.part2 = isNumber(data[1]) ? data[1] : "0";
     tmp.part3 = isNumber(data[2]) ? data[2] : "0";
     tmp.part4 = isNumber(data[3]) ? data[3] : "0";
-
-  } else {
+  }
+  else
+  {
     if (is_subs(ip_port, "."))
     {
-      data = tokenizer((char *) ip_port.c_str(), ".");
+      data = tokenizer((char *)ip_port.c_str(), ".");
       tmp.part1 = isNumber(data[0]) ? data[0] : "0";
       tmp.part2 = isNumber(data[1]) ? data[1] : "0";
       tmp.part3 = isNumber(data[2]) ? data[2] : "0";
       tmp.part4 = isNumber(data[3]) ? data[3] : "0";
-    } else {
+    }
+    else
+    {
       tmp.part1 = "0";
       tmp.part2 = "0";
       tmp.part3 = "0";
@@ -746,17 +818,20 @@ bool Tolah_label::compare_ip(tip_fragment ip1, tip_fragment ip2)
         if (is_subs(ip2.part4, "*"))
         {
           is_pass = true;
-        } else {
+        }
+        else
+        {
           if (is_subs(ip2.part4, "-"))
           {
-            data = tokenizer((char *) ip2.part4.c_str(), "-");
+            data = tokenizer((char *)ip2.part4.c_str(), "-");
             //cout << data[0] << "<=" << ip1.part4 << "<=" << data[1] << endl;
             is_pass = (stoi(ip1.part4) >= stoi(data[0])) and (stoi(ip1.part4) <= stoi(data[1]));
-          } else {
+          }
+          else
+          {
             is_pass = stoi(ip1.part4) == stoi(ip2.part4);
           }
         }
-
       }
     }
   }
@@ -769,69 +844,85 @@ bool Tolah_label::compare_port(int port1, string port2)
   bool is_pass = false;
   vector<string> data;
 
-
   if (is_subs(port2, "-"))
   {
-    data = tokenizer((char *) port2.c_str(), "-");
+    data = tokenizer((char *)port2.c_str(), "-");
     string tmp_port1 = data[0];
     string tmp_port2 = data[1];
 
     if (is_subs(tmp_port1, "/"))
     {
-      data = tokenizer((char *) tmp_port1.c_str(), "/");
+      data = tokenizer((char *)tmp_port1.c_str(), "/");
       string tmp_port = data[0];
       if (isNumber(tmp_port))
       {
         is_pass = port1 >= stoi(tmp_port);
-      } else {
+      }
+      else
+      {
         is_pass = true;
       }
-    } else {
+    }
+    else
+    {
       if (isNumber(tmp_port1))
       {
         is_pass = port1 >= stoi(tmp_port1);
-      } else {
+      }
+      else
+      {
         is_pass = true;
       }
     }
 
     if (is_subs(tmp_port2, "/"))
     {
-      data = tokenizer((char *) tmp_port2.c_str(), "/");
+      data = tokenizer((char *)tmp_port2.c_str(), "/");
       string tmp_port = data[0];
       if (isNumber(tmp_port))
       {
         is_pass = is_pass and (port1 <= stoi(tmp_port));
-      } else {
-        is_pass =  is_pass and true;
       }
-    } else {
-      if (isNumber(tmp_port2))
+      else
       {
-        is_pass = is_pass and (port1 <= stoi(tmp_port2));
-      } else {
         is_pass = is_pass and true;
       }
     }
-
-
-  } else {
+    else
+    {
+      if (isNumber(tmp_port2))
+      {
+        is_pass = is_pass and (port1 <= stoi(tmp_port2));
+      }
+      else
+      {
+        is_pass = is_pass and true;
+      }
+    }
+  }
+  else
+  {
     if (is_subs(port2, "/"))
     {
-      data = tokenizer((char *) port2.c_str(), "/");
+      data = tokenizer((char *)port2.c_str(), "/");
       string tmp_port = data[0];
       if (isNumber(tmp_port))
       {
         is_pass = port1 == stoi(tmp_port);
-      } else {
+      }
+      else
+      {
         is_pass = true;
       }
-
-    } else {
+    }
+    else
+    {
       if (isNumber(port2))
       {
         is_pass = port1 == stoi(port2);
-      } else {
+      }
+      else
+      {
         is_pass = true;
       }
     }
@@ -842,9 +933,9 @@ bool Tolah_label::compare_port(int port1, string port2)
   return is_pass;
 }
 
-int Tolah_label::waktu_to_sec(twaktu waktu, int add12, int add4)
+int Tolah_label::waktu_to_sec(twaktu waktu)
 {
-  return (((waktu.jam + add12) % 24) * 3600) + (waktu.menit * 60) + (waktu.detik + add4);
+  return (waktu.jam * 3600) + (waktu.menit * 60) + waktu.detik;
 }
 
 bool Tolah_label::is_date_pass(vector<string> &row, field_filter *field)
@@ -853,7 +944,7 @@ bool Tolah_label::is_date_pass(vector<string> &row, field_filter *field)
 
   string tmp_row = row[0];
 
-  vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
+  vector<string> data = tokenizer((char *)tmp_row.c_str(), "-");
   ttanggal tmp = date_frag(data[0]);
 
   //cout << tmp.tanggal << " " << tmp.bulan << endl;
@@ -870,12 +961,12 @@ bool Tolah_label::is_waktu_pass(vector<string> &row, field_filter *field)
 
   string tmp_row = row[0];
 
-  vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
+  vector<string> data = tokenizer((char *)tmp_row.c_str(), "-");
   twaktu tmp = waktu_frag(data[1]);
 
-  int tmp_sec = waktu_to_sec(tmp, 0, 0);
-  int start_time_sec = waktu_to_sec(field->Start_Time, 12, 0);
-  int duration_sec = waktu_to_sec(field->Duration, 0, 0);
+  int tmp_sec = waktu_to_sec(tmp);
+  int start_time_sec = waktu_to_sec(field->Start_Time);
+  int duration_sec = waktu_to_sec(field->Duration);
 
   if (tmp_sec >= start_time_sec)
   {
@@ -885,175 +976,155 @@ bool Tolah_label::is_waktu_pass(vector<string> &row, field_filter *field)
   return is_pass;
 }
 
-bool Tolah_label::is_attacker_pass(string ip_port, vector<string> &ip_attacker, vector<string> &port_attacker, vector<string> &port_victim)
+bool Tolah_label::is_ip_pass(string ip_src, string ip_dst, vector<string> &ip_attacker, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim)
 {
   bool is_pass = false;
 
-  tip_fragment tmp_ip = ip_frag(ip_port); //row[6]
 
-  int j = 0;
-  while ( (!is_pass) and (j < ip_attacker.size()) )
+  tip_fragment tmp_ip_src = ip_frag(ip_src);
+  tip_fragment tmp_ip_dst = ip_frag(ip_dst);
+
+  bool is_ip_src_attacker = is_ip_attacker(tmp_ip_src, ip_attacker);
+  bool is_ip_dst_attacker = is_ip_attacker(tmp_ip_dst, ip_attacker);;
+  bool is_ip_src_victim = is_ip_victim(tmp_ip_src, ip_victim);
+  bool is_ip_dst_victim = is_ip_victim(tmp_ip_dst, ip_victim);
+
+  bool is_port_src_attacker = is_port_attacker(tmp_ip_src, port_attacker);
+  bool is_port_dst_attacker = is_port_attacker(tmp_ip_dst, port_attacker);
+  bool is_port_src_victim = is_port_victim(tmp_ip_src, port_victim);
+  bool is_port_dst_victim = is_port_victim(tmp_ip_dst, port_victim);
+
+  if ((is_ip_src_attacker && is_ip_dst_victim) || (is_ip_dst_attacker && is_ip_src_victim) )
   {
-
-    tip_fragment tmp = ip_frag(ip_attacker[j]);
-    is_pass = compare_ip(tmp_ip, tmp);
-    j++;
-  }
-
-  if (is_pass and (tmp_ip.port != 0) and (port_attacker.size() < 0))
-  {
-    bool is_pass1 = false;
-    int j = 0;
-    while ( (!is_pass1) and (j < port_attacker.size()))
+    if ((is_port_src_attacker && is_port_dst_victim) || (is_port_dst_attacker && is_port_src_victim))
     {
-      string tmp = port_attacker[j];
-      is_pass1 = compare_port(tmp_ip.port, tmp);
-      j++;
+      is_pass = true;
+    } else {
+      if (is_port_src_attacker || is_port_dst_victim || is_port_dst_attacker || is_port_src_victim)
+      {
+        is_pass = true;
+      }
     }
-    is_pass = is_pass1;
+  } else {
+
   }
-
-  if (!is_pass and (tmp_ip.port != 0) and (port_victim.size() > 0))
-  {
-    bool is_pass1 = false;
-    int j = 0;
-    while ( (!is_pass1) and (j < port_victim.size()))
-    {
-      string tmp = port_victim[j];
-      is_pass1 = compare_port(tmp_ip.port, tmp);
-      j++;
-    }
-    is_pass = is_pass1;
-  }
-
-
 
   return is_pass;
 }
 
-bool Tolah_label::is_victim_pass(string ip_port, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim)
+bool Tolah_label::is_ip_attacker(tip_fragment ip, vector<string> &ip_attacker)
 {
   bool is_pass = false;
 
-  tip_fragment tmp_ip = ip_frag(ip_port); //row[7]
-
-  int j = 0;
-
-  while ( (!is_pass) and (j < ip_victim.size()))
+  if (ip_attacker.size() > 0)
   {
-    tip_fragment tmp = ip_frag(ip_victim[j]);
-    is_pass = compare_ip(tmp_ip, tmp);
-    j++;
-  }
-
-  if (is_pass and (tmp_ip.port != 0) and (port_attacker.size() < 0))
-  {
-    bool is_pass1 = false;
     int j = 0;
-    while ( (!is_pass1) and (j < port_attacker.size()))
+    while ((!is_pass) and (j < ip_attacker.size()))
     {
-      string tmp = port_attacker[j];
-      is_pass1 = compare_port(tmp_ip.port, tmp);
+
+      tip_fragment tmp = ip_frag(ip_attacker[j]);
+      is_pass = compare_ip(ip, tmp);
       j++;
     }
-    is_pass = is_pass1;
   }
 
-  if (!is_pass and (tmp_ip.port != 0) and (port_victim.size() > 0))
+  return is_pass;
+
+}
+
+bool Tolah_label::is_ip_victim(tip_fragment ip, vector<string> &ip_victim)
+{
+  bool is_pass = false;
+
+  if (ip_victim.size() > 0)
   {
-    bool is_pass1 = false;
     int j = 0;
-    while ( (!is_pass1) and (j < port_victim.size()))
+
+    while ((!is_pass) and (j < ip_victim.size()))
     {
-      string tmp = port_victim[j];
-      is_pass1 = compare_port(tmp_ip.port, tmp);
+      tip_fragment tmp = ip_frag(ip_victim[j]);
+      is_pass = compare_ip(ip, tmp);
       j++;
     }
-    is_pass = is_pass1;
   }
 
   return is_pass;
 }
+
+bool Tolah_label::is_port_attacker(tip_fragment ip, vector<string> &port_attacker)
+{
+  bool is_pass = false;
+
+  if (port_attacker.size() > 0)
+  {
+    int j = 0;
+    while ((!is_pass) and (j < port_attacker.size()))
+    {
+      string tmp = port_attacker[j];
+      is_pass = compare_port(ip.port, tmp);
+      j++;
+    }
+  }
+
+  return is_pass;
+}
+
+bool Tolah_label::is_port_victim(tip_fragment ip, vector<string> &port_victim)
+{
+  bool is_pass = false;
+
+  if (port_victim.size() > 0)
+  {
+    int j = 0;
+    while ((!is_pass) and (j < port_victim.size()))
+    {
+      string tmp = port_victim[j];
+      is_pass = compare_port(ip.port, tmp);
+      j++;
+    }
+  }
+
+  return is_pass;
+}
+
+
 
 string Tolah_label::labeli(vector<string> row)
 {
 
   bool is_cetak = false;
-  string label = "normal.";//"normal,Nan";
-
+  string label = "normal."; //"normal,Nan";
 
   string tmp_row = row[0];
 
-  vector<string> data = tokenizer((char *) tmp_row.c_str(), "-");
+  vector<string> data = tokenizer((char *)tmp_row.c_str(), "-");
   ttanggal tmp = date_frag(data[0]);
-
 
   Ttgl new_tgl(tmp.tanggal, tmp.bulan, 1999);
   auto itr = vec_map.find(new_tgl);
   if (itr != vec_map.end())
   {
-    vec_field_filter* tmp_vec = &itr->second;
+    vec_field_filter *tmp_vec = &itr->second;
     auto itr1 = tmp_vec->begin();
-    while ((!is_cetak) and (itr1 != tmp_vec->end())) {
-      field_filter* tmp_field = *itr1;
+    while ((!is_cetak) and (itr1 != tmp_vec->end()))
+    {
+      field_filter *tmp_field = *itr1;
 
-      if (is_waktu_pass(row, tmp_field)) {
-        if (is_attacker_pass(row[1], tmp_field->Attacker, tmp_field->At_Attacker, tmp_field->At_Victim) ) {
-          if (is_victim_pass(row[2], tmp_field->Victim, tmp_field->At_Attacker, tmp_field->At_Victim)) {
-            is_cetak = true;
-            label = tmp_field->Name + "."; //tmp_field->Name + "," + tmp_field->ID;
-
-          }
-        } else {
-          if (is_attacker_pass(row[2], tmp_field->Attacker, tmp_field->At_Attacker, tmp_field->At_Victim) ) {
-            if (is_victim_pass(row[1], tmp_field->Victim, tmp_field->At_Attacker, tmp_field->At_Victim)) {
-              is_cetak = true;
-              label = tmp_field->Name + "."; //tmp_field->Name + "," + tmp_field->ID;
-
-            }
-          }
+      if (is_waktu_pass(row, tmp_field))
+      {
+            
+        if (is_ip_pass(row[1], row[2], tmp_field->Attacker, tmp_field->Victim, tmp_field->At_Attacker, tmp_field->At_Victim))
+        {
+          is_cetak = true;
+          label = tmp_field->Name + ".";
         }
+
       }
 
       itr1++;
     }
-
-
   }
 
-  /*int i = 0;
-  while ((!is_cetak) and (i < vec.size()))
-  {
-    //cout << vec[i]->ID << endl;
-    //cout << row[0] << endl;
-    if (is_date_pass(row, vec[i]))
-    {
-
-      if (is_waktu_pass(row, vec[i])) {
-          //cout << row[6] << " " << row[7] << endl ;
-    if (is_attacker_pass(row[6], vec[i]->Attacker, vec[i]->At_Attacker)) {
-          if (is_victim_pass(row[7], vec[i]->Victim, vec[i]->At_Victim)) {
-            is_cetak = true;
-            label = vec[i]->Name + "," + vec[i]->ID;
-
-          }
-        }
-
-        if (!is_cetak)
-        {
-          if (is_attacker_pass(row[7], vec[i]->Attacker, vec[i]->At_Attacker)) {
-            if (is_victim_pass(row[6], vec[i]->Victim, vec[i]->At_Victim)) {
-              is_cetak = true;
-              label = vec[i]->Name + "," + vec[i]->ID;
-              cout << "Dibalik" << endl;
-            }
-          }
-        }
-      }
-    }
-
-    i++;
-  }*/
 
   return label;
 }
