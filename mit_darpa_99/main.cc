@@ -25,74 +25,62 @@ int main(int argc, char *argv[])
 
     g.open_file("w+");*/
 
-    //string path = "../my_dt/data"; "data/snort_alert_csv/any_rule/";
-    /*string hari[5] = {"monday", "tuesday", "wednesday", "thursday", "friday"};
-    int week[2] = {4, 5};
-    string dir[2] = {"out", "in"};*/
-
+    
     string nm_file;
     string label, tmp_str = "";
     vector<string> row;
-   /* for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 2; j++)
+
+
+    nm_file = argv[2];//path+"/4w_friday_out.csv"  ; + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+    cout << nm_file << endl;
+
+    f.setnm_f(nm_file);
+    f.setseparator(",");
+
+
+    if (f.open_file())
+    {
+        int jml_dt = 0;
+        while (!f.is_eof())
         {
-            for (int k = 0; k < 2; k++)
-            {*/
+            row = f.get_record();
+            if (row.size() > 0) {
+                tmp_str = "";
 
-                nm_file = argv[2];//path+"/4w_friday_out.csv"  ; + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
-                cout << nm_file << endl;
-
-                f.setnm_f(nm_file);
-                f.setseparator(",");
-
-
-                if (f.open_file())
+                /*for (int l = 0; l < row.size(); ++l)
                 {
-                    int jml_dt = 0;
-                    while (!f.is_eof())
-                    {
-                        row = f.get_record();
-                        if (row.size() > 0) {
-                            tmp_str = "";
+                    tmp_str += row[l] + ",";
+                }*/
 
-                            /*for (int l = 0; l < row.size(); ++l)
-                            {
-                                tmp_str += row[l] + ",";
-                            }*/
-                            //cout << row[0] <<","<< row[6]<< "," << row[7] << endl;
 
-                            label = olah_label.labeli(row);
+                label = olah_label.labeli(row);
 
-                            conf_metrix.add_jml(label,row[row.size()-1],1);
+                conf_metrix.add_jml(label, row[row.size() - 1], 1);
 
-                            //tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                //tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
 
-                            //g.write_file(tmp_str);
+                //g.write_file(tmp_str);
+                // if(label == "smurf."){
+                //   cout << row[0] << " " << row[1] << " " << row[2] << " " << row[4] << " " << jml_dt <<endl;  
+                // } 
 
-                            /*if (label != "normal.")
-                            {
-                                cout << tmp_str << endl;
-                            }*/
 
-                        }
-                        f.next_record();
-                        row.clear();
-                        row.shrink_to_fit();
-                        
-                        jml_dt++;
-                    }
+            }
+            f.next_record();
+            row.clear();
+            row.shrink_to_fit();
 
-                    f.close_file();
-                    conf_metrix.kalkulasi();
-                    cout << conf_metrix << endl;
+            jml_dt++;
+        }
 
-                } else {
-                    cout << "Gagal Buka File !!!" << endl;
-                }
-        //    }
+        f.close_file();
+        conf_metrix.kalkulasi();
+        cout << conf_metrix << endl;
 
-      //  }
-    //}
+    } else {
+        cout << "Gagal Buka File !!!" << endl;
+    }
+
 
     //g.close_file();
 

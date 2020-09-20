@@ -16,21 +16,34 @@ make
 wait
 ./labeling data/master_identifications.list ../my_dt/data/4w_monday_in.csv
 wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_thursday_out.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_thursday_in.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_tuesday_out.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_out.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_in.csv
-# wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_41122222.csv
+./labeling data/master_identifications.list ../my_dt/data/4w_thursday_out.csv
 wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_41084031.csv
+./labeling data/master_identifications.list ../my_dt/data/4w_thursday_in.csv
 wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_41114554.csv
+./labeling data/master_identifications.list ../my_dt/data/4w_tuesday_out.csv
+wait
+./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_out.csv
+wait
+./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_in.csv
+wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41122222.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41084031.csv
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41114554.csv
+
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_in.csv
+
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_out.csv
+
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_out_icmp.csv
+
+# wait
+# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41161308_in.csv
+
 
 # ./labeling data/master_identifications.list ../my_dt/data/5w_friday_in.csv
 # wait

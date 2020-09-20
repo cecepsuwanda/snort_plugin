@@ -53,6 +53,7 @@ struct tip_fragment
   string part3;
   string part4;
   int port;
+  string protocol;    
 };
 
 typedef vector<field_filter *> vec_field_filter;
@@ -91,13 +92,13 @@ private:
   twaktu waktu_frag(string waktu_str);
   int waktu_to_sec(twaktu waktu);
   bool compare_ip(tip_fragment ip1, tip_fragment ip2);
-  bool compare_port(int port1, string port2);
+  bool compare_port(int port1, string protocol, string port2);
   bool isNumber(std::string token);
   void datetime_adjustment(ttanggal &tanggal, twaktu &waktu);
 
   bool is_date_pass(vector<string> &row, field_filter *field);
   bool is_waktu_pass(vector<string> &row, field_filter *field);
-  bool is_ip_pass(string ip_src, string ip_dst, vector<string> &ip_attacker, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim);
+  bool is_ip_pass(string ip_src, string ip_dst,string protocol, vector<string> &ip_attacker, vector<string> &ip_victim, vector<string> &port_attacker, vector<string> &port_victim);
   bool is_ip_attacker(tip_fragment ip, vector<string> &ip_attacker);
   bool is_ip_victim(tip_fragment ip, vector<string> &ip_victim);
   bool is_port_attacker(tip_fragment ip, vector<string> &port_attacker);
