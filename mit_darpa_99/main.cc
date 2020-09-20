@@ -20,12 +20,9 @@ int main(int argc, char *argv[])
     Tread_file f;
     Tread_file g;
 
-    /*g.setnm_f("/home/cecep/python/mit_darpa_99/data/alert_csv_mit_darpa_99.csv");
-    g.setseparator(", ");
 
-    g.open_file("w+");*/
 
-    
+
     string nm_file;
     string label, tmp_str = "";
     vector<string> row;
@@ -40,6 +37,11 @@ int main(int argc, char *argv[])
 
     if (f.open_file())
     {
+        g.setnm_f(argv[3]);
+        g.setseparator(", ");
+
+        g.open_file("w+");
+
         int jml_dt = 0;
         while (!f.is_eof())
         {
@@ -47,22 +49,22 @@ int main(int argc, char *argv[])
             if (row.size() > 0) {
                 tmp_str = "";
 
-                /*for (int l = 0; l < row.size(); ++l)
+                for (int l = 0; l < row.size(); ++l)
                 {
                     tmp_str += row[l] + ",";
-                }*/
+                }
 
 
                 label = olah_label.labeli(row);
 
                 conf_metrix.add_jml(label, row[row.size() - 1], 1);
 
-                //tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
+                tmp_str += label ; //+ "," + "any_rule_" + hari[i] + "_" + to_string(week[j]) + "_" + dir[k] + ".csv";
 
-                //g.write_file(tmp_str);
+                g.write_file(tmp_str);
                 // if(label == "smurf."){
-                //   cout << row[0] << " " << row[1] << " " << row[2] << " " << row[4] << " " << jml_dt <<endl;  
-                // } 
+                //   cout << row[0] << " " << row[1] << " " << row[2] << " " << row[4] << " " << jml_dt <<endl;
+                // }
 
 
             }
@@ -77,12 +79,14 @@ int main(int argc, char *argv[])
         conf_metrix.kalkulasi();
         cout << conf_metrix << endl;
 
+        g.close_file();
+
     } else {
         cout << "Gagal Buka File !!!" << endl;
     }
 
 
-    //g.close_file();
+
 
     return 0;
 }
