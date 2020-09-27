@@ -8,7 +8,7 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 	Tolah_label olah_label;
-	olah_label.setnm_f(argv[2],argv[3]);
+	olah_label.setnm_f(argv[4],argv[5]);
 	olah_label.baca_file();
 
 
@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
 					tmp_str += row[l] + ",";
 				}
 
-				label = olah_label.labeli(row);
+				label = olah_label.labeli(row,argv[2],argv[3]);
 
 				conf_metrix.add_jml(label, row[row.size() - 1], 1);
 
