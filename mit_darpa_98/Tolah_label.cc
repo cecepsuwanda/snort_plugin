@@ -420,7 +420,7 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	tmp_ip_src.protocol = row[4];
 	tmp_ip_dst.protocol = row[4];
 
-
+    
 
 	if (!isQuote(field->src) && !isQuote(field->dst))
 	{
@@ -433,10 +433,17 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 			is_pass2 =  compare_ip(tmp_ip_dst, tmp_ip2);
 			is_pass3 =  compare_ip(tmp_ip_dst, tmp_ip1);            
 			is_pass4 =  compare_ip(tmp_ip_src, tmp_ip2);
-			is_pass = (is_pass1 || is_pass2) || ( is_pass3 || is_pass4);
+			
+			is_pass = (is_pass1 && is_pass2) || (is_pass3 && is_pass4);
+			if(is_pass2){
+			  cout << field->name << endl;	
+			  cout << row[1] << " " << row[2]  << endl;
+              cout << field->src << " " << field->dst  << endl;
+              cout << "------------------------------" << endl;
+            }
 			if(is_pass)
 			{
-              //cout << row[0] << endl;
+              cout << row[0] << endl;
 			}
 
 		}
@@ -464,9 +471,9 @@ string Tolah_label::labeli(vector<string> row, string week, string day)
 			while ( !ketemu && (itr2 != tmp_vec->end()) )
 			{
 				field_filter *field = *itr2;
-
-				if (is_waktu_pass(row, field))
+               	if (is_waktu_pass(row, field))
 				{
+				    
 					if (is_ip_pass(row, field))
 					{
 						ketemu = true;
