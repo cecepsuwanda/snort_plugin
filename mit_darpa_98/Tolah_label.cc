@@ -435,15 +435,15 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 			is_pass4 =  compare_ip(tmp_ip_src, tmp_ip2);
 			
 			is_pass = (is_pass1 && is_pass2) || (is_pass3 && is_pass4);
-			if(is_pass2){
-			  cout << field->name << endl;	
-			  cout << row[1] << " " << row[2]  << endl;
-              cout << field->src << " " << field->dst  << endl;
-              cout << "------------------------------" << endl;
-            }
+			// if(is_pass2){
+			//   cout << field->name << endl;	
+			//   cout << row[1] << " " << row[2]  << endl;
+   //            cout << field->src << " " << field->dst  << endl;
+   //            cout << "------------------------------" << endl;
+   //          }
 			if(is_pass)
 			{
-              cout << row[0] << endl;
+              // cout << row[0] << endl;
 			}
 
 		}
