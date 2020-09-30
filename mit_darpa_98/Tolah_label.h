@@ -19,6 +19,7 @@ struct thost
 
 struct field_filter
 {
+	
 	string name;
 	string time;
 	string src;
@@ -46,6 +47,7 @@ class Tolah_label
 private:
 	string _attack_file, _host_file;
 	vector<thost *> vec_host;
+	vec_field_filter vec_attack;
 	map<string, map<string, vec_field_filter>> vec_map;
 
 	vector<string> tokenizer(char *str, const char *separator);

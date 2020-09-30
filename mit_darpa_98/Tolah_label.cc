@@ -61,30 +61,8 @@ void Tolah_label::baca_attack_file()
 				field->where = row[7];
 				field->variant = row[8];
 
-				auto itr = vec_map.find(row[0]);
-				if (itr == vec_map.end())
-				{
-					vec_field_filter tmp_vec;
-					tmp_vec.push_back(field);
-					map<string, vec_field_filter> tmp_map;
-					tmp_map.insert({row[1], tmp_vec});
-					vec_map.insert({row[0], tmp_map});
+				vec_attack.push_back(field);
 
-				} else {
-					map<string, vec_field_filter> *tmp_map = &itr->second;
-					auto itr1 = tmp_map->find(row[1]);
-					if (itr1 == tmp_map->end())
-					{
-						vec_field_filter tmp_vec;
-						tmp_vec.push_back(field);
-						tmp_map->insert({row[1], tmp_vec});
-
-					} else {
-						vec_field_filter *tmp_vec = &itr1->second;
-						tmp_vec->push_back(field);
-
-					}
-				}
 			}
 
 			f.next_record();
@@ -253,97 +231,97 @@ void Tolah_label::baca_file()
 	baca_attack_file();
 	baca_host_file();
 
-	auto itr = vec_map.begin();
+	// auto itr = vec_map.begin();
 
-	while (itr != vec_map.end())
-	{
-		auto itr1 = itr->second.begin();
-		while (itr1 != itr->second.end())
-		{
-			vec_field_filter *tmp_vec = &itr1->second;
-			auto itr2 = tmp_vec->begin();
-			while (itr2 != tmp_vec->end())
-			{
-				field_filter *field = *itr2;
-
-
-				twaktu tmp = waktu_frag(field->time);
-
-				tmp.jam += 12;
-				if (tmp.jam >= 24)
-				{
-					tmp.jam = tmp.jam % 24;
-				}
-
-				field->time =  to_string(tmp.jam) + ":" + to_string(tmp.menit) + ":" + to_string(tmp.detik);
+	// while (itr != vec_map.end())
+	// {
+	// 	auto itr1 = itr->second.begin();
+	// 	while (itr1 != itr->second.end())
+	// 	{
+	// 		vec_field_filter *tmp_vec = &itr1->second;
+	// 		auto itr2 = tmp_vec->begin();
+	// 		while (itr2 != tmp_vec->end())
+	// 		{
+	// 			field_filter *field = *itr2;
 
 
-				//cout << "src : " << field->src << endl;
-				//cout << "dst : " << field->dst << endl;
+	// 			twaktu tmp = waktu_frag(field->time);
+
+	// 			tmp.jam += 12;
+	// 			if (tmp.jam >= 24)
+	// 			{
+	// 				tmp.jam = tmp.jam % 24;
+	// 			}
+
+	// 			field->time =  to_string(tmp.jam) + ":" + to_string(tmp.menit) + ":" + to_string(tmp.detik);
 
 
-				if (!isQuote(field->src) && !isQuote(field->dst))
-				{
-					if (isString(field->src) && isString(field->dst)) {
-						
-						if(field->src == "marx"){
-                           field->src = "mars";  
-						}
-						if(field->dst == "marx"){
-                           field->dst = "mars";  
-						}
-
-						string hsl = search_host(field->src);
-						if (hsl != "-")
-						{
-							field->src = hsl;
-						}
-
-						hsl = search_host(field->dst);
-						if (hsl != "-")
-						{
-							field->dst = hsl;
-						}
-
-						//cout << "----src : " << field->src << endl;
-						//cout << "----dst : " << field->dst << endl;
-					} else {
-						if (isString(field->src)) {
-							string hsl = search_host(field->src);
-							if (hsl != "-")
-							{
-								field->src = hsl;
-							}
-
-							//cout << "----src : " << field->src << endl;
-							//cout << "----dst : " << field->dst << endl;
-						} else {
-							if (isString(field->dst)) {
-								string hsl = search_host(field->dst);
-								if (hsl != "-")
-								{
-									field->dst = hsl;
-								}
-
-								//cout << "----src : " << field->src << endl;
-								//cout << "----dst : " << field->dst << endl;
-							}
-						}
-					}
-
-				} else {
-
-				}
+	// 			//cout << "src : " << field->src << endl;
+	// 			//cout << "dst : " << field->dst << endl;
 
 
-				itr2++;
-			}
+	// 			if (!isQuote(field->src) && !isQuote(field->dst))
+	// 			{
+	// 				if (isString(field->src) && isString(field->dst)) {
 
-			itr1++;
-		}
+	// 					if(field->src == "marx"){
+//                           field->src = "mars";
+	// 					}
+	// 					if(field->dst == "marx"){
+//                           field->dst = "mars";
+	// 					}
 
-		itr++;
-	}
+	// 					string hsl = search_host(field->src);
+	// 					if (hsl != "-")
+	// 					{
+	// 						field->src = hsl;
+	// 					}
+
+	// 					hsl = search_host(field->dst);
+	// 					if (hsl != "-")
+	// 					{
+	// 						field->dst = hsl;
+	// 					}
+
+	// 					//cout << "----src : " << field->src << endl;
+	// 					//cout << "----dst : " << field->dst << endl;
+	// 				} else {
+	// 					if (isString(field->src)) {
+	// 						string hsl = search_host(field->src);
+	// 						if (hsl != "-")
+	// 						{
+	// 							field->src = hsl;
+	// 						}
+
+	// 						//cout << "----src : " << field->src << endl;
+	// 						//cout << "----dst : " << field->dst << endl;
+	// 					} else {
+	// 						if (isString(field->dst)) {
+	// 							string hsl = search_host(field->dst);
+	// 							if (hsl != "-")
+	// 							{
+	// 								field->dst = hsl;
+	// 							}
+
+	// 							//cout << "----src : " << field->src << endl;
+	// 							//cout << "----dst : " << field->dst << endl;
+	// 						}
+	// 					}
+	// 				}
+
+	// 			} else {
+
+	// 			}
+
+
+	// 			itr2++;
+	// 		}
+
+	// 		itr1++;
+	// 	}
+
+	// 	itr++;
+	// }
 
 	/*for (int i = 0; i < vec_host.size(); ++i)
 	{
@@ -411,8 +389,8 @@ bool Tolah_label::compare_ip(tip_fragment ip1, tip_fragment ip2)
 bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 {
 	bool is_pass = false;
-    bool is_pass1,is_pass2,is_pass3,is_pass4; 
-	tip_fragment tmp_ip1,tmp_ip2;
+	bool is_pass1, is_pass2, is_pass3, is_pass4;
+	tip_fragment tmp_ip1, tmp_ip2;
 
 	tip_fragment tmp_ip_src = ip_frag(row[1]);
 	tip_fragment tmp_ip_dst = ip_frag(row[2]);
@@ -420,7 +398,7 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	tmp_ip_src.protocol = row[4];
 	tmp_ip_dst.protocol = row[4];
 
-    
+
 
 	if (!isQuote(field->src) && !isQuote(field->dst))
 	{
@@ -429,27 +407,27 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 			tmp_ip1 = ip_frag(field->src);
 			tmp_ip2 = ip_frag(field->dst);
 
-			is_pass1 =  compare_ip(tmp_ip_src, tmp_ip1);            
+			is_pass1 =  compare_ip(tmp_ip_src, tmp_ip1);
 			is_pass2 =  compare_ip(tmp_ip_dst, tmp_ip2);
-			is_pass3 =  compare_ip(tmp_ip_dst, tmp_ip1);            
+			is_pass3 =  compare_ip(tmp_ip_dst, tmp_ip1);
 			is_pass4 =  compare_ip(tmp_ip_src, tmp_ip2);
-			
+
 			is_pass = (is_pass1 && is_pass2) || (is_pass3 && is_pass4);
 			// if(is_pass2){
-			//   cout << field->name << endl;	
+			//   cout << field->name << endl;
 			//   cout << row[1] << " " << row[2]  << endl;
-   //            cout << field->src << " " << field->dst  << endl;
-   //            cout << "------------------------------" << endl;
-   //          }
-			if(is_pass)
+			//            cout << field->src << " " << field->dst  << endl;
+			//            cout << "------------------------------" << endl;
+			//          }
+			if (is_pass)
 			{
-              // cout << row[0] << endl;
+				// cout << row[0] << endl;
 			}
 
 		}
 	}
 
-	
+
 
 	return is_pass;
 }
@@ -471,9 +449,9 @@ string Tolah_label::labeli(vector<string> row, string week, string day)
 			while ( !ketemu && (itr2 != tmp_vec->end()) )
 			{
 				field_filter *field = *itr2;
-               	if (is_waktu_pass(row, field))
+				if (is_waktu_pass(row, field))
 				{
-				    
+
 					if (is_ip_pass(row, field))
 					{
 						ketemu = true;
