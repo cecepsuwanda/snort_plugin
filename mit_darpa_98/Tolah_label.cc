@@ -35,6 +35,38 @@ void Tolah_label::setnm_f(string nm_attack_f, string nm_host_f)
 	_host_file = nm_host_f;
 }
 
+long Tolah_label::ttanggal_to_timestamp(ttanggal tgl)
+{
+	struct tm t;
+	time_t t_of_day;
+
+	t.tm_year = tgl.tahun - 1900; // Year - 1900
+	t.tm_mon = tgl.bulan - 1;         // Month, where 0 = jan
+	t.tm_mday = tgl.tanggal;          // Day of the month
+	t.tm_hour = 0;
+	t.tm_min = 0;
+	t.tm_sec = 0;
+	t.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+	t_of_day = mktime(&t);
+	return (long) t_of_day;
+}
+
+long Tolah_label::datetime_to_timestamp(ttanggal tgl, twaktu waktu)
+{
+	struct tm t;
+	time_t t_of_day;
+
+	t.tm_year = tgl.tahun - 1900; // Year - 1900
+	t.tm_mon = tgl.bulan - 1;         // Month, where 0 = jan
+	t.tm_mday = tgl.tanggal;          // Day of the month
+	t.tm_hour = waktu.jam;
+	t.tm_min = waktu.menit;
+	t.tm_sec = waktu.detik;
+	t.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+	t_of_day = mktime(&t);
+	return (long) t_of_day;
+}
+
 
 void Tolah_label::baca_attack_file()
 {
@@ -82,6 +114,145 @@ void Tolah_label::baca_attack_file()
 					if (hsl != "-")
 					{
 						field->src = hsl;
+						field->vec_src.push_back(hsl);
+					} else {
+						if (field->src == "allvin")
+						{
+							int i = 0;
+							while (i < vec_host.size())
+							{
+								size_t found = vec_host[i]->tag.find("in");
+								if (found != string::npos)
+								{
+									field->vec_src.push_back(vec_host[i]->ip_addr);
+								}
+								i++;
+							}
+						} else {
+							//cout << "string src : " << field->src << endl;
+						}
+					}
+				} else {
+					if (isIP4(field->src)) {
+						field->vec_src.push_back(field->src);
+					} else {
+						if (isIP4star(field->src))
+						{
+							field->vec_src.push_back(field->src);
+						} else {
+							if (isQuote(field->src))
+							{
+								if ((field->src == "\"allpcsandlinux\"") || (field->src == "\"all.pcs.and.linux\"") || (field->src == "\"allpc|vlinux\"")) {
+									int i = 0;
+									while (i < vec_host.size())
+									{
+										size_t found = vec_host[i]->host_name.find("pc");
+										if (found != string::npos)
+										{
+											field->vec_src.push_back(vec_host[i]->ip_addr);
+										}
+
+										found = vec_host[i]->host_name.find("linux");
+										if (found != string::npos)
+										{
+											field->vec_src.push_back(vec_host[i]->ip_addr);
+										}
+
+										i++;
+									}
+
+								} else {
+									size_t found = field->src.find("|");
+									if (found != string::npos)
+									{
+										string tmp_str = field->src.substr(1, field->src.length() - 2);
+										vector<string> data = tokenizer((char *)tmp_str.c_str(), "|");
+										if (data.size() > 0) {
+											for (int i = 0; i < data.size(); ++i)
+											{
+												if (isString(data[i]))
+												{
+													if (data[i] == "marx") {
+														data[i] = "mars";
+													}
+
+													string hsl = search_host(data[i]);
+													if (hsl != "-")
+													{
+														data[i] = hsl;
+														field->vec_src.push_back(hsl);
+													}
+												} else {
+													if (isIP43seg(data[i]))
+													{
+														field->vec_src.push_back(data[i] + ".*");
+													}
+												}
+											}
+										}
+
+									}
+								}
+							} else {
+								if (field->src == "10.different")
+								{
+									field->vec_src.push_back("10.*.*.*");
+								} else {
+									if (field->src == "all.attackers")
+									{
+										int i = 0;
+										while (i < vec_host.size())
+										{
+											size_t found = vec_host[i]->tag.find("in");
+											if (found != string::npos)
+											{
+												field->vec_src.push_back(vec_host[i]->ip_addr);
+											}
+
+											found = vec_host[i]->tag.find("out");
+											if (found != string::npos)
+											{
+												field->vec_src.push_back(vec_host[i]->ip_addr);
+											}
+
+											i++;
+										}
+									} else {
+										if (field->src == "all.outside")
+										{
+											int i = 0;
+											while (i < vec_host.size())
+											{
+												size_t found = vec_host[i]->tag.find("out");
+												if (found != string::npos)
+												{
+													field->vec_src.push_back(vec_host[i]->ip_addr);
+												}
+												i++;
+											}
+
+										} else {
+											if ((field->src == "all.vin") || (field->src == "allvin"))
+											{
+												int i = 0;
+												while (i < vec_host.size())
+												{
+													size_t found = vec_host[i]->tag.find("in");
+													if (found != string::npos)
+													{
+														field->vec_src.push_back(vec_host[i]->ip_addr);
+													}
+													i++;
+												}
+
+											} else {
+												//cout << "src : " << field->src << endl;
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 
@@ -91,28 +262,168 @@ void Tolah_label::baca_attack_file()
 					if (hsl != "-")
 					{
 						field->dst = hsl;
+						field->vec_dst.push_back(hsl);
+					} else {
+						if (field->dst == "allvin")
+						{
+							int i = 0;
+							while (i < vec_host.size())
+							{
+								size_t found = vec_host[i]->tag.find("in");
+								if (found != string::npos)
+								{
+									field->vec_dst.push_back(vec_host[i]->ip_addr);
+								}
+								i++;
+							}
+						} else {
+							//cout << "string dst : " << field->dst << endl;
+						}
+					}
+				} else {
+					if (isIP4(field->dst)) {
+						field->vec_dst.push_back(field->dst);
+					} else {
+						if (isIP4star(field->dst))
+						{
+							field->vec_dst.push_back(field->dst);
+						} else {
+							if (isQuote(field->dst))
+							{
+								if ((field->dst == "\"allpcsandlinux\"") || (field->dst == "\"all.pcs.and.linux\"") || (field->dst == "\"allpc|vlinux\"")) {
+									int i = 0;
+									while (i < vec_host.size())
+									{
+										size_t found = vec_host[i]->host_name.find("pc");
+										if (found != string::npos)
+										{
+											field->vec_dst.push_back(vec_host[i]->ip_addr);
+										}
+
+										found = vec_host[i]->host_name.find("linux");
+										if (found != string::npos)
+										{
+											field->vec_dst.push_back(vec_host[i]->ip_addr);
+										}
+
+										i++;
+									}
+								} else {
+									size_t found = field->dst.find("|");
+									if (found != string::npos)
+									{
+										string tmp_str = field->dst.substr(1, field->dst.length() - 2);
+										vector<string> data = tokenizer((char *)tmp_str.c_str(), "|");
+										if (data.size() > 0) {
+											for (int i = 0; i < data.size(); ++i)
+											{
+
+												if (isString(data[i]))
+												{
+													if (data[i] == "marx") {
+														data[i] = "mars";
+													}
+
+													string hsl = search_host(data[i]);
+													if (hsl != "-")
+													{
+														data[i] = hsl;
+														field->vec_dst.push_back(hsl);
+													}
+												} else {
+													if (isIP43seg(data[i]))
+													{
+														field->vec_dst.push_back(data[i] + ".*");
+													}
+												}
+											}
+										}
+
+									}
+								}
+							} else {
+								if (field->dst == "10.different")
+								{
+									field->vec_dst.push_back("10.*.*.*");
+								} else {
+									if (field->dst == "all.attackers")
+									{
+										int i = 0;
+										while (i < vec_host.size())
+										{
+											size_t found = vec_host[i]->tag.find("in");
+											if (found != string::npos)
+											{
+												field->vec_dst.push_back(vec_host[i]->ip_addr);
+											}
+
+											found = vec_host[i]->tag.find("out");
+											if (found != string::npos)
+											{
+												field->vec_dst.push_back(vec_host[i]->ip_addr);
+											}
+
+											i++;
+										}
+									} else {
+										if (field->dst == "all.outside")
+										{
+											int i = 0;
+											while (i < vec_host.size())
+											{
+												size_t found = vec_host[i]->tag.find("out");
+												if (found != string::npos)
+												{
+													field->vec_dst.push_back(vec_host[i]->ip_addr);
+												}
+												i++;
+											}
+										} else {
+											if ((field->dst == "all.vin") ||  (field->dst == "allvin"))
+											{
+												int i = 0;
+												while (i < vec_host.size())
+												{
+													size_t found = vec_host[i]->tag.find("in");
+													if (found != string::npos)
+													{
+														field->vec_dst.push_back(vec_host[i]->ip_addr);
+													}
+													i++;
+												}
+											} else {
+												//cout << "dst : " << field->dst << endl;
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 
-				int tmp_day = 0;
-				int tmp_month = 0;
+				ttanggal attack_tgl;
+
+				attack_tgl.tanggal = 0;
+				attack_tgl.bulan = 0;
+				attack_tgl.tahun = 1998;
 				if (stoi(row[0]) < 6)
 				{
-					tmp_day = 1 + ((stoi(row[0]) - 1) * 7);
-					tmp_month = 6;
+					attack_tgl.tanggal = 1 + ((stoi(row[0]) - 1) * 7);
+					attack_tgl.bulan = 6;
 				} else {
-					tmp_day = 6 + ((stoi(row[0]) - 6) * 7);
-					tmp_month = 7;
+					attack_tgl.tanggal = 6 + ((stoi(row[0]) - 6) * 7);
+					attack_tgl.bulan = 7;
 				}
 
 				auto it = map_day.find(row[1]);
 				if (it != map_day.end())
 				{
-					tmp_day += it->second;
-					if (tmp_day > 30)
+					attack_tgl.tanggal += it->second;
+					if (attack_tgl.tanggal > 30)
 					{
-						tmp_day = tmp_day % 30;
-						tmp_month += 1;
+						attack_tgl.tanggal = attack_tgl.tanggal % 30;
+						attack_tgl.bulan += 1;
 					}
 				}
 
@@ -121,24 +432,34 @@ void Tolah_label::baca_attack_file()
 
 				if (tmp_waktu.jam >= 24)
 				{
-					tmp_day += 1;
+					attack_tgl.tanggal += 1;
 					tmp_waktu.jam = tmp_waktu.jam % 24;
 				}
 
-				cout << "Tanggal : " << tmp_day << "/" << tmp_month << "/" << 1998 << endl ;
-				cout << "Jam     : " << tmp_waktu.jam << ":" << tmp_waktu.menit << ":" << tmp_waktu.detik << endl;
-				cout << "src     : " << field->src << endl;
-				cout << "dst     : " << field->dst << endl;
-
+				field->tgl_timestamp = ttanggal_to_timestamp(attack_tgl);
+				field->waktu_timestamp = datetime_to_timestamp(attack_tgl, tmp_waktu);
 
 				vec_attack.push_back(field);
 
-				string tmp_str = "";
-				for (int i = 0; i < row.size(); ++i)
-				{
-					tmp_str += row[i] + ",";
-				}
-				cout << tmp_str << endl;
+				// if (field->src == "src.same.as.dst")
+				// {
+				// 	cout << "Tanggal       : " << attack_tgl.tanggal << "/" << attack_tgl.bulan << "/" << attack_tgl.tahun << endl ;
+				// 	cout << "Jam           : " << tmp_waktu.jam << ":" << tmp_waktu.menit << ":" << tmp_waktu.detik << endl;
+				// 	// cout << "tgl timestamp : " << field->tgl_timestamp << endl;
+				// 	// cout << "waktu timestamp : " << field->waktu_timestamp << endl;
+				// 	cout << "src     : " << field->src << endl;
+				// 	cout << "dst     : " << field->dst << endl;
+
+
+
+
+				// 	string tmp_str = "";
+				// 	for (int i = 0; i < row.size(); ++i)
+				// 	{
+				// 		tmp_str += row[i] + ",";
+				// 	}
+				// 	cout << tmp_str << endl;
+				// }
 
 			}
 
@@ -163,7 +484,6 @@ void Tolah_label::baca_host_file()
 	if (f.open_file())
 	{
 		vector<string> row;
-		string tmp_str;
 		while (!f.is_eof())
 		{
 			row = f.get_record();
@@ -171,6 +491,7 @@ void Tolah_label::baca_host_file()
 				thost *tmp_host = new thost;
 				tmp_host->ip_addr = row[0];
 				tmp_host->host_name = row[1];
+				tmp_host->tag = row[4];
 				vec_host.push_back(tmp_host);
 			}
 
@@ -201,14 +522,22 @@ string Tolah_label::search_host(string token)
 
 		i++;
 	}
-
-
 	return hasil;
 }
 
 bool Tolah_label::isIP4(string token)
 {
 	return std::regex_match(token, std::regex(("\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b")));
+}
+
+bool Tolah_label::isIP4star(string token)
+{
+	return std::regex_match(token, std::regex(("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.[*]?")));
+}
+
+bool Tolah_label::isIP43seg(string token)
+{
+	return std::regex_match(token, std::regex(("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")));
 }
 
 bool Tolah_label::isQuote(string token)

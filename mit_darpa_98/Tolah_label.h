@@ -12,10 +12,17 @@ struct twaktu
   int jam, menit, detik;
 };
 
+struct ttanggal
+{
+  int tanggal, bulan, tahun;
+};
+
+
 struct thost
 {
 	string ip_addr;
 	string host_name;
+	string tag;
 };
 
 struct field_filter
@@ -25,10 +32,14 @@ struct field_filter
 	string name;
 	string time;
 	string src;
+	vector<string> vec_src;
 	string dst;
+	vector<string> vec_dst;
 	string user;
 	string where;
 	string variant;
+	long tgl_timestamp;
+	long waktu_timestamp;
 };
 
 struct tip_fragment
@@ -50,7 +61,7 @@ private:
 	string _attack_file, _host_file;
 	vector<thost *> vec_host;
 	vec_field_filter vec_attack;
-	map<string, map<string, vec_field_filter>> vec_map;
+	map<long, map<long, vec_field_filter>> vec_map;
 
 	vector<string> tokenizer(char *str, const char *separator);
 
@@ -60,6 +71,8 @@ private:
 	string search_host(string token);
 
 	bool isIP4(string token);
+	bool isIP4star(string token);
+	bool isIP43seg(string token);
 	bool isQuote(string token);
 	bool isString(string token);
 	bool is_subs(string stack, string needle);
@@ -72,6 +85,9 @@ private:
 
 	bool is_waktu_pass(vector<string> &row, field_filter *field);
 	bool is_ip_pass(vector<string> &row, field_filter *field);
+
+	long ttanggal_to_timestamp(ttanggal tgl);
+	long datetime_to_timestamp(ttanggal tgl,twaktu waktu);
 
 public:
 	Tolah_label();
