@@ -45,14 +45,22 @@ void Tolah_label::baca_attack_file()
 
 	if (f.open_file())
 	{
+		map<string, int> map_day;
+		map_day.insert({"Mon", 0});
+		map_day.insert({"Tues", 1});
+		map_day.insert({"Wed", 2});
+		map_day.insert({"Thurs", 3});
+		map_day.insert({"Fri", 4});
+
 		vector<string> row;
-		string tmp_str;
-		int jml_data = 0;
 		while (!f.is_eof())
 		{
 			row = f.get_record();
 			if (row.size() > 0) {
 				field_filter *field = new field_filter;
+
+				field->week = row[0];
+				field->day  = row[1];
 				field->name = row[2];
 				field->time = row[3];
 				field->src  = row[4];
@@ -61,7 +69,76 @@ void Tolah_label::baca_attack_file()
 				field->where = row[7];
 				field->variant = row[8];
 
+				if (field->src == "marx") {
+					field->src = "mars";
+				}
+				if (field->dst == "marx") {
+					field->dst = "mars";
+				}
+
+				if (isString(field->src))
+				{
+					string hsl = search_host(field->src);
+					if (hsl != "-")
+					{
+						field->src = hsl;
+					}
+				}
+
+				if (isString(field->dst))
+				{
+					string hsl = search_host(field->dst);
+					if (hsl != "-")
+					{
+						field->dst = hsl;
+					}
+				}
+
+				int tmp_day = 0;
+				int tmp_month = 0;
+				if (stoi(row[0]) < 6)
+				{
+					tmp_day = 1 + ((stoi(row[0]) - 1) * 7);
+					tmp_month = 6;
+				} else {
+					tmp_day = 6 + ((stoi(row[0]) - 6) * 7);
+					tmp_month = 7;
+				}
+
+				auto it = map_day.find(row[1]);
+				if (it != map_day.end())
+				{
+					tmp_day += it->second;
+					if (tmp_day > 30)
+					{
+						tmp_day = tmp_day % 30;
+						tmp_month += 1;
+					}
+				}
+
+				twaktu tmp_waktu = waktu_frag(field->time);
+				tmp_waktu.jam += 12;
+
+				if (tmp_waktu.jam >= 24)
+				{
+					tmp_day += 1;
+					tmp_waktu.jam = tmp_waktu.jam % 24;
+				}
+
+				cout << "Tanggal : " << tmp_day << "/" << tmp_month << "/" << 1998 << endl ;
+				cout << "Jam     : " << tmp_waktu.jam << ":" << tmp_waktu.menit << ":" << tmp_waktu.detik << endl;
+				cout << "src     : " << field->src << endl;
+				cout << "dst     : " << field->dst << endl;
+
+
 				vec_attack.push_back(field);
+
+				string tmp_str = "";
+				for (int i = 0; i < row.size(); ++i)
+				{
+					tmp_str += row[i] + ",";
+				}
+				cout << tmp_str << endl;
 
 			}
 
@@ -141,7 +218,7 @@ bool Tolah_label::isQuote(string token)
 
 bool Tolah_label::isString(string token)
 {
-	return std::regex_match(token, std::regex(("[a-z]+")));
+	return std::regex_match(token, std::regex(("[a-z0-9]+")));
 }
 
 bool Tolah_label::is_subs(string stack, string needle)
@@ -228,8 +305,9 @@ int Tolah_label::waktu_to_sec(twaktu waktu)
 
 void Tolah_label::baca_file()
 {
-	baca_attack_file();
 	baca_host_file();
+	baca_attack_file();
+
 
 	// auto itr = vec_map.begin();
 

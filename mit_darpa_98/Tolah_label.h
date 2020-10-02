@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <regex>
+#include <ctime>
 
 using namespace std;
 
@@ -19,7 +20,8 @@ struct thost
 
 struct field_filter
 {
-	
+	string week;
+	string day;
 	string name;
 	string time;
 	string src;
