@@ -68,12 +68,8 @@ private:
 	void baca_attack_file();
 	void baca_host_file();
 
-	string search_host(string token);
 
-	bool isIP4(string token);
-	bool isIP4star(string token);
 	bool isIP43seg(string token);
-	bool isIP4dashstar(string token);
 	bool isQuote(string token);
 	bool isString(string token);
 	bool is_subs(string stack, string needle);
@@ -90,6 +86,8 @@ private:
 
 	long ttanggal_to_timestamp(ttanggal tgl);
 	long datetime_to_timestamp(ttanggal tgl, twaktu waktu);
+
+	void isi_vec_src_dst(string &ip_str, vector<string> &vec);
 
 public:
 	Tolah_label();
