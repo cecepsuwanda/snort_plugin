@@ -322,7 +322,16 @@ void Tolah_label::baca_attack_file()
 				field->tgl_timestamp = ttanggal_to_timestamp(attack_tgl);
 				field->waktu_timestamp = datetime_to_timestamp(attack_tgl, tmp_waktu);
 
-				
+				ttanggal tgl_duration;
+				tgl_duration.tanggal = attack_tgl.tanggal;
+				tgl_duration.bulan = attack_tgl.bulan;
+				tgl_duration.tahun = attack_tgl.tahun;
+				twaktu waktu_duration;
+				waktu_duration.jam = 23;
+				waktu_duration.menit = 59;
+				waktu_duration.detik = 0;
+
+				field->duration_timestamp = datetime_to_timestamp(tgl_duration, waktu_duration);
 
 				vec_attack.push_back(field);
 
@@ -546,13 +555,14 @@ void Tolah_label::baca_file()
 			while (itr2 != tmp_vec->end())
 			{
 				field_filter *field = *itr2;
-				cout  << itr->first << " "
-				      << itr1->first << " "
-				      << field->week << " "
-				      << field->day << " "
-				      << field->time << " "
-				      << field->src << " " << field->vec_src.size() << " "
-				      << field->dst << " " << field->vec_dst.size() << endl;
+				// cout  << itr->first << " "
+				//       << itr1->first << " "
+				//       << field->duration_timestamp << " "
+				//       << field->week << " "
+				//       << field->day << " "
+				//       << field->time << " "
+				//       << field->src << " " << field->vec_src.size() << " "
+				//       << field->dst << " " << field->vec_dst.size() << endl;
 				itr2++;
 			}
 
@@ -721,16 +731,20 @@ string Tolah_label::labeli(vector<string> row)
 				{
 					field_filter *field = *itr2;
 
-					if (is_ip_pass(row, field))
-					{
-						ketemu = true;
-						label = field->name + ".";
-					}
+					// if (waktu_timestamp < field->duration_timestamp) {
+					// 	cout << field->name << " "
+					// 	     << field->time << " "
+					// 	     << field->src << " " << row[1] << " "
+					// 	     << field->dst << " " << row[2] << endl;
 
-					// cout << field->name << endl;
-					// cout << field->time << endl;
-					// cout << field->src << endl;
-					// cout << field->dst << endl;
+						if (is_ip_pass(row, field))
+						{
+							ketemu = true;
+							label = field->name + ".";
+						}
+					// }
+
+
 					itr2++;
 				}
 

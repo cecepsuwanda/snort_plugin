@@ -65,14 +65,14 @@ make
 
 ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
 wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
-# wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/6w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/6w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/6w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/6w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
+wait
 
 # ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv
 # wait

@@ -40,6 +40,7 @@ struct field_filter
 	string variant;
 	long tgl_timestamp;
 	long waktu_timestamp;
+	long duration_timestamp;
 };
 
 struct tip_fragment
