@@ -9,12 +9,12 @@ using namespace std;
 
 struct twaktu
 {
-  int jam, menit, detik;
+	int jam, menit, detik;
 };
 
 struct ttanggal
 {
-  int tanggal, bulan, tahun;
+	int tanggal, bulan, tahun;
 };
 
 
@@ -44,12 +44,12 @@ struct field_filter
 
 struct tip_fragment
 {
-  string part1;
-  string part2;
-  string part3;
-  string part4;
-  int port;
-  string protocol;    
+	string part1;
+	string part2;
+	string part3;
+	string part4;
+	int port;
+	string protocol;
 };
 
 typedef vector<field_filter *> vec_field_filter;
@@ -73,11 +73,13 @@ private:
 	bool isIP4(string token);
 	bool isIP4star(string token);
 	bool isIP43seg(string token);
+	bool isIP4dashstar(string token);
 	bool isQuote(string token);
 	bool isString(string token);
 	bool is_subs(string stack, string needle);
 	bool isNumber(std::string token);
 
+	ttanggal date_frag(string date_str);
 	twaktu waktu_frag(string waktu_str);
 	tip_fragment ip_frag(string ip_port);
 	int waktu_to_sec(twaktu waktu);
@@ -87,7 +89,7 @@ private:
 	bool is_ip_pass(vector<string> &row, field_filter *field);
 
 	long ttanggal_to_timestamp(ttanggal tgl);
-	long datetime_to_timestamp(ttanggal tgl,twaktu waktu);
+	long datetime_to_timestamp(ttanggal tgl, twaktu waktu);
 
 public:
 	Tolah_label();
@@ -95,7 +97,7 @@ public:
 
 	void setnm_f(string nm_attack_f, string nm_host_f);
 	void baca_file();
-	string labeli(vector<string> row, string week, string day);
+	string labeli(vector<string> row);
 
 
 };

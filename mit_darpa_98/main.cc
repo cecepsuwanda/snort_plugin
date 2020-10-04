@@ -8,7 +8,7 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 	Tolah_label olah_label;
-	olah_label.setnm_f(argv[4],argv[5]);
+	olah_label.setnm_f(argv[2],argv[3]);
 	olah_label.baca_file();
 
 
@@ -26,14 +26,14 @@ int main(int argc, char const *argv[])
 	// 	while (!f.is_eof())
 	// 	{
 	// 		row = f.get_record();
-	// 		if (row.size() > 0) {
+	// 		if (row.size() > 30) {
 	// 			tmp_str = "";
 	// 			for (int l = 0; l < row.size(); ++l)
 	// 			{
 	// 				tmp_str += row[l] + ",";
 	// 			}
 
-	// 			label = olah_label.labeli(row,argv[2],argv[3]);
+	// 			label = olah_label.labeli(row);
 
 	// 			conf_metrix.add_jml(label, row[row.size() - 1], 1);
 
