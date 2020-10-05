@@ -13,6 +13,7 @@ int main(int argc, char const *argv[])
 
 
 	Tread_file f;
+	Tread_file g;
 
 	f.setnm_f(argv[1]);
 	f.setseparator(',');
@@ -20,6 +21,11 @@ int main(int argc, char const *argv[])
 
 	if (f.open_file())
 	{
+		g.setnm_f(argv[4]);
+        g.setseparator(',');
+
+        g.open_file("w+");
+
 		Tconf_metrix conf_metrix;
 		vector<string> row;
 		string tmp_str,label;
@@ -39,6 +45,8 @@ int main(int argc, char const *argv[])
 
 				tmp_str += label ;
 
+				g.write_file(tmp_str);
+
 				//cout << tmp_str << endl;
 			}
 
@@ -47,6 +55,7 @@ int main(int argc, char const *argv[])
 			row.shrink_to_fit();
 		}
 		f.close_file();
+		g.close_file();
 		conf_metrix.kalkulasi();
 		cout << conf_metrix << endl;
 	} else {

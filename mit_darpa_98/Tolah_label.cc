@@ -327,7 +327,7 @@ void Tolah_label::baca_attack_file()
 				tgl_duration.bulan = attack_tgl.bulan;
 				tgl_duration.tahun = attack_tgl.tahun;
 				twaktu waktu_duration;
-				waktu_duration.jam = 23;
+				waktu_duration.jam = tmp_waktu.jam;
 				waktu_duration.menit = 59;
 				waktu_duration.detik = 0;
 
@@ -731,18 +731,18 @@ string Tolah_label::labeli(vector<string> row)
 				{
 					field_filter *field = *itr2;
 
-					// if (waktu_timestamp < field->duration_timestamp) {
-					// 	cout << field->name << " "
-					// 	     << field->time << " "
-					// 	     << field->src << " " << row[1] << " "
-					// 	     << field->dst << " " << row[2] << endl;
+					if (waktu_timestamp < field->duration_timestamp) {
+						// cout << field->name << " "
+						//      << field->time << " "
+						//      << field->src << " " << row[1] << " "
+						//      << field->dst << " " << row[2] << endl;
 
 						if (is_ip_pass(row, field))
 						{
 							ketemu = true;
 							label = field->name + ".";
 						}
-					// }
+					}
 
 
 					itr2++;
