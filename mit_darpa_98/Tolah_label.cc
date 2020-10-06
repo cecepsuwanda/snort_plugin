@@ -246,6 +246,21 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 
 void Tolah_label::baca_attack_file()
 {
+	auto datetime_adjusment = [](ttanggal &tanggal, twaktu &waktu)
+	{
+		if (waktu.jam >= 24)
+		{
+			tanggal.tanggal += 1;
+			waktu.jam = waktu.jam % 24;
+			if (tanggal.tanggal > 30)
+			{
+				tanggal.tanggal = tanggal.tanggal % 30;
+				tanggal.bulan += 1;
+			}
+		}
+	};
+
+
 	Tread_file f;
 
 	f.setnm_f(_attack_file);
@@ -308,16 +323,7 @@ void Tolah_label::baca_attack_file()
 				twaktu tmp_waktu = waktu_frag(field->time);
 				tmp_waktu.jam += 12;
 
-				if (tmp_waktu.jam >= 24)
-				{
-					attack_tgl.tanggal += 1;
-					tmp_waktu.jam = tmp_waktu.jam % 24;
-					if (attack_tgl.tanggal > 30)
-					{
-						attack_tgl.tanggal = attack_tgl.tanggal % 30;
-						attack_tgl.bulan += 1;
-					}
-				}
+				datetime_adjusment(attack_tgl,tmp_waktu);				
 
 				field->tgl_timestamp = ttanggal_to_timestamp(attack_tgl);
 				field->waktu_timestamp = datetime_to_timestamp(attack_tgl, tmp_waktu);
@@ -326,10 +332,16 @@ void Tolah_label::baca_attack_file()
 				tgl_duration.tanggal = attack_tgl.tanggal;
 				tgl_duration.bulan = attack_tgl.bulan;
 				tgl_duration.tahun = attack_tgl.tahun;
+
+				int sec = (tmp_waktu.jam * 3600) + (tmp_waktu.menit * 60) + tmp_waktu.detik;
+				sec += (12*3600);
+
 				twaktu waktu_duration;
-				waktu_duration.jam = tmp_waktu.jam;
-				waktu_duration.menit = 59;
-				waktu_duration.detik = 0;
+				waktu_duration.jam = sec / 3600; //tmp_waktu.jam;
+				waktu_duration.menit = (sec % 3600) / 60;
+				waktu_duration.detik = (sec % 3600) % 60;
+
+				datetime_adjusment(tgl_duration,waktu_duration);
 
 				field->duration_timestamp = datetime_to_timestamp(tgl_duration, waktu_duration);
 
@@ -518,6 +530,7 @@ void Tolah_label::baca_file()
 	baca_host_file();
 	baca_attack_file();
 
+
 	for (int i = 0; i < vec_attack.size(); ++i)
 	{
 		auto itr = vec_map.find(vec_attack[i]->tgl_timestamp);
@@ -543,6 +556,7 @@ void Tolah_label::baca_file()
 		}
 	}
 
+	field_filter *previous_field = NULL;
 	auto itr = vec_map.begin();
 	while (itr != vec_map.end())
 	{
@@ -555,14 +569,33 @@ void Tolah_label::baca_file()
 			while (itr2 != tmp_vec->end())
 			{
 				field_filter *field = *itr2;
-				// cout  << itr->first << " "
-				//       << itr1->first << " "
-				//       << field->duration_timestamp << " "
-				//       << field->week << " "
-				//       << field->day << " "
-				//       << field->time << " "
-				//       << field->src << " " << field->vec_src.size() << " "
-				//       << field->dst << " " << field->vec_dst.size() << endl;
+				cout  << "first " << itr->first << " "
+				      << itr1->first << " "
+				      << field->duration_timestamp << " "
+				      << field->name << " "
+				      << field->week << " "
+				      << field->day << " "
+				      << field->time << " "
+				      << field->src << " " << field->vec_src.size() << " "
+				      << field->dst << " " << field->vec_dst.size() << endl;
+
+				if (previous_field != NULL)
+				{
+					if (previous_field->tgl_timestamp == field->tgl_timestamp)
+					{
+						//previous_field->duration_timestamp = field->waktu_timestamp;
+						// cout  << "change " << previous_field->tgl_timestamp << " "
+						//       << previous_field->waktu_timestamp << " "
+						//       << previous_field->duration_timestamp << " "
+						//       << previous_field->name << " "
+						//       << previous_field->week << " "
+						//       << previous_field->day << " "
+						//       << previous_field->time << endl;
+					}
+				}
+
+				previous_field = *itr2;
+
 				itr2++;
 			}
 
