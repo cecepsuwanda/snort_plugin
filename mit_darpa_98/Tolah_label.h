@@ -38,6 +38,7 @@ struct field_filter
 	string user;
 	string where;
 	string variant;
+	string duration;
 	long tgl_timestamp;
 	long waktu_timestamp;
 	long duration_timestamp;

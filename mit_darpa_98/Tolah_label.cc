@@ -132,7 +132,7 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 
 
 	if (ip_str == "marx") {
-		ip_str = "mars";
+		ip_str = "172.016.114.050";
 	}
 
 	if (isString(ip_str))
@@ -203,16 +203,71 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 			} else {
 				if (ip_str == "10.different")
 				{
-					vec.push_back("10.*.*.*");
+					vec.push_back("153.107.252.*");
+					vec.push_back("205.231.028.*");
+					vec.push_back("207.230.054.*");
+					vec.push_back("209.001.012.*");
+					vec.push_back("209.012.013.*");
+					vec.push_back("209.030.070.*");
+					vec.push_back("209.030.071.*");
+					vec.push_back("209.074.060.*");
+
 				} else {
 					if (ip_str == "all.attackers")
 					{
-						vector<string> vec_cari;
-						vec_cari.push_back("in");
-						vec_cari.push_back("out");
-						string tmp_str;
-						isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
-
+						vec.push_back("128.223.199.068");
+						vec.push_back("135.008.060.182");
+						vec.push_back("139.134.061.042");
+						vec.push_back("152.169.215.104");
+						vec.push_back("152.204.242.193");
+						vec.push_back("153.010.008.174");
+						vec.push_back("153.037.134.017");
+						vec.push_back("153.107.252.061");
+						vec.push_back("166.102.114.043");
+						vec.push_back("172.016.112.050");
+						vec.push_back("172.016.114.050");
+						vec.push_back("192.005.041.239");
+						vec.push_back("196.227.033.189");
+						vec.push_back("197.182.091.233");
+						vec.push_back("197.218.177.069");
+						vec.push_back("199.174.194.016");
+						vec.push_back("199.227.099.125");
+						vec.push_back("200.027.121.118");
+						vec.push_back("202.049.244.010");
+						vec.push_back("202.072.001.077");
+						vec.push_back("202.077.162.213");
+						vec.push_back("202.247.224.089");
+						vec.push_back("204.071.051.016");
+						vec.push_back("204.097.153.043");
+						vec.push_back("204.233.047.021");
+						vec.push_back("205.160.208.190");
+						vec.push_back("205.180.112.036");
+						vec.push_back("205.231.028.163");
+						vec.push_back("206.047.098.151");
+						vec.push_back("206.048.044.018");
+						vec.push_back("206.186.080.111");
+						vec.push_back("206.222.003.197");
+						vec.push_back("206.229.221.082");
+						vec.push_back("207.075.239.115");
+						vec.push_back("207.103.080.104");
+						vec.push_back("207.114.237.057");
+						vec.push_back("207.136.086.223");
+						vec.push_back("207.181.092.211");
+						vec.push_back("207.230.054.203");
+						vec.push_back("207.253.084.013");
+						vec.push_back("208.239.005.230");
+						vec.push_back("208.240.124.083");
+						vec.push_back("208.253.077.185");
+						vec.push_back("208.254.251.132");
+						vec.push_back("209.001.012.046");
+						vec.push_back("209.012.013.144");
+						vec.push_back("209.017.189.098");
+						vec.push_back("209.030.070.014");
+						vec.push_back("209.030.071.165");
+						vec.push_back("209.074.060.168");
+						vec.push_back("209.117.157.183");
+						vec.push_back("209.154.098.104");
+						vec.push_back("209.167.099.071");
 					} else {
 						if (ip_str == "all.outside")
 						{
@@ -230,11 +285,25 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 								isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
 
 							} else {
-								if (ip_str != "*")
-								{
-									//cout << "src : " << field->src << endl;
-								}
 
+								if (ip_str == "8subnets")
+								{
+									vec.push_back("128.223.199.*");
+									vec.push_back("139.134.061.*");
+									vec.push_back("202.077.162.*");
+									vec.push_back("202.247.224.*");
+									vec.push_back("204.071.051.*");
+									vec.push_back("204.233.047.*");
+									vec.push_back("207.114.237.*");
+									vec.push_back("209.001.012.*");
+
+								} else {
+
+									if (ip_str != "*")
+									{
+										//cout << "src : " << field->src << endl;
+									}
+								}
 							}
 						}
 					}
@@ -246,16 +315,28 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 
 void Tolah_label::baca_attack_file()
 {
-	auto datetime_adjusment = [](ttanggal &tanggal, twaktu &waktu)
+	auto datetime_adjusment = [](ttanggal & tanggal, twaktu & waktu)
 	{
-		if (waktu.jam >= 24)
+		if (waktu.detik >= 60)
 		{
-			tanggal.tanggal += 1;
-			waktu.jam = waktu.jam % 24;
-			if (tanggal.tanggal > 30)
+			waktu.menit += waktu.detik / 60;
+			waktu.detik = waktu.detik % 60;
+		} else {
+			if (waktu.menit >= 60)
 			{
-				tanggal.tanggal = tanggal.tanggal % 30;
-				tanggal.bulan += 1;
+				waktu.jam += waktu.menit / 60;
+				waktu.menit = waktu.menit % 60;
+			} else {
+				if (waktu.jam >= 24)
+				{
+					tanggal.tanggal += 1;
+					waktu.jam = waktu.jam % 24;
+					if (tanggal.tanggal > 30)
+					{
+						tanggal.tanggal = tanggal.tanggal % 30;
+						tanggal.bulan += 1;
+					}
+				}
 			}
 		}
 	};
@@ -291,6 +372,7 @@ void Tolah_label::baca_attack_file()
 				field->user = row[6];
 				field->where = row[7];
 				field->variant = row[8];
+				field->duration = row[9];
 
 				isi_vec_src_dst(field->src, field->vec_src);
 				isi_vec_src_dst(field->dst, field->vec_dst);
@@ -321,9 +403,9 @@ void Tolah_label::baca_attack_file()
 				}
 
 				twaktu tmp_waktu = waktu_frag(field->time);
-				tmp_waktu.jam += 12;
+				tmp_waktu.jam += 11;
 
-				datetime_adjusment(attack_tgl,tmp_waktu);				
+				datetime_adjusment(attack_tgl, tmp_waktu);
 
 				field->tgl_timestamp = ttanggal_to_timestamp(attack_tgl);
 				field->waktu_timestamp = datetime_to_timestamp(attack_tgl, tmp_waktu);
@@ -333,15 +415,12 @@ void Tolah_label::baca_attack_file()
 				tgl_duration.bulan = attack_tgl.bulan;
 				tgl_duration.tahun = attack_tgl.tahun;
 
-				int sec = (tmp_waktu.jam * 3600) + (tmp_waktu.menit * 60) + tmp_waktu.detik;
-				sec += (12*3600);
+				twaktu waktu_duration = waktu_frag(field->duration);
+				waktu_duration.jam += tmp_waktu.jam;
+				waktu_duration.menit += tmp_waktu.menit;
+				waktu_duration.detik += tmp_waktu.detik;
 
-				twaktu waktu_duration;
-				waktu_duration.jam = sec / 3600; //tmp_waktu.jam;
-				waktu_duration.menit = (sec % 3600) / 60;
-				waktu_duration.detik = (sec % 3600) % 60;
-
-				datetime_adjusment(tgl_duration,waktu_duration);
+				datetime_adjusment(tgl_duration, waktu_duration);
 
 				field->duration_timestamp = datetime_to_timestamp(tgl_duration, waktu_duration);
 
@@ -556,54 +635,54 @@ void Tolah_label::baca_file()
 		}
 	}
 
-	field_filter *previous_field = NULL;
-	auto itr = vec_map.begin();
-	while (itr != vec_map.end())
-	{
-		map<long, vec_field_filter> *tmp_map = &itr->second;
-		auto itr1 = tmp_map->begin();
-		while (itr1 != tmp_map->end())
-		{
-			vec_field_filter *tmp_vec = &itr1->second;
-			auto itr2 = tmp_vec->begin();
-			while (itr2 != tmp_vec->end())
-			{
-				field_filter *field = *itr2;
-				cout  << "first " << itr->first << " "
-				      << itr1->first << " "
-				      << field->duration_timestamp << " "
-				      << field->name << " "
-				      << field->week << " "
-				      << field->day << " "
-				      << field->time << " "
-				      << field->src << " " << field->vec_src.size() << " "
-				      << field->dst << " " << field->vec_dst.size() << endl;
+	// field_filter *previous_field = NULL;
+	// auto itr = vec_map.begin();
+	// while (itr != vec_map.end())
+	// {
+	// 	map<long, vec_field_filter> *tmp_map = &itr->second;
+	// 	auto itr1 = tmp_map->begin();
+	// 	while (itr1 != tmp_map->end())
+	// 	{
+	// 		vec_field_filter *tmp_vec = &itr1->second;
+	// 		auto itr2 = tmp_vec->begin();
+	// 		while (itr2 != tmp_vec->end())
+	// 		{
+	// 			field_filter *field = *itr2;
+	// 			// cout  << "first " << itr->first << " "
+	// 			//       << itr1->first << " "
+	// 			//       << field->duration_timestamp << " "
+	// 			//       << field->name << " "
+	// 			//       << field->week << " "
+	// 			//       << field->day << " "
+	// 			//       << field->time << " "
+	// 			//       << field->src << " " << field->vec_src.size() << " "
+	// 			//       << field->dst << " " << field->vec_dst.size() << endl;
 
-				if (previous_field != NULL)
-				{
-					if (previous_field->tgl_timestamp == field->tgl_timestamp)
-					{
-						//previous_field->duration_timestamp = field->waktu_timestamp;
-						// cout  << "change " << previous_field->tgl_timestamp << " "
-						//       << previous_field->waktu_timestamp << " "
-						//       << previous_field->duration_timestamp << " "
-						//       << previous_field->name << " "
-						//       << previous_field->week << " "
-						//       << previous_field->day << " "
-						//       << previous_field->time << endl;
-					}
-				}
+	// 			if (previous_field != NULL)
+	// 			{
+	// 				if (previous_field->tgl_timestamp == field->tgl_timestamp)
+	// 				{
+	// 					//previous_field->duration_timestamp = field->waktu_timestamp;
+	// 					// cout  << "change " << previous_field->tgl_timestamp << " "
+	// 					//       << previous_field->waktu_timestamp << " "
+	// 					//       << previous_field->duration_timestamp << " "
+	// 					//       << previous_field->name << " "
+	// 					//       << previous_field->week << " "
+	// 					//       << previous_field->day << " "
+	// 					//       << previous_field->time << endl;
+	// 				}
+	// 			}
 
-				previous_field = *itr2;
+	// 			previous_field = *itr2;
 
-				itr2++;
-			}
+	// 			itr2++;
+	// 		}
 
-			itr1++;
-		}
+	// 		itr1++;
+	// 	}
 
-		itr++;
-	}
+	// 	itr++;
+	// }
 
 }
 
@@ -702,14 +781,14 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	if (field->vec_src.size() > 0)
 	{
 		is_pass_src_src = check_vector(tmp_ip_src, field->vec_src);
-		is_pass_dst_src = check_vector(tmp_ip_dst, field->vec_src);
+		//is_pass_dst_src = check_vector(tmp_ip_dst, field->vec_src);
 	} else {
 		if (field->src == "*")
 		{
 			is_pass_src_src = true;
 			is_pass_src_dst = true;
 		} else {
-			if (field->src == "src.same.as.dst")
+			if ((field->src == "src.same.as.dst") || ((field->src == "several") && (field->dst == "several") ))
 			{
 				is_pass_src_src = compare_ip(tmp_ip_src, tmp_ip_dst);
 				is_pass_dst_dst = compare_ip(tmp_ip_src, tmp_ip_dst);
@@ -720,7 +799,7 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	if (field->vec_dst.size() > 0)
 	{
 		is_pass_dst_dst = check_vector(tmp_ip_dst, field->vec_dst);
-		is_pass_src_dst = check_vector(tmp_ip_src, field->vec_dst);
+		//is_pass_src_dst = check_vector(tmp_ip_src, field->vec_dst);
 	} else {
 		if (field->dst == "*")
 		{
@@ -739,7 +818,7 @@ string Tolah_label::labeli(vector<string> row)
 
 	string tmp_row = row[0];
 
-	//cout << row[0] << endl;
+
 	vector<string> data = tokenizer((char *)tmp_row.c_str(), "-");
 	ttanggal tmp_tgl = date_frag(data[0]);
 	twaktu tmp_waktu = waktu_frag(data[1]);
@@ -763,12 +842,7 @@ string Tolah_label::labeli(vector<string> row)
 				while ( !ketemu && (itr2 != tmp_vec->end()) )
 				{
 					field_filter *field = *itr2;
-
-					if (waktu_timestamp < field->duration_timestamp) {
-						// cout << field->name << " "
-						//      << field->time << " "
-						//      << field->src << " " << row[1] << " "
-						//      << field->dst << " " << row[2] << endl;
+					if (waktu_timestamp <= field->duration_timestamp) {
 
 						if (is_ip_pass(row, field))
 						{
@@ -776,7 +850,6 @@ string Tolah_label::labeli(vector<string> row)
 							label = field->name + ".";
 						}
 					}
-
 
 					itr2++;
 				}
