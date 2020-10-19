@@ -145,10 +145,14 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 		} else {
 			if (ip_str == "allvin")
 			{
-				vector<string> vec_cari;
-				vec_cari.push_back("in");
-				string tmp_str;
-				isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+				// vector<string> vec_cari;
+				// vec_cari.push_back("in");
+				// string tmp_str;
+				// isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+				vec.push_back("172.016.115.*");
+				vec.push_back("172.016.116.*");
+				vec.push_back("172.016.117.*");
+				vec.push_back("172.016.118.*");
 
 			} else {
 				//cout << "string src : " << field->src << endl;
@@ -163,11 +167,15 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 			{
 				if ((ip_str == "\"allpcsandlinux\"") || (ip_str == "\"all.pcs.and.linux\"") || (ip_str == "\"allpc|vlinux\"")) {
 
-					vector<string> vec_cari;
-					vec_cari.push_back("pc");
-					vec_cari.push_back("linux");
-					string tmp_str;
-					isi_vec_by_host(vec, "host_name", vec_cari, tmp_str);
+					// vector<string> vec_cari;
+					// vec_cari.push_back("pc");
+					// vec_cari.push_back("linux");
+					// string tmp_str;
+					// isi_vec_by_host(vec, "host_name", vec_cari, tmp_str);
+					vec.push_back("172.016.115.*");
+					vec.push_back("172.016.116.*");
+					vec.push_back("172.016.117.*");
+					vec.push_back("172.016.118.*");
 
 				} else {
 					size_t found = ip_str.find("|");
@@ -181,7 +189,7 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 								if (isString(data[i]))
 								{
 									if (data[i] == "marx") {
-										data[i] = "mars";
+										data[i] = "172.016.114.050";
 									}
 
 									vector<string> vec_cari;
@@ -215,74 +223,141 @@ void Tolah_label::isi_vec_src_dst(string &ip_str, vector<string> &vec)
 				} else {
 					if (ip_str == "all.attackers")
 					{
-						vec.push_back("128.223.199.068");
-						vec.push_back("135.008.060.182");
-						vec.push_back("139.134.061.042");
-						vec.push_back("152.169.215.104");
-						vec.push_back("152.204.242.193");
-						vec.push_back("153.010.008.174");
-						vec.push_back("153.037.134.017");
-						vec.push_back("153.107.252.061");
-						vec.push_back("166.102.114.043");
-						vec.push_back("172.016.112.050");
-						vec.push_back("172.016.114.050");
-						vec.push_back("192.005.041.239");
-						vec.push_back("196.227.033.189");
-						vec.push_back("197.182.091.233");
-						vec.push_back("197.218.177.069");
-						vec.push_back("199.174.194.016");
-						vec.push_back("199.227.099.125");
-						vec.push_back("200.027.121.118");
-						vec.push_back("202.049.244.010");
-						vec.push_back("202.072.001.077");
-						vec.push_back("202.077.162.213");
-						vec.push_back("202.247.224.089");
-						vec.push_back("204.071.051.016");
-						vec.push_back("204.097.153.043");
-						vec.push_back("204.233.047.021");
-						vec.push_back("205.160.208.190");
-						vec.push_back("205.180.112.036");
-						vec.push_back("205.231.028.163");
-						vec.push_back("206.047.098.151");
-						vec.push_back("206.048.044.018");
-						vec.push_back("206.186.080.111");
-						vec.push_back("206.222.003.197");
-						vec.push_back("206.229.221.082");
-						vec.push_back("207.075.239.115");
-						vec.push_back("207.103.080.104");
-						vec.push_back("207.114.237.057");
-						vec.push_back("207.136.086.223");
-						vec.push_back("207.181.092.211");
-						vec.push_back("207.230.054.203");
-						vec.push_back("207.253.084.013");
-						vec.push_back("208.239.005.230");
-						vec.push_back("208.240.124.083");
-						vec.push_back("208.253.077.185");
-						vec.push_back("208.254.251.132");
-						vec.push_back("209.001.012.046");
-						vec.push_back("209.012.013.144");
-						vec.push_back("209.017.189.098");
-						vec.push_back("209.030.070.014");
-						vec.push_back("209.030.071.165");
-						vec.push_back("209.074.060.168");
-						vec.push_back("209.117.157.183");
-						vec.push_back("209.154.098.104");
-						vec.push_back("209.167.099.071");
+						vec.push_back("128.223.199.*");
+						vec.push_back("135.008.060.*");
+						vec.push_back("135.013.216.*");
+						vec.push_back("139.134.061.*");
+						vec.push_back("152.169.215.*");
+						vec.push_back("152.204.242.*");
+						vec.push_back("153.010.008.*");
+						vec.push_back("153.037.134.*");
+						vec.push_back("153.107.252.*");
+						vec.push_back("166.102.114.*");
+						vec.push_back("172.016.112.*");
+						vec.push_back("172.016.114.*");
+						vec.push_back("192.005.041.*");
+						vec.push_back("194.007.248.*");
+						vec.push_back("194.027.251.*");
+						vec.push_back("195.073.151.*");
+						vec.push_back("195.115.218.*");
+						vec.push_back("196.037.075.*");
+						vec.push_back("196.227.033.*");
+						vec.push_back("197.182.091.*");
+						vec.push_back("197.218.177.*");
+						vec.push_back("199.174.194.*");
+						vec.push_back("199.227.099.*");
+						vec.push_back("200.027.121.*");
+						vec.push_back("202.049.244.*");
+						vec.push_back("202.072.001.*");
+						vec.push_back("202.077.162.*");
+						vec.push_back("202.247.224.*");
+						vec.push_back("204.071.051.*");
+						vec.push_back("204.097.153.*");
+						vec.push_back("204.233.047.*");
+						vec.push_back("205.160.208.*");
+						vec.push_back("205.180.112.*");
+						vec.push_back("205.231.028.*");
+						vec.push_back("206.047.098.*");
+						vec.push_back("206.048.044.*");
+						vec.push_back("206.186.080.*");
+						vec.push_back("206.222.003.*");
+						vec.push_back("206.229.221.*");
+						vec.push_back("207.075.239.*");
+						vec.push_back("207.103.080.*");
+						vec.push_back("207.114.237.*");
+						vec.push_back("207.136.086.*");
+						vec.push_back("207.181.092.*");
+						vec.push_back("207.230.054.*");
+						vec.push_back("207.253.084.*");
+						vec.push_back("208.239.005.*");
+						vec.push_back("208.240.124.*");
+						vec.push_back("208.253.077.*");
+						vec.push_back("208.254.251.*");
+						vec.push_back("209.001.012.*");
+						vec.push_back("209.012.013.*");
+						vec.push_back("209.017.189.*");
+						vec.push_back("209.030.070.*");
+						vec.push_back("209.030.071.*");
+						vec.push_back("209.074.060.*");
+						vec.push_back("209.117.157.*");
+						vec.push_back("209.154.098.*");
+						vec.push_back("209.167.099.*");
 					} else {
 						if (ip_str == "all.outside")
 						{
-							vector<string> vec_cari;
-							vec_cari.push_back("out");
-							string tmp_str;
-							isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+							// vector<string> vec_cari;
+							// vec_cari.push_back("out");
+							// string tmp_str;
+							// isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+							vec.push_back("128.223.199.*");
+							vec.push_back("135.008.060.*");
+							vec.push_back("135.013.216.*");
+							vec.push_back("139.134.061.*");
+							vec.push_back("152.169.215.*");
+							vec.push_back("152.204.242.*");
+							vec.push_back("153.010.008.*");
+							vec.push_back("153.037.134.*");
+							vec.push_back("153.107.252.*");
+							vec.push_back("166.102.114.*");
+							vec.push_back("192.005.041.*");
+							vec.push_back("194.007.248.*");
+							vec.push_back("194.027.251.*");
+							vec.push_back("195.073.151.*");
+							vec.push_back("195.115.218.*");
+							vec.push_back("196.037.075.*");
+							vec.push_back("196.227.033.*");
+							vec.push_back("197.182.091.*");
+							vec.push_back("197.218.177.*");
+							vec.push_back("199.174.194.*");
+							vec.push_back("199.227.099.*");
+							vec.push_back("200.027.121.*");
+							vec.push_back("202.049.244.*");
+							vec.push_back("202.072.001.*");
+							vec.push_back("202.077.162.*");
+							vec.push_back("202.247.224.*");
+							vec.push_back("204.071.051.*");
+							vec.push_back("204.097.153.*");
+							vec.push_back("204.233.047.*");
+							vec.push_back("205.160.208.*");
+							vec.push_back("205.180.112.*");
+							vec.push_back("205.231.028.*");
+							vec.push_back("206.047.098.*");
+							vec.push_back("206.048.044.*");
+							vec.push_back("206.186.080.*");
+							vec.push_back("206.222.003.*");
+							vec.push_back("206.229.221.*");
+							vec.push_back("207.075.239.*");
+							vec.push_back("207.103.080.*");
+							vec.push_back("207.114.237.*");
+							vec.push_back("207.136.086.*");
+							vec.push_back("207.181.092.*");
+							vec.push_back("207.230.054.*");
+							vec.push_back("207.253.084.*");
+							vec.push_back("208.239.005.*");
+							vec.push_back("208.240.124.*");
+							vec.push_back("208.253.077.*");
+							vec.push_back("208.254.251.*");
+							vec.push_back("209.001.012.*");
+							vec.push_back("209.012.013.*");
+							vec.push_back("209.017.189.*");
+							vec.push_back("209.030.070.*");
+							vec.push_back("209.030.071.*");
+							vec.push_back("209.074.060.*");
+							vec.push_back("209.117.157.*");
+							vec.push_back("209.154.098.*");
+							vec.push_back("209.167.099.*");
 
 						} else {
 							if ((ip_str == "all.vin") || (ip_str == "allvin"))
 							{
-								vector<string> vec_cari;
-								vec_cari.push_back("in");
-								string tmp_str;
-								isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+								// vector<string> vec_cari;
+								// vec_cari.push_back("in");
+								// string tmp_str;
+								// isi_vec_by_host(vec, "tag", vec_cari, tmp_str);
+								vec.push_back("172.016.115.*");
+								vec.push_back("172.016.116.*");
+								vec.push_back("172.016.117.*");
+								vec.push_back("172.016.118.*");
 
 							} else {
 
@@ -781,7 +856,7 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	if (field->vec_src.size() > 0)
 	{
 		is_pass_src_src = check_vector(tmp_ip_src, field->vec_src);
-		//is_pass_dst_src = check_vector(tmp_ip_dst, field->vec_src);
+		is_pass_dst_src = check_vector(tmp_ip_dst, field->vec_src);
 	} else {
 		if (field->src == "*")
 		{
@@ -799,7 +874,7 @@ bool Tolah_label::is_ip_pass(vector<string> &row, field_filter *field)
 	if (field->vec_dst.size() > 0)
 	{
 		is_pass_dst_dst = check_vector(tmp_ip_dst, field->vec_dst);
-		//is_pass_src_dst = check_vector(tmp_ip_src, field->vec_dst);
+		is_pass_src_dst = check_vector(tmp_ip_src, field->vec_dst);
 	} else {
 		if (field->dst == "*")
 		{

@@ -34,16 +34,16 @@ rm ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
 # wait
 
 
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/3w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/3w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/3w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/3w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-# wait
-# ./labeling ~/Dataset/mit_darpa_98/snort_log/3w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-# wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/3w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/3w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/3w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/3w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+wait
+./labeling ~/Dataset/mit_darpa_98/snort_log/3w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+wait
 
 # ./labeling ~/Dataset/mit_darpa_98/snort_log/4w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
 # wait
@@ -76,16 +76,16 @@ rm ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
 # ./labeling ~/Dataset/mit_darpa_98/snort_log/6w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
 # wait
 
-./labeling ~/Dataset/mit_darpa_98/snort_log/7w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-wait
-./labeling ~/Dataset/mit_darpa_98/snort_log/7w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-wait
-./labeling ~/Dataset/mit_darpa_98/snort_log/7w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-wait
-./labeling ~/Dataset/mit_darpa_98/snort_log/7w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-wait
-./labeling ~/Dataset/mit_darpa_98/snort_log/7w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
-wait
+# ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_monday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+# wait
+# ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_thursday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+# wait
+# ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_tuesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+# wait
+# ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_wednesday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+# wait
+# ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_friday.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
+# wait
 
 # ./labeling ~/Dataset/mit_darpa_98/snort_log/7w_friday_smurf.csv ~/Dataset/mit_darpa_98/attack.csv ~/Dataset/mit_darpa_98/host_ip_addr.csv ~/Dataset/mit_darpa_98/mit_darpa_98_label.csv
 # wait
