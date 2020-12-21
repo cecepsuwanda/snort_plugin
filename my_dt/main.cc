@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     df_test.read_data(argv[4]);
     df_test.read_data_type(argv[2]);
 
-    //cout << "train " << df_train.getjmlrow() << " test " << df_test.getjmlrow() << endl;
+    cout << "train " << df_train.getjmlrow() << " test " << df_test.getjmlrow() << endl;
 
     df_save.read_data(argv[5]);
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     // clock_t start, end;
     // start = clock();
-
+    cout << "Train Decission Tree : " << endl;
     dec_tree.train(df_train,0,0,2,stoi(argv[1]));
 
     // end = clock();
@@ -32,8 +32,9 @@ int main(int argc, char *argv[])
 
     dec_tree.save_tree(df_save);
     
-    dec_tree.read_tree(df_save);
+    //dec_tree.read_tree(df_save);
     cout << "Depth : " << argv[1] << " train : " << argv[3] << " test : "<< argv[4] << endl;
+    cout << "Test Decission Tree : " << endl;
     dec_tree.test(df_test);
     
     return 0;

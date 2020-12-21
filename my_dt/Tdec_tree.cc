@@ -267,7 +267,7 @@ void Tdec_tree::test(Tdataframe &df)
       tmp_str = guess(df, tmp_data);
       if (tmp_str != "dfs failed")
       {
-        
+        //cout << tmp_str1 << "  " << tmp_str << endl;
         conf_metrix.add_jml(tmp_str1,tmp_str,1);
 
       } else {

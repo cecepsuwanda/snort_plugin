@@ -66,13 +66,22 @@ void Tconf_metrix::kalkulasi()
 {
 	if (matrik.size() > 0) {
 
+		int TP = 0;
+		int FN = 0;
+		int FP = 0;
+		int TN = 0; 
+
 		for (auto it = matrik.begin(); it != matrik.end(); ++it)
 		{
 			Tdata tmp_data;
 			tmp_data.TP = get_TP(it->first);
+			TP+=tmp_data.TP;
 			tmp_data.FN = get_FN(it->first);
+			FN+=tmp_data.FN;
 			tmp_data.FP = get_FP(it->first);
+			FP+=tmp_data.FP;
 			tmp_data.TN = get_TN(it->first);
+			TN+=tmp_data.TN;
 			tmp_data.jml = tmp_data.TP+tmp_data.FN;
 			tmp_data.accuracy = 0;
 			if((tmp_data.TP+tmp_data.FP)>0){
@@ -89,6 +98,8 @@ void Tconf_metrix::kalkulasi()
 
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
+
+		accuracy = (TP+TN)/(double)(TP+TN+FP+FN);
 	}
 }
 
@@ -178,7 +189,8 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	out << "Jumlah Data: " << tc.jml_data;
 	out << " Prediksi Tepat: " << tc.tepat;
 	out << " Prediksi Tidak Tepat: " << tc.tdk_tepat;
-	out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100) << endl;
+	out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100);
+	out << " Akurasi: " << tc.accuracy << endl;
 
 	if (tc.matrik1.size() > 0) {
 		out << "   Confusion Metrik     : " << endl;
