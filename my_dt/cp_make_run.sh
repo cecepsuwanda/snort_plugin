@@ -21,5 +21,11 @@ wait
 # ./my_dt 36 data/kddcup.names data/NSLTrainTree_known.txt data/NSLTestTree_known.txt data/dc_tree_dp36.csv
 # wait
 
-./my_dt 36 data/kddcup.names data/NSLTrainTree_known.txt data/NSLTestTree_unknown.txt data/dc_tree_dp36.csv
+#./my_dt 36 data/kddcup.names data/NSLTrainTree_known.txt data/NSLTestTree_unknown.txt data/dc_tree_dp36.csv
 # wait
+
+./my_dt 36 data/kddcupSVM.names data/NSLSVM_train.txt data/NSLSVM_test.txt data/dc_tree_dp36.csv
+wait
+
+./my_dt 36 data/kddcupSVM.names data/NSLSVM_train.txt data/NSLSVM_unknown.txt data/dc_tree_dp36.csv
+wait

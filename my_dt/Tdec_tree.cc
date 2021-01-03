@@ -111,13 +111,13 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     tree.push_back(root);
   }
 
-  // cout << "tree level : " << counter << endl;
+  //cout << "tree level : " << counter << endl;
 
   if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
     string tmp_str = create_leaf(df);
-    // cout << "base case" << endl;
-    // cout << "label : " << tmp_str << endl;
+    //cout << "base case" << endl;
+    //cout << "label : " << tmp_str << endl;
     tree[node_index].isLeaf = true;
     tree[node_index].label = tmp_str;
     df.clear_memory();
@@ -148,8 +148,8 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
     if ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) {
       string tmp_str = create_leaf(df);
-      // cout << "empty data" << endl;
-      // cout << "label : " << tmp_str << endl;
+      //cout << "empty data" << endl;
+      //cout << "label : " << tmp_str << endl;
       tree[node_index].isLeaf = true;
       tree[node_index].label = tmp_str;
     } else {
