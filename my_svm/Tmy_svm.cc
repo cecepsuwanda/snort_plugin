@@ -78,8 +78,11 @@ void Tmy_svm::read_problem(Tdataframe &df)
 }
 
 
-void Tmy_svm::train(Tdataframe &df)
+void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
 {
+	param.gamma = gamma;
+	param.nu = nu;
+
 	read_problem(df);
 
 	const char *error_msg;

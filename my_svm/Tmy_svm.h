@@ -18,7 +18,7 @@ public:
 	Tmy_svm();
 	~Tmy_svm();
 
-	void train(Tdataframe &df);
+	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
 	void test(Tdataframe &df);

@@ -13,9 +13,18 @@ make
 clear
 # wait
 
-rm data/svm_model.csv
+#rm data/svm_model.csv
+#wait
+
+
+./my_svm  0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train_oneclass.txt data/NSLSVM_33attr_test_oneclass.txt data/svm_model1.csv
 wait
 
+./my_svm  0.0003 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train_oneclass.txt data/NSLSVM_33attr_test_oneclass.txt data/svm_model2.csv
+wait
 
-./my_svm data/kddcupSVM_33attr.names data/NSLSVM_33attr_train_oneclass.txt data/NSLSVM_33attr_test_oneclass.txt data/svm_model.csv
+./my_svm  0.0005 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train_oneclass.txt data/NSLSVM_33attr_test_oneclass.txt data/svm_model3.csv
+wait
+
+./my_svm  0.001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train_oneclass.txt data/NSLSVM_33attr_test_oneclass.txt data/svm_model4.csv
 wait
