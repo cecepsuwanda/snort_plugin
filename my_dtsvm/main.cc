@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   dec_tree.save_tree(df_save);
 
   //dec_tree.read_tree(df_save);
-  cout << "Depth : " << argv[1] << "Minimum Sample : " << argv[2] << " train : " << argv[6] << " test : " << argv[7] << endl;
+  cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " train : " << argv[6] << " test : " << argv[7] << endl;
   cout << "Test Decission Tree : " << endl;
   dec_tree.test(df_test);
 

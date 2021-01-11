@@ -20,7 +20,7 @@ rm data/save_model*.csv
 wait
 
 
-./my_dtsvm  10 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
+./my_dtsvm  36 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
 wait
 
 

@@ -19,7 +19,7 @@ Tmy_svm::Tmy_svm()
 	param.weight_label = NULL;
 	param.weight = NULL;
 
-    is_read_problem = false;
+	is_read_problem = false;
 }
 
 Tmy_svm::~Tmy_svm()
@@ -27,72 +27,72 @@ Tmy_svm::~Tmy_svm()
 	//cout << "my_svm destroy" << endl;
 	svm_free_and_destroy_model(&model);
 	svm_destroy_param(&param);
-	if(is_read_problem){
-	  free(prob.y);
-	  free(prob.x);
-    }
+	if (is_read_problem) {
+		free(prob.y);
+		free(prob.x);
+	}
 	free(x_space);
 }
 
 void Tmy_svm::read_problem(Tdataframe &df)
 {
-	int i;
-	size_t elements, j;
+
+	size_t elements, j, i;
 	char *endptr;
 
-	df.open_file();
-	df.read_file();
-
-	prob.l = df.getjmlrow();
-	elements = (df.getjmlrow() * (df.getjmlcol() - 1)) + df.getjmlrow();
-
-	prob.y = Malloc(double, prob.l);
-	prob.x = Malloc(struct svm_node *, prob.l);
-	x_space = Malloc(struct svm_node, elements);
-
-	j = 0;
-	i = 0;
-	while (!df.is_eof())
+	if (df.open_file())
 	{
-		vector<string> tmp = df.get_record();
-		if (df.is_pass(tmp))
+		df.read_file();
+
+		prob.l = df.getjmlrow();
+		elements = (df.getjmlrow() * (df.getjmlcol() - 1)) + df.getjmlrow();
+
+		prob.y = Malloc(double, prob.l);
+		prob.x = Malloc(struct svm_node *, prob.l);
+		x_space = Malloc(struct svm_node, elements);
+
+		j = 0;
+		i = 0;
+		while (!df.is_eof())
 		{
-			prob.x[i] = &x_space[j];
-			prob.y[i] = 0;
+			vector<string> tmp = df.get_record();
+			if (df.is_pass(tmp))
+			{
+				prob.x[i] = &x_space[j];
+				prob.y[i] = 0;
 
-			for (int k = 0; k < (tmp.size() - 1); k++) {
+				for (int k = 0; k < (tmp.size() - 1); k++) {
 
-				x_space[j].index = k;
-				string str = tmp[k];
-				x_space[j].value = strtod(str.c_str(), &endptr);
+					x_space[j].index = k;
+					string str = tmp[k];
+					x_space[j].value = strtod(str.c_str(), &endptr);
 
-				++j;
+					++j;
+				}
+				x_space[j++].index = -1;
+				i++;
 			}
-			x_space[j++].index = -1;
-			i++;
+
+			tmp.clear();
+			tmp.shrink_to_fit();
+
+			df.next_record();
+
 		}
+		df.close_file();
 
-		tmp.clear();
-		tmp.shrink_to_fit();
-
-		df.next_record();
-
+		is_read_problem = true;
 	}
-	df.close_file();
-    
-    is_read_problem = true;
 }
 
 
-void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
+void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 {
 	param.gamma = gamma;
 	param.nu = nu;
 
-	cout << "read problem " << endl;
 	read_problem(df);
 
-    cout << "check parameter " << endl;
 	const char *error_msg;
 	error_msg = svm_check_parameter(&prob, &param);
 
@@ -102,9 +102,9 @@ void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
 		exit(1);
 	}
 
-    cout << "start train " << endl;
+	cout << "start train " << endl;
 	model = svm_train(&prob, &param);
-    cout << "end train " << endl;
+	cout << "end train " << endl;
 
 	//free(prob.y);
 	//free(prob.x);
@@ -183,33 +183,33 @@ void Tmy_svm::test(Tdataframe &df)
 	df.close_file();
 
 	conf_metrix.kalkulasi();
-    cout << conf_metrix << endl;
+	cout << conf_metrix << endl;
 }
 
-string Tmy_svm::guess(Tdataframe &df,vector<string> &data)
+string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 {
-        char *endptr;
-        x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));	
+	char *endptr;
+	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
 
-        int k = 0;
-		for (; k < data.size(); k++) {
+	int k = 0;
+	for (; k < data.size(); k++) {
 
-			string str = data[k];
-			x_space[k].index = k;
-			x_space[k].value = strtod(str.c_str(), &endptr);
+		string str = data[k];
+		x_space[k].index = k;
+		x_space[k].value = strtod(str.c_str(), &endptr);
 
-		}
-		x_space[k].index = -1;
+	}
+	x_space[k].index = -1;
 
-		double predict_label = svm_predict(model, x_space);
-        
-        //cout << predict_label << endl;
+	double predict_label = svm_predict(model, x_space);
 
-        string label="normal";
-        if (predict_label==-1)
-        {
-        	label = "attack";
-        }
-        return label;
+	//cout << predict_label << endl;
+
+	string label = "normal";
+	if (predict_label == -1)
+	{
+		label = "attack";
+	}
+	return label;
 }
 

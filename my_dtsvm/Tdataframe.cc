@@ -225,7 +225,7 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
 
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
-  _data.clear_memory();
+  //_data.clear_memory();
   //cout << "split_data"<<endl;
   if (_data_type[split_column] == "continuous.")
   {

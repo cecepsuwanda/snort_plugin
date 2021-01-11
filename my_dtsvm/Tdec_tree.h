@@ -1,6 +1,9 @@
+#include <cstdio>
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
 #include "Tmy_svm.h"
+
+using namespace std;
 
 class Node {
 public:

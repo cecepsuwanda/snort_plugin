@@ -221,8 +221,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
       train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth, gamma, nu);
 
-      df_above.clear_memory();
-      df_below.clear_memory();
+
 
       if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
       {
@@ -230,13 +229,13 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         tree[node_index].isLeaf = true;
         tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
-        
+
         string tmp_str = tree[treeIndex_yes].label;
 
         if (tmp_str == "normal") {
           cout << "label sama " << endl;
           cout << "Jml data " << df.getjmlrow() << endl;
-          
+
           Tmy_svm my_svm;
           // Tdataframe df_svm;
           // df_svm = df;
@@ -249,6 +248,12 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
           my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
 
+          
+          string filename = "data/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+          remove(filename.c_str());
+          filename = "data/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+          remove(filename.c_str());
+
         }
 
         tree[node_index].label = tree[treeIndex_yes].label;
@@ -258,6 +263,15 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
         tree.erase(tree.begin() + treeIndex_yes);
         tree.shrink_to_fit();
         // cout << "label : " << tree[node_index].label << endl;
+
+        df.clear_memory();
+        df_above.clear_memory();
+        df_below.clear_memory();
+
+      } else {
+        df.clear_memory();
+        df_above.clear_memory();
+        df_below.clear_memory();
       }
 
     }
@@ -301,12 +315,12 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     return "dfs_failed.";
   } else {
     label = tree[leafNode].label;
-    if((label=="normal") and (tree[leafNode].idx_svm!=-1))
+    if ((label == "normal") and (tree[leafNode].idx_svm != -1))
     {
-         Tmy_svm my_svm;
-         string nm_model = "data/svm_model_"+to_string(tree[leafNode].idx_svm)+".csv";
-         my_svm.load_model(nm_model);
-         label = my_svm.guess(df,data);
+      Tmy_svm my_svm;
+      string nm_model = "data/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
+      my_svm.load_model(nm_model);
+      label = my_svm.guess(df, data);
     }
 
   }
@@ -377,8 +391,8 @@ void Tdec_tree::save_tree(Tdataframe &df)
     } else {
       tmp_str += ",-1,-1";
     }
-    
-    tmp_str+=","+to_string(tree[i].idx_svm);
+
+    tmp_str += "," + to_string(tree[i].idx_svm);
 
     // cout << tmp_str << endl;
     vec.push_back(tmp_str);
