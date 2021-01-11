@@ -89,8 +89,10 @@ void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
 	param.gamma = gamma;
 	param.nu = nu;
 
+	cout << "read problem " << endl;
 	read_problem(df);
 
+    cout << "check parameter " << endl;
 	const char *error_msg;
 	error_msg = svm_check_parameter(&prob, &param);
 
@@ -100,7 +102,9 @@ void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
 		exit(1);
 	}
 
+    cout << "start train " << endl;
 	model = svm_train(&prob, &param);
+    cout << "end train " << endl;
 
 	//free(prob.y);
 	//free(prob.x);
