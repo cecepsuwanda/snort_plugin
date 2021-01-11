@@ -241,8 +241,8 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
           // df_svm = df;
           //my_svm.train(df, gamma, nu);
 
-          idx_svm++;
-          tree[node_index].idx_svm = idx_svm;
+          //idx_svm++;
+          //tree[node_index].idx_svm = idx_svm;
 
           // df_svm.clear_memory();
 
@@ -300,6 +300,14 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     return "dfs_failed.";
   } else {
     label = tree[leafNode].label;
+    if((label=="normal") and (tree[leafNode].idx_svm!=-1))
+    {
+         Tmy_svm my_svm;
+         string nm_model = "data/svm_model_"+to_string(tree[leafNode].idx_svm)+".csv";
+         my_svm.load_model(nm_model);
+         label = my_svm.guess(df,data);
+    }
+
   }
   return label;
 }
@@ -368,6 +376,8 @@ void Tdec_tree::save_tree(Tdataframe &df)
     } else {
       tmp_str += ",-1,-1";
     }
+    
+    tmp_str+=","+to_string(tree[i].idx_svm);
 
     // cout << tmp_str << endl;
     vec.push_back(tmp_str);

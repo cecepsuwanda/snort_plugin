@@ -18,6 +18,8 @@ Tmy_svm::Tmy_svm()
 	param.nr_weight = 0;
 	param.weight_label = NULL;
 	param.weight = NULL;
+
+    is_read_problem = false;
 }
 
 Tmy_svm::~Tmy_svm()
@@ -25,8 +27,10 @@ Tmy_svm::~Tmy_svm()
 	cout << "my_svm destroy" << endl;
 	svm_free_and_destroy_model(&model);
 	svm_destroy_param(&param);
-	free(prob.y);
-	free(prob.x);
+	if(is_read_problem){
+	  free(prob.y);
+	  free(prob.x);
+    }
 	free(x_space);
 }
 
@@ -75,7 +79,8 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 	}
 	df.close_file();
-
+    
+    is_read_problem = true;
 }
 
 
@@ -176,3 +181,31 @@ void Tmy_svm::test(Tdataframe &df)
 	conf_metrix.kalkulasi();
     cout << conf_metrix << endl;
 }
+
+string Tmy_svm::guess(Tdataframe &df,vector<string> &data)
+{
+        char *endptr;
+        x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));	
+
+        int k = 0;
+		for (; k < data.size(); k++) {
+
+			string str = data[k];
+			x_space[k].index = k;
+			x_space[k].value = strtod(str.c_str(), &endptr);
+
+		}
+		x_space[k].index = -1;
+
+		double predict_label = svm_predict(model, x_space);
+        
+        cout << predict_label << endl;
+
+        string label="normal";
+        if (predict_label==-1)
+        {
+        	label = "attack";
+        }
+        return label;
+}
+
