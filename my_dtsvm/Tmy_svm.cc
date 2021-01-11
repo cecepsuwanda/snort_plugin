@@ -9,7 +9,7 @@ Tmy_svm::Tmy_svm()
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 1024;
+	param.cache_size = 100;
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
@@ -22,11 +22,12 @@ Tmy_svm::Tmy_svm()
 
 Tmy_svm::~Tmy_svm()
 {
-	//svm_free_and_destroy_model(&model);
-	//svm_destroy_param(&param);
-	//free(prob.y);
-	//free(prob.x);
-	//free(x_space);
+	cout << "my_svm destroy" << endl;
+	svm_free_and_destroy_model(&model);
+	svm_destroy_param(&param);
+	free(prob.y);
+	free(prob.x);
+	free(x_space);
 }
 
 void Tmy_svm::read_problem(Tdataframe &df)
@@ -96,9 +97,9 @@ void Tmy_svm::train(Tdataframe &df,double gamma, double nu)
 
 	model = svm_train(&prob, &param);
 
-	free(prob.y);
-	free(prob.x);
-	free(x_space);
+	//free(prob.y);
+	//free(prob.x);
+	//free(x_space);
 
 }
 
@@ -110,8 +111,8 @@ void Tmy_svm::save_model(string nm_file)
 		exit(1);
 	}
 
-	svm_free_and_destroy_model(&model);
-	svm_destroy_param(&param);
+	//svm_free_and_destroy_model(&model);
+	//svm_destroy_param(&param);
 }
 
 void Tmy_svm::load_model(string nm_file)

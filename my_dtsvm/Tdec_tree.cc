@@ -236,17 +236,17 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
           cout << "label sama " << endl;
           cout << "train " << df.getjmlrow() << endl;
 
-          Tmy_svm my_svm;
+          //Tmy_svm my_svm;
           // Tdataframe df_svm;
           // df_svm = df;
-          my_svm.train(df, gamma, nu);
+          //my_svm.train(df, gamma, nu);
 
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
 
           // df_svm.clear_memory();
 
-          my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+          //my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
 
         }
 
