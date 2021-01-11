@@ -24,7 +24,7 @@ Tmy_svm::Tmy_svm()
 
 Tmy_svm::~Tmy_svm()
 {
-	cout << "my_svm destroy" << endl;
+	//cout << "my_svm destroy" << endl;
 	svm_free_and_destroy_model(&model);
 	svm_destroy_param(&param);
 	if(is_read_problem){
@@ -199,7 +199,7 @@ string Tmy_svm::guess(Tdataframe &df,vector<string> &data)
 
 		double predict_label = svm_predict(model, x_space);
         
-        cout << predict_label << endl;
+        //cout << predict_label << endl;
 
         string label="normal";
         if (predict_label==-1)
