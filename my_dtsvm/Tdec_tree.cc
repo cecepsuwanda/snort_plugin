@@ -228,13 +228,13 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       {
         // cout << "tree level : " << counter << endl;
 
-        tree[node_index].isLeaf = true;
+        //tree[node_index].isLeaf = true;
         //tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
         string tmp_str = tree[treeIndex_yes].label;
 
         if (tmp_str == "normal") {
-          cout << "label sama " << endl;
-          cout << "train " << df.getjmlrow() << endl;
+          //cout << "label sama " << endl;
+          //cout << "train " << df.getjmlrow() << endl;
 
           //Tmy_svm my_svm;
           // Tdataframe df_svm;
@@ -250,12 +250,12 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         }
 
-        tree[node_index].label = tree[treeIndex_yes].label;
-        tree[node_index].children.clear();
-        tree[node_index].children.shrink_to_fit();
-        tree.erase(tree.begin() + treeIndex_no);
-        tree.erase(tree.begin() + treeIndex_yes);
-        tree.shrink_to_fit();
+        //tree[node_index].label = tree[treeIndex_yes].label;
+        //tree[node_index].children.clear();
+        //tree[node_index].children.shrink_to_fit();
+        //tree.erase(tree.begin() + treeIndex_no);
+        //tree.erase(tree.begin() + treeIndex_yes);
+        //tree.shrink_to_fit();
         // cout << "label : " << tree[node_index].label << endl;
       }
 
