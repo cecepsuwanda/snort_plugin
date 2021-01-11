@@ -1,6 +1,7 @@
 #include "Tmy_svm.h"
 
 
+
 Tmy_svm::Tmy_svm()
 {
 	param.svm_type = ONE_CLASS;
@@ -18,6 +19,10 @@ Tmy_svm::Tmy_svm()
 	param.nr_weight = 0;
 	param.weight_label = NULL;
 	param.weight = NULL;
+
+	void (*print_func)(const char*) = NULL;	// default printing to stdout
+	print_func = &print_null;
+	svm_set_print_string_function(print_func);
 
 	is_read_problem = false;
 }
@@ -102,9 +107,9 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 		exit(1);
 	}
 
-	cout << "start train " << endl;
+	//cout << "start train " << endl;
 	model = svm_train(&prob, &param);
-	cout << "end train " << endl;
+	//cout << "end train " << endl;
 
 	//free(prob.y);
 	//free(prob.x);

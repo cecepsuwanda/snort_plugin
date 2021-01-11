@@ -225,44 +225,53 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
       if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
       {
-        // cout << "tree level : " << counter << endl;
+        
 
-        tree[node_index].isLeaf = true;
-        tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
+        // tree[node_index].isLeaf = true;
+        // tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
 
         string tmp_str = tree[treeIndex_yes].label;
 
         if (tmp_str == "normal") {
-          cout << "label sama " << endl;
-          cout << "Jml data " << df.getjmlrow() << endl;
+          
 
-          Tmy_svm my_svm;
+          // cout << "label sama " << endl;          
+          // cout << "Jml data1 " << df_above.getjmlrow() << endl;
+          // cout << "Jml data2 " << df_below.getjmlrow() << endl;
+          // cout << "Jml data3 " << df.getjmlrow() << endl;
+          
+          //df.stat_tabel();
+          //cout << "Jml data3 " << df.getjmlrow() << endl;
+
+          // Tmy_svm my_svm;
           // Tdataframe df_svm;
           // df_svm = df;
-          my_svm.train(df, gamma, nu);
+          // my_svm.train(df, gamma, nu);
 
-          idx_svm++;
-          tree[node_index].idx_svm = idx_svm;
+          // idx_svm++;
+          // tree[node_index].idx_svm = idx_svm;
 
           // df_svm.clear_memory();
 
-          my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+          // my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+
+
+          // string filename = "data/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+          // remove(filename.c_str());
+          // filename = "data/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+          // remove(filename.c_str());
 
           
-          string filename = "data/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
-          remove(filename.c_str());
-          filename = "data/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
-          remove(filename.c_str());
 
         }
 
-        tree[node_index].label = tree[treeIndex_yes].label;
-        tree[node_index].children.clear();
-        tree[node_index].children.shrink_to_fit();
-        tree.erase(tree.begin() + treeIndex_no);
-        tree.erase(tree.begin() + treeIndex_yes);
-        tree.shrink_to_fit();
-        // cout << "label : " << tree[node_index].label << endl;
+        // tree[node_index].label = tree[treeIndex_yes].label;
+        // tree[node_index].children.clear();
+        // tree[node_index].children.shrink_to_fit();
+        // tree.erase(tree.begin() + treeIndex_no);
+        // tree.erase(tree.begin() + treeIndex_yes);
+        // tree.shrink_to_fit();
+        
 
         df.clear_memory();
         df_above.clear_memory();
