@@ -12,10 +12,8 @@ int main(int argc, char *argv[])
   df_train.read_data(argv[6]);
   df_train.read_data_type(argv[5]);
 
-  df_test.read_data(argv[7]);
-  df_test.read_data_type(argv[5]);
-
-  cout << "train " << df_train.getjmlrow() << " test " << df_test.getjmlrow() << endl;
+  
+  cout << "Train : Jumlah Baris : " << df_train.getjmlrow() << " Jumlah Kolom : " << df_train.getjmlcol() << endl;
 
   df_save.read_data(argv[8]);
 
@@ -26,7 +24,12 @@ int main(int argc, char *argv[])
 
  
   dec_tree.save_tree(df_save);
+ 
 
+  df_test.read_data(argv[7]);
+  df_test.read_data_type(argv[5]);
+
+  cout << "Test : Jumlah Baris : " << df_test.getjmlrow() << " Jumlah Kolom : " << df_test.getjmlcol() << endl;   
   //dec_tree.read_tree(df_save);
   cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " train : " << argv[6] << " test : " << argv[7] << endl;
   cout << "Test Decission Tree : " << endl;

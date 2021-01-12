@@ -16,20 +16,20 @@ clear
 
 rm data/dtsvm_model*.csv
 rm data/svm_model*.csv
-rm data/save_model*.csv
+#rm data/save_model*.csv
 wait
 
 
-./my_dtsvm  10 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
+#./my_dtsvm  10 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
+#wait
+
+#./my_dtsvm  10 1000 0.0003 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
+#wait
+
+./my_dtsvm  10 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_test.txt data/dtsvm_model.csv
 wait
 
-./my_dtsvm  10 1000 0.0003 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
-wait
-
-./my_dtsvm  10 1000 0.0005 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
-wait
-
-./my_dtsvm  10 1000 0.001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
-wait
+#./my_dtsvm  10 1000 0.001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_unknown.txt data/dtsvm_model.csv
+#wait
 
 

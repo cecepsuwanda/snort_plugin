@@ -64,7 +64,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			if (df.is_pass(tmp))
 			{
 				prob.x[i] = &x_space[j];
-				prob.y[i] = 0;
+				prob.y[i] = 1;
 
 				for (int k = 0; k < (tmp.size() - 1); k++) {
 
