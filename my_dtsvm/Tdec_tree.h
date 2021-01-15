@@ -1,9 +1,13 @@
 #include <cstdio>
+#include <stdarg.h>
+#include <stdio.h>
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
 #include "Tmy_svm.h"
 
 using namespace std;
+
+static void cetak_stdout(const char *s);
 
 class Node {
 public:
@@ -44,6 +48,10 @@ private:
 	string create_leaf(Tdataframe &df);
 	void determine_best_split(Tdataframe &df, int &split_column, string &split_value);
 	int dfs(Tdataframe &df, vector<string> &data, int treeIndex);
+
+    vector<int> vec_attr;
+    
+	void cetak ( const char * format, ... );
 public:
 	Tdec_tree();
 	~Tdec_tree();

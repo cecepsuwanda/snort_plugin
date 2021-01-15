@@ -72,6 +72,9 @@ void Tread_file::close_file()
   if (is_fmap)
   {
     munmap(_file_in_memory, _sb.st_size);
+    _file_in_memory=NULL;
+    _posisi = 0;
+    _idx_posisi = 0;
     close(_fd);
   } else {
 

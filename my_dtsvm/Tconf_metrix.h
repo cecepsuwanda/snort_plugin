@@ -21,7 +21,7 @@ class Tconf_metrix
 private:
    map<string, map<string, int>> matrik;
    map<string, Tdata> matrik1;
-   float accuracy;
+   float accuracy,precision,recall;
    int tepat,tdk_tepat,jml_data;
 public:
 	Tconf_metrix();

@@ -17,6 +17,7 @@ private:
 	void read_problem(Tdataframe &df);
 
 	static void print_null(const char *s) {}
+	
 
 public:
 	Tmy_svm();

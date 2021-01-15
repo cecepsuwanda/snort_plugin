@@ -60,6 +60,8 @@ public:
   void write_data(vector<string> &data);
   void read_data_type(string nm_f);
   void add_filter(field_filter filter);
+  void ReFilter();
+  vector<field_filter> get_filter();
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
   map<string, int> get_unique_value(int idx_col);
   int getjmlcol();

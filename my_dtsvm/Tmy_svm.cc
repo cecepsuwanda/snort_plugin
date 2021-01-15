@@ -39,18 +39,34 @@ Tmy_svm::~Tmy_svm()
 	free(x_space);
 }
 
+
+
 void Tmy_svm::read_problem(Tdataframe &df)
 {
 
 	size_t elements, j, i;
 	char *endptr;
 
+	vector<field_filter> df_filter;
+	df_filter = df.get_filter();
+
+	// for (int i = 0; i < df_filter.size(); ++i)
+	// {
+
+	//   cout << df_filter[i].idx_col << endl;
+	// }
+	// cout << "-----" << endl;
+
 	if (df.open_file())
 	{
 		df.read_file();
 
-		prob.l = df.getjmlrow();
-		elements = (df.getjmlrow() * (df.getjmlcol() - 1)) + df.getjmlrow();
+		map<string, int> stat_label = df.get_stat_label();
+
+		//cout << stat_label["normal"] << endl;
+
+		prob.l = stat_label["normal"];
+		elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
 
 		prob.y = Malloc(double, prob.l);
 		prob.x = Malloc(struct svm_node *, prob.l);
@@ -61,15 +77,15 @@ void Tmy_svm::read_problem(Tdataframe &df)
 		while (!df.is_eof())
 		{
 			vector<string> tmp = df.get_record();
-			if (df.is_pass(tmp))
+			if (df.is_pass(tmp) and (tmp[tmp.size() - 1] == "normal"))
 			{
 				prob.x[i] = &x_space[j];
 				prob.y[i] = 1;
 
-				for (int k = 0; k < (tmp.size() - 1); k++) {
+				for (int k = 0; k < (df_filter.size()); k++) {
 
 					x_space[j].index = k;
-					string str = tmp[k];
+					string str = tmp[df_filter[k].idx_col];
 					x_space[j].value = strtod(str.c_str(), &endptr);
 
 					++j;
@@ -85,9 +101,12 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 		}
 		df.close_file();
-
+		//cout << i << endl;
 		is_read_problem = true;
 	}
+
+	df_filter.clear();
+	df_filter.shrink_to_fit();
 }
 
 
@@ -194,7 +213,7 @@ void Tmy_svm::test(Tdataframe &df)
 string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 {
 	char *endptr;
-	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
+	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));
 
 	int k = 0;
 	for (; k < data.size(); k++) {
