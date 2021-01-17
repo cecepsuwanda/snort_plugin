@@ -15,20 +15,19 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <bits/stdc++.h>
-#include <sstream>
 
 using namespace std;
 
+#ifndef Included_Tread_file_H
 
-
-#ifndef TREADFILE_H
-#define TREADFILE_H
+#define Included_Tread_file_H
 
 #define pagesize  4096
+
 class Tread_file {
 private:
 	string _nm_f;
-	char _separator;
+	const char *_separator;
 	FILE *_file = NULL;
 
 	vector<string> _data;
@@ -47,7 +46,7 @@ private:
 	int _jml_index = 0;
 	int _ukuran_index = 0;
 
-	vector<string> tokenizer(char* str, char separator);
+	vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
 
 public:
@@ -62,7 +61,7 @@ public:
 	}
 
 	void setnm_f(string nm_f);
-	void setseparator(char separator);
+	void setseparator(const char* separator);
 	void file_map();
 
 	bool open_file();
@@ -83,4 +82,5 @@ public:
 	void clear_memory();
 
 };
+
 #endif

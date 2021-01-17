@@ -26,7 +26,7 @@ void Tread_file::setnm_f(string nm_f)
   _nm_f = nm_f;
 }
 
-void Tread_file::setseparator(char separator)
+void Tread_file::setseparator(const char* separator)
 {
   _separator = separator;
 }
@@ -72,6 +72,9 @@ void Tread_file::close_file()
   if (is_fmap)
   {
     munmap(_file_in_memory, _sb.st_size);
+    _file_in_memory=NULL;
+    _posisi = 0;
+    _idx_posisi = 0;
     close(_fd);
   } else {
 
@@ -83,9 +86,9 @@ void Tread_file::close_file()
   }
 }
 
-vector<string> Tread_file::tokenizer(char * str,char separator)
+vector<string> Tread_file::tokenizer(char * str, const char* separator)
 {
-  //char *token;
+  char *token;
   vector<string> vec;
   int len;
 
@@ -93,21 +96,12 @@ vector<string> Tread_file::tokenizer(char * str,char separator)
   if (str[len - 1] == '\n')
     str[len - 1] = 0;
 
-  
-  /*token = strtok(str, separator);
+  token = strtok(str, separator);
   while (token != 0) {
     vec.push_back(token);
     token = strtok(0, separator);
-  }*/
-  
-  stringstream s(str);
-  string token;
-  while (getline(s, token, separator)) {
-   if(token.length()>0){  
-     vec.push_back(token);
-   } 
   }
-  
+
   return vec;
 }
 
@@ -120,7 +114,7 @@ void Tread_file::read_file()
     strcpy(str, "");
 
     if (is_index and (_jml_index > 0))
-    {
+    {      
       int p_awal = _idx_in_memory[_idx_posisi];
       while (( p_awal < _sb.st_size) and (_file_in_memory[p_awal] != '\n') )
       {
@@ -141,12 +135,12 @@ void Tread_file::read_file()
         strncat(str, &tmp, 1);
         _posisi++;
       }
-      char tmp = _file_in_memory[_posisi];
+      char tmp = _file_in_memory[_posisi];      
       strncat(str, &tmp, 1);
-
+      
       // if(_b_posisi==0)
       //    cout << str << endl;
-
+      
       _posisi++;
     }
     _data = tokenizer(str, _separator);
@@ -155,7 +149,8 @@ void Tread_file::read_file()
 
     if (fgets(str, 1000, _file) != NULL)
     {
-      _data = tokenizer(str, _separator);      
+      //cout << str << endl;
+      _data = tokenizer(str, _separator);
     }
   }
 
@@ -243,10 +238,10 @@ void Tread_file::save_to_memory()
 
 void Tread_file::clear_memory()
 {
-  if (_idx_in_memory != NULL) {
+  if(_idx_in_memory!=NULL){  
     munmap(_idx_in_memory, _ukuran_index);
     _idx_in_memory = NULL;
     _ukuran_index = 0;
     _jml_index = 0;
-  }
+  }  
 }

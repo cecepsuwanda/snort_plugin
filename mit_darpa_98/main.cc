@@ -1,66 +1,64 @@
-#include "Tread_file.h"
-#include "Tolah_label.h"
+#include "Tdataframe_list.h"
+#include "Tdataframe_label.h"
 #include "Tconf_metrix.h"
-
 #include <iostream>
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-	Tolah_label olah_label;
-	olah_label.setnm_f(argv[2],argv[3]);
-	olah_label.baca_file();
+    
+	cout << argv[1] << endl ;
 
+	Tdataframe_list df_list;
 
-	Tread_file f;
-	Tread_file g;
+	df_list.read_data(argv[1]);
+	cout << df_list.getjmlrow() << endl ;
+	
+	cout << argv[2] << endl ;
 
-	f.setnm_f(argv[1]);
-	f.setseparator(',');
-	cout << argv[1] << endl;
+	Tdataframe_label df_label;
 
-	if (f.open_file())
+	df_label.read_data(argv[2]);
+
+	if (df_label.open_file())
 	{
-		g.setnm_f(argv[4]);
-        g.setseparator(',');
-
-        g.open_file("w+");
-
 		Tconf_metrix conf_metrix;
-		vector<string> row;
-		string tmp_str,label;
-		while (!f.is_eof())
+		string label;
+		df_label.read_file();
+		vector<string> tmp_data;
+		int i = 0;
+		while (!df_label.is_eof())
 		{
-			row = f.get_record();
-			if (row.size() > 30) {
-				tmp_str = "";
-				for (int l = 0; l < row.size(); ++l)
-				{
-					tmp_str += row[l] + ",";
-				}
+			tmp_data = df_label.get_record();
 
-				label = olah_label.labeli(row);
-
-				conf_metrix.add_jml(label, row[row.size() - 1], 1);
-
-				tmp_str += label ;
-
-				g.write_file(tmp_str);
-
-				//cout << tmp_str << endl;
+			if (tmp_data.size() > 1)
+			{
+				//cout <<  << " " <<  << " " <<  << " " <<  << " " <<  << " " <<   << " " << tmp_data[tmp_data.size()-1] <<endl;
+				label = df_list.search(tmp_data[tmp_data.size()-3],tmp_data[tmp_data.size()-2],tmp_data[tmp_data.size()-9],tmp_data[tmp_data.size()-8],tmp_data[tmp_data.size()-7],tmp_data[tmp_data.size()-6],tmp_data[2]);				
+				conf_metrix.add_jml(label, tmp_data[tmp_data.size()-1], 1);
 			}
 
-			f.next_record();
-			row.clear();
-			row.shrink_to_fit();
+
+			tmp_data.clear();
+			tmp_data.shrink_to_fit();
+			df_label.next_record();
+			i++;
+			if ((i % 1000) == 0)
+			{
+				cout << ".";
+			}
 		}
-		f.close_file();
-		g.close_file();
+		df_label.close_file();
+
+		cout << endl;
+
 		conf_metrix.kalkulasi();
-		cout << conf_metrix << endl;
-	} else {
-		cout << "Gagal Buka File !!!" << endl;
+        cout << conf_metrix << endl;
 	}
+
+	df_label.clear_memory();
+	df_list.clear_memory();
+
 
 	return 0;
 }

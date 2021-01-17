@@ -420,7 +420,7 @@ void Tolah_label::baca_attack_file()
 	Tread_file f;
 
 	f.setnm_f(_attack_file);
-	f.setseparator(',');
+	f.setseparator(",");
 
 	if (f.open_file())
 	{
@@ -539,7 +539,7 @@ void Tolah_label::baca_host_file()
 	Tread_file f;
 
 	f.setnm_f(_host_file);
-	f.setseparator(',');
+	f.setseparator(",");
 
 	if (f.open_file())
 	{

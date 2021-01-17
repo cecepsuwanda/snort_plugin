@@ -41,6 +41,7 @@ private:
 	vector<Node> tree;
 
 	int idx_svm;
+	string model_path;
 
 	bool check_purity(Tdataframe &df);
 	map<int, map<string, int>> get_potential_splits(Tdataframe &df);
@@ -62,5 +63,6 @@ public:
 	void read_tree(Tdataframe &df);
 	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth,double gamma,double nu);
 	void save_tree(Tdataframe &df);
-
+ 
+    void set_model_path(string path);
 };

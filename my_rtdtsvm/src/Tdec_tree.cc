@@ -150,7 +150,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
       //df_svm.clear_memory();
 
-      my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+      my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
 
 
     }
@@ -208,7 +208,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         // df_svm.clear_memory();
 
-        my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+        my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
 
       }
       //cout << "label : " << tmp_str << endl;
@@ -286,12 +286,12 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
           // df_svm.clear_memory();
 
-          my_svm.save_model("data/svm_model_" + to_string(idx_svm) + ".csv");
+          my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
 
 
-          string filename = "data/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+          string filename = model_path+"/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
           remove(filename.c_str());
-          filename = "data/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+          filename = model_path+"/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
           remove(filename.c_str());
 
           df.clear_memory();
@@ -362,7 +362,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     if ((label == "normal") and (tree[leafNode].idx_svm != -1))
     {
       Tmy_svm my_svm;
-      string nm_model = "data/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
+      string nm_model = model_path+"/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
       my_svm.load_model(nm_model);
       vector<string> tmp_data;
       for (int i = 0; i < vec_attr.size(); ++i)
@@ -504,4 +504,9 @@ void Tdec_tree::read_tree(Tdataframe &df)
   } else {
     cout << "Gagal buka file !!!" << endl;
   }
+}
+
+void Tdec_tree::set_model_path(string path)
+{
+  model_path = path;
 }

@@ -6,6 +6,9 @@
 
 using namespace std;
 
+#ifndef Included_Tconf_metrix_H
+
+#define Included_Tconf_metrix_H
 
 struct Tdata
 {
@@ -18,7 +21,7 @@ class Tconf_metrix
 private:
    map<string, map<string, int>> matrik;
    map<string, Tdata> matrik1;
-
+   float accuracy,precision,recall;
    int tepat,tdk_tepat,jml_data;
 public:
 	Tconf_metrix();
@@ -34,3 +37,5 @@ public:
 
 	friend ostream & operator << (ostream &out, const Tconf_metrix &tc);
 };
+
+#endif

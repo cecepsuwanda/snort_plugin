@@ -28,6 +28,9 @@ void invalid_option(const char *opt, const char *progname);
 void invalid_option_value(const char *opt, const char *val, const char *progname);
 void extract(Sniffer *sniffer, const Config *config, bool is_running_live);
 
+Tdec_tree dec_tree;
+Tdataframe df_save;
+
 int main(int argc, char **argv)
 {
 	// Register signal handler for termination
@@ -41,6 +44,8 @@ int main(int argc, char **argv)
 		Config config;
 
 		std::ofstream out_stream;
+
+		config.set_print_extra_features(true);
 
 		out_stream.open(argv[2]);
 		cout.rdbuf(out_stream.rdbuf());		//redirect std::cout
@@ -63,10 +68,18 @@ int main(int argc, char **argv)
 		// 		if (config.should_print_filename())
 		// 			cout << "FILE '" << files[i] << "'" << endl;
 
-				Sniffer *sniffer = new Sniffer(argv[1], &config);
-				extract(sniffer, &config, false);
+		string s = argv[3];
+		df_save.read_data(s + "/dtsvm_model.csv");
+		cout << s << endl;
+		dec_tree.set_model_path(argv[3]);
+		dec_tree.read_tree(df_save);
+
+		Sniffer *sniffer = new Sniffer(argv[1], &config);
+		extract(sniffer, &config, false);
 		// 	}
 		// }
+
+		out_stream.close();
 	}
 	catch (std::bad_alloc& ba)	// Inform when memory limit reached
 	{
@@ -89,9 +102,6 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 	ConversationReconstructor conv_reconstructor;
 	StatsEngine stats_engine(config);
 
-	Tdec_tree dec_tree;
-    Tdataframe df_save;
-
 	bool has_more_traffic = true;
 	while (!temination_requested && (has_more_traffic || is_running_live)) {
 
@@ -99,7 +109,7 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		IpFragment *frag = sniffer->next_frame();
 		has_more_traffic = (frag != NULL);
 
-		
+
 		Packet *datagr = nullptr;
 		if (has_more_traffic) {
 			// Do some assertion about the type of packet just to be sure
@@ -107,7 +117,7 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			eth_field_type_t eth_type = frag->get_eth_type();
 			ip_field_protocol_t ip_proto = frag->get_ip_proto();
 			assert((eth_type == IPV4 && (ip_proto == TCP || ip_proto == UDP || ip_proto == ICMP))
-				&& "Sniffer returned packet that is not (TCP or UDP or ICMP)");
+			       && "Sniffer returned packet that is not (TCP or UDP or ICMP)");
 
 			Timestamp now = frag->get_end_ts();
 
@@ -124,14 +134,22 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			}
 		}
 
-		// Output timedout conversations 
+		// Output timedout conversations
 		Conversation *conv;
 		while ((conv = conv_reconstructor.get_next_conversation()) != nullptr) {
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
 
+			vector<string> tmp = cf->get_attr();
+
+			string tmp_str = dec_tree.guess(df_save, tmp);
+
+			cf->set_label(tmp_str);
+
 			cf->print(config->should_print_extra_features());
 			delete cf;
+			tmp.clear();
+			tmp.shrink_to_fit();
 		}
 	}
 
@@ -144,8 +162,16 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		ConversationFeatures *cf = stats_engine.calculate_features(conv);
 		conv = nullptr;
 
+		vector<string> tmp = cf->get_attr();
+
+		string tmp_str = dec_tree.guess(df_save, tmp);
+
+		cf->set_label(tmp_str);
+
 		cf->print(config->should_print_extra_features());
 		delete cf;
+		tmp.clear();
+		tmp.shrink_to_fit();
 	}
 }
 
@@ -154,30 +180,30 @@ void usage(const char *name)
 	// Option '-' orignaly meant to use big read timeouts and exit on first timeout. Other approach used
 	// because original approach did not work (does this option make sense now?).
 	cout << "KDD'99-like feature extractor" << endl
-		<< "Build time : " << __DATE__ << " " << __TIME__ << endl << endl
-		<< "Usage: " << name << " [OPTION]... [FILE]" << endl
-		<< " -h, --help    Display this usage  " << endl
-		<< " -l, --list    List interfaces  " << endl
-		<< " -i   NUMBER   Capture from interface with given number (default 1)" << endl
-		<< " -p   MS       libpcap network read timeout in ms (default 1000)" << endl
-		<< " -e            Print extra features(IPs, ports, end timestamp)" << endl
-		<< " -v            Print filename/interface number before parsing each file" << endl
-		<< " -o   FILE     Write all output to FILE instead of standard output" << endl
-		<< " -a   BYTES    Additional frame length to be add to each frame in bytes" << endl
-		<< "                 (e.g. 4B Ethernet CRC) (default 0)" << endl
-		<< " -ft  SECONDS  IP reassembly timeout (default 30)" << endl
-		<< " -fi  MS       Max time between timed out IP fragments lookups in ms (default 1000)" << endl
-		<< " -tst SECONDS  TCP SYN timeout for states S0, S1 (default 120)" << endl
-		<< " -tet SECONDS  TCP timeout for established connections (default 5days)  " << endl
-		<< " -trt SECONDS  TCP RST timeout for states REJ, RSTO, RSTR, RSTOS0 (default 10)" << endl
-		<< " -tft SECONDS  TCP FIN timeout for states S2, S3 (default 120)" << endl
-		<< " -tlt SECONDS  TCP last ACK timeout (default 30)" << endl
-		<< " -ut  SECONDS  UDP timeout  (default 180)" << endl
-		<< " -it  SECONDS  ICMP timeout  (default 30)" << endl
-		<< " -ci  MS       Max time between timed out connection lookups in ms (default 1000)" << endl
-		<< " -t   MS       Time window size in ms (default 2000)" << endl
-		<< " -c   NUMBER   Count window size (default 100)" << endl
-		<< endl;
+	     << "Build time : " << __DATE__ << " " << __TIME__ << endl << endl
+	     << "Usage: " << name << " [OPTION]... [FILE]" << endl
+	     << " -h, --help    Display this usage  " << endl
+	     << " -l, --list    List interfaces  " << endl
+	     << " -i   NUMBER   Capture from interface with given number (default 1)" << endl
+	     << " -p   MS       libpcap network read timeout in ms (default 1000)" << endl
+	     << " -e            Print extra features(IPs, ports, end timestamp)" << endl
+	     << " -v            Print filename/interface number before parsing each file" << endl
+	     << " -o   FILE     Write all output to FILE instead of standard output" << endl
+	     << " -a   BYTES    Additional frame length to be add to each frame in bytes" << endl
+	     << "                 (e.g. 4B Ethernet CRC) (default 0)" << endl
+	     << " -ft  SECONDS  IP reassembly timeout (default 30)" << endl
+	     << " -fi  MS       Max time between timed out IP fragments lookups in ms (default 1000)" << endl
+	     << " -tst SECONDS  TCP SYN timeout for states S0, S1 (default 120)" << endl
+	     << " -tet SECONDS  TCP timeout for established connections (default 5days)  " << endl
+	     << " -trt SECONDS  TCP RST timeout for states REJ, RSTO, RSTR, RSTOS0 (default 10)" << endl
+	     << " -tft SECONDS  TCP FIN timeout for states S2, S3 (default 120)" << endl
+	     << " -tlt SECONDS  TCP last ACK timeout (default 30)" << endl
+	     << " -ut  SECONDS  UDP timeout  (default 180)" << endl
+	     << " -it  SECONDS  ICMP timeout  (default 30)" << endl
+	     << " -ci  MS       Max time between timed out connection lookups in ms (default 1000)" << endl
+	     << " -t   MS       Time window size in ms (default 2000)" << endl
+	     << " -c   NUMBER   Count window size (default 100)" << endl
+	     << endl;
 }
 
 void list_interfaces()
@@ -199,8 +225,8 @@ void list_interfaces()
 	for (d = alldevs, i = 1; d; d = d->next, i++) {
 
 		cout << i << ". "
-			<< setiosflags(ios_base::left) << setw(40) << (char *)((d->description != 0)? d->description:"NULL")
-			<< "\t[" << d->name << ']' << endl;
+		     << setiosflags(ios_base::left) << setw(40) << (char *)((d->description != 0) ? d->description : "NULL")
+		     << "\t[" << d->name << ']' << endl;
 	}
 	cout << endl;
 

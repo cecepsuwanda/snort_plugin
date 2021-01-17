@@ -1,10 +1,13 @@
 #pragma once
 
-#include "types.h"
+#include <vector>
+#include <string.h>
+#include <string>
 #include "Conversation.h"
 
-namespace FeatureExtractor {
 
+namespace FeatureExtractor {
+using namespace std;
 	/**
 	 * Set of features with link to conversation
 	 */
@@ -37,6 +40,8 @@ namespace FeatureExtractor {
 		double dst_host_srv_serror_rate;
 		double dst_host_rerror_rate;
 		double dst_host_srv_rerror_rate;
+
+		string label;
 
 		/**
 		 * Additional values kept to calculate feature 31(37) 
@@ -126,5 +131,8 @@ namespace FeatureExtractor {
 		 * Human readable print to stdout
 		 */
 		void print_human() const;
+
+		vector<string> get_attr();
+		void set_label(string vlabel);
 	};
 }

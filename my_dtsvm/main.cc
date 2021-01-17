@@ -11,10 +11,13 @@ int main(int argc, char *argv[])
   Tdec_tree dec_tree;
   char *endptr;
 
-  df_save.read_data(argv[8]);
+  string s(argv[8]);
+  df_save.read_data( s+ "/dtsvm_model.csv");
+  dec_tree.set_model_path(argv[8]);
 
   if (stoi(argv[9]) == 1)
   {
+
     df_train.read_data(argv[6]);
     df_train.read_data_type(argv[5]);
 
@@ -24,8 +27,8 @@ int main(int argc, char *argv[])
     auto start = std::chrono::steady_clock::now();
     dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
     auto end = std::chrono::steady_clock::now();
-    double elapsed_time = double(std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count()); 
-    cout << "Lama Training : " << elapsed_time/1e9 <<endl;
+    double elapsed_time = double(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
+    cout << "Lama Training : " << elapsed_time / 1e9 << endl;
     cout << "End Train Decission Tree : " << endl;
 
     dec_tree.save_tree(df_save);
