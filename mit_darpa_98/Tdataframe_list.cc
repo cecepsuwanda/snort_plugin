@@ -20,6 +20,163 @@ void Tdataframe_list::read_data(string nm_f)
 	stat_tabel();
 }
 
+string Tdataframe_list::ip_fragment_str(tip_fragment ip_frag)
+{
+	return to_string(ip_frag.part1) + "." + to_string(ip_frag.part2) + "." + to_string(ip_frag.part3) + "." + to_string(ip_frag.part4) + ":" + to_string(ip_frag.port);
+}
+
+list_item Tdataframe_list::preproses_item(vector<string> &data)
+{
+	list_item tmp_list;
+
+	tmp_list.timestamp = datetime_to_timestamp(data[1], data[2], 11);
+
+	tip_fragment tmp_ip_port_src, tmp_ip_port_dst;
+	tmp_ip_port_src = ip_frag(data[7], ((data[5] == "-") ? "0" : data[5]));
+	tmp_ip_port_dst = ip_frag(data[8], ((data[6] == "-") ? "0" : data[6]));
+	tmp_list.str_ip_dst = ip_fragment_str(tmp_ip_port_dst);
+	tmp_list.str_ip_src = ip_fragment_str(tmp_ip_port_src);
+
+	string tmp_str = data[4] ;
+
+	if ((isNumber(tmp_str)) or (tmp_str == "tcpmux") or (tmp_str == "chargen") or (tmp_str == "1/u") )
+	{
+		tmp_str = "other";
+	} else {
+		if (tmp_str == "pop3")
+		{
+			tmp_str = "pop_3";
+		} else {
+			if (tmp_str == "irc")
+			{
+				tmp_str = "IRC";
+			} else {
+				if (tmp_str == "imap")
+				{
+					tmp_str = "imap4";
+				} else {
+
+				}
+			}
+		}
+	}
+
+	if (is_subs(tmp_str, "-"))
+	{
+		vector<string> vdata;
+		vdata = tokenizer((char *)tmp_str.c_str(), "-");
+
+		if (vdata[1] == "data")
+		{
+			tmp_str = vdata[0] + "_data";
+		}
+
+	} else {
+		if (is_subs(tmp_str, "/") and is_subs(tmp_str, ":")) {
+			vector<string> vdata;
+			vdata = tokenizer((char *)tmp_str.c_str(), ":");
+
+			tmp_str = vdata[0];
+			data = tokenizer((char *)tmp_str.c_str(), "/");
+			tmp_str = vdata[0] + "_" + vdata[1];
+
+
+		} else {
+			if (is_subs(tmp_str, "/"))
+			{
+				vector<string> vdata;
+
+				vdata = tokenizer((char *)tmp_str.c_str(), "/");
+				tmp_str = vdata[0] + "_" + vdata[1];
+			} else {
+
+
+
+			}
+		}
+	}
+
+	tmp_list.service = tmp_str;
+
+	tmp_list.label = data[10];
+
+	return tmp_list;
+}
+
+void Tdataframe_list::build_idx_list_lvl0(list_item tmp_list)
+{
+	auto itr = _idx_list.find( tmp_list.str_ip_src);
+	if (itr == _idx_list.end())
+	{
+		vector<string> tmp_vec;
+		tmp_vec.push_back(tmp_list.label);
+
+		map_list3 map3;
+		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+		map_list2 map2;
+		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
+		map_list1 map1;
+		map1.insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
+
+		_idx_list.insert(pair<string, map_list1>(tmp_list.str_ip_src, map1));
+	} else {
+		build_idx_list_lvl1(tmp_list, &itr->second);
+	}
+}
+
+void Tdataframe_list::build_idx_list_lvl1(list_item tmp_list, map_list1* map1)
+{
+	auto itr = map1->find(tmp_list.str_ip_dst);
+	if (itr == map1->end())
+	{
+		vector<string> tmp_vec;
+		tmp_vec.push_back(tmp_list.label);
+
+		map_list3 map3;
+		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+		map_list2 map2;
+		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
+
+		map1->insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
+
+	} else {
+		build_idx_list_lvl2(tmp_list, &itr->second);
+	}
+}
+
+void Tdataframe_list::build_idx_list_lvl2(list_item tmp_list, map_list2* map2)
+{
+	auto itr = map2->find(tmp_list.service);
+	if (itr == map2->end())
+	{
+		vector<string> tmp_vec;
+		tmp_vec.push_back(tmp_list.label);
+
+		map_list3 map3;
+		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+
+		map2->insert(pair<string, map_list3>(tmp_list.service, map3));
+
+	} else {
+		build_idx_list_lvl3(tmp_list, &itr->second);
+	}
+}
+
+void Tdataframe_list::build_idx_list_lvl3(list_item tmp_list, map_list3* map3)
+{
+	auto itr = map3->find(tmp_list.timestamp);
+	if (itr == map3->end())
+	{
+		vector<string> tmp_vec;
+		tmp_vec.push_back(tmp_list.label);
+
+		map3->insert(pair<long, vector<string>>(tmp_list.timestamp, tmp_vec));
+	} else {
+		vector<string>* tmp_vec = &itr->second;
+		tmp_vec->push_back(tmp_list.label);
+	}
+}
+
 void Tdataframe_list::stat_tabel()
 {
 	vector<string> tmp_data;
@@ -63,166 +220,9 @@ void Tdataframe_list::stat_tabel()
 					_stat_label.insert(pair<string, int>(tmp_data[tmp_data.size() - 1], 1));
 				}
 
-				tip_fragment tmp_ip_port_src, tmp_ip_port_dst;
-				long tmp_timestamp = datetime_to_timestamp(tmp_data[1], tmp_data[2], 11);
 
-				if ((tmp_data[5] == "-") and (tmp_data[6] == "-") )
-				{
-					tmp_ip_port_src = ip_frag(tmp_data[7], "0");
-					tmp_ip_port_dst = ip_frag(tmp_data[8], "0");
-				} else {
-					tmp_ip_port_src = ip_frag(tmp_data[7], tmp_data[5]);
-					tmp_ip_port_dst = ip_frag(tmp_data[8], tmp_data[6]);
-				}
-
-				string tmp_str = tmp_data[4] ;
-
-				
-				if ((isNumber(tmp_str)) or (tmp_str == "tcpmux") or (tmp_str == "chargen") or (tmp_str == "1/u") )
-				{
-					tmp_str = "other";
-				} else {
-					if (tmp_str == "pop3")
-					{
-						tmp_str = "pop_3";
-					} else {
-						if (tmp_str == "irc")
-						{
-							tmp_str = "IRC";
-						} else {
-							if (tmp_str == "imap")
-							{
-								tmp_str = "imap4";
-							} else {
-
-							}
-						}
-					}
-				}
-
-				if (is_subs(tmp_str, "-"))
-				{
-					vector<string> data;
-					data = tokenizer((char *)tmp_str.c_str(), "-");
-
-					if (data[1] == "data")
-					{
-						tmp_str = data[0] + "_data";
-					}
-
-				} else {
-					if (is_subs(tmp_str, "/") and is_subs(tmp_str, ":")) {
-						vector<string> data;
-						data = tokenizer((char *)tmp_str.c_str(), ":");
-
-						tmp_str = data[0];
-						data = tokenizer((char *)tmp_str.c_str(), "/");
-						tmp_str = data[0] + "_" + data[1];
-
-
-					} else {
-						if (is_subs(tmp_str, "/"))
-						{
-							vector<string> data;
-
-							data = tokenizer((char *)tmp_str.c_str(), "/");
-							tmp_str = data[0] + "_" + data[1];
-						} else {
-
-
-
-						}
-					}
-				}
-
-                
-       
- 
-
-				string label = tmp_data[10];
-
-				string str_ip_port_dst = to_string(tmp_ip_port_dst.part1) + "." + to_string(tmp_ip_port_dst.part2) + "." + to_string(tmp_ip_port_dst.part3) + "." + to_string(tmp_ip_port_dst.part4) + ":" + to_string(tmp_ip_port_dst.port);
-				string str_ip_port_src = to_string(tmp_ip_port_src.part1) + "." + to_string(tmp_ip_port_src.part2) + "." + to_string(tmp_ip_port_src.part3) + "." + to_string(tmp_ip_port_src.part4) + ":" + to_string(tmp_ip_port_src.port);
-
-				if (_idx_list.size() > 0)
-				{
-					auto itr = _idx_list.find(str_ip_port_src);
-					if (itr == _idx_list.end())
-					{
-						vector<string> tmp_vec;
-						tmp_vec.push_back(label);
-
-						map_list3 map3;
-						map3.insert(pair<long,  vector<string>>(tmp_timestamp, tmp_vec));
-						map_list2 map2;
-						map2.insert(pair<string, map_list3>(tmp_str, map3));
-						map_list1 map1;
-						map1.insert(pair<string, map_list2>(str_ip_port_dst, map2));
-
-						_idx_list.insert(pair<string, map_list1>(str_ip_port_src, map1));
-					} else {
-						map_list1* map1 = &itr->second;
-						auto itr = map1->find(str_ip_port_dst);
-						if (itr == map1->end())
-						{
-							vector<string> tmp_vec;
-							tmp_vec.push_back(label);
-
-							map_list3 map3;
-							map3.insert(pair<long,  vector<string>>(tmp_timestamp, tmp_vec));
-							map_list2 map2;
-							map2.insert(pair<string, map_list3>(tmp_str, map3));
-
-							map1->insert(pair<string, map_list2>(str_ip_port_dst, map2));
-
-						} else {
-							map_list2* map2 = &itr->second;
-							auto itr = map2->find(tmp_str);
-							if (itr == map2->end())
-							{
-								vector<string> tmp_vec;
-								tmp_vec.push_back(label);
-
-								map_list3 map3;
-								map3.insert(pair<long,  vector<string>>(tmp_timestamp, tmp_vec));
-
-								map2->insert(pair<string, map_list3>(tmp_str, map3));
-
-							} else {
-								map_list3* map3 = &itr->second;
-								auto itr = map3->find(tmp_timestamp);
-								if (itr == map3->end())
-								{
-									vector<string> tmp_vec;
-									tmp_vec.push_back(label);
-
-									map3->insert(pair<long, vector<string>>(tmp_timestamp, tmp_vec));
-								} else {
-									vector<string>* tmp_vec = &itr->second;
-									tmp_vec->push_back(label);
-								}
-							}
-						}
-
-
-					}
-
-				} else {
-
-					vector<string> tmp_vec;
-					tmp_vec.push_back(label);
-
-					map_list3 map3;
-					map3.insert(pair<long,  vector<string>>(tmp_timestamp, tmp_vec));
-					map_list2 map2;
-					map2.insert(pair<string, map_list3>(tmp_str, map3));
-					map_list1 map1;
-					map1.insert(pair<string, map_list2>(str_ip_port_dst, map2));
-
-					_idx_list.insert(pair<string, map_list1>(str_ip_port_src, map1));
-
-				}
-
+				list_item tmp_list = preproses_item(tmp_data);
+				build_idx_list_lvl0(tmp_list);
 
 				i++;
 			}
@@ -339,10 +339,8 @@ string Tdataframe_list::search(string date, string hour, string ip_src, string p
 	tip_fragment search_ip_port_dst = ip_frag(ip_dst, port_dst);
 	long search_timestamp = datetime_to_timestamp(date, hour, 0);
 
-	string str_ip_port_dst = to_string(search_ip_port_dst.part1) + "." + to_string(search_ip_port_dst.part2) + "." + to_string(search_ip_port_dst.part3) + "." + to_string(search_ip_port_dst.part4) + ":" + to_string(search_ip_port_dst.port);
-	string str_ip_port_src = to_string(search_ip_port_src.part1) + "." + to_string(search_ip_port_src.part2) + "." + to_string(search_ip_port_src.part3) + "." + to_string(search_ip_port_src.part4) + ":" + to_string(search_ip_port_src.port);
-
-
+	string str_ip_port_dst = ip_fragment_str(search_ip_port_dst);
+	string str_ip_port_src = ip_fragment_str(search_ip_port_src);
 
 
 	auto itr = _idx_list.find(str_ip_port_src);
@@ -383,10 +381,10 @@ string Tdataframe_list::search(string date, string hour, string ip_src, string p
 						}
 					}
 				} else {
-					label = "unknown_time";
+					label = "normal";
 				}
 			} else {
-				label = "unknown_service";
+				label = "normal";
 
 				// cout << service << endl;
 				// for (auto it = map2->begin(); it != map2->end(); ++it) {
@@ -396,7 +394,7 @@ string Tdataframe_list::search(string date, string hour, string ip_src, string p
 
 		} else {
 			label = "normal";
-			
+
 		}
 	} else {
 		label = "normal";

@@ -12,13 +12,15 @@ int main(int argc, char const *argv[])
 	Tdataframe_list df_list;
 
 	df_list.read_data(argv[1]);
-	cout << df_list.getjmlrow() << endl ;
+
 
 	map<string, int> stat_list = df_list.get_stat_label();
 
 	for (auto it = stat_list.begin(); it != stat_list.end(); ++it) {
 		cout << (*it).first << " = " << (*it).second << endl;
 	}
+
+	cout << "Jumlah = " << df_list.getjmlrow() << endl ;
 
 	cout << argv[2] << endl ;
 
@@ -31,6 +33,23 @@ int main(int argc, char const *argv[])
 	for (auto it = stat_label.begin(); it != stat_label.end(); ++it) {
 		cout << (*it).first << " = " << (*it).second << endl;
 	}
+
+	cout << "Jumlah = " << df_label.getjmlrow() << endl ;
+
+	field_filter1 f;
+	f.idx_col = 36;
+	f.idx_opt = 3;
+	f.value = "dfs_failed.";
+	df_label.add_filter(f);
+
+	stat_label = df_label.get_stat_label();
+
+	for (auto it = stat_label.begin(); it != stat_label.end(); ++it) {
+		cout << (*it).first << " = " << (*it).second << endl;
+	}
+
+	cout << "Jumlah = " << df_label.getjmlrow() << endl ;
+
 
 	if (df_label.open_file())
 	{

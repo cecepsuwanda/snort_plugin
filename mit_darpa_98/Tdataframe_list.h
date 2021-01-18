@@ -12,6 +12,16 @@ using namespace std;
 
 #define Included_Tdataframe_list_H
 
+
+struct list_item
+{
+   long timestamp;
+   string str_ip_src;
+   string str_ip_dst;
+   string service;
+   string label;
+};
+
 struct field_filter
 {
 	int idx_col;
@@ -50,6 +60,7 @@ private:
 	tip_fragment ip_frag(string ip, string port);
 	long datetime_to_timestamp(string date, string hour, int tmb);
 	bool compare_ip(tip_fragment ip1, tip_fragment ip2);
+	string ip_fragment_str(tip_fragment ip_frag);
 
 	bool is_subs(string stack, string needle);
 	bool isNumber(string token);
@@ -57,6 +68,13 @@ private:
 	vector<string> tokenizer(char *str, const char *separator);
 
 	map_list _idx_list;
+
+	void build_idx_list_lvl0(list_item tmp_list);
+	void build_idx_list_lvl1(list_item tmp_list,map_list1* map1);
+	void build_idx_list_lvl2(list_item tmp_list,map_list2* map2);
+	void build_idx_list_lvl3(list_item tmp_list,map_list3* map3);
+
+	list_item preproses_item(vector<string> &data);
 
 public:
 	Tdataframe_list();
