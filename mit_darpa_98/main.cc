@@ -6,19 +6,31 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    
+
 	cout << argv[1] << endl ;
 
 	Tdataframe_list df_list;
 
 	df_list.read_data(argv[1]);
 	cout << df_list.getjmlrow() << endl ;
-	
+
+	map<string, int> stat_list = df_list.get_stat_label();
+
+	for (auto it = stat_list.begin(); it != stat_list.end(); ++it) {
+		cout << (*it).first << " = " << (*it).second << endl;
+	}
+
 	cout << argv[2] << endl ;
 
 	Tdataframe_label df_label;
 
 	df_label.read_data(argv[2]);
+
+	map<string, int> stat_label = df_label.get_stat_label();
+
+	for (auto it = stat_label.begin(); it != stat_label.end(); ++it) {
+		cout << (*it).first << " = " << (*it).second << endl;
+	}
 
 	if (df_label.open_file())
 	{
@@ -34,8 +46,8 @@ int main(int argc, char const *argv[])
 			if (tmp_data.size() > 1)
 			{
 				//cout <<  << " " <<  << " " <<  << " " <<  << " " <<  << " " <<   << " " << tmp_data[tmp_data.size()-1] <<endl;
-				label = df_list.search(tmp_data[tmp_data.size()-3],tmp_data[tmp_data.size()-2],tmp_data[tmp_data.size()-9],tmp_data[tmp_data.size()-8],tmp_data[tmp_data.size()-7],tmp_data[tmp_data.size()-6],tmp_data[2]);				
-				conf_metrix.add_jml(label, tmp_data[tmp_data.size()-1], 1);
+				label = df_list.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[2]);
+				conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
 			}
 
 
@@ -45,7 +57,7 @@ int main(int argc, char const *argv[])
 			i++;
 			if ((i % 1000) == 0)
 			{
-				cout << ".";
+				//cout << ".";
 			}
 		}
 		df_label.close_file();
@@ -53,7 +65,7 @@ int main(int argc, char const *argv[])
 		cout << endl;
 
 		conf_metrix.kalkulasi();
-        cout << conf_metrix << endl;
+		cout << conf_metrix << endl;
 	}
 
 	df_label.clear_memory();

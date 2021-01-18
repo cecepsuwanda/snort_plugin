@@ -77,13 +77,67 @@ void Tdataframe_list::stat_tabel()
 
 				string tmp_str = tmp_data[4] ;
 
-				if (is_subs(tmp_str, "/"))
+				
+				if ((isNumber(tmp_str)) or (tmp_str == "tcpmux") or (tmp_str == "chargen") or (tmp_str == "1/u") )
+				{
+					tmp_str = "other";
+				} else {
+					if (tmp_str == "pop3")
+					{
+						tmp_str = "pop_3";
+					} else {
+						if (tmp_str == "irc")
+						{
+							tmp_str = "IRC";
+						} else {
+							if (tmp_str == "imap")
+							{
+								tmp_str = "imap4";
+							} else {
+
+							}
+						}
+					}
+				}
+
+				if (is_subs(tmp_str, "-"))
 				{
 					vector<string> data;
+					data = tokenizer((char *)tmp_str.c_str(), "-");
 
-					data = tokenizer((char *)tmp_str.c_str(), "/");
-					tmp_str = data[0] + "_" + data[1];
+					if (data[1] == "data")
+					{
+						tmp_str = data[0] + "_data";
+					}
+
+				} else {
+					if (is_subs(tmp_str, "/") and is_subs(tmp_str, ":")) {
+						vector<string> data;
+						data = tokenizer((char *)tmp_str.c_str(), ":");
+
+						tmp_str = data[0];
+						data = tokenizer((char *)tmp_str.c_str(), "/");
+						tmp_str = data[0] + "_" + data[1];
+
+
+					} else {
+						if (is_subs(tmp_str, "/"))
+						{
+							vector<string> data;
+
+							data = tokenizer((char *)tmp_str.c_str(), "/");
+							tmp_str = data[0] + "_" + data[1];
+						} else {
+
+
+
+						}
+					}
 				}
+
+                
+       
+ 
 
 				string label = tmp_data[10];
 
@@ -288,6 +342,9 @@ string Tdataframe_list::search(string date, string hour, string ip_src, string p
 	string str_ip_port_dst = to_string(search_ip_port_dst.part1) + "." + to_string(search_ip_port_dst.part2) + "." + to_string(search_ip_port_dst.part3) + "." + to_string(search_ip_port_dst.part4) + ":" + to_string(search_ip_port_dst.port);
 	string str_ip_port_src = to_string(search_ip_port_src.part1) + "." + to_string(search_ip_port_src.part2) + "." + to_string(search_ip_port_src.part3) + "." + to_string(search_ip_port_src.part4) + ":" + to_string(search_ip_port_src.port);
 
+
+
+
 	auto itr = _idx_list.find(str_ip_port_src);
 	if (itr != _idx_list.end())
 	{
@@ -302,105 +359,50 @@ string Tdataframe_list::search(string date, string hour, string ip_src, string p
 				map_list3* map3 = &itr->second;
 				auto itr = map3->find(search_timestamp);
 				if (itr != map3->end())
-				{ 
-                   vector<string>* tmp_vec = &itr->second;
-                   if(tmp_vec->size()>1)
-                   {
-                      //cout << "Bingung : " << endl;
-                      label = "normal";
-                      for (int i = 0; i < tmp_vec->size(); ++i)
-                      {
-                          if((*tmp_vec)[i]!="-")
-                          {
-                            label = "attack";      
-                          }  	
-                      }
+				{
+					vector<string>* tmp_vec = &itr->second;
+					if (tmp_vec->size() > 1)
+					{
+						//cout << "Bingung : " << endl;
+						label = "normal";
+						for (int i = 0; i < tmp_vec->size(); ++i)
+						{
+							if ((*tmp_vec)[i] != "-")
+							{
+								label = "attack";
+							}
+						}
 
-                   }else{
-                      label = (*tmp_vec)[0];
-                      if(label=="-")
-                      {
-                        label = "normal"; 
-                      }else{
-                      	label = "attack";
-                      }
-                   }
+					} else {
+						label = (*tmp_vec)[0];
+						if (label == "-")
+						{
+							label = "normal";
+						} else {
+							label = "attack";
+						}
+					}
+				} else {
+					label = "unknown_time";
 				}
+			} else {
+				label = "unknown_service";
+
+				// cout << service << endl;
+				// for (auto it = map2->begin(); it != map2->end(); ++it) {
+				// 	cout << "{" << (*it).first << "}\n";
+				// }
 			}
 
 		} else {
-
+			label = "normal";
+			
 		}
 	} else {
-
+		label = "normal";
 	}
 
-	// if (_data.open_file())
-	// {
-	// 	vector<string> tmp_data;
-	// 	bool ketemu = false;
 
-	// 	_data.read_file();
-	// 	while ((!_data.is_eof()) and (!ketemu))
-	// 	{
-	// 		tmp_data = _data.get_record();
-
-	// 		tip_fragment tmp_ip_port_src, tmp_ip_port_dst;
-	// 		long tmp_timestamp = datetime_to_timestamp(tmp_data[1], tmp_data[2], 11);
-
-	// 		if ((tmp_data[5] == "-") and (tmp_data[6] == "-") )
-	// 		{
-	// 			tmp_ip_port_src = ip_frag(tmp_data[7], "0");
-	// 			tmp_ip_port_dst = ip_frag(tmp_data[8], "0");
-	// 		} else {
-	// 			tmp_ip_port_src = ip_frag(tmp_data[7], tmp_data[5]);
-	// 			tmp_ip_port_dst = ip_frag(tmp_data[8], tmp_data[6]);
-	// 		}
-
-	// 		if (search_timestamp == tmp_timestamp)
-	// 		{
-	// 			if (compare_ip(search_ip_port_src, tmp_ip_port_src)) {
-	// 				if (compare_ip(search_ip_port_dst, tmp_ip_port_dst)) {
-
-	// 					string tmp_str = tmp_data[4] ;
-
-	// 					if (is_subs(tmp_str, "/"))
-	// 					{
-	// 						vector<string> data;
-
-	// 						data = tokenizer((char *)tmp_str.c_str(), "/");
-	// 						tmp_str = data[0] + "_" + data[1];
-	// 					}
-
-	// 					if (tmp_str == service) {
-
-	// 						ketemu = true;
-	// 						label = tmp_data[10];
-
-	// 						if (label == "-")
-	// 						{
-	// 							label = "normal";
-	// 						} else {
-	// 							label = "attack";
-	// 							//cout << tmp_data[10] << " " << label << " " << service << " " << tmp_data[1] << " " << tmp_data[2] << " " << date << " " << hour << " " << ip_src << " " << ip_dst << endl;
-	// 						}
-
-
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-
-	// 		tmp_data.clear();
-	// 		tmp_data.shrink_to_fit();
-	// 		_data.next_record();
-	// 	}
-
-
-	// 	_data.close_file();
-	// } else {
-	// 	cout << "search, Gagal buka file !!!" << endl;
-	// }
 
 	return label;
 
@@ -495,6 +497,11 @@ bool Tdataframe_list::is_pass(vector<string> &data)
 	}
 
 	return pass;
+}
+
+bool Tdataframe_list::isNumber(string token)
+{
+	return std::regex_match(token, std::regex(("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?")));
 }
 
 void Tdataframe_list::add_filter(field_filter filter)

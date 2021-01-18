@@ -38,22 +38,23 @@ void Tdataframe_label::stat_tabel()
 		while (!_data.is_eof())
 		{
 			tmp_data = _data.get_record();
-
-			if (_stat_label.size() > 0)
-			{
-				it = _stat_label.find(tmp_data[tmp_data.size() - 1]);
-				if (it == _stat_label.end())
+            if (tmp_data.size()>1)
+            { 	
+				if (_stat_label.size() > 0)
 				{
+					it = _stat_label.find(tmp_data[tmp_data.size() - 1]);
+					if (it == _stat_label.end())
+					{
+
+						_stat_label.insert(pair<string, int>(tmp_data[tmp_data.size() - 1], 1));
+					} else {
+						it->second += 1;
+					}
+				} else {
 
 					_stat_label.insert(pair<string, int>(tmp_data[tmp_data.size() - 1], 1));
-				} else {
-					it->second += 1;
 				}
-			} else {
-
-				_stat_label.insert(pair<string, int>(tmp_data[tmp_data.size() - 1], 1));
-			}
-
+            }
 
 			tmp_data.clear();
 			tmp_data.shrink_to_fit();

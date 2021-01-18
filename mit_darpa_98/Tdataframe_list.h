@@ -2,6 +2,7 @@
 #include <map>
 #include <iterator>
 #include <string>
+#include <regex>
 #include <ctime>
 
 using namespace std;
@@ -51,6 +52,7 @@ private:
 	bool compare_ip(tip_fragment ip1, tip_fragment ip2);
 
 	bool is_subs(string stack, string needle);
+	bool isNumber(string token);
 
 	vector<string> tokenizer(char *str, const char *separator);
 
