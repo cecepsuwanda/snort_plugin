@@ -8,7 +8,8 @@ Tdataframe_label::Tdataframe_label()
 
 Tdataframe_label::~Tdataframe_label()
 {
-
+	_filter.clear();
+	_stat_label.clear();
 }
 
 void Tdataframe_label::read_data(string nm_f)

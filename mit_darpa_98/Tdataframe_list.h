@@ -39,8 +39,8 @@ struct tip_fragment
 	int port;
 };
 
-
-typedef map<long, vector<string>> map_list3;
+typedef map<string, int> map_list4;
+typedef map<long, map_list4> map_list3;
 typedef map<string, map_list3> map_list2;
 typedef map<string, map_list2> map_list1;
 typedef map<string, map_list1> map_list;
@@ -73,6 +73,11 @@ private:
 	void build_idx_list_lvl1(list_item tmp_list,map_list1* map1);
 	void build_idx_list_lvl2(list_item tmp_list,map_list2* map2);
 	void build_idx_list_lvl3(list_item tmp_list,map_list3* map3);
+
+	string search_idx_list_lvl0(list_item tmp_list);
+	string search_idx_list_lvl1(list_item tmp_list,map_list1* map1);
+	string search_idx_list_lvl2(list_item tmp_list,map_list2* map2);
+	string search_idx_list_lvl3(list_item tmp_list,map_list3* map3);
 
 	list_item preproses_item(vector<string> &data);
 

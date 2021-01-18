@@ -10,6 +10,7 @@ Tdataframe_list::~Tdataframe_list()
 {
 	_filter.clear();
 	_stat_label.clear();
+	_idx_list.clear();
 }
 
 void Tdataframe_list::read_data(string nm_f)
@@ -72,15 +73,8 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 		}
 
 	} else {
-		if (is_subs(tmp_str, "/") and is_subs(tmp_str, ":")) {
-			vector<string> vdata;
-			vdata = tokenizer((char *)tmp_str.c_str(), ":");
-
-			tmp_str = vdata[0];
-			data = tokenizer((char *)tmp_str.c_str(), "/");
-			tmp_str = vdata[0] + "_" + vdata[1];
-
-
+		if (is_subs(tmp_str, "ecr/i")) {
+			tmp_str = "ecr_i";
 		} else {
 			if (is_subs(tmp_str, "/"))
 			{
@@ -108,11 +102,11 @@ void Tdataframe_list::build_idx_list_lvl0(list_item tmp_list)
 	auto itr = _idx_list.find( tmp_list.str_ip_src);
 	if (itr == _idx_list.end())
 	{
-		vector<string> tmp_vec;
-		tmp_vec.push_back(tmp_list.label);
+		map_list4 map4;
+		map4.insert(pair<string, int>(tmp_list.label, 1));
 
 		map_list3 map3;
-		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+		map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
 		map_list2 map2;
 		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
 		map_list1 map1;
@@ -129,11 +123,11 @@ void Tdataframe_list::build_idx_list_lvl1(list_item tmp_list, map_list1* map1)
 	auto itr = map1->find(tmp_list.str_ip_dst);
 	if (itr == map1->end())
 	{
-		vector<string> tmp_vec;
-		tmp_vec.push_back(tmp_list.label);
+		map_list4 map4;
+		map4.insert(pair<string, int>(tmp_list.label, 1));
 
 		map_list3 map3;
-		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+		map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
 		map_list2 map2;
 		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
 
@@ -149,11 +143,11 @@ void Tdataframe_list::build_idx_list_lvl2(list_item tmp_list, map_list2* map2)
 	auto itr = map2->find(tmp_list.service);
 	if (itr == map2->end())
 	{
-		vector<string> tmp_vec;
-		tmp_vec.push_back(tmp_list.label);
+		map_list4 map4;
+		map4.insert(pair<string, int>(tmp_list.label, 1));
 
 		map_list3 map3;
-		map3.insert(pair<long,  vector<string>>(tmp_list.timestamp, tmp_vec));
+		map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
 
 		map2->insert(pair<string, map_list3>(tmp_list.service, map3));
 
@@ -167,13 +161,21 @@ void Tdataframe_list::build_idx_list_lvl3(list_item tmp_list, map_list3* map3)
 	auto itr = map3->find(tmp_list.timestamp);
 	if (itr == map3->end())
 	{
-		vector<string> tmp_vec;
-		tmp_vec.push_back(tmp_list.label);
+		map_list4 map4;
+		map4.insert(pair<string, int>(tmp_list.label, 1));
 
-		map3->insert(pair<long, vector<string>>(tmp_list.timestamp, tmp_vec));
+		map3->insert(pair<long, map_list4>(tmp_list.timestamp, map4));
 	} else {
-		vector<string>* tmp_vec = &itr->second;
-		tmp_vec->push_back(tmp_list.label);
+		map_list4* map4 = &itr->second;
+		auto itr = map4->find(tmp_list.label);
+		if (itr == map4->end())
+		{
+			map4->insert(pair<string, int>(tmp_list.label, 1));
+		} else {
+			(*itr).second += 1;
+		}
+
+
 	}
 }
 
@@ -183,6 +185,7 @@ void Tdataframe_list::stat_tabel()
 	map<string, int>::iterator it;
 
 	_stat_label.clear();
+	_idx_list.clear();
 
 	_data.file_map();
 
@@ -261,10 +264,10 @@ vector<string> Tdataframe_list::tokenizer(char *str, const char *separator)
 	if (str[len - 1] == '\n')
 		str[len - 1] = 0;
 
+
 	token = strtok(str, separator);
 	while (token != 0)
 	{
-		//cout << token << endl;
 		vec.push_back(token);
 		token = strtok(0, separator);
 	}
@@ -331,76 +334,104 @@ bool Tdataframe_list::compare_ip(tip_fragment ip1, tip_fragment ip2)
 	return is_pass;
 }
 
-string Tdataframe_list::search(string date, string hour, string ip_src, string port_src, string ip_dst, string port_dst, string service)
+string Tdataframe_list::search_idx_list_lvl0(list_item tmp_list)
 {
 	string label = "dfs_failed.";
 
-	tip_fragment search_ip_port_src = ip_frag(ip_src, port_src);
-	tip_fragment search_ip_port_dst = ip_frag(ip_dst, port_dst);
-	long search_timestamp = datetime_to_timestamp(date, hour, 0);
-
-	string str_ip_port_dst = ip_fragment_str(search_ip_port_dst);
-	string str_ip_port_src = ip_fragment_str(search_ip_port_src);
-
-
-	auto itr = _idx_list.find(str_ip_port_src);
+	auto itr = _idx_list.find(tmp_list.str_ip_src);
 	if (itr != _idx_list.end())
 	{
-		map_list1* map1 = &itr->second;
-		auto itr = map1->find(str_ip_port_dst);
-		if (itr != map1->end())
+		label = search_idx_list_lvl1(tmp_list, &itr->second);
+	} else {
+		label = "normal";
+	}
+
+	return label;
+
+}
+
+string Tdataframe_list::search_idx_list_lvl1(list_item tmp_list, map_list1* map1)
+{
+	string label = "dfs_failed.";
+
+	auto itr = map1->find(tmp_list.str_ip_dst);
+	if (itr != map1->end())
+	{
+		label = search_idx_list_lvl2(tmp_list, &itr->second);
+	} else {
+		label = "normal";
+	}
+
+	return label;
+}
+
+string Tdataframe_list::search_idx_list_lvl2(list_item tmp_list, map_list2* map2)
+{
+	string label = "dfs_failed.";
+	auto itr = map2->find(tmp_list.service);
+	if (itr != map2->end())
+	{
+		label = search_idx_list_lvl3(tmp_list, &itr->second);
+	} else {
+		label = "normal";
+
+		// cout << service << endl;
+		// for (auto it = map2->begin(); it != map2->end(); ++it) {
+		// 	cout << "{" << (*it).first << "}\n";
+		// }
+	}
+
+	return label;
+}
+
+string Tdataframe_list::search_idx_list_lvl3(list_item tmp_list, map_list3* map3)
+{
+	string label = "dfs_failed.";
+
+	auto itr = map3->find(tmp_list.timestamp);
+	if (itr != map3->end())
+	{
+		map_list4* map4 = &itr->second;
+		if (map4->size() > 1)
 		{
-			map_list2* map2 = &itr->second;
-			auto itr = map2->find(service);
-			if (itr != map2->end())
-			{
-				map_list3* map3 = &itr->second;
-				auto itr = map3->find(search_timestamp);
-				if (itr != map3->end())
-				{
-					vector<string>* tmp_vec = &itr->second;
-					if (tmp_vec->size() > 1)
-					{
-						//cout << "Bingung : " << endl;
-						label = "normal";
-						for (int i = 0; i < tmp_vec->size(); ++i)
-						{
-							if ((*tmp_vec)[i] != "-")
-							{
-								label = "attack";
-							}
-						}
+			cout << "Bingung" << endl;
 
-					} else {
-						label = (*tmp_vec)[0];
-						if (label == "-")
-						{
-							label = "normal";
-						} else {
-							label = "attack";
-						}
-					}
-				} else {
-					label = "normal";
-				}
-			} else {
-				label = "normal";
-
-				// cout << service << endl;
-				// for (auto it = map2->begin(); it != map2->end(); ++it) {
-				// 	cout << "{" << (*it).first << "}\n";
-				// }
-			}
 
 		} else {
-			label = "normal";
 
+			auto itr = map4->begin();
+
+			if ((*itr).first == "-")
+			{
+				label = "normal";
+			} else {
+				label = "attack";
+			}
 		}
 	} else {
 		label = "normal";
 	}
 
+	return label;
+}
 
+
+string Tdataframe_list::search(string date, string hour, string ip_src, string port_src, string ip_dst, string port_dst, string service)
+{
+	string label = "dfs_failed.";
+
+	list_item list_label;
+
+	tip_fragment search_ip_port_src = ip_frag(ip_src, port_src);
+	tip_fragment search_ip_port_dst = ip_frag(ip_dst, port_dst);
+	list_label.timestamp = datetime_to_timestamp(date, hour, 0);
+
+	list_label.str_ip_dst = ip_fragment_str(search_ip_port_dst);
+	list_label.str_ip_src = ip_fragment_str(search_ip_port_src);
+
+	list_label.service = service;
+
+    label = search_idx_list_lvl0(list_label);
 
 	return label;
 
