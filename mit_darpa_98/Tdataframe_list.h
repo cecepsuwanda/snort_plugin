@@ -1,4 +1,7 @@
 #include "Tread_file.h"
+#include "global_func.h"
+#include "Tdatetime_holder.h"
+#include "Tip_port_holder.h"
 #include <map>
 #include <iterator>
 #include <string>
@@ -13,14 +16,6 @@ using namespace std;
 #define Included_Tdataframe_list_H
 
 
-struct list_item
-{
-   long timestamp;
-   string str_ip_src;
-   string str_ip_dst;
-   string service;
-   string label;
-};
 
 struct field_filter
 {
@@ -30,17 +25,42 @@ struct field_filter
 };
 
 
-struct tip_fragment
+
+
+class Tmy_datetime_holder
 {
-	int part1;
-	int part2;
-	int part3;
-	int part4;
-	int port;
+private:
+	string _start;
+	string _label;
+	long _start_timestamp;
+	long _end_timestamp;
+
+public:
+	void set_property(string start, string end, int tmb, string label);
+
+	bool operator <(const Tmy_datetime_holder& rhs) const
+	{
+		return _start_timestamp < rhs._start_timestamp;
+	}
+
+	bool operator ==(const Tmy_datetime_holder& rhs) const
+	{
+		return _start_timestamp == rhs._start_timestamp;
+	}
+
+};
+
+struct list_item
+{
+	string str_ip_src;
+	string str_ip_dst;
+	string service;
+	string label;
+	Tmy_datetime_holder datetime_holder;
 };
 
 typedef map<string, int> map_list4;
-typedef map<long, map_list4> map_list3;
+typedef map<Tmy_datetime_holder, map_list4> map_list3;
 typedef map<string, map_list3> map_list2;
 typedef map<string, map_list2> map_list1;
 typedef map<string, map_list1> map_list;
@@ -55,29 +75,25 @@ private:
 
 	bool is_index = false;
 
-    int _jml_row = 0;	
+	int _jml_row = 0;
 
-	tip_fragment ip_frag(string ip, string port);
-	long datetime_to_timestamp(string date, string hour, int tmb);
-	bool compare_ip(tip_fragment ip1, tip_fragment ip2);
-	string ip_fragment_str(tip_fragment ip_frag);
 
-	bool is_subs(string stack, string needle);
-	bool isNumber(string token);
 
-	vector<string> tokenizer(char *str, const char *separator);
+
 
 	map_list _idx_list;
 
 	void build_idx_list_lvl0(list_item tmp_list);
-	void build_idx_list_lvl1(list_item tmp_list,map_list1* map1);
-	void build_idx_list_lvl2(list_item tmp_list,map_list2* map2);
-	void build_idx_list_lvl3(list_item tmp_list,map_list3* map3);
+	void build_idx_list_lvl1(list_item tmp_list, map_list1* map1);
+	void build_idx_list_lvl2(list_item tmp_list, map_list2* map2);
+	void build_idx_list_lvl3(list_item tmp_list, map_list3* map3);
 
 	string search_idx_list_lvl0(list_item tmp_list);
-	string search_idx_list_lvl1(list_item tmp_list,map_list1* map1);
-	string search_idx_list_lvl2(list_item tmp_list,map_list2* map2);
-	string search_idx_list_lvl3(list_item tmp_list,map_list3* map3);
+	string search_idx_list_lvl1(list_item tmp_list, map_list1* map1);
+	string search_idx_list_lvl2(list_item tmp_list, map_list2* map2);
+	string search_idx_list_lvl3(list_item tmp_list, map_list3* map3);
+
+	bool service_not_in(string service);
 
 	list_item preproses_item(vector<string> &data);
 
