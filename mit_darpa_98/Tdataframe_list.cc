@@ -1,6 +1,5 @@
 #include "Tdataframe_list.h"
 
-
 Tdataframe_list::Tdataframe_list()
 {
 
@@ -12,15 +11,6 @@ Tdataframe_list::~Tdataframe_list()
 	_stat_label.clear();
 	_idx_list.clear();
 }
-
-void Tdataframe_list::read_data(string nm_f)
-{
-	_data.setnm_f(nm_f);
-	_data.setseparator(" ");
-
-	stat_tabel();
-}
-
 
 
 bool Tdataframe_list::service_not_in(string service)
@@ -131,18 +121,29 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 {
 	list_item tmp_list;
 
-	tmp_list.datetime_holder.set_property(data[1] + " " + data[2],data[3],11,data[10]); 
-	//= datetime_to_timestamp(data[1], data[2], 11);
-	//tmp_list.datetime = data[1] + " " + data[2];
+	Tdatetime_holder date_start(data[1], "00:00:00");
+	tmp_list.date_start = date_start;
 
-	Tip_port_holder tmp_ip_port_src(data[7], ((data[5] == "-") ? "0" : data[5])), tmp_ip_port_dst(data[8], ((data[6] == "-") ? "0" : data[6]));
+	Tdatetime_holder start(data[1], data[2]), end(data[1], data[2]);
+
+	start.add_time(11, 0, 0);
+	end.add_time(11, 0, 0);
+	end.add_time(data[3]);
+
+	tmp_list.range_holder.setStart(start);
+	tmp_list.range_holder.setEnd(end);
+	tmp_list.range_holder.setLabel(data[10]);
+
+	Tip_port_holder tmp_ip_port_src(data[7], ((data[5] == "-") ? "0" : data[5]));
+	Tip_port_holder tmp_ip_port_dst(data[8], ((data[6] == "-") ? "0" : data[6]));
+
 	tmp_list.str_ip_dst = string(tmp_ip_port_dst);
 	tmp_list.str_ip_src = string(tmp_ip_port_src);
 
 	string tmp_str = data[4] ;
 
 
-	if ((global_func::isNumber(tmp_str)) or (tmp_str == "ident") or (tmp_str == "1/u") or (tmp_str == "frag/i") or (tmp_str == "frag/u") or (tmp_str == "tcpmux") or (tmp_str == "chargen") ) 
+	if ((global_func::isNumber(tmp_str)) or (tmp_str == "ident") or (tmp_str == "1/u") or (tmp_str == "frag/i") or (tmp_str == "frag/u") or (tmp_str == "tcpmux") or (tmp_str == "chargen") )
 	{
 		tmp_str = "other";
 	} else {
@@ -206,84 +207,76 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 
 void Tdataframe_list::build_idx_list_lvl0(list_item tmp_list)
 {
-	// auto itr = _idx_list.find( tmp_list.str_ip_src);
-	// if (itr == _idx_list.end())
-	// {
-	// 	map_list4 map4;
-	// 	map4.insert(pair<string, int>(tmp_list.label, 1));
+	auto itr = _idx_list.find( tmp_list.str_ip_src);
+	if (itr == _idx_list.end())
+	{
+		map_list4 map4;
+		map4.push_back(tmp_list.range_holder);
 
-	// 	map_list3 map3;
-	// 	map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
-	// 	map_list2 map2;
-	// 	map2.insert(pair<string, map_list3>(tmp_list.service, map3));
-	// 	map_list1 map1;
-	// 	map1.insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
+		map_list3 map3;
+		map3.insert(pair<Tdatetime_holder,  map_list4>(tmp_list.date_start, map4));
+		map_list2 map2;
+		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
+		map_list1 map1;
+		map1.insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
 
-	// 	_idx_list.insert(pair<string, map_list1>(tmp_list.str_ip_src, map1));
-	// } else {
-	// 	build_idx_list_lvl1(tmp_list, &itr->second);
-	// }
+		_idx_list.insert(pair<string, map_list1>(tmp_list.str_ip_src, map1));
+	} else {
+		build_idx_list_lvl1(tmp_list, &itr->second);
+	}
 }
 
 void Tdataframe_list::build_idx_list_lvl1(list_item tmp_list, map_list1* map1)
 {
-	// auto itr = map1->find(tmp_list.str_ip_dst);
-	// if (itr == map1->end())
-	// {
-	// 	map_list4 map4;
-	// 	map4.insert(pair<string, int>(tmp_list.label, 1));
+	auto itr = map1->find(tmp_list.str_ip_dst);
+	if (itr == map1->end())
+	{
+		map_list4 map4;
+		map4.push_back(tmp_list.range_holder);
 
-	// 	map_list3 map3;
-	// 	map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
-	// 	map_list2 map2;
-	// 	map2.insert(pair<string, map_list3>(tmp_list.service, map3));
+		map_list3 map3;
+		map3.insert(pair<Tdatetime_holder,  map_list4>(tmp_list.date_start, map4));
+		map_list2 map2;
+		map2.insert(pair<string, map_list3>(tmp_list.service, map3));
 
-	// 	map1->insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
+		map1->insert(pair<string, map_list2>(tmp_list.str_ip_dst, map2));
 
-	// } else {
-	// 	build_idx_list_lvl2(tmp_list, &itr->second);
-	// }
+	} else {
+		build_idx_list_lvl2(tmp_list, &itr->second);
+	}
 }
 
 void Tdataframe_list::build_idx_list_lvl2(list_item tmp_list, map_list2* map2)
 {
-	// auto itr = map2->find(tmp_list.service);
-	// if (itr == map2->end())
-	// {
-	// 	map_list4 map4;
-	// 	map4.insert(pair<string, int>(tmp_list.label, 1));
+	auto itr = map2->find(tmp_list.service);
+	if (itr == map2->end())
+	{
+		map_list4 map4;
+		map4.push_back(tmp_list.range_holder);
 
-	// 	map_list3 map3;
-	// 	map3.insert(pair<long,  map_list4>(tmp_list.timestamp, map4));
+		map_list3 map3;
+		map3.insert(pair<Tdatetime_holder,  map_list4>(tmp_list.date_start, map4));
 
-	// 	map2->insert(pair<string, map_list3>(tmp_list.service, map3));
+		map2->insert(pair<string, map_list3>(tmp_list.service, map3));
 
-	// } else {
-	// 	build_idx_list_lvl3(tmp_list, &itr->second);
-	// }
+	} else {
+		build_idx_list_lvl3(tmp_list, &itr->second);
+	}
 }
 
 void Tdataframe_list::build_idx_list_lvl3(list_item tmp_list, map_list3* map3)
 {
-	// auto itr = map3->find(tmp_list.timestamp);
-	// if (itr == map3->end())
-	// {
-	// 	map_list4 map4;
-	// 	map4.insert(pair<string, int>(tmp_list.label, 1));
+	auto itr = map3->find(tmp_list.date_start);
+	if (itr == map3->end())
+	{
+		map_list4 map4;
+		map4.push_back(tmp_list.range_holder);
 
-	// 	map3->insert(pair<long, map_list4>(tmp_list.timestamp, map4));
-	// } else {
-	// 	map_list4* map4 = &itr->second;
-	// 	auto itr = map4->find(tmp_list.label);
-	// 	if (itr == map4->end())
-	// 	{
-	// 		map4->insert(pair<string, int>(tmp_list.label, 1));
-	// 	} else {
-	// 		(*itr).second += 1;
-	// 	}
-
-
-	// }
+		map3->insert(pair<Tdatetime_holder, map_list4>(tmp_list.date_start, map4));
+	} else {
+		map_list4* map4 = &itr->second;
+		map4->push_back(tmp_list.range_holder);
+	}
 }
 
 void Tdataframe_list::stat_tabel()
@@ -347,7 +340,7 @@ void Tdataframe_list::stat_tabel()
 			_data.save_to_memory();
 			_data.clear_index();
 		}
-
+		
 		_data.close_file();
 	} else {
 		cout << "stat_tabel, Gagal buka file !!!" << endl;
@@ -356,10 +349,7 @@ void Tdataframe_list::stat_tabel()
 	_jml_row = i;
 }
 
-map<string, int> Tdataframe_list::get_stat_label()
-{
-	return _stat_label;
-}
+
 
 
 
@@ -367,13 +357,25 @@ string Tdataframe_list::search_idx_list_lvl0(list_item tmp_list)
 {
 	string label = "dfs_failed.";
 
-	// auto itr = _idx_list.find(tmp_list.str_ip_src);
-	// if (itr != _idx_list.end())
-	// {
-	// 	label = search_idx_list_lvl1(tmp_list, &itr->second);
-	// } else {
-	// 	label = "normal";
-	// }
+	auto itr = _idx_list.find(tmp_list.str_ip_src);
+	if (itr != _idx_list.end())
+	{
+		label = search_idx_list_lvl1(tmp_list, &itr->second);
+	} else {
+		if(tmp_list.swap_flag==0){
+		  string str_ip_src = tmp_list.str_ip_dst;
+		  string str_ip_dst = tmp_list.str_ip_src;
+        
+          tmp_list.str_ip_src = str_ip_src;
+          tmp_list.str_ip_dst = str_ip_dst;  
+          
+          tmp_list.swap_flag=1; 
+
+		  label = search_idx_list_lvl0(tmp_list);
+		}else{
+			label = "normal";
+		}  
+	}
 
 	return label;
 
@@ -383,13 +385,25 @@ string Tdataframe_list::search_idx_list_lvl1(list_item tmp_list, map_list1* map1
 {
 	string label = "dfs_failed.";
 
-	// auto itr = map1->find(tmp_list.str_ip_dst);
-	// if (itr != map1->end())
-	// {
-	// 	label = search_idx_list_lvl2(tmp_list, &itr->second);
-	// } else {
-	// 	label = "normal";
-	// }
+	auto itr = map1->find(tmp_list.str_ip_dst);
+	if (itr != map1->end())
+	{
+		label = search_idx_list_lvl2(tmp_list, &itr->second);
+	} else {
+		if(tmp_list.swap_flag==0){
+		string str_ip_src = tmp_list.str_ip_dst;
+		string str_ip_dst = tmp_list.str_ip_src;
+        
+        tmp_list.str_ip_src = str_ip_src;
+        tmp_list.str_ip_dst = str_ip_dst;  
+        
+        tmp_list.swap_flag=1;
+
+		label = search_idx_list_lvl0(tmp_list);
+	   }else{
+	   	label = "normal";
+	   }	
+	}
 
 	return label;
 }
@@ -397,18 +411,18 @@ string Tdataframe_list::search_idx_list_lvl1(list_item tmp_list, map_list1* map1
 string Tdataframe_list::search_idx_list_lvl2(list_item tmp_list, map_list2* map2)
 {
 	string label = "dfs_failed.";
-	// auto itr = map2->find(tmp_list.service);
-	// if (itr != map2->end())
-	// {
-	// 	label = search_idx_list_lvl3(tmp_list, &itr->second);
-	// } else {
-	// 	label = "normal";
+	auto itr = map2->find(tmp_list.service);
+	if (itr != map2->end())
+	{
+		label = search_idx_list_lvl3(tmp_list, &itr->second);
+	} else {
+		label = "normal";
 
-	// 	// cout << tmp_list.service << endl;
-	// 	// for (auto it = map2->begin(); it != map2->end(); ++it) {
-	// 	// 	cout << "{" << (*it).first << "}\n";
-	// 	// }
-	// }
+		// cout << tmp_list.service << endl;
+		// for (auto it = map2->begin(); it != map2->end(); ++it) {
+		// 	cout << "{" << (*it).first << "}\n";
+		// }
+	}
 
 	return label;
 }
@@ -417,162 +431,160 @@ string Tdataframe_list::search_idx_list_lvl3(list_item tmp_list, map_list3* map3
 {
 	string label = "dfs_failed.";
 
-	// auto itr = map3->find(tmp_list.timestamp);
-	// if (itr != map3->end())
-	// {
-	// 	map_list4* map4 = &itr->second;
-	// 	if (map4->size() > 1)
-	// 	{
-	// 		cout << "Bingung" << endl;
+	auto itr = map3->find(tmp_list.date_start);
+	if (itr != map3->end())
+	{
+		map_list4* map4 = &itr->second;
+
+		int c_normal = 0, c_attack = 0;
+
+		for (auto it = map4->begin(); it != map4->end(); ++it) {
+			if ((*it).in_range(tmp_list.range_holder.getStart(), tmp_list.range_holder.getEnd())) {
+				if ((*it).getLabel() == "-")
+				{
+					c_normal++;
+				} else {
+					c_attack++;
+
+					//cout << "{" << (*it) << "}\n";
+				}
+			}
+		}
+
+		if ((c_attack > 0) and (c_normal == 0))
+		{
+			label = "attack";
+		} else {
+			if ((c_attack == 0) and (c_normal > 0))
+			{
+				label = "normal";
+			} else {
+				if ((c_attack == 0) and (c_normal == 0))
+				{
+					label = "normal";
+				}
+			}
+		}
 
 
-	// 	} else {
+	} else {
+		label = "normal";
+		//cout << tmp_list.str_ip_src << " " << tmp_list.str_ip_dst << " " << tmp_list.range_holder <<endl;
 
-	// 		auto itr = map4->begin();
-
-	// 		if ((*itr).first == "-")
-	// 		{
-	// 			label = "normal";
-	// 		} else {
-	// 			label = "attack";
-	// 		}
-	// 	}
-	// } else {
-	// 	label = "normal";
-	// 	cout << tmp_list.str_ip_src << " " << tmp_list.str_ip_dst << " " << tmp_list.datetime <<endl;
-	// }
+	}
 
 	return label;
 }
 
 
-string Tdataframe_list::search(string date, string hour, string ip_src, string port_src, string ip_dst, string port_dst, string service)
+string Tdataframe_list::search(string date_start, string hour_start, string date_end, string hour_end, string ip_src, string port_src, string ip_dst, string port_dst, string service)
 {
 	string label = "dfs_failed.";
 
-	// list_item list_label;
+	list_item list_label;
 
-	// Tip_port_holder search_ip_port_src(ip_src, port_src),search_ip_port_dst(ip_dst, port_dst);
-	
-	// list_label.timestamp = datetime_to_timestamp(date, hour, 0);
-	// list_label.datetime =  date + " " + hour;
+	Tdatetime_holder _date_start(date_start, "00:00:00");
+	list_label.date_start = _date_start;
 
-	// list_label.str_ip_dst = string(search_ip_port_dst);
-	// list_label.str_ip_src = string(search_ip_port_src);
 
-	// list_label.service = service;
+	Tip_port_holder search_ip_port_src(ip_src, port_src), search_ip_port_dst(ip_dst, port_dst);
 
-	// label = search_idx_list_lvl0(list_label);
+	Tdatetime_holder start(date_start, hour_start), end(date_end, hour_end);
+
+	list_label.range_holder.setStart(start);
+	list_label.range_holder.setEnd(end);
+
+	list_label.str_ip_dst = string(search_ip_port_dst);
+	list_label.str_ip_src = string(search_ip_port_src);
+
+	list_label.service = service;
+
+	label = search_idx_list_lvl0(list_label);
 
 	return label;
 
 }
 
-void Tdataframe_list::clear_memory()
-{
-	_data.clear_memory();
-}
+
 
 
 
 bool Tdataframe_list::is_pass(vector<string> &data)
 {
 	bool pass = true;
-	if (_filter.size() > 0)
-	{
-		vector<field_filter>::iterator it = _filter.begin();
-		while ((it != _filter.end()) and pass)
-		{
-			// switch (it->idx_col)
-			// {
-			// case 1 : {
+	// if (_filter.size() > 0)
+	// {
+	// 	vector<field_filter>::iterator it = _filter.begin();
+	// 	while ((it != _filter.end()) and pass)
+	// 	{
+	// switch (it->idx_col)
+	// {
+	// case 1 : {
 
-			// 	string tmp_str = it->value;
-			// 	vector<string> data_filter;
-			// 	data_filter = tokenizer((char *) tmp_str.c_str(), " ");
-			// 	long search_timestamp = datetime_to_timestamp(data_filter[0], data_filter[1], 0);
-			// 	long tmp_timestamp = datetime_to_timestamp(data[1], data[2], 11);
+	// 	string tmp_str = it->value;
+	// 	vector<string> data_filter;
+	// 	data_filter = tokenizer((char *) tmp_str.c_str(), " ");
+	// 	long search_timestamp = datetime_to_timestamp(data_filter[0], data_filter[1], 0);
+	// 	long tmp_timestamp = datetime_to_timestamp(data[1], data[2], 11);
 
-			// 	switch (it->idx_opt)
-			// 	{
-			// 	case 2 : {
-			// 		pass = search_timestamp == tmp_timestamp;
-			// 		break;
-			// 	}
-			// 	case 3 : {
-			// 		pass = search_timestamp != tmp_timestamp;
-			// 		break;
-			// 	}
-			// 	}
+	// 	switch (it->idx_opt)
+	// 	{
+	// 	case 2 : {
+	// 		pass = search_timestamp == tmp_timestamp;
+	// 		break;
+	// 	}
+	// 	case 3 : {
+	// 		pass = search_timestamp != tmp_timestamp;
+	// 		break;
+	// 	}
+	// 	}
 
-			// 	break;
-			// }
-			// case 4 : {
+	// 	break;
+	// }
+	// case 4 : {
 
-			// 	switch (it->idx_opt)
-			// 	{
-			// 	case 2 : {
-			// 		break;
-			// 	}
-			// 	case 3 : {
-			// 		break;
-			// 	}
-			// 	}
+	// 	switch (it->idx_opt)
+	// 	{
+	// 	case 2 : {
+	// 		break;
+	// 	}
+	// 	case 3 : {
+	// 		break;
+	// 	}
+	// 	}
 
-			// 	break;
-			// }
-			// case 7 : {
+	// 	break;
+	// }
+	// case 7 : {
 
-			// 	break;
-			// }
-			// case 8 : {
+	// 	break;
+	// }
+	// case 8 : {
 
-			// 	break;
-			// }
-			// case 10 : {
-			// 	switch (it->idx_opt)
-			// 	{
-			// 	case 2 : {
-			// 		pass = data[10] == it->value;
-			// 		break;
-			// 	}
-			// 	case 3 : {
-			// 		pass = data[10] != it->value;
-			// 		break;
-			// 	}
-			// 	}
-			// 	break;
-			// }
-			// }
-			++it;
-		}
-	}
+	// 	break;
+	// }
+	// case 10 : {
+	// 	switch (it->idx_opt)
+	// 	{
+	// 	case 2 : {
+	// 		pass = data[10] == it->value;
+	// 		break;
+	// 	}
+	// 	case 3 : {
+	// 		pass = data[10] != it->value;
+	// 		break;
+	// 	}
+	// 	}
+	// 	break;
+	// }
+	// }
+	// 		++it;
+	// 	}
+	// }
 
 	return pass;
 }
 
 
-void Tdataframe_list::add_filter(field_filter filter)
-{
-	_data.index_off();
-	is_index = true;
-	_filter.push_back(filter);
-	stat_tabel();
-	is_index = false;
-	_data.index_on();
-}
 
-int Tdataframe_list::getjmlrow()
-{
-	return _jml_row;
-}
 
-void Tdataframe_list::clear_filter()
-{
-	_filter.clear();
-}
-
-void Tmy_datetime_holder::set_property(string start,string end,int tmb,string label)
-{
-    
-}

@@ -30,6 +30,11 @@ Tdatetime_holder::~Tdatetime_holder()
 
 }
 
+void Tdatetime_holder::setTime(string ts)
+{
+	_timestamp = stol(ts);
+}
+
 void Tdatetime_holder::add_time(int h, int m, int s)
 {
 	_timestamp += (h * 60 * 60) + (m * 60) + s;

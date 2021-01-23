@@ -21,6 +21,9 @@ public:
 	void add_time(int h,int m,int s);
 	void add_time(string time_str);
 
+	void setTime(string ts);
+
+
 	Tdatetime_holder& operator = (const Tdatetime_holder &t)
 	{
 		this->_timestamp = t._timestamp;
@@ -34,10 +37,22 @@ public:
 		return _timestamp == rhs._timestamp;
 	}
 
+	bool operator !=(const Tdatetime_holder& rhs) const
+	{
+
+		return _timestamp != rhs._timestamp;
+	}
+
 	bool operator <(const Tdatetime_holder& rhs) const
 	{
 
 		return _timestamp < rhs._timestamp;
+	}
+
+	bool operator <=(const Tdatetime_holder& rhs) const
+	{
+
+		return _timestamp <= rhs._timestamp;
 	}
 
 	operator string() const {

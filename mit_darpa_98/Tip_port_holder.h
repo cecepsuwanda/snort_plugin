@@ -20,6 +20,8 @@ private:
 	int _port;
 
 public:
+	Tip_port_holder();
+    Tip_port_holder(string ip_port);
 	Tip_port_holder(string ip, string port);
 	~Tip_port_holder();
 

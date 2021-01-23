@@ -21,11 +21,15 @@ public:
 	Trange_holder(Tdatetime_holder start, Tdatetime_holder end, string label);
 	~Trange_holder();
 
-	bool operator <(const Trange_holder& rhs) const
-	{
+	void setStart(Tdatetime_holder start);
+	void setEnd(Tdatetime_holder end);
+	void setLabel(string label);
 
-		return _start < rhs._start;
-	}
+    Tdatetime_holder getStart();
+	Tdatetime_holder getEnd();
+	string getLabel();
+
+	bool in_range(Tdatetime_holder start, Tdatetime_holder end);
 
 	friend ostream & operator << (ostream &out, const Trange_holder &tc);
 

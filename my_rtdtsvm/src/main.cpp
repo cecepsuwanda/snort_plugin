@@ -162,16 +162,16 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		ConversationFeatures *cf = stats_engine.calculate_features(conv);
 		conv = nullptr;
 
-		vector<string> tmp = cf->get_attr();
+		//vector<string> tmp = cf->get_attr();
 
-		string tmp_str = dec_tree.guess(df_save, tmp);
+		//string tmp_str = dec_tree.guess(df_save, tmp);
 
-		cf->set_label(tmp_str);
+		//cf->set_label(tmp_str);
 
-		cf->print(config->should_print_extra_features());
+		//cf->print(config->should_print_extra_features());
 		delete cf;
-		tmp.clear();
-		tmp.shrink_to_fit();
+		//tmp.clear();
+		//tmp.shrink_to_fit();
 	}
 }
 

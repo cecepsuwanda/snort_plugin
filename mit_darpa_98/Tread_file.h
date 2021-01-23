@@ -1,3 +1,4 @@
+#include "global_func.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -28,6 +29,7 @@ class Tread_file {
 private:
 	string _nm_f;
 	const char *_separator;
+	string _separator1;
 	FILE *_file = NULL;
 
 	vector<string> _data;
@@ -46,7 +48,7 @@ private:
 	int _jml_index = 0;
 	int _ukuran_index = 0;
 
-	vector<string> tokenizer(char* str, const char* separator);
+	//vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
 
 public:

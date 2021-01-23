@@ -3,7 +3,7 @@
 
 Tread_file::Tread_file()
 {
-
+  _separator = ",";
 }
 
 Tread_file::~Tread_file()
@@ -29,6 +29,7 @@ void Tread_file::setnm_f(string nm_f)
 void Tread_file::setseparator(const char* separator)
 {
   _separator = separator;
+  _separator1 = separator;
 }
 
 void Tread_file::file_map()
@@ -45,6 +46,12 @@ bool Tread_file::open_file(string mode)
 
 bool Tread_file::open_file()
 {
+  if (_separator != _separator1)
+  {
+    cout << "open file " << _separator << " " << _separator1 << endl;
+    _separator = (char*) _separator1.c_str();
+  }
+
   if (is_fmap)
   {
     _fd = open(_nm_f.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
@@ -72,7 +79,7 @@ void Tread_file::close_file()
   if (is_fmap)
   {
     munmap(_file_in_memory, _sb.st_size);
-    _file_in_memory=NULL;
+    _file_in_memory = NULL;
     _posisi = 0;
     _idx_posisi = 0;
     close(_fd);
@@ -83,30 +90,33 @@ void Tread_file::close_file()
       fclose(_file);
       _file = NULL;
     }
+
   }
 }
 
-vector<string> Tread_file::tokenizer(char * str, const char* separator)
-{
-  char *token;
-  vector<string> vec;
-  int len;
+// vector<string> Tread_file::tokenizer(char * str, const char* separator)
+// {
+//   char *token;
+//   vector<string> vec;
+//   int len;
 
-  len = strlen(str);
-  if (str[len - 1] == '\n')
-    str[len - 1] = 0;
+//   len = strlen(str);
+//   if (str[len - 1] == '\n')
+//     str[len - 1] = 0;
 
-  token = strtok(str, separator);
-  while (token != 0) {
-    vec.push_back(token);
-    token = strtok(0, separator);
-  }
+//   token = strtok(str, separator);
+//   while (token != 0) {
+//     vec.push_back(token);
+//     token = strtok(0, separator);
+//   }
 
-  return vec;
-}
+//   return vec;
+// }
 
 void Tread_file::read_file()
 {
+
+
   clear_data();
   char str[1000];
   if (is_fmap)
@@ -114,7 +124,7 @@ void Tread_file::read_file()
     strcpy(str, "");
 
     if (is_index and (_jml_index > 0))
-    {      
+    {
       int p_awal = _idx_in_memory[_idx_posisi];
       while (( p_awal < _sb.st_size) and (_file_in_memory[p_awal] != '\n') )
       {
@@ -135,22 +145,32 @@ void Tread_file::read_file()
         strncat(str, &tmp, 1);
         _posisi++;
       }
-      char tmp = _file_in_memory[_posisi];      
+      char tmp = _file_in_memory[_posisi];
       strncat(str, &tmp, 1);
-      
+
       // if(_b_posisi==0)
       //    cout << str << endl;
-      
+
       _posisi++;
     }
-    _data = tokenizer(str, _separator);
-    //cout << "Hasil Token : " << _data.size() <<endl;
+    
+    _data = global_func::tokenizer(str, (char*) _separator1.c_str());
+
+    // if(_data.size()==1){
+    //     cout << "read file " << _separator << " " << _separator1 << endl;
+    //   }
+
   } else {
 
     if (fgets(str, 1000, _file) != NULL)
     {
-      //cout << str << endl;
-      _data = tokenizer(str, _separator);
+     
+      _data = global_func::tokenizer(str, (char*) _separator1.c_str());
+      
+      // if(_data.size()==1){
+      //   cout << "read file " << _separator << " " << _separator1 << endl;
+      // }
+
     }
   }
 
@@ -238,10 +258,10 @@ void Tread_file::save_to_memory()
 
 void Tread_file::clear_memory()
 {
-  if(_idx_in_memory!=NULL){  
+  if (_idx_in_memory != NULL) {
     munmap(_idx_in_memory, _ukuran_index);
     _idx_in_memory = NULL;
     _ukuran_index = 0;
     _jml_index = 0;
-  }  
+  }
 }
