@@ -83,6 +83,7 @@ void Tbase_dataframe::stat_tabel()
 
 			if (tmp_data.size() > 1)
 			{
+
 				if (is_pass(tmp_data))
 				{
 					if (is_index) {
@@ -108,7 +109,7 @@ void Tbase_dataframe::stat_tabel()
 
 			tmp_data.clear();
 			tmp_data.shrink_to_fit();
-			
+
 			_data.next_record();
 		}
 
@@ -209,37 +210,39 @@ void Tbase_dataframe::head()
 	cout << " Head" << endl;
 	cout << " Nama File   : " << _nm_file << endl;
 
-	int i = 0;
-	if (_data.open_file())
-	{
-		_data.read_file();
-		while ((!_data.is_eof()) and (i<5))
+	if (_jml_row > 0) {
+		int i = 0;
+		if (_data.open_file())
 		{
-			tmp_data = _data.get_record();
-            
-			if (tmp_data.size() > 1)
+			_data.read_file();
+			while ((!_data.is_eof()) and (i < 5))
 			{
-				if (is_pass(tmp_data))
+				tmp_data = _data.get_record();
+
+				if (tmp_data.size() > 1)
 				{
-					for (int idx = 0; idx < tmp_data.size(); ++idx)
-					{			
+					if (is_pass(tmp_data))
+					{
+						for (int idx = 0; idx < tmp_data.size(); ++idx)
+						{
 
-						cout << setw(tmp_data[idx].length()+2) << tmp_data[idx];
+							cout << setw(tmp_data[idx].length() + 2) << tmp_data[idx];
+						}
+
+						cout << endl;
+
+						i++;
 					}
-                    
-                    cout << endl;
-
-					i++;
 				}
-			}
 
-			tmp_data.clear();
-			tmp_data.shrink_to_fit();
-			_data.next_record();
+				tmp_data.clear();
+				tmp_data.shrink_to_fit();
+				_data.next_record();
+			}
+			_data.close_file();
+		} else {
+			cout << "head, Gagal buka file !!!" << endl;
 		}
-		_data.close_file();
-	} else {
-		cout << "head, Gagal buka file !!!" << endl;
 	}
 }
 

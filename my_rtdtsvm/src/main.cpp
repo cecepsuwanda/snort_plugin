@@ -44,11 +44,13 @@ int main(int argc, char **argv)
 		Config config;
 
 		std::ofstream out_stream;
+		std::streambuf *psbuf, *backup;
+
+		backup = cout.rdbuf();
 
 		config.set_print_extra_features(true);
 
-		out_stream.open(argv[2]);
-		cout.rdbuf(out_stream.rdbuf());		//redirect std::cout
+
 
 		// parse_args(argc, argv, &config);
 
@@ -70,15 +72,20 @@ int main(int argc, char **argv)
 
 		string s = argv[3];
 		df_save.read_data(s + "/dtsvm_model.csv");
-		cout << s << endl;
+		cout << argv[1] << endl;
 		dec_tree.set_model_path(argv[3]);
 		dec_tree.read_tree(df_save);
+
+		out_stream.open(argv[2]);
+		psbuf = out_stream.rdbuf();
+
+		cout.rdbuf(psbuf);		//redirect std::cout
 
 		Sniffer *sniffer = new Sniffer(argv[1], &config);
 		extract(sniffer, &config, false);
 		// 	}
 		// }
-
+		cout.rdbuf(backup);
 		out_stream.close();
 	}
 	catch (std::bad_alloc& ba)	// Inform when memory limit reached
@@ -140,6 +147,8 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
 
+			cf->print_human();
+
 			vector<string> tmp = cf->get_attr();
 
 			string tmp_str = dec_tree.guess(df_save, tmp);
@@ -147,13 +156,14 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			cf->set_label(tmp_str);
 
 			cf->print(config->should_print_extra_features());
+
 			delete cf;
 			tmp.clear();
 			tmp.shrink_to_fit();
 		}
 	}
 
-	// If no more traffic, finish everything
+	/*// If no more traffic, finish everything
 	conv_reconstructor.finish_all_conversations();
 
 	// Output leftover conversations
@@ -162,17 +172,17 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		ConversationFeatures *cf = stats_engine.calculate_features(conv);
 		conv = nullptr;
 
-		//vector<string> tmp = cf->get_attr();
+		vector<string> tmp = cf->get_attr();
 
-		//string tmp_str = dec_tree.guess(df_save, tmp);
+		string tmp_str = dec_tree.guess(df_save, tmp);
 
-		//cf->set_label(tmp_str);
+		cf->set_label(tmp_str);
 
-		//cf->print(config->should_print_extra_features());
+		cf->print(config->should_print_extra_features());
 		delete cf;
-		//tmp.clear();
-		//tmp.shrink_to_fit();
-	}
+		tmp.clear();
+		tmp.shrink_to_fit();
+	}*/
 }
 
 void usage(const char *name)

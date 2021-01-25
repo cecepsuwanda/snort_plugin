@@ -213,7 +213,8 @@ void ConversationFeatures::print(bool print_extra_features) const
 	ss << dst_host_rerror_rate << ',';
 	ss << dst_host_srv_rerror_rate;
 
-	if (print_extra_features) {
+	
+    if (print_extra_features) {
 		const FiveTuple *ft = conv->get_five_tuple_ptr();
 
 		// TODO: ugly wtf, but working
@@ -251,8 +252,9 @@ void ConversationFeatures::print(bool print_extra_features) const
 	}
 	ss << ',';
 	ss << label;
-
+    
 	cout << ss.str() << endl;
+    
 }
 
 

@@ -371,9 +371,9 @@ string Tdataframe_list::search_idx_list_lvl0(list_item tmp_list)
           
           tmp_list.swap_flag=1; 
 
-		  label = search_idx_list_lvl0(tmp_list);
+		  //label = search_idx_list_lvl0(tmp_list);
 		}else{
-			label = "normal";
+			//label = "normal";
 		}  
 	}
 
@@ -399,9 +399,9 @@ string Tdataframe_list::search_idx_list_lvl1(list_item tmp_list, map_list1* map1
         
         tmp_list.swap_flag=1;
 
-		label = search_idx_list_lvl0(tmp_list);
+		//label = search_idx_list_lvl0(tmp_list);
 	   }else{
-	   	label = "normal";
+	   	//label = "normal";
 	   }	
 	}
 

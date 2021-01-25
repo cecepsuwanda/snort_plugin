@@ -58,7 +58,7 @@ namespace FeatureExtractor {
 		}
 		else {
 			// If not found, try with opposite direction for TCP & UDP (bidirectional)
-			if (ip_proto == TCP || ip_proto == UDP) {
+			if (ip_proto == TCP || ip_proto == UDP) { 
 				FiveTuple rev_key = key.get_reversed();
 				ConversationMap::iterator rev_it = conv_map.lower_bound(rev_key);
 				if (rev_it != conv_map.end() && !(conv_map.key_comp()(rev_key, rev_it->first)))
