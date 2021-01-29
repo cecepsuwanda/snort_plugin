@@ -4,6 +4,7 @@ cd src
 cp -rf ~/snort_plugin/my_rtdtsvm/src/*.* .
 
 cd ..
+mkdir build-files
 cd build-files
 cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" ..
 
@@ -14,6 +15,7 @@ cmake --build ./build-files --target my_rtdtsvm -- -j 4
 cd build-files/src
 cp -rf ~/cpp/my_dtsvm/model .
 
+mkdir output
 
 rm -rf output/1week_monday.csv
 ./my_rtdtsvm /mnt/d/Thesis_Pasca_Unla/Dataset/mit_darpa_98/first_week/monday/tcpdump output/1week_monday.csv model/model1

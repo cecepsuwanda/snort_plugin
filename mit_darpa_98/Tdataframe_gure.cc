@@ -164,7 +164,7 @@ bool Tdataframe_gure::is_pass(vector<string> &data)
 				switch (it->idx_opt)
 				{
 				case 2 : {
-                      pass = data[7] == it->value;
+					pass = data[7] == it->value;
 					break;
 				}
 				case 3 : {
@@ -178,7 +178,7 @@ bool Tdataframe_gure::is_pass(vector<string> &data)
 				switch (it->idx_opt)
 				{
 				case 2 : {
-					  pass = data[9] == it->value;
+					pass = data[9] == it->value;
 					break;
 				}
 				case 3 : {
@@ -205,6 +205,12 @@ bool Tdataframe_gure::is_pass(vector<string> &data)
 			}
 			++it;
 		}
+
+        if(pass)
+        {
+            
+        }
+
 	}
 
 	return pass;
@@ -218,48 +224,50 @@ void Tdataframe_gure::head()
 	cout << " Head" << endl;
 	cout << " Nama File   : " << _nm_file << endl;
 
-	int i = 0;
-	if (_data.open_file())
-	{
-		_data.read_file();
-		while ((!_data.is_eof()) and (i < 5))
+	if (_jml_row > 0) {
+		int i = 0;
+		if (_data.open_file())
 		{
-			tmp_data = _data.get_record();
-
-			if (tmp_data.size() > 1)
+			_data.read_file();
+			while ((!_data.is_eof()) and (i < 5))
 			{
-				if (is_pass(tmp_data))
+				tmp_data = _data.get_record();
+
+				if (tmp_data.size() > 1)
 				{
-					for (int idx = 0; idx < tmp_data.size(); ++idx)
+					if (is_pass(tmp_data))
 					{
-						if (idx == 1)
+						for (int idx = 0; idx < tmp_data.size(); ++idx)
 						{
-							Tdatetime_holder time_gure;
-							std::vector<string> v;
-							v = global_func::tokenizer((char *) tmp_data[idx].c_str(), ".");
-							time_gure.setTime(v[0]);
-							time_gure.add_time(6, 0, 0);
+							if (idx == 1)
+							{
+								Tdatetime_holder time_gure;
+								std::vector<string> v;
+								v = global_func::tokenizer((char *) tmp_data[idx].c_str(), ".");
+								time_gure.setTime(v[0]);
+								time_gure.add_time(6, 0, 0);
 
-							cout << setw((string(time_gure)).length() + 2) << time_gure;
+								cout << setw((string(time_gure)).length() + 2) << time_gure;
 
+							}
+							else {
+								cout << setw(tmp_data[idx].length() + 2) << tmp_data[idx];
+							}
 						}
-						else {
-							cout << setw(tmp_data[idx].length() + 2) << tmp_data[idx];
-						}
+
+						cout << endl;
+
+						i++;
 					}
-
-					cout << endl;
-
-					i++;
 				}
-			}
 
-			tmp_data.clear();
-			tmp_data.shrink_to_fit();
-			_data.next_record();
+				tmp_data.clear();
+				tmp_data.shrink_to_fit();
+				_data.next_record();
+			}
+			_data.close_file();
+		} else {
+			cout << "head, Gagal buka file !!!" << endl;
 		}
-		_data.close_file();
-	} else {
-		cout << "head, Gagal buka file !!!" << endl;
 	}
 }

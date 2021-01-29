@@ -123,8 +123,10 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			// If sniffer's filter fails to fulfill this assertion, "continue" can be used here
 			eth_field_type_t eth_type = frag->get_eth_type();
 			ip_field_protocol_t ip_proto = frag->get_ip_proto();
-			assert((eth_type == IPV4 && (ip_proto == TCP || ip_proto == UDP || ip_proto == ICMP))
+			assert((eth_type == IPV4 && ( ip_proto == TCP ||ip_proto == UDP || ip_proto == ICMP))  
 			       && "Sniffer returned packet that is not (TCP or UDP or ICMP)");
+
+			
 
 			Timestamp now = frag->get_end_ts();
 
@@ -146,9 +148,7 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		while ((conv = conv_reconstructor.get_next_conversation()) != nullptr) {
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
-
-			cf->print_human();
-
+			
 			vector<string> tmp = cf->get_attr();
 
 			string tmp_str = dec_tree.guess(df_save, tmp);

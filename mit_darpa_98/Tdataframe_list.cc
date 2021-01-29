@@ -119,6 +119,9 @@ bool Tdataframe_list::service_not_in(string service)
 
 list_item Tdataframe_list::preproses_item(vector<string> &data)
 {
+	
+    //cout << data[1] << " " << data[2] << " " << data[3] << " " << data[7] << ":" << data[5] << " " << data[8] << ":" << data[6] << " " << data[10] << endl;
+
 	list_item tmp_list;
 
 	Tdatetime_holder date_start(data[1], "00:00:00");
@@ -134,8 +137,13 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 	tmp_list.range_holder.setEnd(end);
 	tmp_list.range_holder.setLabel(data[10]);
 
-	Tip_port_holder tmp_ip_port_src(data[7], ((data[5] == "-") ? "0" : data[5]));
-	Tip_port_holder tmp_ip_port_dst(data[8], ((data[6] == "-") ? "0" : data[6]));
+	
+
+	Tip_port_holder tmp_ip_port_src(data[7], (((data[5] == "-") or (data[5] == "customs")) ? "0" : data[5])); 
+	Tip_port_holder tmp_ip_port_dst(data[8], (((data[6] == "-") or (data[6] == "customs")) ? "0" : data[6])); 
+
+
+	//cout << tmp_ip_port_src << " " << tmp_ip_port_dst << endl ;
 
 	tmp_list.str_ip_dst = string(tmp_ip_port_dst);
 	tmp_list.str_ip_src = string(tmp_ip_port_src);
@@ -143,7 +151,7 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 	string tmp_str = data[4] ;
 
 
-	if ((global_func::isNumber(tmp_str)) or (tmp_str == "ident") or (tmp_str == "1/u") or (tmp_str == "frag/i") or (tmp_str == "frag/u") or (tmp_str == "tcpmux") or (tmp_str == "chargen") )
+	if ((global_func::isNumber(tmp_str)) or (tmp_str == "ident") or (tmp_str == "1/u") or (tmp_str == "frag/i") or (tmp_str == "frag/u") or (tmp_str == "tcpmux") or (tmp_str == "chargen") or (tmp_str == "-"))
 	{
 		tmp_str = "other";
 	} else {
@@ -167,6 +175,7 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 
 	if (global_func::is_subs(tmp_str, "-"))
 	{
+		//cout << "Masuk1 " << tmp_str << endl;
 		vector<string> vdata;
 		vdata = global_func::tokenizer((char *)tmp_str.c_str(), "-");
 
@@ -181,6 +190,7 @@ list_item Tdataframe_list::preproses_item(vector<string> &data)
 		} else {
 			if (global_func::is_subs(tmp_str, "/"))
 			{
+				//cout << "Masuk2 " << tmp_str << endl;
 				vector<string> vdata;
 
 				vdata = global_func::tokenizer((char *)tmp_str.c_str(), "/");
@@ -340,7 +350,7 @@ void Tdataframe_list::stat_tabel()
 			_data.save_to_memory();
 			_data.clear_index();
 		}
-		
+
 		_data.close_file();
 	} else {
 		cout << "stat_tabel, Gagal buka file !!!" << endl;
@@ -362,19 +372,19 @@ string Tdataframe_list::search_idx_list_lvl0(list_item tmp_list)
 	{
 		label = search_idx_list_lvl1(tmp_list, &itr->second);
 	} else {
-		if(tmp_list.swap_flag==0){
-		  string str_ip_src = tmp_list.str_ip_dst;
-		  string str_ip_dst = tmp_list.str_ip_src;
-        
-          tmp_list.str_ip_src = str_ip_src;
-          tmp_list.str_ip_dst = str_ip_dst;  
-          
-          tmp_list.swap_flag=1; 
+		if (tmp_list.swap_flag == 0) {
+			string str_ip_src = tmp_list.str_ip_dst;
+			string str_ip_dst = tmp_list.str_ip_src;
 
-		  //label = search_idx_list_lvl0(tmp_list);
-		}else{
-			//label = "normal";
-		}  
+			tmp_list.str_ip_src = str_ip_src;
+			tmp_list.str_ip_dst = str_ip_dst;
+
+			tmp_list.swap_flag = 1;
+
+			label = search_idx_list_lvl0(tmp_list);
+		} else {
+			label = "normal";
+		}
 	}
 
 	return label;
@@ -390,19 +400,19 @@ string Tdataframe_list::search_idx_list_lvl1(list_item tmp_list, map_list1* map1
 	{
 		label = search_idx_list_lvl2(tmp_list, &itr->second);
 	} else {
-		if(tmp_list.swap_flag==0){
-		string str_ip_src = tmp_list.str_ip_dst;
-		string str_ip_dst = tmp_list.str_ip_src;
-        
-        tmp_list.str_ip_src = str_ip_src;
-        tmp_list.str_ip_dst = str_ip_dst;  
-        
-        tmp_list.swap_flag=1;
+		if (tmp_list.swap_flag == 0) {
+			string str_ip_src = tmp_list.str_ip_dst;
+			string str_ip_dst = tmp_list.str_ip_src;
 
-		//label = search_idx_list_lvl0(tmp_list);
-	   }else{
-	   	//label = "normal";
-	   }	
+			tmp_list.str_ip_src = str_ip_src;
+			tmp_list.str_ip_dst = str_ip_dst;
+
+			tmp_list.swap_flag = 1;
+
+			label = search_idx_list_lvl0(tmp_list);
+		} else {
+			label = "normal";
+		}
 	}
 
 	return label;
@@ -500,6 +510,11 @@ string Tdataframe_list::search(string date_start, string hour_start, string date
 	list_label.service = service;
 
 	label = search_idx_list_lvl0(list_label);
+
+	if(label == "dfs_failed.")
+	{
+      label="normal";  
+	}
 
 	return label;
 

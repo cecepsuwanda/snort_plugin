@@ -47,6 +47,7 @@ public:
 	}
 
 	void read_data(string nm_f,string separator);
+	void read_data(string nm_f);
 	void write_data(vector<string> &data);
 	void add_filter(field_filter filter);
 	void clear_filter();

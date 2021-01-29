@@ -21,6 +21,13 @@ void Tbase_dataframe::read_data(string nm_f, string separator)
 	stat_tabel();
 }
 
+void Tbase_dataframe::read_data(string nm_f)
+{
+	_nm_file = nm_f;
+	_data.setnm_f(nm_f);
+	_data.setseparator(",");	
+}
+
 int Tbase_dataframe::getjmlcol() {
 	return _jml_col;
 }

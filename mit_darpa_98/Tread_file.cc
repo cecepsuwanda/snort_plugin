@@ -46,26 +46,22 @@ bool Tread_file::open_file(string mode)
 
 bool Tread_file::open_file()
 {
-  if (_separator != _separator1)
-  {
-    cout << "open file " << _separator << " " << _separator1 << endl;
-    _separator = (char*) _separator1.c_str();
-  }
-
+  
   if (is_fmap)
   {
     _fd = open(_nm_f.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
 
     if (fstat(_fd, &_sb) == -1)
     {
-      perror("couldn't get file size. \n");
-    }
+      //perror("couldn't get file size. \n");
+    }else{
 
     //printf("file size is %ld\n",_sb.st_size);
 
     _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);
     _posisi = 0;
     _idx_posisi = 0;
+    }
 
     return !(_fd == -1);
   } else {
