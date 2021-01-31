@@ -79,11 +79,15 @@ namespace FeatureExtractor {
 				break;
 
 			case UDP:
+				//cout << "UDP" << endl;
 				conversation = new UdpConversation(packet);
+				//conversation->print_human();
 				break;
 
 			case ICMP:
+			    //cout << "ICMP" << endl;
 				conversation = new IcmpConversation(packet);
+				//conversation->print_human();
 				break;
 
 			default:
@@ -100,6 +104,8 @@ namespace FeatureExtractor {
 
 		// If connection is in final state, remove it from map & enqueue to output
 		if (is_finished) {
+			//cout << "is_finished" << endl;
+			//conversation->print_human();
 			conv_map.erase(it);
 			output_queue.push(conversation);
 		}
@@ -195,6 +201,8 @@ namespace FeatureExtractor {
 			// If buffer is timed out, remove conversation from active conversations
 			// and to temporary list of timed out conversations
 			if (is_timedout) {
+				//cout << "Timeout" << endl;
+				//conv->print_human(); 
 				timedout_convs.push_back(conv);
 				conv_map.erase(it++);
 			}

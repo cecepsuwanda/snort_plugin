@@ -14,8 +14,8 @@
 
 struct list_item
 {
-	string str_ip_src;
-	string str_ip_dst;
+	Tip_port_holder ip_src;
+	Tip_port_holder ip_dst;
 	string service;
 	string label;
 	Tdatetime_holder date_start;
@@ -26,8 +26,8 @@ struct list_item
 typedef vector<Trange_holder> map_list4;
 typedef map<Tdatetime_holder, map_list4> map_list3;
 typedef map<string, map_list3> map_list2;
-typedef map<string, map_list2> map_list1;
-typedef map<string, map_list1> map_list;
+typedef map<Tip_port_holder, map_list2> map_list1;
+typedef map<Tip_port_holder, map_list1> map_list;
 
 class Tdataframe_list : public Tbase_dataframe 
 {

@@ -126,7 +126,13 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			assert((eth_type == IPV4 && ( ip_proto == TCP ||ip_proto == UDP || ip_proto == ICMP))  
 			       && "Sniffer returned packet that is not (TCP or UDP or ICMP)");
 
-			
+			// if(ip_proto == UDP)
+			// {
+   //            if((frag->get_src_port()==123) && (frag->get_dst_port()==123))
+   //            {  
+                //frag->print();
+   //            } 
+			// }
 
 			Timestamp now = frag->get_end_ts();
 

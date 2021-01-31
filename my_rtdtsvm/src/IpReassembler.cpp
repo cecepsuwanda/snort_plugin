@@ -71,8 +71,10 @@ namespace FeatureExtractor {
 		bool is_fragmented = (frag->get_ip_flag_mf() || frag->get_ip_frag_offset() != 0);
 
 		// If fragmented forward to correct reassembly buffer
-		if (is_fragmented)
+		if (is_fragmented){
+			//cout << "Not Fragmented" << endl;
 			return forward_to_buffer(frag);
+		}
 		
 		// Not fragmented, nothing to do 
 		return frag;

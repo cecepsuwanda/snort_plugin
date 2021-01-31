@@ -52,7 +52,7 @@ bool Trange_holder::in_range(Tdatetime_holder start, Tdatetime_holder end)
 {
 	bool is_in_range = false;
 
-	is_in_range = ((_start<=start) and (start<=_end)) or ((_start<=end) and (end<=_end));
+	is_in_range = ((_start<=start) and (end<=_end)) or ((_start<=start) and (_end<=end)) or ((start<=_start) and (end<_end));
 
 	return is_in_range;
 }

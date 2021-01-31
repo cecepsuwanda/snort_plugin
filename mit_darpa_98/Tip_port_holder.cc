@@ -11,7 +11,12 @@ Tip_port_holder::Tip_port_holder(string ip_port)
 
 	vector<string> data;
 	data = global_func::tokenizer((char *)ip_port.c_str(), ":");
-	_port = stoi(data[1]);
+	if(data[1]=="-")
+	{
+	  _port = -1;
+	}else{
+	  _port = stoi(data[1]); 	
+	}
 
 	data = global_func::tokenizer((char *)data[0].c_str(), ".");
 	_part1 = stoi(data[0]);
@@ -31,11 +36,20 @@ Tip_port_holder::Tip_port_holder(string ip, string port)
 	_part2 = stoi(data[1]);
 	_part3 = stoi(data[2]);
 	_part4 = stoi(data[3]);
-	_port = stoi(port);
+	
+    if(port=="-"){
+      _port = -1; 	
+    }
+	else{
+	  _port = stoi(port);
+	}
+
 }
 Tip_port_holder::~Tip_port_holder() {
 
 }
+
+
 
 ostream & operator << (ostream &out, const Tip_port_holder &tc)
 {
