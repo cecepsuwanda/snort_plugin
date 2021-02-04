@@ -77,7 +77,7 @@ void proses_labeling1(char const *argv[])
 	Tdataframe_label df_label;
 	df_label.read_data(argv[2], ",");
 
-	// field_filter f1, f2;
+	field_filter f1, f2;
 	// f1.idx_col = 28;
 	// f1.idx_opt = 2;
 	// f1.value = "207.075.239.115:3225";
@@ -85,7 +85,7 @@ void proses_labeling1(char const *argv[])
 
 	// f2.idx_col = 30;
 	// f2.idx_opt = 2;
-	// f2.value = "172.016.114.050:80";
+	// f2.value = "172.016.112.050:7";
 	// df_label.add_filter(f2);
 
 	// f.idx_col = 36;

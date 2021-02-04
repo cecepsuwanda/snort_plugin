@@ -1,23 +1,5 @@
 #!/bin/bash
 
-cd ~/cpp/my_dtsvm
-cp -rf ~/snort_plugin/my_dtsvm/makefile .
-cp -rf ~/snort_plugin/my_dtsvm/Tread_file.* .
-cp -rf ~/snort_plugin/my_dtsvm/Tdataframe.* .
-cp -rf ~/snort_plugin/my_dtsvm/svm.* .
-cp -rf ~/snort_plugin/my_dtsvm/Tconf_metrix.* .
-cp -rf ~/snort_plugin/my_dtsvm/Tmy_svm.* .
-cp -rf ~/snort_plugin/my_dtsvm/Tdec_tree.* .
-cp -rf ~/snort_plugin/my_dtsvm/main.cc .
-make
-wait
-clear
-wait
-
-# rm data/dtsvm_model*.csv
-# rm data/svm_model*.csv
-# wait
-
 mkdir model
 mkdir model/model1
 rm model/model1/dtsvm_model*.csv

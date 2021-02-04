@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 
     df_train.read_data(argv[6]);
     df_train.read_data_type(argv[5]);
+    df_train.info();
 
     cout << "Train : Jumlah Baris : " << df_train.getjmlrow() << " Jumlah Kolom : " << df_train.getjmlcol() << endl;
     cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;

@@ -1,5 +1,7 @@
 
 #include "Tread_file.h"
+#include "Tmy_dttype.h"
+#include "Tlabel_stat.h"
 #include <unordered_map>
 #include <map>
 #include <cmath>
@@ -10,6 +12,7 @@ using namespace std;
 #ifndef Included_Tdataframe_H
 
 #define Included_Tdataframe_H
+
 
 struct field_filter
 {
@@ -32,9 +35,10 @@ private:
   vector<string> _data_type;
   vector<field_filter> _filter;
   map<string, int> _stat_label;
-  
+
   int _jml_col = 0;
   int _jml_row = 0;
+  string _nm_file;
 
   void to_lower(string &str);
 
@@ -73,8 +77,8 @@ public:
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
-  void get_col_pot_split(int idx, map<string, pot_struct> &_col_pot_split);
-  void calculate_overall_metric(int idx, map<string, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value);
+  void get_col_pot_split(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split);
+  void calculate_overall_metric(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value);
 
   bool open_file();
   void read_file();
@@ -86,7 +90,7 @@ public:
 
   void clear_memory();
 
-
+  void info();
 };
 
 #endif

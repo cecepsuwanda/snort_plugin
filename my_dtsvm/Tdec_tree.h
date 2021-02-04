@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
+#include "Tmy_dttype.h"
 #include "Tmy_svm.h"
 
 using namespace std;
