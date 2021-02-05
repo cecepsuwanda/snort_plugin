@@ -20,6 +20,8 @@ public:
 	~Tlabel_stat();
 	void add(string value);
 	void clear();
+    int get_jml_row();
+    float get_entropy();
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{

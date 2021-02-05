@@ -59,20 +59,25 @@ map<int, map<string, int>> Tdec_tree::get_potential_splits(Tdataframe &df)
 
 void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
 {
-  cout << "determine_best_split " << endl;
+  //cout << "determine_best_split " << endl;
   float current_overall_metric, best_overall_metric = 999;
   bool first_iteration = true;
   string current_split_value;
-  map<Tmy_dttype, pot_struct> _col_pot_split;
+  map<Tmy_dttype, Tlabel_stat> _col_pot_split;
 
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
 
-    cout << "          Kolom " << df.get_nm_header(i) << endl;
+    //cout << "          Kolom " << df.get_nm_header(i) << endl;
+    if((i%10)==0)
+    {
+      cetak(".");
+    }
+
     df.get_col_pot_split(i, _col_pot_split);
     df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
 
-    cout << "          current_overall_metric : " << current_overall_metric << endl;
+    //cout << "          current_overall_metric : " << current_overall_metric << endl;
 
     if (first_iteration or (current_overall_metric <= best_overall_metric))
     {
@@ -128,8 +133,8 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     tree.push_back(root);
   }
 
-  //cout << "tree level : " << counter << endl;
-  //cetak(to_string(counter).c_str());
+  //cout << counter;
+  cetak(to_string(counter).c_str());
 
   if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
@@ -139,7 +144,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       //cout << "tree level : " << counter << endl;
       //cout << "base case" << endl;
       //cout << "jml data " << df.getjmlrow() << endl;
-      //cetak("*");
+      cetak("*");
 
       Tmy_svm my_svm;
       // Tdataframe df_svm;
@@ -163,7 +168,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     df.clear_memory();
   } else {
 
-    //cetak(".");
+    cetak("?");
 
     counter++;
 
@@ -181,7 +186,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
     // cout << fixed << time_taken << setprecision(5) << endl;
 
-    cout << "split_column : " << split_column << " " << df.get_nm_header(split_column) << " split_value : " << split_value <<  endl;
+    //cout << "split_column : " << split_column << " " << df.get_nm_header(split_column) << " split_value : " << split_value <<  endl;
 
     Tdataframe df_below, df_above;
     df_below = df;
@@ -196,7 +201,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
         //cout << "empty data" << endl;
         //cout << "jml data " << df.getjmlrow() << endl;
 
-        //cetak("-");
+        cetak("-");
 
         Tmy_svm my_svm;
         // Tdataframe df_svm;
@@ -219,7 +224,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
     } else {
 
-      //cetak("|");
+      cetak("|");
 
       tree[node_index].criteriaAttrIndex = split_column;
 
@@ -235,7 +240,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       tree.push_back(nextNode);
 
       // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-      //cetak("->");
+      cetak("->");
       train(df_below, nextNode.treeIndex, counter, min_samples, max_depth, gamma, nu);
 
       Node nextNode1;
@@ -247,7 +252,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       tree.push_back(nextNode1);
 
       // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
-      //cetak("<-");
+      cetak("<-");
       train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth, gamma, nu);
 
       df_above.clear_memory();
@@ -264,7 +269,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         if (tmp_str == "normal") {
           //cetak(to_string(counter).c_str());
-          //cetak("+");
+          cetak("+");
 
           //cout << "label sama " << endl;
           //cout << "Jml data1 " << df_above.getjmlrow() << endl;
@@ -315,7 +320,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
   if (node_index == 0)
   {
-    //cetak("\n");
+    cetak("\n");
   }
 
 }

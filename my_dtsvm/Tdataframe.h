@@ -2,6 +2,7 @@
 #include "Tread_file.h"
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
+#include <thread>
 #include <unordered_map>
 #include <map>
 #include <cmath>
@@ -21,12 +22,6 @@ struct field_filter
   string value;
 };
 
-struct pot_struct
-{
-  int jml;
-  map<string, int> stat_label;
-};
-
 class Tdataframe
 {
 private:
@@ -44,6 +39,12 @@ private:
 
   bool is_index = false;
 
+  static void continue_below(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label);
+  static void continue_above(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label);
+
+  static void calculate_metric(bool is_continuous, int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_metric, string &split_value);
+
+  void cetak ( const char * format, ... );
 public:
   Tdataframe();
   ~Tdataframe();
@@ -77,8 +78,8 @@ public:
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
-  void get_col_pot_split(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split);
-  void calculate_overall_metric(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value);
+  void get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split);
+  void calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_overall_metric, string &split_value);
 
   bool open_file();
   void read_file();

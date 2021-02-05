@@ -23,6 +23,23 @@ Tdataframe::Tdataframe(const Tdataframe &t)
   cout << "Copy constructor called " << endl;
 }
 
+static void cetak_stdout(const char *s)
+{
+  fputs(s, stdout);
+  fflush(stdout);
+}
+
+void Tdataframe::cetak ( const char * format, ... )
+{
+  char buffer[256];
+  va_list args;
+  va_start (args, format);
+  vsprintf (buffer, format, args);
+  //perror (buffer);
+  va_end (args);
+  cetak_stdout(buffer);
+}
+
 
 
 void Tdataframe::read_data(string nm_f)
@@ -337,17 +354,17 @@ map<string, int> Tdataframe::get_stat_label()
 
 
 
-void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split)
+void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split)
 {
   //cout << "get_col_pot_split " << idx <<endl;
-  map<Tmy_dttype, pot_struct>::iterator it;
+  map<Tmy_dttype, Tlabel_stat>::iterator it;
   map<string, int>::iterator it_pot_struct;
   vector<string> tmp_data;
   //pot_struct p;
 
   if (_data.open_file())
   {
-    int i = 0;
+    
     _data.read_file();
     while (!_data.is_eof())
     {
@@ -362,47 +379,29 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, pot_struct> &_col_po
           it = _col_pot_split.find(pot_split_holder);
           if (it == _col_pot_split.end())
           {
-            pot_struct p;
-            p.jml = 1;
-            p.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
-            _col_pot_split.insert(pair<Tmy_dttype, pot_struct>(pot_split_holder, p));
+            Tlabel_stat p;
+            p.add(tmp_data[_jml_col - 1]);
+            _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
           } else {
-            it->second.jml += 1;
-
-            it_pot_struct = it->second.stat_label.find(tmp_data[_jml_col - 1]);
-            if (it_pot_struct == it->second.stat_label.end())
-            {
-              it->second.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
-            } else {
-              it_pot_struct->second += 1;
-            }
+            it->second.add(tmp_data[_jml_col - 1]);
           }
 
         } else {
-          pot_struct p;
-          p.jml = 1;
-          p.stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
-          _col_pot_split.insert(pair<Tmy_dttype, pot_struct>(pot_split_holder, p));
+          Tlabel_stat p;
+          p.add(tmp_data[_jml_col - 1]);
+          _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
         }
       }
       tmp_data.clear();
       tmp_data.shrink_to_fit();
       _data.next_record();
 
-      i++;
-
-      if ((idx == 14) and ((i % 1000) == 0))
-      {
-        cout << ".";
-      }
+      
 
     }
     _data.close_file();
 
-    if (idx == 14)
-    {
-      cout << endl;
-    }
+    
 
 
   } else {
@@ -410,168 +409,123 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, pot_struct> &_col_po
   }
 }
 
-void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, pot_struct> &_col_pot_split, float &current_overall_metric, string &split_value)
+void Tdataframe::continue_below(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label)
 {
-  cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
+  auto it_find = _col_pot_split.find(find);
+  if (it_find != _col_pot_split.end())
+  {
+    it_find++;
+    for (auto it = _col_pot_split.begin(); it != it_find; it++) {
+      stat_label = stat_label + it->second;
+    }
+  }
+}
+
+void Tdataframe::continue_above(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label)
+{
+  auto it_find = _col_pot_split.find(find);
+  if (it_find != _col_pot_split.end())
+  {
+    it_find++;
+    for (auto it = it_find; it != _col_pot_split.end(); it++) {
+      stat_label = stat_label + it->second;
+    }
+  }
+}
+
+void Tdataframe::calculate_metric(bool is_continuous, int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_metric, string &split_value)
+{
   float best_overall_metric = 999;
   string tmp_split_value;
-  
-  map<Tmy_dttype, pot_struct>::iterator it, it1;
-  map<string, int>::iterator it_pot_struct, it_pot_struct1;
-  
+
+  map<Tmy_dttype, Tlabel_stat>::iterator it, it1, it_start, it_end;
+
   bool is_below;
   bool first_iteration = true;
   float p_dt_above, p_dt_below, entropy_below, entropy_above, overall_metric;
   int jml;
 
-  int _jml_row_above;
-  int _jml_row_below;
+  Tlabel_stat _stat_label_above;
+  Tlabel_stat _stat_label_below;
 
-  map<string, int> _stat_label_above;
-  map<string, int> _stat_label_below;
 
-  if (idx == 14)
-  {
-    cout << _col_pot_split.size() << endl;
-  }
 
   if (_col_pot_split.size() > 0)
   {
-    int i = 0;
-    for (it = _col_pot_split.begin(); it != _col_pot_split.end(); ++it)
+
+    if (start == 1)
     {
-      _jml_row_below = 0;
-      _jml_row_above = 0;
+      it_start = _col_pot_split.begin();
+    } else {
+      int i = 1;
+      it1 = _col_pot_split.begin();
+      while ( (i <= start) and (it1 != _col_pot_split.end()))
+      {
+        it1++;
+        i++;
+      }
+      it_start = it1;
+
+    }
+
+    if (end == _col_pot_split.size())
+    {
+      it_end = _col_pot_split.end();
+    } else {
+      int i = 1;
+      it1 = _col_pot_split.begin();
+      while ( (i <= end) and (it1 != _col_pot_split.end()))
+      {
+        it1++;
+        i++;
+      }
+      it_end = it1;
+    }
+
+    for (it = it_start; it != it_end; ++it)
+    {
 
       _stat_label_below.clear();
       _stat_label_above.clear();
 
 
-      if (_data_type[idx] == "continuous.")
+      if (is_continuous)
       {
-        for (it1 = _col_pot_split.begin(); it1 != _col_pot_split.end(); ++it1)
-        {
-          is_below =  it1->first <= it->first ;
+        //continue_below(it->first, _col_pot_split, _stat_label_below);
+        //continue_above(it->first, _col_pot_split, _stat_label_above);
+        thread t1(&Tdataframe::continue_below, it->first, ref(_col_pot_split), ref(_stat_label_below));
+        thread t2(&Tdataframe::continue_above, it->first, ref(_col_pot_split), ref(_stat_label_above));
 
-          if (is_below)
-          {
-            _jml_row_below += it1->second.jml;
+        t1.join();
+        t2.join();
 
-
-            it_pot_struct = it1->second.stat_label.begin();
-            while (it_pot_struct != it1->second.stat_label.end())
-            {
-
-              it_pot_struct1 = _stat_label_below.find(it_pot_struct->first);
-              if (it_pot_struct1 == _stat_label_below.end())
-              {
-                _stat_label_below.insert(pair<string, int>(it_pot_struct->first, it_pot_struct->second));
-              } else {
-                it_pot_struct1->second += it_pot_struct->second;
-              }
-
-              it_pot_struct++;
-            }
-
-          } else {
-            _jml_row_above += it1->second.jml;
-
-
-            it_pot_struct = it1->second.stat_label.begin();
-            while (it_pot_struct != it1->second.stat_label.end())
-            {
-              it_pot_struct1 = _stat_label_above.find(it_pot_struct->first);
-              if (it_pot_struct1 == _stat_label_above.end())
-              {
-                _stat_label_above.insert(pair<string, int>(it_pot_struct->first, it_pot_struct->second));
-              } else {
-                it_pot_struct1->second += it_pot_struct->second;
-              }
-
-              it_pot_struct++;
-            }
-
-          }
-
-        }
       } else {
-        for (it1 = _col_pot_split.begin(); it1 != _col_pot_split.end(); ++it1)
-        {
-          is_below =  it1->first == it->first ;
+        // for (it1 = _col_pot_split.begin(); it1 != _col_pot_split.end(); ++it1)
+        // {
+        //   is_below =  it1->first == it->first ;
 
-          if (is_below)
-          {
-            _jml_row_below += it1->second.jml;
+        //   if (is_below)
+        //   {
+        //     _stat_label_below = _stat_label_below + it1->second;
 
+        //   } else {
+        //     _stat_label_above = _stat_label_above + it1->second;
 
-            it_pot_struct = it1->second.stat_label.begin();
-            while (it_pot_struct != it1->second.stat_label.end())
-            {
+        //   }
 
-              it_pot_struct1 = _stat_label_below.find(it_pot_struct->first);
-              if (it_pot_struct1 == _stat_label_below.end())
-              {
-                _stat_label_below.insert(pair<string, int>(it_pot_struct->first, it_pot_struct->second));
-              } else {
-                it_pot_struct1->second += it_pot_struct->second;
-              }
-
-              it_pot_struct++;
-            }
-
-          } else {
-            _jml_row_above += it1->second.jml;
-
-
-            it_pot_struct = it1->second.stat_label.begin();
-            while (it_pot_struct != it1->second.stat_label.end())
-            {
-              it_pot_struct1 = _stat_label_above.find(it_pot_struct->first);
-              if (it_pot_struct1 == _stat_label_above.end())
-              {
-                _stat_label_above.insert(pair<string, int>(it_pot_struct->first, it_pot_struct->second));
-              } else {
-                it_pot_struct1->second += it_pot_struct->second;
-              }
-
-              it_pot_struct++;
-            }
-
-          }
-
-        }
+        // }
       }
 
+      jml = _stat_label_below.get_jml_row() + _stat_label_above.get_jml_row();
+      p_dt_below = (float) _stat_label_below.get_jml_row() / jml;
+      p_dt_above = (float) _stat_label_above.get_jml_row() / jml;
 
+      entropy_below = _stat_label_below.get_entropy();
+      entropy_above = _stat_label_above.get_entropy();
 
-      jml = _jml_row_below + _jml_row_above;
-      p_dt_below = (float) _jml_row_below / jml;
-      p_dt_above = (float) _jml_row_above / jml;
-
-      entropy_below = 0;
-      it_pot_struct = _stat_label_below.begin();
-      while (it_pot_struct != _stat_label_below.end())
-      {
-        entropy_below += ((float) it_pot_struct->second / _jml_row_below)  * (-1 * log2((float) it_pot_struct->second / _jml_row_below));
-        it_pot_struct++;
-      }
-
-      entropy_above = 0;
-      it_pot_struct = _stat_label_above.begin();
-      while (it_pot_struct != _stat_label_above.end())
-      {
-        entropy_above += ((float) it_pot_struct->second / _jml_row_above)  * (-1 * log2((float) it_pot_struct->second / _jml_row_above));
-        it_pot_struct++;
-      }
 
       overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 
-      // if(get_nm_header(idx)=="hot")
-      // {
-      //    cout << "                    split_value " << it->first  << endl;
-      //    cout << "                    jml_row_below " << _jml_row_below << " jml_row_above " << _jml_row_above  << endl;
-      //    cout << "                    overall_metric " << overall_metric << endl;
-      // }
 
       if (first_iteration or (overall_metric <= best_overall_metric))
       {
@@ -580,40 +534,82 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, pot_struct> &
         best_overall_metric = overall_metric;
         Tmy_dttype tmp_pot_split_holder = it->first;
         tmp_split_value = tmp_pot_split_holder.get_string();
-
-        //cout << current_overall_metric << endl;
-        //cout << split_column << endl;
-        //cout << split_value << endl;
       }
-
-      i++;
-
-      if ((idx == 14) and ((i % 100) == 0))
-      {
-        cout << ".";
-      }
-
-
     }
-
-    if (idx == 14)
-    {
-      cout << endl;
-    }
-
-    current_overall_metric = best_overall_metric;
+    current_metric = best_overall_metric;
     split_value = tmp_split_value;
+  }
+
+}
+
+void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
+{
+  //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
+
+  if (_col_pot_split.size() > 0)
+  {
+
+    if (_col_pot_split.size() < 5000)
+    {
+      float best_overall_metric;
+      string tmp_split_value;
+      thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1, _col_pot_split.size(), ref(_col_pot_split), ref(best_overall_metric), ref(tmp_split_value));
+      t1.join();
+      current_overall_metric = best_overall_metric;
+      split_value = tmp_split_value;
+    } else {
+      float best_overall_metric = 999, best_overall_metric1, best_overall_metric2;
+      string tmp_split_value, tmp_split_value1, tmp_split_value2;
+
+      int jml_loop = _col_pot_split.size() / 2000;
+
+      if ((2000 * jml_loop) < _col_pot_split.size()) {
+        jml_loop += 1;
+      }
+
+      cetak(to_string(jml_loop).c_str());
+      cetak("|");
+
+      for (int i = 1; i <= jml_loop; i+=2)
+      {
+        cetak(to_string(i).c_str());
+
+        thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1+((i-1)*2000), 2000*i, ref(_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1));
+        thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1+(i*2000), 2000*(i+1), ref(_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2));
+
+        cetak("t1");      
+        t1.join();
+        cetak("t2");
+        cetak("|");        
+        t2.join();
+
+                
+
+        if (best_overall_metric1 < best_overall_metric)
+        {
+          best_overall_metric = best_overall_metric1;
+          tmp_split_value = tmp_split_value1;
+        }
+
+        if (best_overall_metric2 < best_overall_metric)
+        {
+          best_overall_metric = best_overall_metric2;
+          tmp_split_value = tmp_split_value2;
+        }
+      }
+
+      current_overall_metric = best_overall_metric;
+      split_value = tmp_split_value;
+    }
+
+
 
     if (_col_pot_split.size() > 0)
     {
-      map<Tmy_dttype, pot_struct>::iterator it = _col_pot_split.begin();
+      map<Tmy_dttype, Tlabel_stat>::iterator it = _col_pot_split.begin();
       while (it != _col_pot_split.end())
       {
-        //pot_struct *p;
-        it->second.stat_label.clear();
-        //p=&it->second;
-        //delete p;
-        //*it->second = NULL;
+        it->second.clear();
         it++;
       }
 
