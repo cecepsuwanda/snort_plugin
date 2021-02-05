@@ -10,6 +10,7 @@ cp -rf ~/snort_plugin/my_dtsvm/Tmy_svm.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tdec_tree.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tmy_dttype.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tlabel_stat.* .
+cp -rf ~/snort_plugin/my_dtsvm/Tbelow_above.* .
 cp -rf ~/snort_plugin/my_dtsvm/main.cc .
 make
 

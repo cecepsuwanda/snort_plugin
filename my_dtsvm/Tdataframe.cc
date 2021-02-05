@@ -364,7 +364,7 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
 
   if (_data.open_file())
   {
-    
+
     _data.read_file();
     while (!_data.is_eof())
     {
@@ -396,12 +396,12 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
       tmp_data.shrink_to_fit();
       _data.next_record();
 
-      
+
 
     }
     _data.close_file();
 
-    
+
 
 
   } else {
@@ -549,7 +549,47 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
   if (_col_pot_split.size() > 0)
   {
 
-    if (_col_pot_split.size() < 5000)
+
+    std::vector<Tbelow_above> vec_col_pot_split;
+
+    int i = 0;
+    for (auto it = _col_pot_split.begin(); it != _col_pot_split.end(); it++)
+    {
+      Tbelow_above ba;
+      ba.set_value(it->first);
+
+      if (i>0)
+      {
+        ba.add_below(it->second+vec_col_pot_split[i-1].get_below());
+      }
+      else {
+        ba.add_below(it->second);
+      }
+
+      vec_col_pot_split.push_back(ba);
+      i++;
+    }
+    
+    i-=2;
+    int j=0;
+    for (auto it = _col_pot_split.rbegin(); it !=_col_pot_split.rend();it++)
+    {
+      if((j>0) and (i>=0))
+      {
+        vec_col_pot_split[i].add_above(vec_col_pot_split[i+1].get_above()+it->second);
+      }else
+      {
+        if(i>0){   
+         vec_col_pot_split[i].add_above(it->second); 
+         }
+      }
+      j++;
+      i--;
+    }
+
+
+
+    if (_col_pot_split.size() < 10000)
     {
       float best_overall_metric;
       string tmp_split_value;
@@ -561,29 +601,29 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
       float best_overall_metric = 999, best_overall_metric1, best_overall_metric2;
       string tmp_split_value, tmp_split_value1, tmp_split_value2;
 
-      int jml_loop = _col_pot_split.size() / 2000;
+      int jml_loop = _col_pot_split.size() / 5000;
 
-      if ((2000 * jml_loop) < _col_pot_split.size()) {
+      if ((5000 * jml_loop) < _col_pot_split.size()) {
         jml_loop += 1;
       }
 
       cetak(to_string(jml_loop).c_str());
       cetak("|");
 
-      for (int i = 1; i <= jml_loop; i+=2)
+      for (int i = 1; i <= jml_loop; i += 2)
       {
         cetak(to_string(i).c_str());
 
-        thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1+((i-1)*2000), 2000*i, ref(_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1));
-        thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1+(i*2000), 2000*(i+1), ref(_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2));
+        thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + ((i - 1) * 5000), 5000 * i, ref(_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1));
+        thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + (i * 5000), 5000 * (i + 1), ref(_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2));
 
-        cetak("t1");      
+        cetak("t1");
         t1.join();
         cetak("t2");
-        cetak("|");        
+        cetak("|");
         t2.join();
 
-                
+
 
         if (best_overall_metric1 < best_overall_metric)
         {
@@ -614,6 +654,14 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
       }
 
       _col_pot_split.clear();
+
+      for(int i=0;i<vec_col_pot_split.size();i++)
+      {
+         vec_col_pot_split[i].clear();
+      }
+
+      vec_col_pot_split.clear();
+
     }
   }
 
