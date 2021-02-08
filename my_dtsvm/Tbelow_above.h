@@ -21,12 +21,14 @@ public:
 	~Tbelow_above();
 
 	void set_value(Tmy_dttype value);
-	Tmy_dttype get_value(Tmy_dttype value);
+	Tmy_dttype get_value();
 
 	void add_below(Tlabel_stat stat);
 	Tlabel_stat get_below();
 	void add_above(Tlabel_stat stat);
 	Tlabel_stat get_above();
+
+	float get_overall_metric();
 
 	void clear();
 	

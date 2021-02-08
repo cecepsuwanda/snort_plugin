@@ -82,7 +82,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 				prob.x[i] = &x_space[j];
 				prob.y[i] = 1;
 
-				for (int k = 0; k < (df_filter.size()); k++) {
+				for (size_t k = 0; k < (df_filter.size()); k++) {
 
 					x_space[j].index = k;
 					string str = tmp[df_filter[k].idx_col];
@@ -176,7 +176,7 @@ void Tmy_svm::test(Tdataframe &df)
 	{
 		vector<string> tmp = df.get_record();
 
-		int k = 0;
+		size_t k = 0;
 		for (; k < (tmp.size() - 1); k++) {
 
 			string str = tmp[k];
@@ -215,7 +215,7 @@ string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 	char *endptr;
 	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));
 
-	int k = 0;
+	size_t k = 0;
 	for (; k < data.size(); k++) {
 
 		string str = data[k];

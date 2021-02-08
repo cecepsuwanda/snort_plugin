@@ -180,17 +180,69 @@ void ConversationFeatures::print(bool print_extra_features) const
 
 	// Intrinsic features
 	ss << noshowpoint << setprecision(0) << (conv->get_duration_ms() / 1000) << ','; // Cut fractional part
+
 	ss << conv->get_protocol_type_str() << ',';
 	ss << conv->get_service_str() << ',';
 	ss << conv->get_state_str() << ',';
+
+	if (strcmp(conv->get_protocol_type_str(), "tcp") == 0)
+	{
+		ss <<"1"<< ',';
+		ss <<"0"<< ',';
+		ss <<"0"<< ',';
+	} else {
+		if (strcmp(conv->get_protocol_type_str(), "udp") == 0)
+		{
+			ss <<"0"<< ',';
+			ss <<"1"<< ',';
+			ss <<"0"<< ',';
+		} else {
+			if (strcmp(conv->get_protocol_type_str(), "icmp") == 0)
+			{
+				ss <<"0"<< ',';
+				ss <<"0"<< ',';
+				ss <<"1"<< ',';
+			}
+		}
+	}
+
+	if ((strcmp(conv->get_service_str(), "private") == 0) or (strcmp(conv->get_service_str(), "ecr_i") == 0) or (strcmp(conv->get_service_str(), "http") == 0))
+	{
+		ss <<"0"<< ',';
+		ss <<"1"<< ',';
+	} else {
+		ss <<"1"<< ',';
+		ss <<"0"<< ',';
+	}
+
+	if (strcmp(conv->get_state_str(), "SF") == 0)
+	{
+		ss <<"0"<< ',';
+		ss <<"1"<< ',';
+	} else {
+		ss <<"1"<< ',';
+		ss <<"0"<< ',';
+	}
+
 	ss << conv->get_src_bytes() << ',';
 	ss << conv->get_dst_bytes() << ',';
+
 	ss << conv->land() << ',';
+
+	if (conv->land() == 1)
+	{
+		ss <<"0"<< ',';
+		ss <<"1"<< ',';
+	} else {
+		ss <<"1"<< ',';
+		ss <<"0"<< ',';
+	}
+
 	ss << conv->get_wrong_fragments() << ',';
 	ss << conv->get_urgent_packets() << ',';
 
 	// Derived time windows features
-	ss << fixed << showpoint << setprecision(2);
+	ss << fixed << showpoint << setprecision(4);
 	ss << count << ',';
 	ss << srv_count << ',';
 	ss << serror_rate << ',';
@@ -213,8 +265,8 @@ void ConversationFeatures::print(bool print_extra_features) const
 	ss << dst_host_rerror_rate << ',';
 	ss << dst_host_srv_rerror_rate;
 
-	
-    if (print_extra_features) {
+
+	if (print_extra_features) {
 		const FiveTuple *ft = conv->get_five_tuple_ptr();
 
 		// TODO: ugly wtf, but working
@@ -241,8 +293,8 @@ void ConversationFeatures::print(bool print_extra_features) const
 		ss << timestr;
 
 		ss << ',';
-        
-        char timestr1[20];
+
+		char timestr1[20];
 		local_tv_sec = conv->get_start_ts().get_secs();
 		ltime = localtime(&local_tv_sec);
 		//localtime_s(&timeinfo, &local_tv_sec);
@@ -252,9 +304,9 @@ void ConversationFeatures::print(bool print_extra_features) const
 	}
 	ss << ',';
 	ss << label;
-    
+
 	cout << ss.str() << endl;
-    
+
 }
 
 
@@ -292,19 +344,19 @@ vector<string> ConversationFeatures::get_attr()
 
 	tmp.push_back(to_string((conv->get_duration_ms() / 1000))) ; // Cut fractional part
 
-	if (strcmp(conv->get_protocol_type_str(),"tcp")==0)
+	if (strcmp(conv->get_protocol_type_str(), "tcp") == 0)
 	{
 		tmp.push_back("1");
 		tmp.push_back("0");
 		tmp.push_back("0");
 	} else {
-		if (strcmp(conv->get_protocol_type_str(),"udp")==0)
+		if (strcmp(conv->get_protocol_type_str(), "udp") == 0)
 		{
 			tmp.push_back("0");
 			tmp.push_back("1");
 			tmp.push_back("0");
 		} else {
-			if (strcmp(conv->get_protocol_type_str(),"icmp")==0)
+			if (strcmp(conv->get_protocol_type_str(), "icmp") == 0)
 			{
 				tmp.push_back("0");
 				tmp.push_back("0");
@@ -313,65 +365,70 @@ vector<string> ConversationFeatures::get_attr()
 		}
 	}
 
-	if((strcmp(conv->get_service_str(),"private")==0) or (strcmp(conv->get_service_str(),"ecr_i")==0) or (strcmp(conv->get_service_str(),"http")==0))
+	if ((strcmp(conv->get_service_str(), "private") == 0) or (strcmp(conv->get_service_str(), "ecr_i") == 0) or (strcmp(conv->get_service_str(), "http") == 0))
 	{
-      tmp.push_back("0");
-	  tmp.push_back("1");
-	}else{
-	  tmp.push_back("1");
-	  tmp.push_back("0"); 	
+		tmp.push_back("0");
+		tmp.push_back("1");
+	} else {
+		tmp.push_back("1");
+		tmp.push_back("0");
 	}
 
-	if(strcmp(conv->get_state_str(),"SF")==0)
+	if (strcmp(conv->get_state_str(), "SF") == 0)
 	{
-      tmp.push_back("0");
-	  tmp.push_back("1");
-	}else{
-	  tmp.push_back("1");
-	  tmp.push_back("0");	
+		tmp.push_back("0");
+		tmp.push_back("1");
+	} else {
+		tmp.push_back("1");
+		tmp.push_back("0");
 	}
 
-	
+
 	tmp.push_back(to_string(conv->get_src_bytes())) ;
 	tmp.push_back(to_string(conv->get_dst_bytes())) ;
 
-	
-	if(conv->land()==1)
+
+	if (conv->land() == 1)
 	{
-      tmp.push_back("0");
-	  tmp.push_back("1");
-	}else{
-	  tmp.push_back("1");
-	  tmp.push_back("0");	
+		tmp.push_back("0");
+		tmp.push_back("1");
+	} else {
+		tmp.push_back("1");
+		tmp.push_back("0");
 	}
 
-	
+
 
 	tmp.push_back(to_string(conv->get_wrong_fragments())) ;
 	tmp.push_back(to_string(conv->get_urgent_packets())) ;
 
+	auto bulat = [](double v, double n)->double
+	{
+		return (floor(v * pow(10, n)) / pow(10, n));
+	};
+
 	// Derived time windows features
 	tmp.push_back(to_string(count)) ;
 	tmp.push_back(to_string(srv_count)) ;
-	tmp.push_back(to_string(serror_rate)) ;
-	tmp.push_back(to_string(srv_serror_rate)) ;
-	tmp.push_back(to_string(rerror_rate)) ;
-	tmp.push_back(to_string(srv_rerror_rate)) ;
-	tmp.push_back(to_string(same_srv_rate)) ;
-	tmp.push_back(to_string(diff_srv_rate)) ;
-	tmp.push_back(to_string(get_srv_diff_host_rate()));
+	tmp.push_back(to_string(bulat(serror_rate, 4))) ;
+	tmp.push_back(to_string(bulat(srv_serror_rate, 4))) ;
+	tmp.push_back(to_string(bulat(rerror_rate, 4))) ;
+	tmp.push_back(to_string(bulat(srv_rerror_rate, 4))) ;
+	tmp.push_back(to_string(bulat(same_srv_rate, 4))) ;
+	tmp.push_back(to_string(bulat(diff_srv_rate, 4))) ;
+	tmp.push_back(to_string(bulat(get_srv_diff_host_rate(), 4)));
 
 	// Derived connection count window features
 	tmp.push_back(to_string(dst_host_count)) ;
 	tmp.push_back(to_string(dst_host_srv_count)) ;
-	tmp.push_back(to_string(dst_host_same_srv_rate)) ;
-	tmp.push_back(to_string(dst_host_diff_srv_rate)) ;
-	tmp.push_back(to_string(dst_host_same_src_port_rate)) ;
-	tmp.push_back(to_string(get_dst_host_srv_diff_host_rate())) ;
-	tmp.push_back(to_string(dst_host_serror_rate)) ;
-	tmp.push_back(to_string(dst_host_srv_serror_rate)) ;
-	tmp.push_back(to_string(dst_host_rerror_rate)) ;
-	tmp.push_back(to_string(dst_host_srv_rerror_rate));
+	tmp.push_back(to_string(bulat(dst_host_same_srv_rate, 4))) ;
+	tmp.push_back(to_string(bulat(dst_host_diff_srv_rate, 4))) ;
+	tmp.push_back(to_string(bulat(dst_host_same_src_port_rate, 4))) ;
+	tmp.push_back(to_string(bulat(get_dst_host_srv_diff_host_rate(), 4)));
+	tmp.push_back(to_string(bulat(dst_host_serror_rate, 4))) ;
+	tmp.push_back(to_string(bulat(dst_host_srv_serror_rate, 4)));
+	tmp.push_back(to_string(bulat(dst_host_rerror_rate, 4)));
+	tmp.push_back(to_string(bulat(dst_host_srv_rerror_rate, 4)));
 
 	return tmp;
 }

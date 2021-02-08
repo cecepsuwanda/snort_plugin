@@ -138,7 +138,7 @@ vector<field_filter> Tdataframe::get_filter()
 
 void Tdataframe::to_lower(string &str)
 {
-  for (int i = 0; i < str.length(); ++i)
+  for (size_t i = 0; i < str.length(); ++i)
   {
     str[i] = toupper(str[i]);
   }
@@ -156,12 +156,12 @@ bool Tdataframe::is_pass(vector<string> &data)
       switch (it->idx_opt)
       {
       case 0 : {
-        pass = stof(data[it->idx_col]) <= stof(it->value);
+        pass = (abs(stof(data[it->idx_col])-stof(it->value))<=0.01) or ((abs(stof(data[it->idx_col])-stof(it->value))>0.01) and (stof(data[it->idx_col]) < stof(it->value))) ;
         break;
       }
       case 1 : {
 
-        pass = stof(data[it->idx_col]) > stof(it->value);
+        pass =  (abs(stof(data[it->idx_col])-stof(it->value))>0.01) and (stof(data[it->idx_col]) > stof(it->value));
         break;
       }
       case 2 : {
@@ -561,7 +561,7 @@ void Tdataframe::write_data(vector<string> &data)
   {
     if (_data.open_file("w+"))
     {
-      for (int i = 0; i < data.size(); ++i)
+      for (size_t i = 0; i < data.size(); ++i)
       {
         _data.write_file(data[i]);
       }

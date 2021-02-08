@@ -30,7 +30,7 @@ private:
   vector<string> _data_header;
   vector<string> _data_type;
   vector<field_filter> _filter;
-  map<string, int> _stat_label;
+  Tlabel_stat _stat_label;
 
   int _jml_col = 0;
   int _jml_row = 0;
@@ -40,10 +40,8 @@ private:
 
   bool is_index = false;
 
-  static void continue_below(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label);
-  static void continue_above(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label);
-
-  static void calculate_metric(bool is_continuous, int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_metric, string &split_value);
+  
+  void calculate_metric(bool is_continuous, int start, int end, vector<Tbelow_above> &_col_pot_split, float &current_metric, string &split_value, float &sum_entropy);
 
   void cetak ( const char * format, ... );
 public:
@@ -76,11 +74,12 @@ public:
   bool is_pass(int opt, string value1, string value2);
   void stat_tabel();
   map<string, int> get_stat_label();
+  float get_entropy();
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
   void get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split);
-  void calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_overall_metric, string &split_value);
+  void calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_overall_metric, string &split_value, float &sum_entropy);
 
   bool open_file();
   void read_file();

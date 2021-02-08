@@ -60,33 +60,52 @@ map<int, map<string, int>> Tdec_tree::get_potential_splits(Tdataframe &df)
 void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
 {
   //cout << "determine_best_split " << endl;
-  float current_overall_metric, best_overall_metric = 999;
+  float current_overall_metric, max_gain = 0, gain = 0, sum_entropy = 0;
   bool first_iteration = true;
   string current_split_value;
   map<Tmy_dttype, Tlabel_stat> _col_pot_split;
+  float pure_entropy = df.get_entropy();
+
+  split_column = -1;
+  split_value = "-1";
 
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
 
     //cout << "          Kolom " << df.get_nm_header(i) << endl;
-    if((i%10)==0)
-    {
-      cetak(".");
-    }
+    // if((i%10)==0)
+    // {
+    //   cetak(".");
+    // }
 
     df.get_col_pot_split(i, _col_pot_split);
-    df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
+    df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value, sum_entropy);
 
     //cout << "          current_overall_metric : " << current_overall_metric << endl;
 
-    if (first_iteration or (current_overall_metric <= best_overall_metric))
+    gain = pure_entropy - sum_entropy;
+
+    if (first_iteration or (max_gain <= gain))
     {
+      // if (gain >= 0)
+      // {
+
       first_iteration = false;
 
-      best_overall_metric = current_overall_metric;
+      /*cetak("{");
+      cetak(to_string(i).c_str());
+      cetak(",");
+      cetak(to_string(pure_entropy).c_str());
+      cetak(",");
+      cetak(to_string(sum_entropy).c_str());
+      cetak(",");
+      cetak(to_string(gain).c_str());
+      cetak("}");*/
+
+      max_gain = gain;
       split_column = i;
       split_value = current_split_value;
-
+      // }
       // cout << "                    best_overall_metric : " << best_overall_metric << endl;
       // cout << "                    split_column        : " << df.get_nm_header(split_column) << endl;
       // cout << "                    split_value         : " << split_value << endl;
@@ -155,7 +174,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
       //df_svm.clear_memory();
 
-      my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
+      my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
 
 
     }
@@ -191,7 +210,10 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
     Tdataframe df_below, df_above;
     df_below = df;
     df_above = df;
+
+
     df.split_data(split_column, split_value, df_below, df_above);
+
 
     if ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) {
       string tmp_str = create_leaf(df);
@@ -213,7 +235,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         // df_svm.clear_memory();
 
-        my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
+        my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
 
       }
       //cout << "label : " << tmp_str << endl;
@@ -291,12 +313,12 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
           // df_svm.clear_memory();
 
-          my_svm.save_model(model_path+"/svm_model_" + to_string(idx_svm) + ".csv");
+          my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
 
 
-          string filename = model_path+"/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+          string filename = model_path + "/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
           remove(filename.c_str());
-          filename = model_path+"/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+          filename = model_path + "/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
           remove(filename.c_str());
 
           df.clear_memory();
@@ -367,7 +389,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     if ((label == "normal") and (tree[leafNode].idx_svm != -1))
     {
       Tmy_svm my_svm;
-      string nm_model = model_path+"/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
+      string nm_model = model_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
       my_svm.load_model(nm_model);
       vector<string> tmp_data;
       for (int i = 0; i < vec_attr.size(); ++i)

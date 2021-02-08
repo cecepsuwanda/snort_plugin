@@ -37,7 +37,7 @@ public:
 	{
 		if (_is_continue)
 		{
-			return ((abs((stof(_value) - stof(rhs._value))) > 0.1) and (stof(_value) < stof(rhs._value)));
+			return  (stof(_value) < stof(rhs._value));
 		} else {
 			
 			return (_lower_value < rhs._lower_value);

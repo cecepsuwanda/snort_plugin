@@ -257,6 +257,13 @@ bool Tdataframe::is_pass(int opt, string value1, string value2)
 
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
+
+  // cetak("{ split ");
+  // cetak(to_string(split_column).c_str());
+  // cetak(",");
+  // cetak(split_value.c_str());
+  // cetak("}");
+
   _data.clear_memory();
   //cout << "split_data"<<endl;
   if (_data_type[split_column] == "continuous.")
@@ -310,21 +317,23 @@ void Tdataframe::stat_tabel()
           _data.add_index();
         }
 
-        if (_stat_label.size() > 0)
-        {
-          it = _stat_label.find(tmp_data[_jml_col - 1]);
-          if (it == _stat_label.end())
-          {
-            //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
-            _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
-          } else {
-            it->second += 1;
-          }
-        } else {
-          //cout << "data baru" << _jml_col << tmp_data.size() << endl;
-          //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
-          _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
-        }
+        _stat_label.add(tmp_data[_jml_col - 1]);
+
+        // if (_stat_label.size() > 0)
+        // {
+        //   it = _stat_label.find(tmp_data[_jml_col - 1]);
+        //   if (it == _stat_label.end())
+        //   {
+        //     //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+        //     _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
+        //   } else {
+        //     it->second += 1;
+        //   }
+        // } else {
+        //   //cout << "data baru" << _jml_col << tmp_data.size() << endl;
+        //   //cout << _jml_col << " " << tmp_data[_jml_col-1] << endl;
+        //   _stat_label.insert(pair<string, int>(tmp_data[_jml_col - 1], 1));
+        // }
 
         i++;
       }
@@ -349,13 +358,14 @@ void Tdataframe::stat_tabel()
 
 map<string, int> Tdataframe::get_stat_label()
 {
-  return _stat_label;
+  return _stat_label.get_map();
 }
 
 
 
 void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split)
 {
+  //cetak(" get_col_pot_split ");
   //cout << "get_col_pot_split " << idx <<endl;
   map<Tmy_dttype, Tlabel_stat>::iterator it;
   map<string, int>::iterator it_pot_struct;
@@ -409,261 +419,224 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
   }
 }
 
-void Tdataframe::continue_below(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label)
+
+
+void Tdataframe::calculate_metric(bool is_continuous, int start, int end, vector<Tbelow_above> &_col_pot_split, float &current_metric, string &split_value, float &sum_entropy)
 {
-  auto it_find = _col_pot_split.find(find);
-  if (it_find != _col_pot_split.end())
-  {
-    it_find++;
-    for (auto it = _col_pot_split.begin(); it != it_find; it++) {
-      stat_label = stat_label + it->second;
-    }
-  }
-}
 
-void Tdataframe::continue_above(Tmy_dttype find, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, Tlabel_stat &stat_label)
-{
-  auto it_find = _col_pot_split.find(find);
-  if (it_find != _col_pot_split.end())
-  {
-    it_find++;
-    for (auto it = it_find; it != _col_pot_split.end(); it++) {
-      stat_label = stat_label + it->second;
-    }
-  }
-}
-
-void Tdataframe::calculate_metric(bool is_continuous, int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float &current_metric, string &split_value)
-{
-  float best_overall_metric = 999;
-  string tmp_split_value;
-
-  map<Tmy_dttype, Tlabel_stat>::iterator it, it1, it_start, it_end;
-
-  bool is_below;
-  bool first_iteration = true;
-  float p_dt_above, p_dt_below, entropy_below, entropy_above, overall_metric;
-  int jml;
-
-  Tlabel_stat _stat_label_above;
-  Tlabel_stat _stat_label_below;
-
-
-
-  if (_col_pot_split.size() > 0)
-  {
-
-    if (start == 1)
-    {
-      it_start = _col_pot_split.begin();
-    } else {
-      int i = 1;
-      it1 = _col_pot_split.begin();
-      while ( (i <= start) and (it1 != _col_pot_split.end()))
-      {
-        it1++;
-        i++;
-      }
-      it_start = it1;
-
-    }
-
-    if (end == _col_pot_split.size())
-    {
-      it_end = _col_pot_split.end();
-    } else {
-      int i = 1;
-      it1 = _col_pot_split.begin();
-      while ( (i <= end) and (it1 != _col_pot_split.end()))
-      {
-        it1++;
-        i++;
-      }
-      it_end = it1;
-    }
-
-    for (it = it_start; it != it_end; ++it)
-    {
-
-      _stat_label_below.clear();
-      _stat_label_above.clear();
-
-
-      if (is_continuous)
-      {
-        //continue_below(it->first, _col_pot_split, _stat_label_below);
-        //continue_above(it->first, _col_pot_split, _stat_label_above);
-        thread t1(&Tdataframe::continue_below, it->first, ref(_col_pot_split), ref(_stat_label_below));
-        thread t2(&Tdataframe::continue_above, it->first, ref(_col_pot_split), ref(_stat_label_above));
-
-        t1.join();
-        t2.join();
-
-      } else {
-        // for (it1 = _col_pot_split.begin(); it1 != _col_pot_split.end(); ++it1)
-        // {
-        //   is_below =  it1->first == it->first ;
-
-        //   if (is_below)
-        //   {
-        //     _stat_label_below = _stat_label_below + it1->second;
-
-        //   } else {
-        //     _stat_label_above = _stat_label_above + it1->second;
-
-        //   }
-
-        // }
-      }
-
-      jml = _stat_label_below.get_jml_row() + _stat_label_above.get_jml_row();
-      p_dt_below = (float) _stat_label_below.get_jml_row() / jml;
-      p_dt_above = (float) _stat_label_above.get_jml_row() / jml;
-
-      entropy_below = _stat_label_below.get_entropy();
-      entropy_above = _stat_label_above.get_entropy();
-
-
-      overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
-
-
-      if (first_iteration or (overall_metric <= best_overall_metric))
-      {
-        first_iteration = false;
-
-        best_overall_metric = overall_metric;
-        Tmy_dttype tmp_pot_split_holder = it->first;
-        tmp_split_value = tmp_pot_split_holder.get_string();
-      }
-    }
-    current_metric = best_overall_metric;
-    split_value = tmp_split_value;
-  }
 
 }
 
-void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
+void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, float &sum_entropy)
 {
+  //cetak(" calculate_overall_metric ");
   //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
 
   if (_col_pot_split.size() > 0)
   {
 
+    vector<Tbelow_above> vec_col_pot_split;
 
-    std::vector<Tbelow_above> vec_col_pot_split;
-
-    int i = 0;
-    for (auto it = _col_pot_split.begin(); it != _col_pot_split.end(); it++)
+    if (_col_pot_split.size() == 1)
     {
+      //cetak("==1");
+      auto itr = _col_pot_split.begin();
+      
       Tbelow_above ba;
-      ba.set_value(it->first);
-
-      if (i>0)
-      {
-        ba.add_below(it->second+vec_col_pot_split[i-1].get_below());
-      }
-      else {
-        ba.add_below(it->second);
-      }
+      ba.set_value((*itr).first);
+      ba.add_below((*itr).second);
 
       vec_col_pot_split.push_back(ba);
-      i++;
-    }
-    
-    i-=2;
-    int j=0;
-    for (auto it = _col_pot_split.rbegin(); it !=_col_pot_split.rend();it++)
-    {
-      if((j>0) and (i>=0))
-      {
-        vec_col_pot_split[i].add_above(vec_col_pot_split[i+1].get_above()+it->second);
-      }else
-      {
-        if(i>0){   
-         vec_col_pot_split[i].add_above(it->second); 
-         }
-      }
-      j++;
-      i--;
-    }
 
-
-
-    if (_col_pot_split.size() < 10000)
-    {
-      float best_overall_metric;
-      string tmp_split_value;
-      thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1, _col_pot_split.size(), ref(_col_pot_split), ref(best_overall_metric), ref(tmp_split_value));
-      t1.join();
-      current_overall_metric = best_overall_metric;
-      split_value = tmp_split_value;
     } else {
-      float best_overall_metric = 999, best_overall_metric1, best_overall_metric2;
-      string tmp_split_value, tmp_split_value1, tmp_split_value2;
 
-      int jml_loop = _col_pot_split.size() / 5000;
+      //cetak(" >2 ");
 
-      if ((5000 * jml_loop) < _col_pot_split.size()) {
-        jml_loop += 1;
+      float jml = 0, is_pure = 0;
+
+      for (auto itr = _col_pot_split.begin(); itr != _col_pot_split.end() ; itr++)
+      {
+        if ((*itr).second.get_jml_row_in_map() == 1)
+        {
+          is_pure++;
+        }
+        jml++;
       }
 
-      cetak(to_string(jml_loop).c_str());
-      cetak("|");
-
-      for (int i = 1; i <= jml_loop; i += 2)
+      if (is_pure == jml)
       {
-        cetak(to_string(i).c_str());
+        cetak(" >2 pure ");
 
-        thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + ((i - 1) * 5000), 5000 * i, ref(_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1));
-        thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + (i * 5000), 5000 * (i + 1), ref(_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2));
+        Tlabel_stat _stat_label_below;
 
-        cetak("t1");
-        t1.join();
-        cetak("t2");
-        cetak("|");
-        t2.join();
+        string prev_label;
+        Tmy_dttype prev_key;
+        Tlabel_stat prev_map;
+        bool is_first = true;
+        string tmp_string;
 
-
-
-        if (best_overall_metric1 < best_overall_metric)
+        for (auto itr = _col_pot_split.begin(); itr != _col_pot_split.end() ; itr++)
         {
-          best_overall_metric = best_overall_metric1;
-          tmp_split_value = tmp_split_value1;
+          _stat_label_below = _stat_label_below + (*itr).second;
+
+          if ((*itr).second.get_jml_row_in_map() == 1)
+          {
+
+            tmp_string = (*itr).second.get_first_value_in_map();
+
+
+            if ((!is_first) and (prev_label != tmp_string))
+            {
+              Tmy_dttype tmp = (*itr).first;
+              string tmp_str = to_string((stof(prev_key.get_string()) + stof(tmp.get_string())) / 2);
+              Tmy_dttype mid_point(tmp_str, true);
+
+              Tbelow_above ba;
+              ba.set_value(mid_point);
+              ba.add_below(_stat_label_below);
+              Tlabel_stat tmp_stat = _stat_label - _stat_label_below;
+              ba.add_above(tmp_stat);
+
+              vec_col_pot_split.push_back(ba);
+              //cetak(" ada 1 !!");
+            }
+
+            prev_label = tmp_string;
+            prev_key = (*itr).first;
+            prev_map = (*itr).second;
+            is_first = false;
+
+          }
+
+
         }
 
-        if (best_overall_metric2 < best_overall_metric)
+        _stat_label_below.clear();
+
+      } else {
+
+
+
+        Tlabel_stat _stat_label_below;
+        Tmy_dttype prev_key, next_key;
+
+        if (jml > 2)
         {
-          best_overall_metric = best_overall_metric2;
-          tmp_split_value = tmp_split_value2;
+          //cetak("{>2 1}");
+
+          int posisi_mid = ceil(jml / 2);
+
+          int j = 0;
+          auto itr =  _col_pot_split.begin();
+          while ((j < posisi_mid) and (itr != _col_pot_split.end()))
+          {
+            _stat_label_below = _stat_label_below + (*itr).second;
+
+            j++;
+            itr++;
+          }
+
+          prev_key = (*itr).first;
+          itr++;
+          next_key = (*itr).first;
+          
+
+        } else {
+
+          //cetak("{>2 2}");
+
+          auto itr =  _col_pot_split.begin();
+          prev_key = (*itr).first;
+          _stat_label_below = _stat_label_below + (*itr).second;
+          itr++;
+          next_key = (*itr).first;
         }
+
+
+        
+        string tmp_str = to_string((stof(prev_key.get_string()) + stof(next_key.get_string())) / 2);
+        Tmy_dttype mid_point(tmp_str, true);
+
+        Tbelow_above ba;
+        ba.set_value(mid_point);
+        ba.add_below(_stat_label_below);
+        ba.add_above(_stat_label - _stat_label_below);
+
+        vec_col_pot_split.push_back(ba);
+
+        _stat_label_below.clear();
+        
+
+      }
+      
+    }
+
+    auto it = _col_pot_split.begin();
+    while (it != _col_pot_split.end())
+    {
+      it->second.clear();
+      it++;
+    }
+
+    _col_pot_split.clear();
+
+
+
+    if (vec_col_pot_split.size() > 0)
+    {
+
+
+      float best_overall_metric = 999, overall_metric, tmp_sum_entropy = 0;
+      string tmp_split_value;
+
+      bool first_iteration = true;
+
+      for (auto i = 0; i < vec_col_pot_split.size(); i++)
+      {
+
+        overall_metric = vec_col_pot_split[i].get_overall_metric();
+        tmp_sum_entropy += overall_metric;
+
+        if (first_iteration or (overall_metric <= best_overall_metric))
+        {
+          first_iteration = false;
+
+          best_overall_metric = overall_metric;
+          tmp_split_value = vec_col_pot_split[i].get_value().get_string();
+        }
+
       }
 
       current_overall_metric = best_overall_metric;
       split_value = tmp_split_value;
-    }
+      sum_entropy = tmp_sum_entropy;      
 
-
-
-    if (_col_pot_split.size() > 0)
-    {
-      map<Tmy_dttype, Tlabel_stat>::iterator it = _col_pot_split.begin();
-      while (it != _col_pot_split.end())
+      for (int i = 0; i < vec_col_pot_split.size(); i++)
       {
-        it->second.clear();
-        it++;
-      }
-
-      _col_pot_split.clear();
-
-      for(int i=0;i<vec_col_pot_split.size();i++)
-      {
-         vec_col_pot_split[i].clear();
+        vec_col_pot_split[i].clear();
       }
 
       vec_col_pot_split.clear();
+      vec_col_pot_split.shrink_to_fit();      
 
     }
+
+    
+
+    //cetak(">2 -hapus 2-");
   }
+
+
+
+  //     thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + ((i - 1) * 5000), 5000 * i, ref(vec_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1), ref(tmp_sum_entropy1));
+  //     thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + (i * 5000), 5000 * (i + 1), ref(vec_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2), ref(tmp_sum_entropy2));
+
+  //     // cetak("t1");
+  //     t1.join();
+  //     // cetak("t2");
+  //     // cetak("|");
+  //     t2.join();
+
 
 
 }
@@ -743,12 +716,11 @@ void Tdataframe::info()
   cout << " Info" << endl;
   cout << " Nama File   : " << _nm_file << endl;
   cout << " Jumlah Data : " << _jml_row << endl;
-  cout << " Statistik   : " << endl;
-  if (_stat_label.size() > 0)
-  {
-    cout << setw(30) << "label" << setw(10) << "Jumlah" << endl;
-    for (auto it = _stat_label.begin(); it != _stat_label.end(); ++it) {
-      cout << setw(30) << (*it).first << setw(10) << (*it).second << endl;
-    }
-  }
+
+  cout << _stat_label << endl ;
+}
+
+float Tdataframe::get_entropy()
+{
+  return _stat_label.get_entropy();
 }

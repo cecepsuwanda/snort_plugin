@@ -330,7 +330,7 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
 
   int criteriaAttrIndex = tree[treeIndex].criteriaAttrIndex;
 
-  for (int i = 0; i < tree[treeIndex].children.size(); i++) {
+  for (size_t i = 0; i < tree[treeIndex].children.size(); i++) {
     int next = tree[treeIndex].children[i];
 
     //if (tree[next].isLeaf)
@@ -356,6 +356,13 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
   int leafNode = dfs(df, data, 0);
 
   if (leafNode == -1) {
+    
+     /*for (size_t i = 0; i < data.size(); ++i)
+      {
+        cout << data[i] <<",";
+      } 
+        cout << "dfs_failed." << endl;*/
+
     return "dfs_failed.";
   } else {
     label = tree[leafNode].label;
@@ -365,7 +372,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
       string nm_model = model_path+"/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
       my_svm.load_model(nm_model);
       vector<string> tmp_data;
-      for (int i = 0; i < vec_attr.size(); ++i)
+      for (size_t i = 0; i < vec_attr.size(); ++i)
       {
         if (vec_attr[i] != -1) {
           tmp_data.push_back(data[vec_attr[i]]);
@@ -439,7 +446,7 @@ void Tdec_tree::save_tree(Tdataframe &df)
   string tmp_str = "";
   vector<string> vec;
 
-  for (int i = 0; i < tree.size(); ++i)
+  for (size_t i = 0; i < tree.size(); ++i)
   {
     tmp_str = to_string(tree[i].criteriaAttrIndex) + "," + tree[i].attrValue + "," + tree[i].label + "," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
 

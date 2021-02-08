@@ -7,15 +7,17 @@ using namespace std;
 
 void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_dataframe &df_save)
 {
-	vector<string> vec;
+	
 
 	if (df_label.getjmlrow() > 0)
 	{
 		if (df_label.open_file())
 		{
-			//Tconf_metrix conf_metrix;
+		    vector<string> vec;
+
+		    Tconf_metrix conf_metrix;
 			string label;
-			df_label.read_file();
+			// df_label.read_file();
 			vector<string> tmp_data;
 			int i = 0;
 			while (!df_label.is_eof())
@@ -26,17 +28,19 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 				{
 					//cout << tmp_data[tmp_data.size()-3] << " " << tmp_data[tmp_data.size()-2] << " " << tmp_data[tmp_data.size()-5] << " " << tmp_data[tmp_data.size()-4] << " " << tmp_data[tmp_data.size() - 9] << " " << tmp_data[tmp_data.size() - 8] << " " << tmp_data[tmp_data.size() - 7] << " " << tmp_data[tmp_data.size() - 6] << " " << tmp_data[2] <<endl;
 					label = df_list.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[2]);
-					//conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
+					conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
 					for (int j = 0; j < 28; ++j)
 					{
 						tmp_str += tmp_data[j] + ",";
 					}
 
 					tmp_str += label;
-					vec.push_back(tmp_str);
+					// vec.push_back(tmp_str);
+
+					cout << tmp_str << endl;
 
 				} else {
-					//cout << tmp_data[0] << endl;
+					
 				}
 
 
@@ -46,19 +50,19 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 				i++;
 				if ((i % 10000) == 0)
 				{
-					cout << ".";
+					//cout << ".";
 				}
 			}
 			df_label.close_file();
 
 			cout << endl;
-			df_save.write_data(vec);
+			//df_save.write_data(vec);
 
 			vec.clear();
 			vec.shrink_to_fit();
 
-			//conf_metrix.kalkulasi();
-			//cout << conf_metrix << endl;
+			conf_metrix.kalkulasi();
+			cout << conf_metrix << endl;
 		} else {
 			cout << "Gagal Buka File !!!" << endl;
 		}
@@ -240,7 +244,7 @@ int main(int argc, char const *argv[])
 {
 
 	proses_labeling1(argv);
-	cek_ricek(argv);
+	//cek_ricek(argv);
 
 	//proses_labeling2(argv);
 

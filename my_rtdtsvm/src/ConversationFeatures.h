@@ -4,7 +4,7 @@
 #include <string.h>
 #include <string>
 #include "Conversation.h"
-
+#include <cmath>
 
 namespace FeatureExtractor {
 using namespace std;

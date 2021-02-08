@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iterator>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -21,7 +22,12 @@ public:
 	void add(string value);
 	void clear();
     int get_jml_row();
+
     float get_entropy();
+    map<string, int> get_map();
+
+    int get_jml_row_in_map();
+    string get_first_value_in_map();
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{
@@ -68,8 +74,42 @@ public:
 		return tmp;
 	}
 
+	const Tlabel_stat operator - (const Tlabel_stat &t) const
+	{
+		Tlabel_stat tmp;
+
+		tmp._jml_row =  this->_jml_row - t._jml_row;
+
+		tmp._map.clear();
+
+        
+        for (auto it = this->_map.begin(); it != this->_map.end(); it++)
+		{
+			auto it1 = t._map.find(it->first);
+			if (it1 == t._map.end())
+			{
+				tmp._map.insert(pair<string, int>(it->first, it->second));
+			} else {
+				tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
+			}
+		}
+
+		for (auto it = t._map.begin(); it != t._map.end(); it++)
+		{
+			auto it1 = tmp._map.find(it->first);
+			if (it1 == tmp._map.end())
+			{
+				tmp._map.insert(pair<string, int>(it->first, -it->second));
+			}
+		}		  
+
+		
+
+		return tmp;
+	}
 
 
+    friend ostream & operator << (ostream & out, const Tlabel_stat & tc);
 
 };
 

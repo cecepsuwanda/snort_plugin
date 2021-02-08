@@ -161,7 +161,9 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 
 			cf->set_label(tmp_str);
 
-			cf->print(config->should_print_extra_features());
+            //if(tmp_str=="dfs_failed."){
+			  cf->print(config->should_print_extra_features());
+            //}
 
 			delete cf;
 			tmp.clear();
