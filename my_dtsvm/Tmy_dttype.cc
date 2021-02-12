@@ -4,6 +4,7 @@
 Tmy_dttype::Tmy_dttype()
 {
 	_is_continue = false;
+	_value = "-1";
 }
 
 Tmy_dttype::~Tmy_dttype()
@@ -16,10 +17,26 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	_value = value;
 	_lower_value = value;
 	_is_continue = is_continue;
-	if(~_is_continue)
+	if (!_is_continue)
 	{
-      _lower_value = to_lower(_value);
+		to_lower(_lower_value);
 	}
+}
+
+void Tmy_dttype::set_value(string value, bool is_continue)
+{
+	_value = value;
+	_lower_value = value;
+	_is_continue = is_continue;
+	if (!_is_continue)
+	{
+		to_lower(_lower_value);
+	}
+}
+
+string Tmy_dttype::get_value()
+{
+	return _value;
 }
 
 string Tmy_dttype::to_lower(const string str)

@@ -63,4 +63,20 @@ float Tbelow_above::get_overall_metric()
 	return overall_metric;
 }
 
+float Tbelow_above::get_split_info()
+{
+	int jml = _below.get_jml_row() + _above.get_jml_row();
+	float p_dt_below = (float) _below.get_jml_row() / jml;
+	float p_dt_above = (float) _above.get_jml_row() / jml;
+
+	float split_info = 0; 
+	if(p_dt_below>0){   
+	  split_info += (p_dt_below  * (-1 * log2(p_dt_below)));
+	}
+	if(p_dt_above>0){
+	  split_info += (p_dt_above  * (-1 * log2(p_dt_above)));
+	}
+	return split_info;
+}
+
 

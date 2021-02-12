@@ -29,6 +29,7 @@ public:
 	Tlabel_stat get_above();
 
 	float get_overall_metric();
+	float get_split_info();
 
 	void clear();
 	

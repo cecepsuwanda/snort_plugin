@@ -27,35 +27,89 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
+Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only)
+{
+	_feature_selection = feature_selection;
+	_normal_only = normal_only;
+
+	param.svm_type = ONE_CLASS;
+	param.kernel_type = RBF;
+	param.degree = 3;
+	param.gamma = 0.0001;    // 1/num_features
+	param.coef0 = 0;
+	param.nu = 0.01;
+	param.cache_size = 100;
+	param.C = 1;
+	param.eps = 1e-3;
+	param.p = 0.1;
+	param.shrinking = 0;
+	param.probability = 0;
+	param.nr_weight = 0;
+	param.weight_label = NULL;
+	param.weight = NULL;
+
+	void (*print_func)(const char*) = NULL;	// default printing to stdout
+	print_func = &print_null;
+	svm_set_print_string_function(print_func);
+
+	is_read_problem = false;
+}
+
 Tmy_svm::~Tmy_svm()
 {
-	//cout << "my_svm destroy" << endl;
-	svm_free_and_destroy_model(&model);
-	svm_destroy_param(&param);
-	if (is_read_problem) {
-		free(prob.y);
-		free(prob.x);
-	}
-	free(x_space);
+	// cetak("{ my_svm");
+	// svm_free_and_destroy_model(&model);
+	// svm_destroy_param(&param);
+	// if (is_read_problem) {
+	// 	free(prob.y);
+	// 	free(prob.x);
+	// 	free(x_space);
+	// }
+
+	// cetak(" }");
+}
+
+static void cetak_stdout(const char *s)
+{
+	fputs(s, stdout);
+	fflush(stdout);
+}
+
+void Tmy_svm::cetak ( const char * format, ... )
+{
+	char buffer[256];
+	va_list args;
+	va_start (args, format);
+	vsprintf (buffer, format, args);
+	//perror (buffer);
+	va_end (args);
+	cetak_stdout(buffer);
 }
 
 
 
 void Tmy_svm::read_problem(Tdataframe &df)
 {
-
+    df.ReFilter();
+	
 	size_t elements, j, i;
 	char *endptr;
 
 	vector<field_filter> df_filter;
 	df_filter = df.get_filter();
 
-	// for (int i = 0; i < df_filter.size(); ++i)
-	// {
+	map<int, int> kolom;
 
-	//   cout << df_filter[i].idx_col << endl;
-	// }
-	// cout << "-----" << endl;
+	for (int i = 0; i < df_filter.size(); ++i)
+	{
+        auto itr = kolom.find(df_filter[i].idx_col);
+        if(itr==kolom.end()){
+	      kolom.insert(pair<int,int>(df_filter[i].idx_col,1));
+        }else{
+           itr->second+=1;	
+        }
+	}
+	
 
 	if (df.open_file())
 	{
@@ -65,32 +119,75 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 		//cout << stat_label["normal"] << endl;
 
-		prob.l = stat_label["normal"];
-		elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+		// cetak("{vid:");
+		// cetak(to_string(df.get_id()).c_str());
+		// cetak("}");
 
+		size_t prm1;
+		size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol()-1) );
+
+		if ((stat_label.size() > 1) and (!_normal_only))
+		{
+			prm1 = df.getjmlrow();
+		} else {
+			prm1 = stat_label["normal"];
+		}
+
+ 
+
+		prob.l = prm1;
+		elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+
+ 
 		prob.y = Malloc(double, prob.l);
 		prob.x = Malloc(struct svm_node *, prob.l);
 		x_space = Malloc(struct svm_node, elements);
 
+		cetak(" {");
+		cetak(to_string(prm1).c_str());
+		cetak(",");
+		cetak(to_string(prm2).c_str());
+		cetak(",");
+		cetak(to_string(elements).c_str());
+		cetak(",");
+		cetak(to_string(df.getjmlrow()).c_str());
+		cetak(",");
+		cetak(to_string(stat_label["attack"]).c_str());
+		cetak("} ");		
+		
 		j = 0;
 		i = 0;
 		while (!df.is_eof())
 		{
 			vector<string> tmp = df.get_record();
-			if (df.is_pass(tmp) and (tmp[tmp.size() - 1] == "normal"))
+
+			bool is_pass = (_normal_only ? ( df.is_pass(tmp) and  (tmp[tmp.size() - 1].compare("normal")==0)) : df.is_pass(tmp));
+
+			if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
 			{
-				prob.x[i] = &x_space[j];
-				prob.y[i] = 1;
+				
+				//if ((i < prm1))
+				//{
 
-				for (int k = 0; k < (df_filter.size()); k++) {
+					prob.x[i] = &x_space[j];
+					prob.y[i] = 1;
 
-					x_space[j].index = k;
-					string str = tmp[df_filter[k].idx_col];
-					x_space[j].value = strtod(str.c_str(), &endptr);
+                    auto itr = kolom.begin(); 
+					for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
-					++j;
-				}
-				x_space[j++].index = -1;
+						x_space[j].index = k;
+						string str = ( _feature_selection ? tmp[itr->first] : tmp[k]);  //string str = tmp[df_filter[k].idx_col];
+						x_space[j].value = strtod(str.c_str(), &endptr);
+
+                        if(itr!=kolom.end()){
+						 itr++;                    
+                        }
+						++j;
+					}
+
+					x_space[j++].index = -1;
+				//}
+
 				i++;
 			}
 
@@ -100,13 +197,21 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			df.next_record();
 
 		}
+
+        
+
 		df.close_file();
 		//cout << i << endl;
 		is_read_problem = true;
+
 	}
 
 	df_filter.clear();
 	df_filter.shrink_to_fit();
+	kolom.clear();
+
+	df.clear_memory();
+
 }
 
 
@@ -126,26 +231,30 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 		exit(1);
 	}
 
-	//cout << "start train " << endl;
+	cetak(" {train");
 	model = svm_train(&prob, &param);
-	//cout << "end train " << endl;
+	cetak("}");
 
-	//free(prob.y);
-	//free(prob.x);
-	//free(x_space);
+	free(prob.y);
+	free(prob.x);
+	free(x_space);
 
 }
 
 void Tmy_svm::save_model(string nm_file)
 {
+	
+    cetak("{ save nSV = ");
+    cetak(to_string(model->l).c_str());
 	if (svm_save_model(nm_file.c_str(), model))
 	{
 		fprintf(stderr, "can't save model to file %s\n", nm_file.c_str());
 		exit(1);
 	}
+    cetak(" }");
 
-	//svm_free_and_destroy_model(&model);
-	//svm_destroy_param(&param);
+	svm_free_and_destroy_model(&model);
+	svm_destroy_param(&param);
 }
 
 void Tmy_svm::load_model(string nm_file)
@@ -206,6 +315,8 @@ void Tmy_svm::test(Tdataframe &df)
 	}
 	df.close_file();
 
+	free(x_space);
+
 	conf_metrix.kalkulasi();
 	cout << conf_metrix << endl;
 }
@@ -228,6 +339,8 @@ string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 	double predict_label = svm_predict(model, x_space);
 
 	//cout << predict_label << endl;
+
+	free(x_space);
 
 	string label = "normal";
 	if (predict_label == -1)

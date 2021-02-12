@@ -1,6 +1,7 @@
 
 #include <chrono>
 #include <iostream>
+//#include "Tbase_dataframe.h"
 #include "Tdec_tree.h"
 
 using namespace std;
@@ -8,7 +9,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   Tdataframe df_train, df_test, df_save;
-  Tdec_tree dec_tree;
+  Tdec_tree dec_tree(stoi(argv[10]),stoi(argv[11]),stoi(argv[12]));
   char *endptr;
 
   string s(argv[8]);
@@ -17,9 +18,9 @@ int main(int argc, char *argv[])
 
   if (stoi(argv[9]) == 1)
   {
-
     df_train.read_data(argv[6]);
     df_train.read_data_type(argv[5]);
+    df_train.set_id(0);
     df_train.info();
 
     cout << "Train : Jumlah Baris : " << df_train.getjmlrow() << " Jumlah Kolom : " << df_train.getjmlcol() << endl;
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
   // my_svm.save_model(argv[7]);
 
   // my_svm.load_model(argv[7]);
-  // my_svm.test(df_test);
+  // my_svm.test(df_test); 
 
   return 0;
 }

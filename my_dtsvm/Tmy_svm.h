@@ -1,6 +1,10 @@
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
 #include "svm.h"
+#include <string>
+
+using namespace std;
+
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
 class Tmy_svm
@@ -17,11 +21,16 @@ private:
 	void read_problem(Tdataframe &df);
 
 	static void print_null(const char *s) {}
-	
+
+	bool _feature_selection = false;
+	bool _normal_only = false;	
+
+	void cetak ( const char * format, ... );
 
 public:
 	Tmy_svm();
 	~Tmy_svm();
+	Tmy_svm(bool feature_selection, bool _normal_only);
 
 	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);

@@ -1,5 +1,5 @@
 #include <string>
-
+#include <iostream>
 using namespace std;
 
 
@@ -21,6 +21,10 @@ public:
 	~Tmy_dttype();
 	Tmy_dttype(string value, bool is_continue);
 
+	
+    void set_value(string value, bool is_continue);
+    string get_value();
+
 	string get_string();
 
 
@@ -35,35 +39,155 @@ public:
 
 	bool operator <(const Tmy_dttype& rhs) const
 	{
-		if (_is_continue)
+		if (_is_continue and rhs._is_continue)
 		{
 			return  (stof(_value) < stof(rhs._value));
 		} else {
-			
-			return (_lower_value < rhs._lower_value);
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)<0);
+			} else {
+				return false;
+			}
 		}
 	}
 
 	bool operator <=(const Tmy_dttype& rhs) const
 	{
-		return (stof(_value) <= stof(rhs._value));
+		if (_is_continue and rhs._is_continue)
+		{
+			return  (stof(_value) <= stof(rhs._value));
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)<=0);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	bool operator <=(const string& rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) <= stof(rhs));
+		} else {
+			if (!_is_continue)
+			{
+				return (_value.compare(rhs)<=0);
+			} else {
+				return false;
+			}
+		}
 	}
 
 	bool operator >(const Tmy_dttype& rhs) const
 	{
-		return (stof(_value) > stof(rhs._value));
+		if (_is_continue and rhs._is_continue)
+		{
+			return  (stof(_value) > stof(rhs._value));
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)>0);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	bool operator >(const string& rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) > stof(rhs));
+		} else {
+			if (!_is_continue)
+			{
+				return (_value.compare(rhs)>0);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	bool operator >=(const Tmy_dttype& rhs) const
+	{
+		if (_is_continue and rhs._is_continue)
+		{
+			return  (stof(_value) >= stof(rhs._value));
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)>=0);
+			} else {
+				return false;
+			}
+		}
 	}
 
 	bool operator ==(const Tmy_dttype& rhs) const
 	{
-		
-		return (_lower_value == rhs._lower_value);
+        if (_is_continue and rhs._is_continue)
+		{
+			return  (stof(_value) == stof(rhs._value));
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)==0);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	bool operator ==(const string& rhs) const
+	{
+
+		if (_is_continue)
+		{
+			return  (stof(_value) == stof(rhs));
+		} else {
+			if (!_is_continue)
+			{
+				return (_value.compare(rhs)==0);
+			} else {
+				return false;
+			}
+		}
 	}
 
 	bool operator !=(const Tmy_dttype& rhs) const
 	{
-		
-		return (_lower_value != rhs._lower_value);
+
+		if (_is_continue and rhs._is_continue)
+		{
+			return  (stof(_value) != stof(rhs._value));
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{
+				return (_lower_value.compare(rhs._lower_value)!=0);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	bool operator !=(const string& rhs) const
+	{
+
+		if (_is_continue)
+		{
+			return  (stof(_value) != stof(rhs));
+		} else {
+			if (!_is_continue)
+			{
+				return (_value.compare(rhs)!=0);
+			} else {
+				return false;
+			}
+		}
 	}
 
 };
