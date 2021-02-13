@@ -2,6 +2,7 @@
 #include "Tconf_metrix.h"
 #include "svm.h"
 #include <string>
+#include <sys/mman.h>
 
 using namespace std;
 
@@ -15,6 +16,8 @@ private:
 	struct svm_problem prob;
 	struct svm_model *model;
 	struct svm_node *x_space;
+
+	//size_t elements_size;
 
 	bool is_read_problem; 
 

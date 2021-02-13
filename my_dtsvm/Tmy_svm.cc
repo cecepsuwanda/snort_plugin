@@ -133,7 +133,10 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			prm1 = stat_label["normal"];
 		}
 
- 
+        // if(prm1>10000)
+        // {
+        //   prm1 = prm1/100;  
+        // }
 
 		prob.l = prm1;
 		elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
@@ -141,19 +144,26 @@ void Tmy_svm::read_problem(Tdataframe &df)
  
 		prob.y = Malloc(double, prob.l);
 		prob.x = Malloc(struct svm_node *, prob.l);
+		
+		// elements_size = elements * sizeof(struct svm_node);
+
+		// x_space =(svm_node*) mmap(NULL, elements_size,
+  //                                PROT_READ | PROT_WRITE,
+  //                                MAP_SHARED | MAP_ANON, -1, 0);
+
 		x_space = Malloc(struct svm_node, elements);
 
-		cetak(" {");
-		cetak(to_string(prm1).c_str());
-		cetak(",");
-		cetak(to_string(prm2).c_str());
-		cetak(",");
-		cetak(to_string(elements).c_str());
-		cetak(",");
-		cetak(to_string(df.getjmlrow()).c_str());
-		cetak(",");
-		cetak(to_string(stat_label["attack"]).c_str());
-		cetak("} ");		
+		// cetak(" {");
+		// cetak(to_string(prm1).c_str());
+		// cetak(",");
+		// cetak(to_string(prm2).c_str());
+		// cetak(",");
+		// cetak(to_string(elements).c_str());
+		// cetak(",");
+		// cetak(to_string(df.getjmlrow()).c_str());
+		// cetak(",");
+		// cetak(to_string(stat_label["attack"]).c_str());
+		// cetak("} ");		
 		
 		j = 0;
 		i = 0;
@@ -231,30 +241,33 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 		exit(1);
 	}
 
-	cetak(" {train");
+	// cetak(" {train");
 	model = svm_train(&prob, &param);
-	cetak("}");
+	// cetak("}");
 
-	free(prob.y);
-	free(prob.x);
-	free(x_space);
+	
+
+	//munmap(x_space, elements_size);
 
 }
 
 void Tmy_svm::save_model(string nm_file)
 {
 	
-    cetak("{ save nSV = ");
-    cetak(to_string(model->l).c_str());
+    // cetak("{ save nSV = ");
+    // cetak(to_string(model->l).c_str());
 	if (svm_save_model(nm_file.c_str(), model))
 	{
 		fprintf(stderr, "can't save model to file %s\n", nm_file.c_str());
 		exit(1);
 	}
-    cetak(" }");
+    // cetak(" }");
 
 	svm_free_and_destroy_model(&model);
 	svm_destroy_param(&param);
+	free(prob.y);
+	free(prob.x);
+	free(x_space);
 }
 
 void Tmy_svm::load_model(string nm_file)
@@ -341,6 +354,8 @@ string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 	//cout << predict_label << endl;
 
 	free(x_space);
+	svm_free_and_destroy_model(&model);
+	//svm_destroy_param(&param);
 
 	string label = "normal";
 	if (predict_label == -1)
