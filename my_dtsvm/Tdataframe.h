@@ -20,7 +20,7 @@ class Tdataframe : public Tbase_dataframe
 {
 private:
     
-  void calculate_metric(bool is_continuous, int start, int end, vector<Tbelow_above> &_col_pot_split, float &current_metric, string &split_value, float &sum_entropy);
+  static void calculate_metric(int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label);
 
   
 public:

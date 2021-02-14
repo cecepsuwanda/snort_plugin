@@ -185,7 +185,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
 
       //df_svm.clear_memory();
-      if ((train_svm)) //and (df.getjmlrow() < 10000) 
+      if ((train_svm)) //and (df.getjmlrow() < 10000)
       {
         idx_svm++;
         tree[node_index].idx_svm = idx_svm;
@@ -197,7 +197,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
         my_svm.train(df, gamma, nu);
         my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
         cetak("}");
-        //cetak("\n");
+        // cetak("\n");
       }
 
     }
@@ -315,8 +315,9 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
       {
 
 
+
         tree[node_index].isLeaf = true;
-        tree[node_index].attrValue = tree[treeIndex_yes].attrValue;
+        //tree[node_index].attrValue = -1;//tree[treeIndex_yes].attrValue;
 
         string tmp_str = tree[treeIndex_yes].label;
 
@@ -388,12 +389,12 @@ bool Tdec_tree::is_pass(int opt, string value1, string value2)
   {
   case 0 : {
     //cout << value1 << " " << value2 << endl;
-    pass = tmp1 <= tmp2;
+    pass = tmp2 <= tmp1;
     break;
   }
   case 1 : {
     //cout << value1 << " " << value2 << endl;
-    pass = tmp1 > tmp2;
+    pass = tmp1 < tmp2;
     break;
   }
   case 2 : {
@@ -419,20 +420,25 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
 
   int criteriaAttrIndex = tree[treeIndex].criteriaAttrIndex;
 
+  string tmp_str = "";
   for (int i = 0; i < tree[treeIndex].children.size(); i++) {
     int next = tree[treeIndex].children[i];
-
-    //if (tree[next].isLeaf)
-    //{
-    // return next;
+    tmp_str += "{" + to_string(tree[next].opt) + "," + to_string(criteriaAttrIndex) + "," + tree[next].attrValue + "," + data[criteriaAttrIndex] + "},";
+    // if (tree[next].isLeaf)
+    // {
+    //   return next;
     // } else {
-    if (is_pass(tree[next].opt, data[criteriaAttrIndex], tree[next].attrValue)) {
-      vec_attr.push_back(criteriaAttrIndex);
-      return dfs(df, data, next);
-    }
+      if (is_pass(tree[next].opt, tree[next].attrValue, data[criteriaAttrIndex]) ) {
+        vec_attr.push_back(criteriaAttrIndex);
+        return dfs(df, data, next);
+      }
     // }
 
   }
+
+  cetak("\n");
+  cetak(tmp_str.c_str());
+  cetak("\n");
 
   return -1;
 }
@@ -458,7 +464,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
         my_svm.load_model(nm_model);
         //cetak("save_model_");
         //cetak(to_string(tree[leafNode].idx_svm).c_str());
-        //cetak(".csv} "); 
+        //cetak(".csv} ");
 
         vector<string> tmp_data;
 
@@ -492,7 +498,7 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
           }
         }
 
-        //cetak(" {guess "); 
+        //cetak(" {guess ");
         label = my_svm.guess(df, tmp_data);
         //cetak("}");
 

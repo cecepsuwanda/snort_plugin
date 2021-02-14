@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
     auto end = std::chrono::steady_clock::now();
     double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-    cout << "Lama Training : " << elapsed_time / 60 << endl;
+    cout << "Lama Training : " << elapsed_time / 60 << endl;    
     cout << "End Train Decission Tree : " << endl;
 
     dec_tree.save_tree(df_save);

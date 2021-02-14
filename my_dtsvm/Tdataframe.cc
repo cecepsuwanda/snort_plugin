@@ -148,9 +148,65 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
 
 
 
-void Tdataframe::calculate_metric(bool is_continuous, int start, int end, vector<Tbelow_above> &_col_pot_split, float &current_metric, string &split_value, float &sum_entropy)
+void Tdataframe::calculate_metric(int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
 {
 
+  float entropy_before_split = stat_label.get_entropy();
+
+  float best_overall_metric;
+  float gain = 0, gain_max = 0;
+  string mid_point;
+  string tmp_split_value;
+
+  bool first_iteration = true;
+
+  Tlabel_stat _stat_label_below;
+
+  auto itr_next = _col_pot_split.begin();
+  itr_next++;
+
+  auto itr = _col_pot_split.begin();
+
+  size_t i = 1;
+  while ((itr != _col_pot_split.end()) and (i <= end))
+  {
+    _stat_label_below = _stat_label_below + (*itr).second;
+
+    if ( (i >= start) and ((itr != itr_next) and (itr_next != _col_pot_split.end()) ))
+    {
+      Tmy_dttype tmp1 = (*itr).first;
+      Tmy_dttype tmp2 = (*itr_next).first;
+      mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
+
+      Tbelow_above ba;
+      //ba.set_value(mid_point);
+      ba.add_below(_stat_label_below);
+      Tlabel_stat tmp_stat = stat_label - _stat_label_below;
+      ba.add_above(tmp_stat);
+
+      float entropy_after_split = ba.get_overall_metric();
+      float split_info = ba.get_split_info();
+      gain = (entropy_before_split - entropy_after_split) / split_info;
+
+
+    }
+
+    itr_next++;
+    itr++;
+    i++;
+
+    if (first_iteration or (gain_max < gain))
+    {
+      first_iteration = false;
+      gain_max = gain;
+      tmp_split_value = mid_point;
+      best_overall_metric = gain_max;
+    }
+
+  }
+
+  current_overall_metric = best_overall_metric;
+  split_value = tmp_split_value;
 
 }
 
@@ -185,56 +241,39 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     } else {
       //cetak("{ ==2 start ");
 
-
-      float best_overall_metric;
-      float gain = 0, gain_max = 0;
-      string mid_point;
-      string tmp_split_value;
-
-      bool first_iteration = true;
-
-      Tlabel_stat _stat_label_below;
-
-      auto itr_next = _col_pot_split.begin();
-      itr_next++;
-
-      for (auto itr = _col_pot_split.begin(); itr != _col_pot_split.end() ; itr++)
+      if (_col_pot_split.size() < 1000)
       {
-        _stat_label_below = _stat_label_below + (*itr).second;
+        float tmp_best_overall_metric;
+        string tmp_split_value;
+        thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label));
+        t1.join();
+        current_overall_metric = tmp_best_overall_metric;
+        split_value = tmp_split_value;
+      } else {
 
-        if ((itr != itr_next) and (itr_next != _col_pot_split.end()) )
+        int mid_point = _col_pot_split.size() / 2;
+
+        float tmp_best_overall_metric1, tmp_best_overall_metric2;
+        string tmp_split_value1, tmp_split_value2;
+        thread t1(&Tdataframe::calculate_metric, 1, mid_point, ref(_col_pot_split), ref(tmp_best_overall_metric1), ref(tmp_split_value1), ref(_stat_label));
+        thread t2(&Tdataframe::calculate_metric, mid_point+1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric2), ref(tmp_split_value2), ref(_stat_label));
+        t1.join();
+        t2.join();
+
+
+        current_overall_metric = tmp_best_overall_metric1;
+        split_value = tmp_split_value1;
+
+        if (current_overall_metric < tmp_best_overall_metric2)
         {
-          Tmy_dttype tmp1 = (*itr).first;
-          Tmy_dttype tmp2 = (*itr_next).first;
-          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
-
-          Tbelow_above ba;
-          //ba.set_value(mid_point);
-          ba.add_below(_stat_label_below);
-          Tlabel_stat tmp_stat = _stat_label - _stat_label_below;
-          ba.add_above(tmp_stat);
-
-          float entropy_after_split = ba.get_overall_metric();
-          float split_info = ba.get_split_info();
-          gain = (entropy_before_split - entropy_after_split) / split_info;
-
-
-        }
-
-        itr_next++;
-
-        if (first_iteration or (gain_max < gain))
-        {
-          first_iteration = false;
-          gain_max = gain;
-          tmp_split_value = mid_point;
-          best_overall_metric = gain_max;
+          current_overall_metric = tmp_best_overall_metric2;
+          split_value = tmp_split_value2;
         }
 
       }
 
-      current_overall_metric = best_overall_metric;
-      split_value = tmp_split_value;
+
+
 
       //cetak(" ==2 end }");
     }
