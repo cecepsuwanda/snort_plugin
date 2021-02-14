@@ -22,7 +22,7 @@ private:
    map<string, map<string, int>> matrik;
    map<string, Tdata> matrik1;
    float accuracy,precision,recall;
-   int tepat,tdk_tepat,jml_data;
+   int failed,tepat,tdk_tepat,jml_data;
 public:
 	Tconf_metrix();
 	~Tconf_metrix();

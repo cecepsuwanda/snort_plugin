@@ -100,7 +100,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 	map<int, int> kolom;
 
-	for (int i = 0; i < df_filter.size(); ++i)
+	for (size_t i = 0; i < df_filter.size(); ++i)
 	{
         auto itr = kolom.find(df_filter[i].idx_col);
         if(itr==kolom.end()){
@@ -298,7 +298,7 @@ void Tmy_svm::test(Tdataframe &df)
 	{
 		vector<string> tmp = df.get_record();
 
-		int k = 0;
+		size_t k = 0;
 		for (; k < (tmp.size() - 1); k++) {
 
 			string str = tmp[k];
@@ -339,7 +339,7 @@ string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 	char *endptr;
 	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));
 
-	int k = 0;
+	size_t k = 0;
 	for (; k < data.size(); k++) {
 
 		string str = data[k];

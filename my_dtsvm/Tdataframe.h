@@ -20,7 +20,7 @@ class Tdataframe : public Tbase_dataframe
 {
 private:
     
-  static void calculate_metric(int start, int end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label);
+  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label);
 
   
 public:

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
+#include "Tmy_dttype.h"
 #include "Tmy_svm.h"
 
 using namespace std;
@@ -41,6 +42,7 @@ private:
 	vector<Node> tree;
 
 	int idx_svm;
+	int id_df;
 	string model_path;
 
 	bool check_purity(Tdataframe &df);
@@ -53,9 +55,18 @@ private:
     vector<int> vec_attr;
     
 	void cetak ( const char * format, ... );
+
+	bool is_pass(int opt, string value1, string value2);
+
+	bool train_svm = false;
+	bool feature_selection = false;
+	bool normal_only = false;
+
 public:
 	Tdec_tree();
 	~Tdec_tree();
+    Tdec_tree(int v_train_svm,int v_feature_selection,int v_normal_only);
+
 
 	string guess(Tdataframe &df, vector<string> &data);
 
