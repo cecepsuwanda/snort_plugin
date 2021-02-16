@@ -10,11 +10,11 @@ Tmy_svm::Tmy_svm()
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 100;
+	param.cache_size = 512; //100
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
-	param.shrinking = 0;
+	param.shrinking = 1;
 	param.probability = 0;
 	param.nr_weight = 0;
 	param.weight_label = NULL;
@@ -38,11 +38,11 @@ Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only)
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 100;
+	param.cache_size = 512;
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
-	param.shrinking = 0;
+	param.shrinking = 1;
 	param.probability = 0;
 	param.nr_weight = 0;
 	param.weight_label = NULL;
