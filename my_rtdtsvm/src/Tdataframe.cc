@@ -241,7 +241,9 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     } else {
       //cetak("{ ==2 start ");
 
-      if (_col_pot_split.size() < 1000)
+      const int dt_per_page = 1000;
+
+      if (_col_pot_split.size() < dt_per_page)
       {
         float tmp_best_overall_metric;
         string tmp_split_value;
@@ -251,29 +253,107 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
         split_value = tmp_split_value;
       } else {
 
-        int mid_point = _col_pot_split.size() / 2;
+        size_t jml_loop = _col_pot_split.size() / dt_per_page;
 
-        float tmp_best_overall_metric1, tmp_best_overall_metric2;
-        string tmp_split_value1, tmp_split_value2;
-        thread t1(&Tdataframe::calculate_metric, 1, mid_point, ref(_col_pot_split), ref(tmp_best_overall_metric1), ref(tmp_split_value1), ref(_stat_label));
-        thread t2(&Tdataframe::calculate_metric, mid_point+1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric2), ref(tmp_split_value2), ref(_stat_label));
-        t1.join();
-        t2.join();
-
-
-        current_overall_metric = tmp_best_overall_metric1;
-        split_value = tmp_split_value1;
-
-        if (current_overall_metric < tmp_best_overall_metric2)
+        if ((jml_loop * dt_per_page) < _col_pot_split.size())
         {
-          current_overall_metric = tmp_best_overall_metric2;
-          split_value = tmp_split_value2;
+          jml_loop += 1;
         }
 
+        const int jml_thread = 10;
+        
+        thread th[jml_thread];
+        float arr_gain[jml_thread];
+        string arr_split_value[jml_thread];
+        
+
+        float gain_max = 0;
+        string tmp_split_value;
+
+        // cetak("{ idx:");
+        // cetak(to_string(idx).c_str());
+        // cetak(" loop:");
+        // cetak(to_string(jml_loop).c_str());
+        // cetak(" ");
+
+        size_t i = 0;
+        while (i < jml_loop)
+        {
+          size_t j = 0;
+          size_t k = i;
+          bool cthread = true;
+          while ((j < jml_thread) and cthread)
+          {
+            size_t _begin = (k * dt_per_page) + 1;
+            size_t _end = (dt_per_page * (k + 1))>_col_pot_split.size() ? _col_pot_split.size() : (dt_per_page * (k + 1));
+
+            if (_begin <= _col_pot_split.size()) {
+              // cetak("{start th:");
+              // cetak(to_string(j).c_str());
+              th[j] = thread(&Tdataframe::calculate_metric,_begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label));
+              j++;
+              // cetak("} ");
+            } else {
+              cthread = false;
+            }
+
+            k++;
+          }
+
+          i += j;
+
+          size_t l = 0;
+          while (l < j)
+          {
+
+            // cetak("{end th:");
+            // cetak(to_string(l).c_str());
+            th[l].join();
+            // cetak("} ");
+
+            if (gain_max < arr_gain[l])
+            {
+              gain_max = arr_gain[l];
+              tmp_split_value = arr_split_value[l];
+            }
+            l++;
+          }
+        }
+
+
+
+        // for (size_t i = 0; i < jml_loop; i += 2)
+        // {
+
+        //   float tmp_best_overall_metric1, tmp_best_overall_metric2;
+        //   string tmp_split_value1, tmp_split_value2;
+
+        //   thread t1(&Tdataframe::calculate_metric, (i * 1000) + 1, 1000 * (i + 1), ref(_col_pot_split), ref(tmp_best_overall_metric1), ref(tmp_split_value1), ref(_stat_label));
+        //   thread t2(&Tdataframe::calculate_metric, ((i + 1) * 1000) + 1, 1000 * (i + 2), ref(_col_pot_split), ref(tmp_best_overall_metric2), ref(tmp_split_value2), ref(_stat_label));
+        //   t1.join();
+        //   t2.join();
+
+        //   if (gain_max < tmp_best_overall_metric1)
+        //   {
+        //     gain_max = tmp_best_overall_metric1;
+        //     tmp_split_value = tmp_split_value1;
+        //   }
+
+        //   if (gain_max < tmp_best_overall_metric2)
+        //   {
+        //     gain_max = tmp_best_overall_metric2;
+        //     tmp_split_value = tmp_split_value2;
+        //   }
+
+
+        // }
+
+        current_overall_metric = gain_max;
+        split_value = tmp_split_value;
+
+        // cetak("}");
+
       }
-
-
-
 
       //cetak(" ==2 end }");
     }

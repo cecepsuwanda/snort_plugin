@@ -35,9 +35,9 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 					}
 
 					tmp_str += label;
-					// vec.push_back(tmp_str);
+					vec.push_back(tmp_str);
 
-					cout << tmp_str << endl;
+					//cout << tmp_str << endl;
 
 				} else {
 					
@@ -50,13 +50,13 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 				i++;
 				if ((i % 10000) == 0)
 				{
-					//cout << ".";
+					cout << ".";
 				}
 			}
 			df_label.close_file();
 
 			cout << endl;
-			//df_save.write_data(vec);
+			df_save.write_data(vec);
 
 			vec.clear();
 			vec.shrink_to_fit();

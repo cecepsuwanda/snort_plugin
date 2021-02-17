@@ -58,9 +58,9 @@ private:
 
 	bool is_pass(int opt, string value1, string value2);
 
-	bool train_svm = false;
-	bool feature_selection = false;
-	bool normal_only = false;
+	bool train_svm = true;
+	bool feature_selection = true;
+	bool normal_only = true;
 
 public:
 	Tdec_tree();

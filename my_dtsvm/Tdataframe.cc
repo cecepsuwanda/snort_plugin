@@ -241,7 +241,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     } else {
       //cetak("{ ==2 start ");
 
-      const int dt_per_page = 2000;
+      const int dt_per_page = 1000;
 
       if (_col_pot_split.size() < dt_per_page)
       {
@@ -260,7 +260,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
           jml_loop += 1;
         }
 
-        const int jml_thread = 20;
+        const int jml_thread = 10;
         
         thread th[jml_thread];
         float arr_gain[jml_thread];
