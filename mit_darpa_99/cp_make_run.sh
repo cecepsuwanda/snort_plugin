@@ -2,11 +2,13 @@
 
 cd ~/cpp/mit_darpa_99
 cp -rf ~/snort_plugin/mit_darpa_99/makefile .
+cp -rf ~/snort_plugin/mit_darpa_99/Tfield_filter_darpa.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tbase_dataframe.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tdataframe_label.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tdataframe_darpa.* .
 cp -rf ~/snort_plugin/mit_darpa_99/global_func.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tip_port_holder.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tdatetime_holder.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tread_file.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tread_file_darpa.* .
 cp -rf ~/snort_plugin/mit_darpa_99/Tolah_label.* .

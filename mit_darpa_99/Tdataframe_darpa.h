@@ -1,6 +1,9 @@
 #include "Tread_file_darpa.h"
+#include "Tfield_filter_darpa.h"
+#include "Tdatetime_holder.h"
 #include <vector>
 #include <string>
+#include <iostream>
 using namespace std;
 
 
@@ -8,6 +11,7 @@ using namespace std;
 
 #define Included_Tdataframe_darpa_H
 
+typedef vector<Tfield_filter_darpa *> vec_field_filter;
 
 class Tdataframe_darpa
 {
@@ -15,11 +19,16 @@ private:
 	Tread_file_darpa _data;
 	string _nm_file;
 
+	map<Tdatetime_holder, vec_field_filter> vec_map;
+
+
+
 public:
 	Tdataframe_darpa();
 	~Tdataframe_darpa();
 
 	void read_data(string nm_f);
+	void stat_tabel();
 
 	bool open_file();
 	void read_file();

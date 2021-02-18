@@ -1,5 +1,6 @@
 
-
+#include <vector>
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -12,7 +13,11 @@ class Tread_file_darpa
 {
 private:
 	string _nm_f;
-    FILE *_file = NULL;
+	FILE *_file = NULL;
+	vector<string> _data;
+
+	void clear_data();
+
 
 public:
 	Tread_file_darpa();
