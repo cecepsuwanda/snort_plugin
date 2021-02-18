@@ -1,6 +1,5 @@
-
-#include "Tread_file.h"
-#include "Tolah_label.h"
+#include "Tdataframe_darpa.h"
+#include "Tdataframe_label.h"
 #include "Tconf_metrix.h"
 #include <iostream>
 
@@ -11,7 +10,21 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    Tolah_label olah_label;
+
+    cout << "Labeling : " << argv[2] << endl;
+
+    Tdataframe_label df_label;
+    df_label.read_data(argv[2], ",");
+
+    df_label.info();
+
+    Tdataframe_darpa df_darpa;
+    df_darpa.read_data(argv[1]);
+
+
+    df_label.clear_memory();
+
+    /*Tolah_label olah_label;
     Tconf_metrix conf_metrix;
 
     olah_label.setnm_f(argv[1]); //"data/master_identifications.list"
@@ -84,7 +97,7 @@ int main(int argc, char *argv[])
     } else {
         cout << "Gagal Buka File !!!" << endl;
     }
-
+    */
 
 
 

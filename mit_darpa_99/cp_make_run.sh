@@ -1,87 +1,151 @@
 #!/bin/bash
 
 cd ~/cpp/mit_darpa_99
-cp -rf /mnt/e/snort_plugin/mit_darpa_99/makefile .
-cp -rf /mnt/e/snort_plugin/mit_darpa_99/Tread_file.* .
-cp -rf /mnt/e/snort_plugin/mit_darpa_99/Tolah_label.* .
-cp -rf /mnt/e/snort_plugin/mit_darpa_99/Tconf_metrix.* .
-cp -rf /mnt/e/snort_plugin/mit_darpa_99/main.cc .
+cp -rf ~/snort_plugin/mit_darpa_99/makefile .
+cp -rf ~/snort_plugin/mit_darpa_99/Tbase_dataframe.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tdataframe_label.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tdataframe_darpa.* .
+cp -rf ~/snort_plugin/mit_darpa_99/global_func.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tip_port_holder.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tread_file.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tread_file_darpa.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tolah_label.* .
+cp -rf ~/snort_plugin/mit_darpa_99/Tconf_metrix.* .
+cp -rf ~/snort_plugin/mit_darpa_99/main.cc .
+rm labeling
 make
 
-rm /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-./labeling data/master_identifications.list ../my_dt/data/4w_friday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_friday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_monday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_thursday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_thursday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_tuesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/4w_wednesday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41122222.csv 
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41084031.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41114554.csv
 
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_in.csv
-
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_out.csv
-
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41213446_out_icmp.csv
-
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/4w_monday_41161308_in.csv
+rm -rf data/darpa99_4w_friday_in.csv
+./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_inside.csv data/darpa99_4w_friday_in.csv
+wait
 
 
-./labeling data/master_identifications.list ../my_dt/data/5w_friday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_monday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_monday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_thursday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_thursday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_tuesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_tuesday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_wednesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-wait
-./labeling data/master_identifications.list ../my_dt/data/5w_wednesday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
+# rm -rf data/darpa99_4w_friday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_outside.csv data/darpa99_4w_friday_out.csv
+# wait
 
-# ./labeling data/master_identifications.list ../my_dt/data/2w_friday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_friday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_monday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_monday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_thursday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_thursday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_tuesday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_out.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
-# wait
-# ./labeling data/master_identifications.list ../my_dt/data/2w_wednesday_in.csv /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
 
-sudo chmod 777 /home/cecep/python/mit_darpa_99/data/mit_darpa_99_label.csv
+# rm -rf data/darpa99_4w_monday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_inside.csv data/darpa99_4w_monday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_monday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_outside.csv data/darpa99_4w_monday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_thursday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thursday_inside.csv data/darpa99_4w_thursday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_thursday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thrusday_outside.csv data/darpa99_4w_thursday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_tuesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_tuesday_outside.csv data/darpa99_4w_tuesday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_wednesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_inside.csv data/darpa99_4w_wednesday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_4w_wednesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_outside.csv data/darpa99_4w_wednesday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_friday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_friday_inside.csv data/darpa99_5w_friday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_monday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_inside.csv data/darpa99_5w_monday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_monday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_outside.csv data/darpa99_5w_monday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_thursday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thursday_inside.csv data/darpa99_5w_thursday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_thursday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thrusday_outside.csv data/darpa99_5w_thursday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_tuesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_inside.csv data/darpa99_5w_tuesday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_tuesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_outside.csv data/darpa99_5w_tuesday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_5w_wednesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_inside.csv data/darpa99_5w_wednesday_in.csv
+# wait
+
+# rm -rf data/darpa99_5w_wednesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_outside.csv data/darpa99_5w_wednesday_out.csv
+
+
+# rm -rf data/darpa99_2w_friday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_friday_outside.csv data/darpa99_2w_friday_out.csv
+# wait
+
+# rm -rf data/darpa99_2w_friday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_friday_inside.csv data/darpa99_2w_friday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_monday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_monday_inside.csv data/darpa99_2w_monday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_monday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_monday_outside.csv data/darpa99_2w_monday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_thursday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_thursday_inside.csv data/darpa99_2w_thursday_in.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_thursday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_thrusday_outside.csv data/darpa99_2w_thursday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_tuesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_tuesday_inside.csv data/darpa99_2w_tuesday_in.csv
+# wait
+
+# rm -rf data/darpa99_2w_tuesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_tuesday_outside.csv rm -rf data/darpa99_2w_tuesday_out.csv
+# wait
+
+
+# rm -rf data/darpa99_2w_wednesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_wednesday_outside.csv data/darpa99_2w_wednesday_out.csv
+# wait
+
+# rm -rf data/darpa99_2w_wednesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/cpp/my_rtdtsvm/build-files/src/output/2week_wednesday_inside.csv data/darpa99_2w_wednesday_in.csv
+
