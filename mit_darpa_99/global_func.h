@@ -15,5 +15,7 @@ namespace global_func
 	bool is_subs(string stack, string needle);
 
 	bool isNumber(string token);
+
+	void remove_cr(string& tmp_str);
 }
 #endif

@@ -55,6 +55,18 @@ public:
 		return _timestamp <= rhs._timestamp;
 	}
 
+	bool operator >(const Tdatetime_holder& rhs) const
+	{
+
+		return _timestamp > rhs._timestamp;
+	}
+
+	bool operator >=(const Tdatetime_holder& rhs) const
+	{
+
+		return _timestamp >= rhs._timestamp;
+	}
+
 	operator string() const {
 
 		const time_t rawtime = (const time_t)_timestamp;

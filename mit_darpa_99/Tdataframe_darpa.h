@@ -1,3 +1,4 @@
+#include "global_func.h"
 #include "Tread_file_darpa.h"
 #include "Tfield_filter_darpa.h"
 #include "Tdatetime_holder.h"
@@ -11,7 +12,7 @@ using namespace std;
 
 #define Included_Tdataframe_darpa_H
 
-typedef vector<Tfield_filter_darpa *> vec_field_filter;
+typedef vector<Tfield_filter_darpa> vec_field_filter;
 
 class Tdataframe_darpa
 {
@@ -38,6 +39,9 @@ public:
 	void next_record();
 	vector<string> get_record();
 
+	string search(string date_start, string hour_start,string date_end, string hour_end, string ip_src, string port_src, string ip_dst, string port_dst, string service);
+    
+    void info();
 };
 
 

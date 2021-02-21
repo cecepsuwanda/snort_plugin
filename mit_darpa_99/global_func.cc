@@ -2,39 +2,47 @@
 
 namespace global_func
 {
-	vector<string> tokenizer(char *str, const char *separator)
+vector<string> tokenizer(char *str, const char *separator)
+{
+	char *token;
+	vector<string> vec;
+	int len;
+
+	len = strlen(str);
+	if (str[len - 1] == '\n')
+		str[len - 1] = 0;
+
+
+	token = strtok(str, separator);
+	while (token != 0)
 	{
-		char *token;
-		vector<string> vec;
-		int len;
-
-		len = strlen(str);
-		if (str[len - 1] == '\n')
-			str[len - 1] = 0;
-
-
-		token = strtok(str, separator);
-		while (token != 0)
-		{
-			vec.push_back(token);
-			token = strtok(0, separator);
-		}
-
-		return vec;
+		vec.push_back(token);
+		token = strtok(0, separator);
 	}
 
-	bool is_subs(string stack, string needle)
+	return vec;
+}
+
+bool is_subs(string stack, string needle)
+{
+	bool is_pass = false;
+
+	size_t posisi = stack.find(needle);
+	is_pass = posisi != string::npos;
+
+	return is_pass;
+}
+
+bool isNumber(string token)
+{
+	return std::regex_match(token, std::regex(("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?")));
+}
+
+void remove_cr(string& tmp_str)
+{
+	if (tmp_str[tmp_str.size() - 1] == '\n')
 	{
-		bool is_pass = false;
-
-		size_t posisi = stack.find(needle);
-		is_pass = posisi != string::npos;
-
-		return is_pass;
+		tmp_str.erase(tmp_str.size() - 1);
 	}
-
-	bool isNumber(string token)
-	{
-		return std::regex_match(token, std::regex(("((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?")));
-	}
+}
 }
