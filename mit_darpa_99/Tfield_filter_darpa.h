@@ -35,6 +35,7 @@ private:
 	bool cari_ip_port_dst(Tip_port_holder ip_port);
 
 	void isi_ip_port_vec(vector<string>& vec_ip, vector<string>& vec_port, vector<Tip_port_holder>& vec_ip_port);
+	void ip_parser(string tmp_str,vector<string>& vec_ip);
 
 public:
 	Tfield_filter_darpa();

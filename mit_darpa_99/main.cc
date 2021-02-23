@@ -1,5 +1,7 @@
 #include <iostream>
+#include "global_func.h"
 #include "Tdataframe_darpa.h"
+#include "Tdataframe_darpa2.h"
 #include "Tdataframe_label.h"
 #include "Tconf_metrix.h"
 #include <map>
@@ -11,15 +13,20 @@ int main(int argc, char *argv[])
 {
 
     cout << "Labeling : " << argv[2] << endl;
-   
+
 
     Tdataframe_darpa df_darpa;
     df_darpa.read_data(argv[1]);
 
     //df_darpa.info();
 
+    Tdataframe_darpa2 df_darpa2;
+    df_darpa2.read_data(argv[2], ",");
+
+    //df_darpa2.info();
+
     Tdataframe_label df_label;
-    df_label.read_data(argv[2], ",");
+    df_label.read_data(argv[3], ",");
 
     df_label.info();
 
@@ -36,16 +43,22 @@ int main(int argc, char *argv[])
                 if (tmp_data.size() > 1)
                 {
                     //cout << tmp_data[tmp_data.size() - 3] << " " << tmp_data[tmp_data.size()-2] << " " << tmp_data[tmp_data.size()-5] << " " << tmp_data[tmp_data.size()-4] << " " << tmp_data[tmp_data.size() - 9] << " " << tmp_data[tmp_data.size() - 8] << " " << tmp_data[tmp_data.size() - 7] << " " << tmp_data[tmp_data.size() - 6] << " " << tmp_data[1] <<endl;
-                    label = df_darpa.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[1]);
+                    if (global_func::is_subs(argv[3], "2week"))
+                    {
+                      //cout << "masuk" << endl;
+                      label = df_darpa2.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[1]);  
+                    } else {
+                        label = df_darpa.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[1]);
+                    }
                     conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
                     string tmp_str = "";
                     for (int j = 0; j < tmp_data.size(); ++j)
                     {
                         tmp_str += tmp_data[j] + ",";
                     }
-                    
-                      // cout << tmp_str<<label<< endl;
-                    
+
+                    // cout << tmp_str<<label<< endl;
+
 
                 } else {
 

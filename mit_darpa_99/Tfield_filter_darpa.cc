@@ -40,207 +40,225 @@ void Tfield_filter_darpa::isi_ip_port_vec(vector<string>& vec_ip, vector<string>
 				}
 			} else {
 
-				/*if ((vec_ip[i] != "console") and (vec_ip[i] != "login.session.x.x") and (vec_ip[i] != "hobbes_console")) {
-					//cout << _Attacker[i] << " - "<< endl;
+				if ((vec_ip[i] != "console") and (vec_ip[i] != "login.session.x.x") and (vec_ip[i] != "hobbes_console")) {
+					//cout << vec_ip[i] << " - "<< endl;
 					Tip_port_holder tmp_ip(vec_ip[i], "-");
 					//cout << tmp_ip << endl;
 					vec_ip_port.push_back(tmp_ip);
-				}*/
+				}
 			}
 		}
 	}
 }
 
-void Tfield_filter_darpa::parser(vector<string> _data)
+void Tfield_filter_darpa::ip_parser(string tmp_str, vector<string>& vec_ip)
 {
-	if (global_func::is_subs(_data[0], "ID: "))
+	if (global_func::is_subs(tmp_str, "."))
 	{
-		_ID = _data[0].substr(4);
-		global_func::remove_cr(_ID);
-		//cout << _ID << endl;
 
-	}
-
-	if (global_func::is_subs(_data[1], "Date: "))
-	{
-		_Date = Tdatetime_holder(_data[1].substr(6), "00:00:00");
-	}
-
-	if (global_func::is_subs(_data[2], "Name: "))
-	{
-		_Name = _data[2].substr(6);
-		global_func::remove_cr(_Name);
-	}
-
-	if (global_func::is_subs(_data[3], "Category: "))
-	{
-		_Category = _data[3].substr(10);
-		global_func::remove_cr(_Category);
-	}
-
-	if (global_func::is_subs(_data[4], "Start_Time: "))
-	{
-		_Start_Time =  Tdatetime_holder(_data[1].substr(6), _data[4].substr(12));
-		_Start_Time.add_time(11, 0, 0);
-
-		Tdatetime_holder tmp_datetime(_data[1].substr(6), "23:59:59");
-		if (tmp_datetime < _Start_Time)
-		{
-			_Date.add_time(24, 0, 0);
-		}
-	}
-
-	if (global_func::is_subs(_data[5], "Duration: "))
-	{
-		_Duration =  Tdatetime_holder(_data[1].substr(6), _data[4].substr(12));
-		_Duration.add_time(11, 0, 0);
-		_Duration.add_time(_data[5].substr(10));
-	}
-
-	if (global_func::is_subs(_data[6], "Attacker: "))
-	{
-		string tmp_str = _data[6].substr(10);
-		vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
-
-		if (data.size() == 0)
-		{
-			if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
-			{
-				_Attacker.push_back(tmp_str);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < data.size(); ++i)
-			{
-				tmp_str = data[i];
-				if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
-				{
-					_Attacker.push_back(tmp_str);
-				}
-			}
-		}
-	}
-
-	if (global_func::is_subs(_data[7], "Victim: "))
-	{
-		string tmp_str = _data[7].substr(8);
-		vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
-
-		if (data.size() == 0)
-		{
-			if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
-			{
-				_Victim.push_back(tmp_str);
-			}
-		}
-		else
-		{
-			for (int i = 0; i < data.size(); ++i)
-			{
-				tmp_str = data[i];
-				if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != "") )
-				{
-					_Victim.push_back(tmp_str);
-				}
-			}
-		}
-	}
-
-	if (global_func::is_subs(_data[8], "Username: "))
-	{
-		_Username = _data[8].substr(10);
-		global_func::remove_cr(_Username);
-	}
-
-	size_t posisi = _data[10].find("At_Attacker: ");
-	if (posisi != string::npos)
-	{
-		string tmp_str = _data[10].substr(posisi + 13);
-		if (global_func::is_subs(tmp_str, "{"))
+		if (global_func::is_subs(tmp_str, ","))
 		{
 			vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
 
-			if (data.size() == 0)
+			for (int i = 0; i < data.size(); ++i)
 			{
+				tmp_str = data[i];
 				if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
 				{
-					_At_Attacker.push_back(tmp_str);
+					vec_ip.push_back(tmp_str);
 				}
 			}
-			else
+		} else {
+			if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
 			{
-				for (int i = 0; i < data.size(); ++i)
+				global_func::remove_cr(tmp_str);
+				vec_ip.push_back(tmp_str);
+			}
+		}
+
+	}
+}
+
+void Tfield_filter_darpa::parser(vector<string> _data)
+{
+	if (_data.size() >= 12)
+	{
+		if (global_func::is_subs(_data[0], "ID: "))
+		{
+			_ID = _data[0].substr(4);
+			global_func::remove_cr(_ID);
+			//cout << _ID << endl;
+
+		}
+
+		if (global_func::is_subs(_data[1], "Date: "))
+		{
+			_Date = Tdatetime_holder(_data[1].substr(6), "00:00:00");
+		}
+
+		if (global_func::is_subs(_data[2], "Name: "))
+		{
+			_Name = _data[2].substr(6);
+			global_func::remove_cr(_Name);
+		}
+
+		if (global_func::is_subs(_data[3], "Category: "))
+		{
+			_Category = _data[3].substr(10);
+			global_func::remove_cr(_Category);
+		}
+
+		if (global_func::is_subs(_data[4], "Start_Time: "))
+		{
+			_Start_Time =  Tdatetime_holder(_data[1].substr(6), _data[4].substr(12));
+			_Start_Time.add_time(11, 0, 0);
+
+			Tdatetime_holder tmp_datetime(_data[1].substr(6), "23:59:59");
+			if (tmp_datetime < _Start_Time)
+			{
+				_Date.add_time(24, 0, 0);
+			}
+		}
+
+		if (global_func::is_subs(_data[5], "Duration: "))
+		{
+			_Duration =  Tdatetime_holder(_data[1].substr(6), _data[4].substr(12));
+			_Duration.add_time(11, 0, 0);
+			_Duration.add_time(_data[5].substr(10));
+		}
+
+		if (global_func::is_subs(_data[6], "Attacker: "))
+		{
+
+			string tmp_str = _data[6].substr(10);
+			ip_parser(tmp_str, _Attacker);
+		}
+
+		if (global_func::is_subs(_data[7], "Victim: "))
+		{
+
+			string tmp_str = _data[7].substr(8);
+			ip_parser(tmp_str, _Victim);
+		}
+
+		if (global_func::is_subs(_data[8], "Username: "))
+		{
+			_Username = _data[8].substr(10);
+			global_func::remove_cr(_Username);
+		}
+
+		size_t posisi = _data[10].find("At_Attacker: ");
+		if (posisi != string::npos)
+		{
+			string tmp_str = _data[10].substr(posisi + 13);
+			if (global_func::is_subs(tmp_str, "{"))
+			{
+				vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
+
+				if (data.size() == 0)
 				{
-					tmp_str = data[i];
 					if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
 					{
 						_At_Attacker.push_back(tmp_str);
 					}
 				}
-			}
-		}
-	}
-
-	posisi = _data[11].find("At_Victim: ");
-	if (posisi != string::npos)
-	{
-		string tmp_str = _data[11].substr(posisi + 11);
-		if (global_func::is_subs(tmp_str, "{"))
-		{
-			vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
-
-			if (data.size() == 0)
-			{
-				if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
+				else
 				{
-					_At_Victim.push_back(tmp_str);
+					for (int i = 0; i < data.size(); ++i)
+					{
+						tmp_str = data[i];
+						if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
+						{
+							_At_Attacker.push_back(tmp_str);
+						}
+					}
 				}
 			}
-			else
+		}
+
+		posisi = _data[11].find("At_Victim: ");
+		if (posisi != string::npos)
+		{
+			string tmp_str = _data[11].substr(posisi + 11);
+			if (global_func::is_subs(tmp_str, "{"))
 			{
-				for (int i = 0; i < data.size(); ++i)
+				vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), ", ");
+
+				if (data.size() == 0)
 				{
-					tmp_str = data[i];
 					if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
 					{
 						_At_Victim.push_back(tmp_str);
 					}
 				}
+				else
+				{
+					for (int i = 0; i < data.size(); ++i)
+					{
+						tmp_str = data[i];
+						if ((tmp_str.length() > 0) and (tmp_str != "\0") and (tmp_str != ""))
+						{
+							_At_Victim.push_back(tmp_str);
+						}
+					}
+				}
 			}
 		}
-	}
 
 
-	if (_At_Attacker.size() > 0)
-	{
-		string tmp_str;
-		for (int i = 0; i < _At_Attacker.size(); ++i)
+		if (_At_Attacker.size() > 0)
 		{
-			tmp_str = _At_Attacker[i];
-			size_t posisi = tmp_str.find("{");
-			if (posisi != string::npos)
+			string tmp_str;
+			for (int i = 0; i < _At_Attacker.size(); ++i)
 			{
-				tmp_str = tmp_str.substr(0, posisi);
-				_At_Attacker[i] = tmp_str;
+				tmp_str = _At_Attacker[i];
+				size_t posisi = tmp_str.find("{");
+				if (posisi != string::npos)
+				{
+					tmp_str = tmp_str.substr(0, posisi);
+					_At_Attacker[i] = tmp_str;
+				}
 			}
+
 		}
 
-	}
-
-	if (_At_Victim.size() > 0)
-	{
-		string tmp_str;
-		for (int i = 0; i < _At_Victim.size(); ++i)
+		if (_At_Victim.size() > 0)
 		{
-			tmp_str = _At_Victim[i];
-			size_t posisi = tmp_str.find("{");
-			if (posisi != string::npos)
+			string tmp_str;
+			for (int i = 0; i < _At_Victim.size(); ++i)
 			{
-				tmp_str = tmp_str.substr(0, posisi);
-				_At_Victim[i] = tmp_str;
+				tmp_str = _At_Victim[i];
+				size_t posisi = tmp_str.find("{");
+				if (posisi != string::npos)
+				{
+					tmp_str = tmp_str.substr(0, posisi);
+					_At_Victim[i] = tmp_str;
+				}
 			}
+
 		}
+
+	} else {
+		
+        _Date = Tdatetime_holder(_data[0], "00:00:00");
+          
+		_Start_Time =  Tdatetime_holder(_data[0], _data[1]);
+		_Start_Time.add_time(11, 0, 0);
+
+		Tdatetime_holder tmp_datetime(_data[0], "23:59:59");
+		if (tmp_datetime < _Start_Time)
+		{
+			_Date.add_time(24, 0, 0);
+		}
+
+		_Duration =  Tdatetime_holder(_data[0], _data[1]);
+		_Duration.add_time(11, 30, 0);
+		
+		_Name = _data[3];
+
+
+		ip_parser(_data[2], _Victim);
+
 
 	}
 
@@ -267,12 +285,15 @@ bool Tfield_filter_darpa::cari_ip_port_src(Tip_port_holder ip_port)
 
 	if (ip_port_src.size() > 0)
 	{
+		//cout << "cari di ip_port_src " << endl ;
 		size_t i = 0;
 		while ((i < ip_port_src.size()) and !is_lolos)
 		{
-			//cout << _ID << " " << ip_port_src[i] << "==" << ip_port << " " << is_lolos << endl;
-			is_lolos = ip_port_src[i] == ip_port;
 
+			is_lolos = ip_port_src[i] == ip_port;
+			// if ((_ID == "002") and is_lolos) {
+			// 	cout << _ID << " " << ip_port_src[i] << "==" << ip_port << " " << is_lolos << endl;
+			// }
 			i++;
 		}
 	}
@@ -285,12 +306,15 @@ bool Tfield_filter_darpa::cari_ip_port_dst(Tip_port_holder ip_port)
 	bool is_lolos = false;
 
 	if (ip_port_dst.size() > 0) {
+		//cout << "cari di ip_port_dst " << endl ;
 		size_t j = 0;
 		while ((j < ip_port_dst.size()) and !is_lolos)
 		{
-			//cout << _ID <<" " << ip_port_dst[j] << "==" << ip_port << " " << is_lolos << endl;
-			is_lolos = ip_port_dst[j] == ip_port;
 
+			is_lolos = ip_port_dst[j] == ip_port;
+			// if ((_ID == "002") and is_lolos ) {
+			// 	cout << _ID << " " << ip_port_dst[j] << "==" << ip_port << " " << is_lolos << endl;
+			// }
 			j++;
 		}
 	}
@@ -308,12 +332,25 @@ bool Tfield_filter_darpa::is_pass(string date_start, string hour_start, string d
 	Tip_port_holder cari_ip_src(ip_src, port_src, service);
 	Tip_port_holder cari_ip_dst(ip_dst, port_dst, service);
 
+    
 
 	if (((_Start_Time <= start) and (end < _Duration)) or ((_Start_Time <= start) and (_Duration < end)) or ((_Start_Time > start) and (end < _Duration)))
 	{
+		
+
 		bool is_lolos1 = cari_ip_port_src(cari_ip_src);
 		bool is_lolos2 = cari_ip_port_dst(cari_ip_dst);
-		is_lolos = is_lolos1 and is_lolos2;
+
+		if ((_Attacker.size() == 0) or (_Victim.size() == 0))
+		{
+			// if(is_lolos1 or is_lolos2){
+			//   cout << "is_lolos1 = " << is_lolos1 << " is_lolos2 = " << is_lolos2 << endl;
+			// }
+
+			is_lolos = is_lolos1 or is_lolos2;
+		} else {
+			is_lolos = is_lolos1 and is_lolos2;
+		}
 
 		if (!is_lolos)
 		{

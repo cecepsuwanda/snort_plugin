@@ -68,128 +68,128 @@ public:
 
 		// if (_protocol == rhs._protocol)
 		// {
-		    //bool ip_3part_same = false; 
-			
-			int ip_int_lhs = ((((_part1 * 255) + _part2) * 255) + _part3);
-			int ip_int_rhs = ((((rhs._part1 * 255) + rhs._part2) * 255) + rhs._part3);
+		//bool ip_3part_same = false;
 
-			// if(ip_int_lhs==ip_int_rhs)
-			// {
-   //             ip_3part_same = true;
-               
-   //             cout << _protocol << " ";
+		int ip_int_lhs = ((((_part1 * 255) + _part2) * 255) + _part3);
+		int ip_int_rhs = ((((rhs._part1 * 255) + rhs._part2) * 255) + rhs._part3);
 
-   //             if(ip_asterik or ip_selang)
-   //             {
-   //                cout << _part4_str << " ";
-   //             }else{
-   //             	  cout << _part4 << " ";
-   //             }
+		// if (ip_int_lhs == ip_int_rhs)
+		// {
+		// 	ip_3part_same = true;
 
-   //             if(port_ignore or port_selang)
-   //             {
-   //             	cout << _port_str << " ";
+		// 	cout << _protocol << " ";
 
-   //             }else{
-   //              cout << _port << " "; 
-   //             }
+		// 	if (ip_asterik or ip_selang)
+		// 	{
+		// 		cout << _part4_str << " ";
+		// 	} else {
+		// 		cout << _part4 << " ";
+		// 	}
 
-   //             cout << "==" << rhs._protocol << " " << rhs._part4 << " " << rhs._port << " ";
-			// }
+		// 	if (port_ignore or port_selang)
+		// 	{
+		// 		cout << _port_str << " ";
 
-			int ip_atas = 0;
-			int ip_bawah = 0;
+		// 	} else {
+		// 		cout << _port << " ";
+		// 	}
+
+		// 	cout << "==" << rhs._protocol << " " << rhs._part4 << " " << rhs._port << " ";
+		// }
+
+		int ip_atas = 0;
+		int ip_bawah = 0;
 
 
-			if (!ip_asterik and !ip_selang)
+		if (!ip_asterik and !ip_selang)
+		{
+			ip_int_lhs = ( ip_int_lhs * 255) + _part4;
+			ip_int_rhs = ( ip_int_rhs * 255) + rhs._part4;
+
+		} else {
+			if (ip_selang)
 			{
-				ip_int_lhs = ( ip_int_lhs * 255) + _part4;
-				ip_int_rhs = ( ip_int_rhs * 255) + rhs._part4;
+				ip_int_rhs = ip_int_rhs = ( ip_int_rhs * 255) + rhs._part4;
+
+				string tmp_str = _part4_str;
+
+				vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), "-");
+
+				int bawah = stoi(data[0]);
+				int atas = stoi(data[1]);
+
+				ip_bawah = (ip_int_lhs * 255) + bawah;
+				ip_atas = (ip_int_lhs * 255) + atas;
+
+			}
+		}
+
+
+		if (!port_selang and !port_ignore)
+		{
+			if (ip_selang)
+			{
+				ip_bawah =  (ip_bawah * 255) + _port; //(_port == -1 ? ip_int_lhs : )
+				ip_atas =  (ip_atas * 255) + _port; //(_port == -1 ? ip_int_lhs : )
+				ip_int_rhs =  (ip_int_rhs * 255) + rhs._port; //(rhs._port == -1 ? ip_int_rhs :)
+
+				is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
 
 			} else {
+				ip_int_lhs =  (ip_int_lhs * 255) + _port; //(_port == -1 ? ip_int_lhs : )
+				ip_int_rhs =  (ip_int_rhs * 255) + rhs._port; //(rhs._port == -1 ? ip_int_rhs :)
+
+				is_pass = ip_int_lhs == ip_int_rhs;
+
+			}
+		} else {
+			if (port_ignore)
+			{
 				if (ip_selang)
 				{
-					ip_int_rhs = ip_int_rhs = ( ip_int_rhs * 255) + rhs._part4;
-
-					string tmp_str = _part4_str;
-
+					is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
+				} else {
+					is_pass = ip_int_lhs == ip_int_rhs;
+				}
+			} else {
+				if (port_selang)
+				{
+					string tmp_str = _port_str;
 					vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), "-");
 
-					int bawah = stoi(data[0]);
-					int atas = stoi(data[1]);
-
-					ip_bawah = (ip_int_lhs * 255) + bawah;
-					ip_atas = (ip_int_lhs * 255) + atas;
-
-				}
-			}
+					int port_bawah = stoi(data[0]);
+					int port_atas = stoi(data[1]);
 
 
-			if (!port_selang and !port_ignore)
-			{
-				if (ip_selang)
-				{
-					ip_bawah =  (ip_bawah * 255) + _port; //(_port == -1 ? ip_int_lhs : )
-					ip_atas =  (ip_atas * 255) + _port; //(_port == -1 ? ip_int_lhs : )
-					ip_int_rhs =  (ip_int_rhs * 255) + rhs._port; //(rhs._port == -1 ? ip_int_rhs :)
-
-					is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
-
-				} else {
-					ip_int_lhs =  (ip_int_lhs * 255) + _port; //(_port == -1 ? ip_int_lhs : )
-					ip_int_rhs =  (ip_int_rhs * 255) + rhs._port; //(rhs._port == -1 ? ip_int_rhs :)
-
-					is_pass = ip_int_lhs == ip_int_rhs;
-
-				}
-			} else {
-				if (port_ignore)
-				{
 					if (ip_selang)
 					{
 						is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
-					} else {
-						is_pass = ip_int_lhs == ip_int_rhs;
-					}
-				} else {
-					if (port_selang)
-					{
-                        string tmp_str = _port_str;
-						vector<string> data = global_func::tokenizer((char *)tmp_str.c_str(), "-");
 
-						int port_bawah = stoi(data[0]);
-						int port_atas = stoi(data[1]);
-
-
-						if (ip_selang)
+						if (is_pass)
 						{
-							is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
-
-							if (is_pass)
-							{
-								is_pass = (port_bawah <= rhs._port) and (rhs._port <= port_atas);
-							}
-
-						} else {
-							ip_bawah =  (ip_int_lhs * 255) + port_bawah;
-							ip_atas =  (ip_int_lhs * 255) + port_atas;
-							ip_int_rhs =  (ip_int_rhs * 255) + rhs._port;
-
-							is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
+							is_pass = (port_bawah <= rhs._port) and (rhs._port <= port_atas);
 						}
+
+					} else {
+						ip_bawah =  (ip_int_lhs * 255) + port_bawah;
+						ip_atas =  (ip_int_lhs * 255) + port_atas;
+						ip_int_rhs =  (ip_int_rhs * 255) + rhs._port;
+
+						is_pass = (ip_bawah <= ip_int_rhs) and (ip_int_rhs <= ip_atas);
 					}
 				}
 			}
+		}
 
-			if(cek_protocol)
-			{
-             // is_pass = is_pass and  (_protocol == rhs._protocol); 
-			}
+		if (cek_protocol)
+		{
+			 is_pass = is_pass and  (_protocol == rhs._protocol);
+		}
 
-			// if(ip_3part_same)
-			// {
-			// 	cout << is_pass << endl;
-			// }
+		// if (ip_3part_same)
+		// {
+		// 	cout << is_pass << endl;
+		// }
 
 		// }
 
