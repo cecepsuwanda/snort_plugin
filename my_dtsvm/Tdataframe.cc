@@ -9,12 +9,8 @@ Tdataframe::Tdataframe()
 
 Tdataframe::~Tdataframe()
 {
-
+  
 }
-
-
-
-
 
 map<string, int> Tdataframe::get_unique_value(int idx_col)
 {
@@ -260,7 +256,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
           jml_loop += 1;
         }
 
-        const int jml_thread = 10;
+        const int jml_thread = 20;
         
         thread th[jml_thread];
         float arr_gain[jml_thread];

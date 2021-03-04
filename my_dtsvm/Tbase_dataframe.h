@@ -57,6 +57,8 @@ public:
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);
 	void write_data(vector<string> &data);
+	void write_data(string data);
+	void save_to(string nm_file);
 
 	bool is_pass(vector<string> &data);
 

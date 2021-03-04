@@ -22,6 +22,7 @@ Tconf_metrix::~Tconf_metrix()
 	}
 
 	matrik1.clear();
+	guess.clear();
 }
 
 void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
@@ -29,6 +30,8 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 
 	if ((tebakan.compare("dfs_failed.") != 0))
 	{
+		guess.insert(pair<string, int>(tebakan, 0));
+
 		jml_data++;
 		if (asli == tebakan)
 		{
@@ -75,6 +78,29 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 void Tconf_metrix::kalkulasi()
 {
 	if (matrik.size() > 0) {
+
+
+		for (auto itr = guess.begin(); itr != guess.end(); itr++)
+		{
+			auto itr1 = matrik.find(itr->first);
+			if (itr1 == matrik.end())
+			{
+				map<string, int> tmp_map;
+				tmp_map.insert(pair<string, int>(itr->first, 0));
+				matrik.insert(pair<string, map<string, int>>(itr->first, tmp_map));
+
+				itr1 = matrik.find(itr->first);
+				for (auto itr2 = matrik.begin(); itr2 != matrik.end(); itr2++)
+				{
+					auto it1 = itr1->second.find(itr2->first);
+					if (it1 == itr1->second.end())
+					{
+						itr1->second.insert(pair<string, int>(itr2->first, 0));
+					}
+				}
+			}
+		}
+
 
 		int TP = 0;
 		int FN = 0;
@@ -223,6 +249,42 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 			out << setprecision(3) << setw(13) << it->second.specificity << endl;
 		}
 	}
+
+	out << endl;
+
+	if (tc.matrik.size() > 0)
+	{
+		out << setw(20);
+
+		for (auto it = tc.matrik.begin(); it != tc.matrik.end(); it++)
+		{
+			out << it->first << setw(10);
+		}
+
+		out << endl;
+
+		for (auto it = tc.guess.begin(); it != tc.guess.end(); it++)
+		{
+			out << setw(10) << it->first;
+			for (auto it1 = tc.matrik.begin(); it1 != tc.matrik.end(); it1++)
+			{
+				auto it2 = it1->second.find(it->first);
+				if(it2==it1->second.end())
+				{
+                  out << setw(10) << 0;
+				}else{
+                  out << setw(10) << it2->second;
+				}
+			}
+
+			out << endl;
+
+		}
+
+
+	}
+
+
 
 	return out;
 }

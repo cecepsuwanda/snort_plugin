@@ -207,10 +207,10 @@ void Tbase_dataframe::stat_tabel()
 	} else {
 		cout << "stat_tabel, Gagal buka file !!!" << endl;
 	}
-	
+
 	_jml_row = i;
-    
-    
+
+
 }
 
 map<string, int> Tbase_dataframe::get_stat_label()
@@ -312,5 +312,53 @@ void Tbase_dataframe::clear_memory()
 	// cetak("}");
 
 	_data.clear_memory();
+}
+
+void Tbase_dataframe::save_to(string nm_file)
+{
+	if (_data.open_file())
+	{
+
+		Tread_file tmp;
+		tmp.setnm_f(nm_file);
+		tmp.open_file("w+");
+
+		vector<string> tmp_data;
+		_data.read_file();
+		while (!_data.is_eof())
+		{
+			tmp_data = _data.get_record();
+
+			if (is_pass(tmp_data))
+			{
+				string tmp_str = "";
+				for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
+				{
+					tmp_str = tmp_str + tmp_data[i] + ",";
+				}
+				tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
+
+				tmp.write_file(tmp_str);
+			}
+
+			tmp_data.clear();
+			tmp_data.shrink_to_fit();
+			_data.next_record();
+		}
+
+		tmp.close_file();
+		_data.close_file();
+	}
+}
+
+void Tbase_dataframe::write_data(string data)
+{
+	
+		if (_data.open_file("a+"))
+		{
+			_data.write_file(data);
+			_data.close_file();
+		}
+
 }
 

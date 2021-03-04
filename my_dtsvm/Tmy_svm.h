@@ -30,10 +30,13 @@ private:
 
 	void cetak ( const char * format, ... );
 
+	int _idx_svm;
+	string _model_path;
+
 public:
 	Tmy_svm();
 	~Tmy_svm();
-	Tmy_svm(bool feature_selection, bool _normal_only);
+	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path);
 
 	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);

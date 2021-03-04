@@ -1,23 +1,28 @@
 
 #include <chrono>
 #include <iostream>
+#include <experimental/filesystem>
 //#include "Tbase_dataframe.h"
 #include "Tdec_tree.h"
 
 using namespace std;
+using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
 {
   Tdataframe df_train, df_test, df_save;
-  Tdec_tree dec_tree(stoi(argv[10]),stoi(argv[11]),stoi(argv[12]));
+  Tdec_tree dec_tree(stoi(argv[10]), stoi(argv[11]), stoi(argv[12]));
   char *endptr;
 
   string s(argv[8]);
-  df_save.read_data( s+ "/dtsvm_model.csv");
+  df_save.read_data( s + "/dtsvm_model.csv");
   dec_tree.set_model_path(argv[8]);
 
   if (stoi(argv[9]) == 1)
   {
+    for (const auto & file : directory_iterator(s))
+      remove(file.path());
+
     df_train.read_data(argv[6]);
     df_train.read_data_type(argv[5]);
     df_train.set_id(0);
@@ -30,7 +35,7 @@ int main(int argc, char *argv[])
     dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
     auto end = std::chrono::steady_clock::now();
     double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-    cout << "Lama Training : " << elapsed_time / 60 << endl;    
+    cout << "Lama Training : " << elapsed_time / 60 << endl;
     cout << "End Train Decission Tree : " << endl;
 
     dec_tree.save_tree(df_save);
@@ -48,18 +53,6 @@ int main(int argc, char *argv[])
   cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;
   cout << "Test Decission Tree : " << endl;
   dec_tree.test(df_test);
-
-  // Tmy_svm my_svm;
-
-  // char *endptr;
-  // double gamma = strtod(argv[2], &endptr);
-  // double nu = strtod(argv[3], &endptr);
-
-  // my_svm.train(df_train,gamma,nu);
-  // my_svm.save_model(argv[7]);
-
-  // my_svm.load_model(argv[7]);
-  // my_svm.test(df_test); 
 
   return 0;
 }

@@ -19,92 +19,92 @@ rm labeling
 make
 
 
-rm -rf data/darpa99_4w_friday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_inside.csv data/darpa99_4w_friday_in.csv
-wait
+# rm -rf data/darpa99_4w_friday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_inside.csv data/darpa99_4w_friday_in.csv
+# wait
 
 
-rm -rf data/darpa99_4w_friday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_outside.csv data/darpa99_4w_friday_out.csv
-wait
+# rm -rf data/darpa99_4w_friday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_friday_outside.csv data/darpa99_4w_friday_out.csv
+# wait
 
 
-rm -rf data/darpa99_4w_monday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_inside.csv data/darpa99_4w_monday_in.csv
-wait
+# rm -rf data/darpa99_4w_monday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_inside.csv data/darpa99_4w_monday_in.csv
+# wait
 
 
-rm -rf data/darpa99_4w_monday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_outside.csv data/darpa99_4w_monday_out.csv
-wait
+# rm -rf data/darpa99_4w_monday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_monday_outside.csv data/darpa99_4w_monday_out.csv
+# wait
 
 
-rm -rf data/darpa99_4w_thursday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thursday_inside.csv data/darpa99_4w_thursday_in.csv
-wait
+# rm -rf data/darpa99_4w_thursday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thursday_inside.csv data/darpa99_4w_thursday_in.csv
+# wait
 
 
-rm -rf data/darpa99_4w_thursday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thrusday_outside.csv data/darpa99_4w_thursday_out.csv
-wait
+# rm -rf data/darpa99_4w_thursday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_thrusday_outside.csv data/darpa99_4w_thursday_out.csv
+# wait
 
 
-rm -rf data/darpa99_4w_tuesday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_tuesday_outside.csv data/darpa99_4w_tuesday_out.csv
-wait
+# rm -rf data/darpa99_4w_tuesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_tuesday_outside.csv data/darpa99_4w_tuesday_out.csv
+# wait
 
 
-rm -rf data/darpa99_4w_wednesday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_inside.csv data/darpa99_4w_wednesday_in.csv
-wait
+# rm -rf data/darpa99_4w_wednesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_inside.csv data/darpa99_4w_wednesday_in.csv
+# wait
 
 
-rm -rf data/darpa99_4w_wednesday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_outside.csv data/darpa99_4w_wednesday_out.csv
-wait
+# rm -rf data/darpa99_4w_wednesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/4week_wednesday_outside.csv data/darpa99_4w_wednesday_out.csv
+# wait
 
 
-rm -rf data/darpa99_5w_friday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_friday_inside.csv data/darpa99_5w_friday_in.csv
-wait
+# rm -rf data/darpa99_5w_friday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_friday_inside.csv data/darpa99_5w_friday_in.csv
+# wait
 
 
-rm -rf data/darpa99_5w_monday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_inside.csv data/darpa99_5w_monday_in.csv
-wait
+# rm -rf data/darpa99_5w_monday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_inside.csv data/darpa99_5w_monday_in.csv
+# wait
 
 
-rm -rf data/darpa99_5w_monday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_outside.csv data/darpa99_5w_monday_out.csv
-wait
+# rm -rf data/darpa99_5w_monday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_monday_outside.csv data/darpa99_5w_monday_out.csv
+# wait
 
 
-rm -rf data/darpa99_5w_thursday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thursday_inside.csv data/darpa99_5w_thursday_in.csv
-wait
+# rm -rf data/darpa99_5w_thursday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thursday_inside.csv data/darpa99_5w_thursday_in.csv
+# wait
 
 
-rm -rf data/darpa99_5w_thursday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thrusday_outside.csv data/darpa99_5w_thursday_out.csv
-wait
+# rm -rf data/darpa99_5w_thursday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_thrusday_outside.csv data/darpa99_5w_thursday_out.csv
+# wait
 
 
-rm -rf data/darpa99_5w_tuesday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_inside.csv data/darpa99_5w_tuesday_in.csv
-wait
+# rm -rf data/darpa99_5w_tuesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_inside.csv data/darpa99_5w_tuesday_in.csv
+# wait
 
 
-rm -rf data/darpa99_5w_tuesday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_outside.csv data/darpa99_5w_tuesday_out.csv
-wait
+# rm -rf data/darpa99_5w_tuesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_tuesday_outside.csv data/darpa99_5w_tuesday_out.csv
+# wait
 
 
-rm -rf data/darpa99_5w_wednesday_in.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_inside.csv data/darpa99_5w_wednesday_in.csv
-wait
+# rm -rf data/darpa99_5w_wednesday_in.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_inside.csv data/darpa99_5w_wednesday_in.csv
+# wait
 
-rm -rf data/darpa99_5w_wednesday_out.csv
-./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_outside.csv data/darpa99_5w_wednesday_out.csv
+# rm -rf data/darpa99_5w_wednesday_out.csv
+# ./labeling ~/Dataset/mit_darpa_99/master_identifications.list ~/Dataset/mit_darpa_99/week2_attack.list ~/cpp/my_rtdtsvm/build-files/src/output/5week_wednesday_outside.csv data/darpa99_5w_wednesday_out.csv
 
 
 rm -rf data/darpa99_2w_friday_out.csv

@@ -193,7 +193,7 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
 
         //df.ReFilter();
         cetak("{v");
-        Tmy_svm my_svm(feature_selection, normal_only);
+        Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
         my_svm.train(df, gamma, nu);
         my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
         cetak("}");
@@ -258,8 +258,10 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
 
+
+
           cetak("{v");
-          Tmy_svm my_svm(feature_selection, normal_only);
+          Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
           my_svm.train(df, gamma, nu);
           my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
           cetak("}");
@@ -339,20 +341,23 @@ void Tdec_tree::train(Tdataframe &df, int node_index , int counter, int min_samp
             tree[node_index].idx_svm = idx_svm;
 
             cetak("{v");
-            Tmy_svm my_svm(feature_selection, normal_only);
+            Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
             my_svm.train(df, gamma, nu);
             my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
             cetak("}");
 
+            string filename = model_path + "/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+            remove(filename.c_str());
+            filename = model_path + "/train_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
+            remove(filename.c_str());
+            
+            filename = model_path + "/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+            remove(filename.c_str());
+
+            filename = model_path + "/train_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
+            remove(filename.c_str());
+
           }
-
-
-          string filename = model_path + "/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
-          remove(filename.c_str());
-          filename = model_path + "/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
-          remove(filename.c_str());
-
-
 
         }
 
@@ -428,10 +433,10 @@ int Tdec_tree::dfs(Tdataframe &df, vector<string> &data, int treeIndex)
     // {
     //   return next;
     // } else {
-      if (is_pass(tree[next].opt, tree[next].attrValue, data[criteriaAttrIndex]) ) {
-        vec_attr.push_back(criteriaAttrIndex);
-        return dfs(df, data, next);
-      }
+    if (is_pass(tree[next].opt, tree[next].attrValue, data[criteriaAttrIndex]) ) {
+      vec_attr.push_back(criteriaAttrIndex);
+      return dfs(df, data, next);
+    }
     // }
 
   }
@@ -458,8 +463,11 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
     {
       if ((label == "normal") and (tree[leafNode].idx_svm != -1))
       {
+        Tdataframe df_save;
+        df_save.read_data(model_path + "/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
+
         //cetak("{v {model ");
-        Tmy_svm my_svm(feature_selection, normal_only);
+        Tmy_svm my_svm(feature_selection, normal_only, 0, "");
         string nm_model = model_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
@@ -497,6 +505,15 @@ string Tdec_tree::guess(Tdataframe &df, vector<string> &data)
             tmp_data.push_back(data[i]);
           }
         }
+
+
+        string tmp_str = "";
+        for (int i = 0; i < (tmp_data.size() - 1); ++i)
+        {
+          tmp_str = tmp_str + tmp_data[i] + ",";
+        }
+        tmp_str = tmp_str + data[data.size() - 1];
+        df_save.write_data(tmp_str);
 
         //cetak(" {guess ");
         label = my_svm.guess(df, tmp_data);
