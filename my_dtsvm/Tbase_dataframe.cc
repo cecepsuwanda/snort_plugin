@@ -218,6 +218,16 @@ map<string, int> Tbase_dataframe::get_stat_label()
 	return _stat_label.get_map();
 }
 
+float Tbase_dataframe::get_estimate_error()
+{
+	return _stat_label.get_estimate_error();
+}
+
+string Tbase_dataframe::get_max_label()
+{
+   return _stat_label.get_max_label();	
+}
+
 int Tbase_dataframe::getjmlcol()
 {
 	return _jml_col;

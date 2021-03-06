@@ -39,6 +39,16 @@ protected:
 
 public:
 	Tbase_dataframe();
+	Tbase_dataframe(const Tbase_dataframe &t)
+	{
+		_data = t._data;
+		_data_header = t._data_header;
+		_data_type = t._data_type;
+		_filter = t._filter;
+		_jml_col = t._jml_col;
+		_idx_label = t._idx_label;
+	}
+
 	~Tbase_dataframe();
 	Tbase_dataframe& operator = (const Tbase_dataframe &t)
 	{
@@ -64,7 +74,8 @@ public:
 
 	void stat_tabel();
 	map<string, int> get_stat_label();
-
+	float get_estimate_error();
+    string get_max_label();
 
 	int getjmlcol();
 	int getjmlrow();

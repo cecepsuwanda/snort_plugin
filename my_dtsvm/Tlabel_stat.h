@@ -16,6 +16,10 @@ class Tlabel_stat
 private:
 	int _jml_row;
 	map<string, int> _map;
+	string _max_label;
+	int _max_value;
+	string _min_label;
+	int _min_value;
 public:
 	Tlabel_stat();
 	~Tlabel_stat();
@@ -24,10 +28,13 @@ public:
     int get_jml_row();
 
     float get_entropy();
+    float get_estimate_error();
     map<string, int> get_map();
 
     int get_jml_row_in_map();
     string get_first_value_in_map();
+
+    string get_max_label();
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{
@@ -39,6 +46,11 @@ public:
 		{
 			this->_map.insert(pair<string, int>(it->first, it->second));
 		}
+
+		this->_max_value = t._max_value;
+		this->_max_label = t._max_label;
+		this->_min_value = t._min_value;
+		this->_min_label = t._min_label;
 
 		return *this;
 	}

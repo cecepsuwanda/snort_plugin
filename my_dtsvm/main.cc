@@ -35,8 +35,12 @@ int main(int argc, char *argv[])
     dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
     auto end = std::chrono::steady_clock::now();
     double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-    cout << "Lama Training : " << elapsed_time / 60 << endl;
+    cout << "\nLama Training : " << elapsed_time / 60 << endl;
     cout << "End Train Decission Tree : " << endl;
+
+    cout << "Start Prunning Decission Tree : " << endl;
+    dec_tree.post_pruning(df_train, strtod(argv[3], &endptr), strtod(argv[4], &endptr));
+    cout << "\nEnd Prunning Decission Tree : " << endl;
 
     dec_tree.save_tree(df_save);
   }
@@ -49,6 +53,8 @@ int main(int argc, char *argv[])
   if (stoi(argv[9]) == 0) {
     dec_tree.read_tree(df_save);
   }
+
+
 
   cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;
   cout << "Test Decission Tree : " << endl;

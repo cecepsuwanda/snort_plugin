@@ -4,6 +4,7 @@
 Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
+	_max_value = 0;
 }
 
 Tlabel_stat::~Tlabel_stat()
@@ -51,6 +52,18 @@ float Tlabel_stat::get_entropy()
 	return entropy;
 }
 
+float Tlabel_stat::get_estimate_error()
+{
+    float estimate_error = 0;
+
+    float f = (float) _min_value /_jml_row;
+    float z = 0.69;
+
+    estimate_error = (f+((z*z)/(2*_jml_row))+(z*sqrt((f/_jml_row)-((f*f)/_jml_row)+((z*z)/(4*_jml_row*_jml_row)))) )/(1+((z*z)/_jml_row));
+  
+    return estimate_error;	
+}
+
 void Tlabel_stat::add(string value)
 {
 	_jml_row += 1;
@@ -64,6 +77,39 @@ void Tlabel_stat::add(string value)
 		it->second += 1;
 	}
 
+	
+
+	auto itr = _map.begin();
+	_max_label = itr->first;
+	_max_value = itr->second;
+    _min_label = itr->first;
+    _min_value = itr->second;
+
+	while(itr!=_map.end())
+	{
+        if(itr!=_map.begin())
+        {
+           if(_max_value<itr->second)
+           {
+             _max_label=itr->first; 
+             _max_value=itr->second;
+           }
+
+           if(itr->second < _min_value)
+           {
+           	 _min_label=itr->first; 
+             _min_value=itr->second;
+           }	
+        } 
+
+		itr++;
+	}
+
+}
+
+string Tlabel_stat::get_max_label()
+{
+	return _max_label;
 }
 
 map<string, int> Tlabel_stat::get_map()

@@ -211,8 +211,6 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
   //cetak(" calculate_overall_metric ");
   //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
 
-
-
   if (_col_pot_split.size() > 0)
   {
     float entropy_before_split = _stat_label.get_entropy();
@@ -315,34 +313,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
             l++;
           }
         }
-
-
-
-        // for (size_t i = 0; i < jml_loop; i += 2)
-        // {
-
-        //   float tmp_best_overall_metric1, tmp_best_overall_metric2;
-        //   string tmp_split_value1, tmp_split_value2;
-
-        //   thread t1(&Tdataframe::calculate_metric, (i * 1000) + 1, 1000 * (i + 1), ref(_col_pot_split), ref(tmp_best_overall_metric1), ref(tmp_split_value1), ref(_stat_label));
-        //   thread t2(&Tdataframe::calculate_metric, ((i + 1) * 1000) + 1, 1000 * (i + 2), ref(_col_pot_split), ref(tmp_best_overall_metric2), ref(tmp_split_value2), ref(_stat_label));
-        //   t1.join();
-        //   t2.join();
-
-        //   if (gain_max < tmp_best_overall_metric1)
-        //   {
-        //     gain_max = tmp_best_overall_metric1;
-        //     tmp_split_value = tmp_split_value1;
-        //   }
-
-        //   if (gain_max < tmp_best_overall_metric2)
-        //   {
-        //     gain_max = tmp_best_overall_metric2;
-        //     tmp_split_value = tmp_split_value2;
-        //   }
-
-
-        // }
+       
 
         current_overall_metric = gain_max;
         split_value = tmp_split_value;
@@ -364,18 +335,6 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     _col_pot_split.clear();
 
   }
-
-
-  //     thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + ((i - 1) * 5000), 5000 * i, ref(vec_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1), ref(tmp_sum_entropy1));
-  //     thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + (i * 5000), 5000 * (i + 1), ref(vec_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2), ref(tmp_sum_entropy2));
-
-  //     // cetak("t1");
-  //     t1.join();
-  //     // cetak("t2");
-  //     // cetak("|");
-  //     t2.join();
-
-
 
 }
 
