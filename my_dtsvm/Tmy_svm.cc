@@ -100,22 +100,11 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	size_t elements, j, i;
 	char *endptr;
 
-	vector<field_filter> df_filter;
-	df_filter = df.get_filter();
-
 	map<int, int> kolom;
-
-	for (size_t i = 0; i < df_filter.size(); ++i)
+	if (_feature_selection)
 	{
-		auto itr = kolom.find(df_filter[i].idx_col);
-		if (itr == kolom.end()) {
-			kolom.insert(pair<int, int>(df_filter[i].idx_col, 1));
-		} else {
-			itr->second += 1;
-		}
+		kolom = df.get_unique_attr();
 	}
-
-
 
 	df.reset_file();
 
@@ -187,18 +176,27 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			prob.y[i] = 1;
 
 			string tmp_str = "";
+
+
 			auto itr = kolom.begin();
 			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
-				x_space[j].index = k;
-				string str = ( _feature_selection ? tmp[itr->first] : tmp[k]);  //string str = tmp[df_filter[k].idx_col];
-				x_space[j].value = strtod(str.c_str(), &endptr);
-
-				tmp_str = tmp_str + str + ",";
-
-				if (itr != kolom.end()) {
-					itr++;
+				if (_feature_selection)
+				{
+					if (itr != kolom.end()) {
+						x_space[j].index = k;
+						string str = tmp[itr->first];  //string str = tmp[df_filter[k].idx_col];
+						x_space[j].value = strtod(str.c_str(), &endptr);
+						tmp_str = tmp_str + str + ",";
+						itr++;
+					}
+				} else {
+					x_space[j].index = k;
+					string str = tmp[k];
+					x_space[j].value = strtod(str.c_str(), &endptr);
+					tmp_str = tmp_str + str + ",";
 				}
+
 				++j;
 			}
 
@@ -221,12 +219,8 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	//cout << i << endl;
 	is_read_problem = true;
 
-	tmp_wf.close_file();
-
-	df_filter.clear();
-	df_filter.shrink_to_fit();
+	tmp_wf.close_file();	
 	kolom.clear();
-
 	df.clear_memory();
 
 }
@@ -297,7 +291,7 @@ void Tmy_svm::test(Tdataframe &df)
 	char *endptr;
 
 	asli = "inside";
-	
+
 	df.reset_file();
 
 	while (!df.is_eof())

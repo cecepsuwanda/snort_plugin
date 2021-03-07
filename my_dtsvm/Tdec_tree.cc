@@ -12,12 +12,14 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_feature_selection, int v_normal_only)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_feature_selection, int v_normal_only, double v_gamma, double v_nu)
 {
 
   train_svm = v_train_svm == 1;
   feature_selection = v_feature_selection == 1;
   normal_only = v_normal_only == 1;
+  _gamma = v_gamma;
+  _nu = v_nu;
 
   idx_svm = 0;
   id_df = 1;
@@ -42,18 +44,7 @@ void Tdec_tree::cetak ( const char * format, ... )
 
 bool Tdec_tree::check_purity(Tdataframe &df)
 {
-  map<string, int> unique;
-  //unique = df.get_unique_value(df.getjmlcol()-1);
-  unique = df.get_stat_label();
-  if (unique.size() == 1)
-  {
-    unique.clear();
-    return true;
-  } else {
-    unique.clear();
-    return false;
-  }
-
+  return df.is_single_label();
 }
 
 void Tdec_tree::col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value)
@@ -96,32 +87,18 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
 string Tdec_tree::create_leaf(Tdataframe & df)
 {
-  map<string, int>tmp_stat = df.get_stat_label();
-  bool is_first = true;
-  int vmax;
-  string vlabel;
-  map<string, int>::iterator it = tmp_stat.begin();
-  while (it != tmp_stat.end())
-  {
-    if (is_first)
-    {
-      is_first = false;
-      vlabel = it->first;
-      vmax   = it->second;
-    } else {
-      if (it->second > vmax)
-      {
-        vlabel = it->first;
-        vmax   = it->second;
-      }
-    }
-    it++;
-  }
-
+  string vlabel = df.get_max_label();
   return vlabel;
 }
 
-void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_samples, int max_depth, double gamma, double nu)
+void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
+{
+  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path);
+  my_svm.train(df, _gamma, _nu);
+  my_svm.save_model(model_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
+}
+
+void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_samples, int max_depth)
 {
   if (node_index == 0)
   {
@@ -147,9 +124,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
         tree[node_index].idx_svm = idx_svm;
 
         cetak("{v");
-        Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
-        my_svm.train(df, gamma, nu);
-        my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
+        f_train_svm(df, idx_svm);
         cetak("}");
 
       }
@@ -196,9 +171,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
           tree[node_index].idx_svm = idx_svm;
 
           cetak("{v");
-          Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
-          my_svm.train(df, gamma, nu);
-          my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
+          f_train_svm(df, idx_svm);
           cetak("}");
 
         }
@@ -217,7 +190,6 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
       tree[node_index].criteriaAttrIndex = split_column;
 
-
       int treeIndex_yes, treeIndex_no;
 
       Node nextNode;
@@ -230,7 +202,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
       // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
       cetak("->");
-      train(df_below, nextNode.treeIndex, counter, min_samples, max_depth, gamma, nu);
+      train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
 
 
       Node nextNode1;
@@ -243,41 +215,31 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
       // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
       cetak("<-");
-      train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth, gamma, nu);
+      train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth);
 
       if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
       {
 
         tree[node_index].isLeaf = true;
-        //tree[node_index].attrValue = -1;//tree[treeIndex_yes].attrValue;
 
         string tmp_str = tree[treeIndex_yes].label;
 
         if (tmp_str == "normal") {
-          //cetak(to_string(counter).c_str());
+
           cetak("+");
 
-          //cout << "label sama " << endl;
-          //cout << "Jml data1 " << df_above.getjmlrow() << endl;
-          //cout << "Jml data2 " << df_below.getjmlrow() << endl;
-          //cout << "Jml data3 " << df.getjmlrow() << endl;
-
-          //df.stat_tabel();
-          //cout << "Jml data3 " << df.getjmlrow() << endl;
-
-          if ((train_svm) ) //and (df.getjmlrow() < 10000)
+          if ((train_svm) )
           {
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
             cetak("{v");
-            Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
-            my_svm.train(df, gamma, nu);
-            my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
+            f_train_svm(df, idx_svm);
             cetak("}");
 
             string filename = model_path + "/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
             remove(filename.c_str());
+
             filename = model_path + "/train_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
             remove(filename.c_str());
 
@@ -633,10 +595,10 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train, double gamma,
       error_right = df_right.get_estimate_error();
 
       sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
-      
+
       df_left.clear_memory();
       df_right.clear_memory();
-      df_train.clear_memory(); 
+      df_train.clear_memory();
 
       if (error_node < sum_error)
       {

@@ -24,6 +24,7 @@ protected:
 	vector<string> _data_header;
 	vector<string> _data_type;
 	vector<field_filter> _filter;
+	map<int, int> _unique_attr;
 	Tlabel_stat _stat_label;
 
 	int _jml_col = 0;
@@ -47,6 +48,7 @@ public:
 		_data_header = t._data_header;
 		_data_type = t._data_type;
 		_filter = t._filter;
+		_unique_attr = t._unique_attr;
 		_jml_col = t._jml_col;
 		_jml_row = t._jml_row;
 		_stat_label = t._stat_label;
@@ -61,6 +63,7 @@ public:
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;
 		this->_filter = t._filter;
+		this->_unique_attr = t._unique_attr;
 		this->_jml_col = t._jml_col;
 		this->_jml_row = t._jml_row;
 		this->_stat_label = t._stat_label;
@@ -82,6 +85,8 @@ public:
 	map<string, int> get_stat_label();
 	float get_estimate_error();
 	string get_max_label();
+	bool is_single_label();
+	map<int, int> get_unique_attr();
 
 	int getjmlcol();
 	int getjmlrow();

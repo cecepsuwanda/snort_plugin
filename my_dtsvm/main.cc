@@ -10,9 +10,9 @@ using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
 {
-  Tdataframe df_train, df_test,df_tree;
-  Tdec_tree dec_tree(stoi(argv[10]), stoi(argv[11]), stoi(argv[12]));
+  Tdataframe df_train, df_test, df_tree;
   char *endptr;
+  Tdec_tree dec_tree(stoi(argv[10]), stoi(argv[11]), stoi(argv[12]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
 
   string s(argv[8]);
   dec_tree.set_model_path(argv[8]);
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;
     cout << "Start Train Decission Tree : " << endl;
     auto start = std::chrono::steady_clock::now();
-    dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
+    dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]));
     auto end = std::chrono::steady_clock::now();
     double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
     cout << "\nLama Training : " << elapsed_time / 60 << endl;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   cout << "Test : Jumlah Baris : " << df_test.getjmlrow() << " Jumlah Kolom : " << df_test.getjmlcol() << endl;
 
   if (stoi(argv[9]) == 0) {
-    df_tree.read_data(s+ "/dtsvm_model.csv");
+    df_tree.read_data(s + "/dtsvm_model.csv");
     dec_tree.read_tree(df_tree);
   }
 

@@ -193,6 +193,16 @@ float Tbase_dataframe::get_estimate_error()
 	return _stat_label.get_estimate_error();
 }
 
+map<int, int> Tbase_dataframe::get_unique_attr()
+{
+	return _unique_attr;
+}
+
+bool Tbase_dataframe::is_single_label()
+{
+	return _stat_label.is_single_label();
+}
+
 string Tbase_dataframe::get_max_label()
 {
 	return _stat_label.get_max_label();
@@ -242,12 +252,28 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 	f.idx_opt = idx_opt;
 	f.value = value;
 	_filter.push_back(f);
+
+	auto itr = _unique_attr.find(idx_col);
+	if (itr == _unique_attr.end()) {
+		_unique_attr.insert(pair<int, int>(idx_col, 1));
+	} else {
+		itr->second += 1;
+	}
+
 	stat_tabel();
 }
 
 void Tbase_dataframe::add_filter(field_filter filter)
 {
 	_filter.push_back(filter);
+
+	auto itr = _unique_attr.find(filter.idx_col);
+	if (itr == _unique_attr.end()) {
+		_unique_attr.insert(pair<int, int>(filter.idx_col, 1));
+	} else {
+		itr->second += 1;
+	}
+
 	stat_tabel();
 }
 

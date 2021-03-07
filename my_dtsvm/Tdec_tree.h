@@ -63,20 +63,23 @@ private:
 	bool train_svm = false;
 	bool feature_selection = false;
 	bool normal_only = false;
+	double _gamma = 0.0001;
+	double _nu = 0.01;
 
 	static void col_pot_split(Tdataframe df,int i, float & current_overall_metric, string & current_split_value);
+	void f_train_svm(Tdataframe &df,int v_idx_svm);
 
 public:
 	Tdec_tree();
 	~Tdec_tree();
-    Tdec_tree(int v_train_svm,int v_feature_selection,int v_normal_only);
+    Tdec_tree(int v_train_svm,int v_feature_selection,int v_normal_only,double v_gamma,double v_nu);
 
 
 	string guess(Tdataframe &df, vector<string> &data);
 
 	void test(Tdataframe &df);
 	void read_tree(Tdataframe &df);
-	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth,double gamma,double nu);
+	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth);
 	void post_pruning(Tdataframe &df_train,double gamma,double nu);
 	void save_tree();
  
