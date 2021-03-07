@@ -31,12 +31,14 @@ protected:
 	int _idx_label;
 	string _nm_file;
 
-	bool is_index = false;
+
 
 	void cetak ( const char * format, ... );
 
 	int _id = 0;
 
+private:
+	
 public:
 	Tbase_dataframe();
 	Tbase_dataframe(const Tbase_dataframe &t)
@@ -46,7 +48,10 @@ public:
 		_data_type = t._data_type;
 		_filter = t._filter;
 		_jml_col = t._jml_col;
+		_jml_row = t._jml_row;
+		_stat_label = t._stat_label;
 		_idx_label = t._idx_label;
+		_nm_file = t._nm_file;
 	}
 
 	~Tbase_dataframe();
@@ -57,7 +62,10 @@ public:
 		this->_data_type = t._data_type;
 		this->_filter = t._filter;
 		this->_jml_col = t._jml_col;
+		this->_jml_row = t._jml_row;
+		this->_stat_label = t._stat_label;
 		this->_idx_label = t._idx_label;
+		this->_nm_file = t._nm_file;
 		return *this;
 	}
 
@@ -65,9 +73,7 @@ public:
 	int get_id();
 
 	void read_data(string nm_f);
-	void read_data_type(string nm_f);
-	void write_data(vector<string> &data);
-	void write_data(string data);
+	void read_data_type(string nm_f);	
 	void save_to(string nm_file);
 
 	bool is_pass(vector<string> &data);
@@ -75,14 +81,14 @@ public:
 	void stat_tabel();
 	map<string, int> get_stat_label();
 	float get_estimate_error();
-    string get_max_label();
+	string get_max_label();
 
 	int getjmlcol();
 	int getjmlrow();
 
-	bool open_file();
-	void read_file();
+	void reset_file();
 	void close_file();
+
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
@@ -92,8 +98,10 @@ public:
 	void ReFilter();
 	vector<field_filter> get_filter();
 
-	void info();
 	void clear_memory();
+
+	void info();
+	void head();
 
 };
 

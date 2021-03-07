@@ -6,6 +6,7 @@
 #include "Tconf_metrix.h"
 #include "Tmy_dttype.h"
 #include "Tmy_svm.h"
+#include "Twrite_file.h"
 
 using namespace std;
 
@@ -47,11 +48,10 @@ private:
 	string model_path;
 
 	bool check_purity(Tdataframe &df);
-	map<int, map<string, int>> get_potential_splits(Tdataframe &df);
-
+	
 	string create_leaf(Tdataframe &df);
 	void determine_best_split(Tdataframe &df, int &split_column, string &split_value);
-	int dfs(Tdataframe &df, vector<string> &data, int treeIndex);
+	int dfs(vector<string> &data, int treeIndex);
 	void pruning_dfs(int node_index ,Tdataframe &df_train,double gamma,double nu);
 
     vector<int> vec_attr;
@@ -78,7 +78,7 @@ public:
 	void read_tree(Tdataframe &df);
 	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth,double gamma,double nu);
 	void post_pruning(Tdataframe &df_train,double gamma,double nu);
-	void save_tree(Tdataframe &df);
+	void save_tree();
  
     void set_model_path(string path);
 };

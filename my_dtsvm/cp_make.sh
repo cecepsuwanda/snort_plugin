@@ -3,6 +3,7 @@
 cd ~/cpp/my_dtsvm
 cp -rf ~/snort_plugin/my_dtsvm/makefile .
 cp -rf ~/snort_plugin/my_dtsvm/Tread_file.* .
+cp -rf ~/snort_plugin/my_dtsvm/Twrite_file.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tdataframe.* .
 cp -rf ~/snort_plugin/my_dtsvm/svm.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tconf_metrix.* .

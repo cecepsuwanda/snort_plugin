@@ -10,12 +10,11 @@ using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
 {
-  Tdataframe df_train, df_test, df_save;
+  Tdataframe df_train, df_test,df_tree;
   Tdec_tree dec_tree(stoi(argv[10]), stoi(argv[11]), stoi(argv[12]));
   char *endptr;
 
   string s(argv[8]);
-  df_save.read_data( s + "/dtsvm_model.csv");
   dec_tree.set_model_path(argv[8]);
 
   if (stoi(argv[9]) == 1)
@@ -42,7 +41,9 @@ int main(int argc, char *argv[])
     dec_tree.post_pruning(df_train, strtod(argv[3], &endptr), strtod(argv[4], &endptr));
     cout << "\nEnd Prunning Decission Tree : " << endl;
 
-    dec_tree.save_tree(df_save);
+    dec_tree.save_tree();
+
+    df_train.close_file();
   }
 
   df_test.read_data(argv[7]);
@@ -51,7 +52,8 @@ int main(int argc, char *argv[])
   cout << "Test : Jumlah Baris : " << df_test.getjmlrow() << " Jumlah Kolom : " << df_test.getjmlcol() << endl;
 
   if (stoi(argv[9]) == 0) {
-    dec_tree.read_tree(df_save);
+    df_tree.read_data(s+ "/dtsvm_model.csv");
+    dec_tree.read_tree(df_tree);
   }
 
 

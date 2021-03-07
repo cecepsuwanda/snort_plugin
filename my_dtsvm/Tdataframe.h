@@ -28,9 +28,6 @@ public:
   ~Tdataframe();
    
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
-  map<string, int> get_unique_value(int idx_col);
-  
-  
   float get_entropy();
 
   string get_nm_header(int idx_col);

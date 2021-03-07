@@ -51,64 +51,39 @@ void Tbase_dataframe::cetak ( const char * format, ... )
 void Tbase_dataframe::read_data(string nm_f)
 {
 	_nm_file = nm_f;
-	_data.setnm_f(nm_f);
-	_data.setseparator(",");
+	_data.setnm_f(nm_f, ",");
 }
 
 void Tbase_dataframe::read_data_type(string nm_f)
 {
 	Tread_file tmp;
-	tmp.setnm_f(nm_f);
-	tmp.setseparator(": ");
+	tmp.setnm_f(nm_f, ": ");
 
-	if (tmp.open_file())
+	vector<string> tmp_data;
+
+	int i = 0;
+	while (!tmp.is_eof())
 	{
-		vector<string> tmp_data;
-		tmp.read_file();
-		int i = 0;
-		while (!tmp.is_eof())
+		tmp_data = tmp.get_record();
+		_data_header.push_back(tmp_data[0]);
+		_data_type.push_back(tmp_data[1]);
+
+		if (tmp_data[0] == "label")
 		{
-			tmp_data = tmp.get_record();
-			_data_header.push_back(tmp_data[0]);
-			_data_type.push_back(tmp_data[1]);
-
-			if (tmp_data[0] == "label")
-			{
-				_idx_label = i;
-			}
-
-			tmp.next_record();
-			tmp_data.clear();
-			tmp_data.shrink_to_fit();
-			i++;
+			_idx_label = i;
 		}
-		_jml_col = i;
-		tmp.close_file();
-	} else {
-		cout << "Gagal buka " << nm_f << " !!!" << endl;
+
+		tmp.next_record();
+		tmp_data.clear();
+		tmp_data.shrink_to_fit();
+		i++;
 	}
+	_jml_col = i;
+	tmp.close_file();
 
 	stat_tabel();
 }
 
-void Tbase_dataframe::write_data(vector<string> &data)
-{
-	if (data.size())
-	{
-		if (_data.open_file("w+"))
-		{
-			for (size_t i = 0; i < data.size(); ++i)
-			{
-				_data.write_file(data[i]);
-			}
-
-			_data.close_file();
-
-		} else {
-			cout << "Gagal Buka/Buat File !!!" << endl;
-		}
-	}
-}
 
 bool Tbase_dataframe::is_pass(vector<string> &data)
 {
@@ -160,54 +135,49 @@ bool Tbase_dataframe::is_pass(vector<string> &data)
 
 void Tbase_dataframe::stat_tabel()
 {
-
 	_stat_label.clear();
 
-	_data.file_map();
-
-	if (is_index) {
+	_data.index_on();
+	if (_filter.size() > 0) {
 		_data.clear_index();
+	} else {
+		_data.index_off();
 	}
 
 	int i = 0;
-	if (_data.open_file())
+
+	vector<string> tmp_data;
+
+	_data.reset_file();
+	while (!_data.is_eof())
 	{
 
-		vector<string> tmp_data;
-		_data.read_file();
-		while (!_data.is_eof())
+
+		tmp_data = _data.get_record();
+
+		if (is_pass(tmp_data))
 		{
-
-			tmp_data = _data.get_record();
-
-			if (is_pass(tmp_data))
-			{
-				if (is_index) {
-					_data.add_index();
-				}
-
-				_stat_label.add(tmp_data[_idx_label]);
-
-				i++;
+			if (_filter.size() > 0) {
+				_data.add_index();
 			}
 
-			tmp_data.clear();
-			tmp_data.shrink_to_fit();
-			_data.next_record();
+			_stat_label.add(tmp_data[_idx_label]);
+
+			i++;
 		}
 
-
-
-		if (is_index) {
-			_data.save_to_memory();
-			_data.clear_index();
-		}
-
-		_data.close_file();
-	} else {
-		cout << "stat_tabel, Gagal buka file !!!" << endl;
+		tmp_data.clear();
+		tmp_data.shrink_to_fit();
+		_data.next_record();
 	}
 
+	if (_filter.size() > 0) {
+		_data.clear_memory();
+		_data.save_to_memory();
+		_data.clear_index();
+	}
+
+	_data.index_on();
 	_jml_row = i;
 
 
@@ -225,7 +195,7 @@ float Tbase_dataframe::get_estimate_error()
 
 string Tbase_dataframe::get_max_label()
 {
-   return _stat_label.get_max_label();	
+	return _stat_label.get_max_label();
 }
 
 int Tbase_dataframe::getjmlcol()
@@ -238,19 +208,16 @@ int Tbase_dataframe::getjmlrow()
 	return _jml_row;
 }
 
-bool Tbase_dataframe::open_file()
+void Tbase_dataframe::reset_file()
 {
-	return _data.open_file();
+	_data.reset_file();
 }
 
-void Tbase_dataframe::read_file()
-{
-	_data.read_file();
-}
+
 
 void Tbase_dataframe::close_file()
 {
-	_data.close_file();
+	//_data.close_file();
 }
 
 bool Tbase_dataframe::is_eof()
@@ -270,35 +237,23 @@ vector<string> Tbase_dataframe::get_record()
 
 void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 {
-	_data.index_off();
-	is_index = true;
 	field_filter f;
 	f.idx_col = idx_col;
 	f.idx_opt = idx_opt;
 	f.value = value;
 	_filter.push_back(f);
 	stat_tabel();
-	is_index = false;
-	_data.index_on();
 }
 
 void Tbase_dataframe::add_filter(field_filter filter)
 {
-	_data.index_off();
-	is_index = true;
 	_filter.push_back(filter);
 	stat_tabel();
-	is_index = false;
-	_data.index_on();
 }
 
 void Tbase_dataframe::ReFilter()
 {
-	_data.index_off();
-	is_index = true;
 	stat_tabel();
-	is_index = false;
-	_data.index_on();
 }
 
 vector<field_filter> Tbase_dataframe::get_filter()
@@ -315,60 +270,65 @@ void Tbase_dataframe::info()
 	cout << _stat_label << endl ;
 }
 
-void Tbase_dataframe::clear_memory()
-{
-	// cetak("{did:");
-	// cetak(to_string(_id).c_str());
-	// cetak("}");
-
-	_data.clear_memory();
-}
-
 void Tbase_dataframe::save_to(string nm_file)
 {
-	if (_data.open_file())
+	Tread_file tmp;
+	tmp.setnm_f(nm_file, ",");
+	tmp.open_file("w+");
+
+	vector<string> tmp_data;
+	_data.reset_file();
+	while (!_data.is_eof())
 	{
+		tmp_data = _data.get_record();
 
-		Tread_file tmp;
-		tmp.setnm_f(nm_file);
-		tmp.open_file("w+");
+		string tmp_str = "";
+		for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
+		{
+			tmp_str = tmp_str + tmp_data[i] + ",";
+		}
+		tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
 
-		vector<string> tmp_data;
-		_data.read_file();
-		while (!_data.is_eof())
+		tmp.write_file(tmp_str);
+
+
+		tmp_data.clear();
+		tmp_data.shrink_to_fit();
+		_data.next_record();
+	}
+}
+
+void Tbase_dataframe::head()
+{
+	vector<string> tmp_data;
+	map<string, int>::iterator it;
+
+	cout << " Head" << endl;
+	cout << " Nama File   : " << _nm_file << endl;
+
+	if (_jml_row > 0) {
+		int i = 0;
+
+		_data.reset_file();
+		while ((!_data.is_eof()) and (i < 5))
 		{
 			tmp_data = _data.get_record();
-
-			if (is_pass(tmp_data))
+			for (int idx = 0; idx < tmp_data.size(); ++idx)
 			{
-				string tmp_str = "";
-				for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
-				{
-					tmp_str = tmp_str + tmp_data[i] + ",";
-				}
-				tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
-
-				tmp.write_file(tmp_str);
+				cout << setw(tmp_data[idx].length() + 2) << tmp_data[idx];
 			}
+			cout << endl;
+			i++;
 
 			tmp_data.clear();
 			tmp_data.shrink_to_fit();
 			_data.next_record();
 		}
 
-		tmp.close_file();
-		_data.close_file();
 	}
 }
 
-void Tbase_dataframe::write_data(string data)
+void Tbase_dataframe::clear_memory()
 {
-	
-		if (_data.open_file("a+"))
-		{
-			_data.write_file(data);
-			_data.close_file();
-		}
-
+	_data.clear_memory();
 }
-

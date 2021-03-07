@@ -94,8 +94,8 @@ void Tmy_svm::read_problem(Tdataframe &df)
 {
 	df.ReFilter();
 
-	Tdataframe df_save;
-	df_save.read_data(_model_path + "/train_model_" + to_string(_idx_svm) + ".csv");
+	Twrite_file tmp_wf;
+	tmp_wf.setnm_f(_model_path + "/train_model_" + to_string(_idx_svm) + ".csv");
 
 	size_t elements, j, i;
 	char *endptr;
@@ -116,116 +116,112 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	}
 
 
-	if (df.open_file())
+
+	df.reset_file();
+
+	map<string, int> stat_label = df.get_stat_label();
+
+	//cout << stat_label["normal"] << endl;
+
+	// cetak("{vid:");
+	// cetak(to_string(df.get_id()).c_str());
+	// cetak("}");
+
+	size_t prm1;
+	size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol() - 1) );
+
+	if ((stat_label.size() > 1) and (!_normal_only))
 	{
-		df.read_file();
+		prm1 = df.getjmlrow();
+	} else {
+		prm1 = stat_label["normal"];
+	}
 
-		map<string, int> stat_label = df.get_stat_label();
+	// if(prm1>10000)
+	// {
+	//   prm1 = prm1/100;
+	// }
 
-		//cout << stat_label["normal"] << endl;
+	prob.l = prm1;
+	elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
 
-		// cetak("{vid:");
-		// cetak(to_string(df.get_id()).c_str());
-		// cetak("}");
 
-		size_t prm1;
-		size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol() - 1) );
+	prob.y = Malloc(double, prob.l);
+	prob.x = Malloc(struct svm_node *, prob.l);
 
-		if ((stat_label.size() > 1) and (!_normal_only))
+	// elements_size = elements * sizeof(struct svm_node);
+
+	// x_space =(svm_node*) mmap(NULL, elements_size,
+	//                                PROT_READ | PROT_WRITE,
+	//                                MAP_SHARED | MAP_ANON, -1, 0);
+
+	x_space = Malloc(struct svm_node, elements);
+
+	// cetak(" {");
+	// cetak(to_string(prm1).c_str());
+	// cetak(",");
+	// cetak(to_string(prm2).c_str());
+	// cetak(",");
+	// cetak(to_string(elements).c_str());
+	// cetak(",");
+	// cetak(to_string(df.getjmlrow()).c_str());
+	// cetak(",");
+	// cetak(to_string(stat_label["attack"]).c_str());
+	// cetak("} ");
+
+	j = 0;
+	i = 0;
+	while (!df.is_eof())
+	{
+		vector<string> tmp = df.get_record();
+
+		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
+
+		if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
 		{
-			prm1 = df.getjmlrow();
-		} else {
-			prm1 = stat_label["normal"];
-		}
 
-		// if(prm1>10000)
-		// {
-		//   prm1 = prm1/100;
-		// }
+			//if ((i < prm1))
+			//{
 
-		prob.l = prm1;
-		elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+			prob.x[i] = &x_space[j];
+			prob.y[i] = 1;
 
+			string tmp_str = "";
+			auto itr = kolom.begin();
+			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
-		prob.y = Malloc(double, prob.l);
-		prob.x = Malloc(struct svm_node *, prob.l);
+				x_space[j].index = k;
+				string str = ( _feature_selection ? tmp[itr->first] : tmp[k]);  //string str = tmp[df_filter[k].idx_col];
+				x_space[j].value = strtod(str.c_str(), &endptr);
 
-		// elements_size = elements * sizeof(struct svm_node);
+				tmp_str = tmp_str + str + ",";
 
-		// x_space =(svm_node*) mmap(NULL, elements_size,
-		//                                PROT_READ | PROT_WRITE,
-		//                                MAP_SHARED | MAP_ANON, -1, 0);
-
-		x_space = Malloc(struct svm_node, elements);
-
-		// cetak(" {");
-		// cetak(to_string(prm1).c_str());
-		// cetak(",");
-		// cetak(to_string(prm2).c_str());
-		// cetak(",");
-		// cetak(to_string(elements).c_str());
-		// cetak(",");
-		// cetak(to_string(df.getjmlrow()).c_str());
-		// cetak(",");
-		// cetak(to_string(stat_label["attack"]).c_str());
-		// cetak("} ");
-
-		j = 0;
-		i = 0;
-		while (!df.is_eof())
-		{
-			vector<string> tmp = df.get_record();
-
-			bool is_pass = (_normal_only ? ( df.is_pass(tmp) and  (tmp[tmp.size() - 1].compare("normal") == 0)) : df.is_pass(tmp));
-
-			if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
-			{
-
-				//if ((i < prm1))
-				//{
-
-				prob.x[i] = &x_space[j];
-				prob.y[i] = 1;
-
-				string tmp_str = "";
-				auto itr = kolom.begin();
-				for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
-
-					x_space[j].index = k;
-					string str = ( _feature_selection ? tmp[itr->first] : tmp[k]);  //string str = tmp[df_filter[k].idx_col];
-					x_space[j].value = strtod(str.c_str(), &endptr);
-
-					tmp_str = tmp_str + str + ",";
-
-					if (itr != kolom.end()) {
-						itr++;
-					}
-					++j;
+				if (itr != kolom.end()) {
+					itr++;
 				}
-
-				tmp_str = tmp_str + tmp[df.getjmlcol() - 1];
-				df_save.write_data(tmp_str);
-
-				x_space[j++].index = -1;
-				//}
-
-				i++;
+				++j;
 			}
 
-			tmp.clear();
-			tmp.shrink_to_fit();
+			tmp_str = tmp_str + tmp[df.getjmlcol() - 1];
+			tmp_wf.write_file(tmp_str);
 
-			df.next_record();
+			x_space[j++].index = -1;
+			//}
 
+			i++;
 		}
 
+		tmp.clear();
+		tmp.shrink_to_fit();
 
-
-		df.close_file();
-		//cout << i << endl;
-		is_read_problem = true;
+		df.next_record();
 
 	}
+
+	//cout << i << endl;
+	is_read_problem = true;
+
+	tmp_wf.close_file();
 
 	df_filter.clear();
 	df_filter.shrink_to_fit();
@@ -301,9 +297,8 @@ void Tmy_svm::test(Tdataframe &df)
 	char *endptr;
 
 	asli = "inside";
-
-	df.open_file();
-	df.read_file();
+	
+	df.reset_file();
 
 	while (!df.is_eof())
 	{
