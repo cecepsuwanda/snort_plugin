@@ -179,7 +179,7 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
           jml_loop += 1;
         }
 
-        const int jml_thread = 5;
+        const int jml_thread = 20;
 
         thread th[jml_thread];
         float arr_gain[jml_thread];

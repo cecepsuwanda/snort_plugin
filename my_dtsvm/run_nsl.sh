@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-./my_dtsvm  5 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_test.txt model/model1 1 1 0 0
+./my_dtsvm  100 2 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_test.txt model/model1 1 1 0 0
 wait
 
 # ./my_dtsvm  26 1000 0.0001 0.01  data/kddcupSVM_33attr.names data/NSLSVM_33attr_train.txt data/NSLSVM_33attr_test1.txt model/model1 0 1 0 0
