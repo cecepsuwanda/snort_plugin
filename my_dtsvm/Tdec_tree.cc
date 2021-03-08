@@ -98,6 +98,15 @@ void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
   my_svm.save_model(model_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
 
+void Tdec_tree::del_model_train(int idx)
+{
+  string filename = model_path + "/svm_model_" + to_string(idx) + ".csv";
+  remove(filename.c_str());
+
+  filename = model_path + "/train_model_" + to_string(idx) + ".csv";
+  remove(filename.c_str());
+}
+
 void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_samples, int max_depth)
 {
   if (node_index == 0)
@@ -237,18 +246,8 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
             f_train_svm(df, idx_svm);
             cetak("}");
 
-            string filename = model_path + "/svm_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
-            remove(filename.c_str());
-
-            filename = model_path + "/train_model_" + to_string(tree[treeIndex_yes].idx_svm) + ".csv";
-            remove(filename.c_str());
-
-            filename = model_path + "/svm_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
-            remove(filename.c_str());
-
-            filename = model_path + "/train_model_" + to_string(tree[treeIndex_no].idx_svm) + ".csv";
-            remove(filename.c_str());
-
+            del_model_train(tree[treeIndex_yes].idx_svm);
+            del_model_train(tree[treeIndex_no].idx_svm);
           }
 
         }
@@ -605,8 +604,6 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train, double gamma,
         cetak("*");
         tree[node_index].children[0] = -1;
         tree[node_index].children[1] = -1;
-        tree[left].idx_svm = -1;
-        tree[right].idx_svm = -1;
         tree[node_index].isLeaf = true;
         tree[node_index].label = node_label;
 
@@ -618,12 +615,25 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train, double gamma,
             tree[node_index].idx_svm = idx_svm;
 
             cetak("{v");
-            Tmy_svm my_svm(feature_selection, normal_only, idx_svm, model_path);
-            my_svm.train(df_train, gamma, nu);
-            my_svm.save_model(model_path + "/svm_model_" + to_string(idx_svm) + ".csv");
+            f_train_svm(df_train, idx_svm);
             cetak("}");
+
+            if (left_label == "normal")
+            {
+              del_model_train(tree[left].idx_svm);
+            }
+
+            if (right_label == "normal")
+            {
+              del_model_train(tree[right].idx_svm );
+            }
+
           }
+
         }
+
+        tree[left].idx_svm = -1;
+        tree[right].idx_svm = -1;
       }
 
     }

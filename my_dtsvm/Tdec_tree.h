@@ -68,7 +68,7 @@ private:
 
 	static void col_pot_split(Tdataframe df,int i, float & current_overall_metric, string & current_split_value);
 	void f_train_svm(Tdataframe &df,int v_idx_svm);
-
+    void del_model_train(int idx);
 public:
 	Tdec_tree();
 	~Tdec_tree();
