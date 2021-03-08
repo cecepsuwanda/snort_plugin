@@ -52,7 +52,7 @@ private:
 	string create_leaf(Tdataframe &df);
 	void determine_best_split(Tdataframe &df, int &split_column, string &split_value);
 	int dfs(vector<string> &data, int treeIndex);
-	void pruning_dfs(int node_index ,Tdataframe &df_train,double gamma,double nu);
+	void pruning_dfs(int node_index ,Tdataframe &df_train);
 
     vector<int> vec_attr;
     
@@ -80,7 +80,7 @@ public:
 	void test(Tdataframe &df);
 	void read_tree(Tdataframe &df);
 	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth);
-	void post_pruning(Tdataframe &df_train,double gamma,double nu);
+	void post_pruning(Tdataframe &df_train);
 	void save_tree();
  
     void set_model_path(string path);

@@ -546,7 +546,7 @@ void Tdec_tree::set_model_path(string path)
   model_path = path;
 }
 
-void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train, double gamma, double nu)
+void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
 {
   cetak(".");
 
@@ -641,7 +641,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train, double gamma,
   }
 }
 
-void Tdec_tree::post_pruning(Tdataframe &df_train, double gamma, double nu)
+void Tdec_tree::post_pruning(Tdataframe &df_train)
 {
-  pruning_dfs(0, df_train, gamma, nu);
+  pruning_dfs(0, df_train);
 }
