@@ -27,12 +27,13 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path)
+Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path,string svm_path)
 {
 	_feature_selection = feature_selection;
 	_normal_only = normal_only;
 	_idx_svm = idx_svm;
 	_model_path = model_path;
+	_svm_path = svm_path;
 
 	param.svm_type = ONE_CLASS;
 	param.kernel_type = RBF;
@@ -95,7 +96,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	df.ReFilter();
 
 	Twrite_file tmp_wf;
-	tmp_wf.setnm_f(_model_path + "/train_model_" + to_string(_idx_svm) + ".csv");
+	tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
 
 	size_t elements, j, i;
 	char *endptr;
@@ -334,7 +335,7 @@ void Tmy_svm::test(Tdataframe &df)
 	cout << conf_metrix << endl;
 }
 
-string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
+string Tmy_svm::guess(vector<string> &data)
 {
 	char *endptr;
 	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));

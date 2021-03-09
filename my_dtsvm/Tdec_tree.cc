@@ -12,17 +12,38 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_feature_selection, int v_normal_only, double v_gamma, double v_nu)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth)
 {
 
   train_svm = v_train_svm == 1;
+  _min_sample = v_min_sample;
+  _depth = v_depth;
+
+  idx_svm = 0;
+  id_df = 1;
+}
+
+void Tdec_tree::set_svm_param(int v_feature_selection, int v_normal_only, double v_gamma, double v_nu)
+{
   feature_selection = v_feature_selection == 1;
   normal_only = v_normal_only == 1;
   _gamma = v_gamma;
   _nu = v_nu;
+}
 
-  idx_svm = 0;
-  id_df = 1;
+void Tdec_tree::set_f_train(string f_train)
+{
+  _f_train = f_train;
+}
+
+void Tdec_tree::set_f_test(string f_test)
+{
+  _f_test = f_test;
+}
+
+void Tdec_tree::set_f_datatype(string f_datatype)
+{
+  _f_datatype = f_datatype;
 }
 
 static void cetak_stdout(const char *s)
@@ -93,17 +114,17 @@ string Tdec_tree::create_leaf(Tdataframe & df)
 
 void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
-  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path);
+  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path, svm_path);
   my_svm.train(df, _gamma, _nu);
-  my_svm.save_model(model_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
+  my_svm.save_model(svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
 
 void Tdec_tree::del_model_train(int idx)
 {
-  string filename = model_path + "/svm_model_" + to_string(idx) + ".csv";
+  string filename = svm_path + "/svm_model_" + to_string(idx) + ".csv";
   remove(filename.c_str());
 
-  filename = model_path + "/train_model_" + to_string(idx) + ".csv";
+  filename = model_path + "/train/train_model_" + to_string(idx) + ".csv";
   remove(filename.c_str());
 }
 
@@ -274,6 +295,33 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 }
 
+void Tdec_tree::build_tree()
+{
+  Tdataframe df_train;
+  df_train.read_data(_f_train);
+  df_train.read_data_type(_f_datatype);
+  df_train.set_id(0);
+  df_train.info();
+
+  cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n",df_train.getjmlrow(),df_train.getjmlcol());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth,_min_sample,_gamma, _nu,_f_train.c_str(),_f_test.c_str());
+  cetak("Start Train Decission Tree : \n");
+  auto start = std::chrono::steady_clock::now();
+  train(df_train, 0, 0, _min_sample, _depth);
+  auto end = std::chrono::steady_clock::now();
+  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+  cetak("\nLama Training : %f \n",((float)(elapsed_time / 60)));
+  cetak("End Train Decission Tree : \n");
+
+  cetak("Start Prunning Decission Tree : \n");
+  post_pruning(df_train);
+  cetak("\nEnd Prunning Decission Tree : \n");
+
+  save_tree();
+
+  df_train.close_file();
+}
+
 bool Tdec_tree::is_pass(int opt, string value1, string value2)
 {
   bool pass = false;
@@ -310,7 +358,14 @@ int Tdec_tree::dfs(vector<string> &data, int treeIndex)
 {
   if (tree[treeIndex].isLeaf)
   {
-    vec_attr.push_back(tree[treeIndex].criteriaAttrIndex);
+    auto it = vec_attr.find(tree[treeIndex].criteriaAttrIndex);
+    if (it == vec_attr.end())
+    {
+      vec_attr.insert(pair<int, int>(tree[treeIndex].criteriaAttrIndex, 1));
+    } else {
+      it->second += 1;
+    }
+
     return treeIndex;
   }
 
@@ -325,7 +380,15 @@ int Tdec_tree::dfs(vector<string> &data, int treeIndex)
     //   return next;
     // } else {
     if (is_pass(tree[next].opt, tree[next].attrValue, data[criteriaAttrIndex]) ) {
-      vec_attr.push_back(criteriaAttrIndex);
+
+      auto it = vec_attr.find(criteriaAttrIndex);
+      if (it == vec_attr.end())
+      {
+        vec_attr.insert(pair<int, int>(criteriaAttrIndex, 1));
+      } else {
+        it->second += 1;
+      }
+
       return dfs(data, next);
     }
     // }
@@ -339,11 +402,10 @@ int Tdec_tree::dfs(vector<string> &data, int treeIndex)
   return -1;
 }
 
-string Tdec_tree::guess(Tdataframe & df, vector<string> &data)
+string Tdec_tree::guess(vector<string> &data)
 {
   string label = "failed.";
   vec_attr.clear();
-  vec_attr.shrink_to_fit();
   int leafNode = dfs(data, 0);
 
   if (leafNode == -1) {
@@ -355,59 +417,42 @@ string Tdec_tree::guess(Tdataframe & df, vector<string> &data)
       if ((label == "normal") and (tree[leafNode].idx_svm != -1))
       {
         Twrite_file tmp_wf;
-        tmp_wf.setnm_f(model_path + "/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
+        tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
 
         //cetak("{v {model ");
-        Tmy_svm my_svm(feature_selection, normal_only, 0, "");
-        string nm_model = model_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
+        Tmy_svm my_svm(feature_selection, normal_only, 0, "","");
+        string nm_model = svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
         //cetak(to_string(tree[leafNode].idx_svm).c_str());
         //cetak(".csv} ");
 
         vector<string> tmp_data;
-
+        string tmp_str = "";
         if (feature_selection)
         {
-          map<int, int> kolom;
 
-          for (size_t i = 0; i < vec_attr.size(); ++i)
-          {
-            auto itr = kolom.find(vec_attr[i]);
-            if (itr == kolom.end()) {
-              kolom.insert(pair<int, int>(vec_attr[i], 1));
-            } else {
-              itr->second += 1;
-            }
-          }
-
-          for (auto itr = kolom.begin(); itr != kolom.end(); ++itr)
+          for (auto itr = vec_attr.begin(); itr != vec_attr.end(); ++itr)
           {
             if (itr->first != -1) {
               tmp_data.push_back(data[itr->first]);
+              tmp_str = tmp_str + data[itr->first] + ",";
             }
           }
-
-
 
         } else {
           for (size_t i = 0; i < (data.size() - 1); ++i)
           {
             tmp_data.push_back(data[i]);
+            tmp_str = tmp_str + data[i] + ",";
           }
         }
 
-
-        string tmp_str = "";
-        for (int i = 0; i < (tmp_data.size() - 1); ++i)
-        {
-          tmp_str = tmp_str + tmp_data[i] + ",";
-        }
         tmp_str = tmp_str + data[data.size() - 1];
         tmp_wf.write_file(tmp_str);
         tmp_wf.close_file();
         //cetak(" {guess ");
-        label = my_svm.guess(df, tmp_data);
+        label = my_svm.guess(tmp_data);
         //cetak("}");
 
         tmp_data.clear();
@@ -420,8 +465,16 @@ string Tdec_tree::guess(Tdataframe & df, vector<string> &data)
   return label;
 }
 
-void Tdec_tree::test(Tdataframe & df)
+void Tdec_tree::test()
 {
+  Tdataframe df;
+  df.read_data(_f_test);
+  df.read_data_type(_f_datatype);
+  df.info();
+
+  cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n",df.getjmlrow(),df.getjmlcol());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth,_min_sample,_gamma, _nu,_f_train.c_str(),_f_test.c_str());
+  cetak("Test Decission Tree : \n"); 
 
   Tconf_metrix conf_metrix;
   vector<string> tmp_data;
@@ -441,7 +494,7 @@ void Tdec_tree::test(Tdataframe & df)
 
     tmp_data.erase(tmp_data.end());
 
-    tmp_str = guess(df, tmp_data);
+    tmp_str = guess(tmp_data);
     //if (tmp_str != "dfs failed")
     //{
     //cout << tmp_str1 << "  " << tmp_str << endl;
@@ -498,10 +551,11 @@ void Tdec_tree::save_tree()
 }
 
 
-void Tdec_tree::read_tree(Tdataframe & df)
+void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
-
+  Tdataframe df;
+  df.read_data(model_path + "/dtsvm_model.csv");
 
   df.reset_file();
   while (!df.is_eof()) {
@@ -546,6 +600,11 @@ void Tdec_tree::set_model_path(string path)
   model_path = path;
 }
 
+void Tdec_tree::set_svm_path(string path)
+{
+  svm_path = path;
+}
+
 void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
 {
   cetak(".");
@@ -558,14 +617,14 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
     Tdataframe df_left;
     df_left = df_train;
     df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-    pruning_dfs(left, df_left, gamma, nu);
+    pruning_dfs(left, df_left);
     df_left.clear_memory();
   }
   if ((right != -1) and (!tree[right].isLeaf) ) {
     Tdataframe df_right;
     df_right = df_train;
     df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-    pruning_dfs(right, df_right, gamma, nu);
+    pruning_dfs(right, df_right);
     df_right.clear_memory();
   }
 

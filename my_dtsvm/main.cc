@@ -10,57 +10,82 @@ using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
 {
-  Tdataframe df_train, df_test, df_tree;
-  char *endptr;
-  Tdec_tree dec_tree(stoi(argv[10]), stoi(argv[11]), stoi(argv[12]), strtod(argv[3], &endptr), strtod(argv[4], &endptr));
 
-  string s(argv[8]);
-  dec_tree.set_model_path(argv[8]);
 
-  if (stoi(argv[9]) == 1)
+  if (stoi(argv[1]) == 0)
   {
-    for (const auto & file : directory_iterator(s))
+    string f_datatype = argv[9];
+    string f_train = argv[10];
+    //string f_test = argv[7];
+    string path_model = argv[11];
+    string svm_path = path_model + "/" + argv[12];
+
+    int train_svm = stoi(argv[2]);
+    int feature_selection = stoi(argv[3]);
+    int normal_only = stoi(argv[4]);
+
+    char *endptr;
+    double gamma = strtod(argv[7], &endptr);
+    double nu = strtod(argv[8], &endptr);
+
+    int depth = stoi(argv[5]);
+    int min_sample = stoi(argv[6]);
+
+
+    Tdec_tree dec_tree(train_svm, min_sample, depth);
+    dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
+    dec_tree.set_model_path(path_model);
+    dec_tree.set_svm_path(svm_path);
+    dec_tree.set_f_train(f_train);
+    //dec_tree.set_f_test(f_test);
+    dec_tree.set_f_datatype(f_datatype);
+
+    //remove(path_model + "/dtsvm_model.csv");
+
+    for (const auto & file : directory_iterator(path_model + "/train"))
       remove(file.path());
 
-    df_train.read_data(argv[6]);
-    df_train.read_data_type(argv[5]);
-    df_train.set_id(0);
-    df_train.info();
+    for (const auto & file : directory_iterator(path_model + "/test"))
+      remove(file.path());
 
-    cout << "Train : Jumlah Baris : " << df_train.getjmlrow() << " Jumlah Kolom : " << df_train.getjmlcol() << endl;
-    cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;
-    cout << "Start Train Decission Tree : " << endl;
-    auto start = std::chrono::steady_clock::now();
-    dec_tree.train(df_train, 0, 0, stoi(argv[2]), stoi(argv[1]));
-    auto end = std::chrono::steady_clock::now();
-    double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-    cout << "\nLama Training : " << elapsed_time / 60 << endl;
-    cout << "End Train Decission Tree : " << endl;
+    for (const auto & file : directory_iterator(svm_path))
+      remove(file.path());
 
-    cout << "Start Prunning Decission Tree : " << endl;
-    dec_tree.post_pruning(df_train, strtod(argv[3], &endptr), strtod(argv[4], &endptr));
-    cout << "\nEnd Prunning Decission Tree : " << endl;
+    dec_tree.build_tree();
+  } else {
+    if (stoi(argv[1]) == 1)
+    {
+      string f_datatype = argv[9];
+      string f_test = argv[10];
+      string path_model = argv[11];
+      string svm_path = path_model + "/" + argv[12];
 
-    dec_tree.save_tree();
+      int train_svm = stoi(argv[2]);
+      int feature_selection = stoi(argv[3]);
+      int normal_only = stoi(argv[4]);
 
-    df_train.close_file();
+      char *endptr;
+      double gamma = strtod(argv[7], &endptr);
+      double nu = strtod(argv[8], &endptr);
+
+      int depth = stoi(argv[5]);
+      int min_sample = stoi(argv[6]);
+
+      Tdec_tree dec_tree(train_svm, min_sample, depth);
+      dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
+      dec_tree.set_model_path(path_model);
+      dec_tree.set_svm_path(svm_path);
+      dec_tree.set_f_test(f_test);
+      dec_tree.set_f_datatype(f_datatype);
+
+
+      dec_tree.read_tree();
+      dec_tree.test();
+
+    }
   }
 
-  df_test.read_data(argv[7]);
-  df_test.read_data_type(argv[5]);
 
-  cout << "Test : Jumlah Baris : " << df_test.getjmlrow() << " Jumlah Kolom : " << df_test.getjmlcol() << endl;
-
-  if (stoi(argv[9]) == 0) {
-    df_tree.read_data(s + "/dtsvm_model.csv");
-    dec_tree.read_tree(df_tree);
-  }
-
-
-
-  cout << "Depth : " << argv[1] << " Minimum Sample : " << argv[2] << " gamma : " << argv[3] << " nu : " << argv[4] << " train : " << argv[6] << " test : " << argv[7] << endl;
-  cout << "Test Decission Tree : " << endl;
-  dec_tree.test(df_test);
 
   return 0;
 }

@@ -33,16 +33,17 @@ private:
 
 	int _idx_svm;
 	string _model_path;
+	string _svm_path;
 
 public:
 	Tmy_svm();
 	~Tmy_svm();
-	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path);
+	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path,string svm_path);
 
 	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
 	void test(Tdataframe &df);
-	string guess(Tdataframe &df,vector<string> &data);
+	string guess(vector<string> &data);
 
 };
