@@ -74,6 +74,9 @@ private:
 	void post_pruning(Tdataframe &df_train);
 	void save_tree();
 
+    
+    void svm_dfs(int node_index , Tdataframe &df_train);
+
 	void cetak ( const char * format, ... );
 
 	bool is_pass(int opt, string value1, string value2);
@@ -93,7 +96,7 @@ public:
 	void test();
 	void read_tree();
 	void build_tree();
-	
+	void learn_svm();
 
 	void set_model_path(string path);
 	void set_svm_path(string path);

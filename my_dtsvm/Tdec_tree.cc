@@ -138,7 +138,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
   }
 
   //cout << counter;
-  cetak(to_string(counter).c_str());
+  cetak("%d", counter);
 
   if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
@@ -303,14 +303,14 @@ void Tdec_tree::build_tree()
   df_train.set_id(0);
   df_train.info();
 
-  cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n",df_train.getjmlrow(),df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth,_min_sample,_gamma, _nu,_f_train.c_str(),_f_test.c_str());
+  cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   train(df_train, 0, 0, _min_sample, _depth);
   auto end = std::chrono::steady_clock::now();
   double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-  cetak("\nLama Training : %f \n",((float)(elapsed_time / 60)));
+  cetak("\nLama Training : %f \n", ((float)(elapsed_time / 60)));
   cetak("End Train Decission Tree : \n");
 
   cetak("Start Prunning Decission Tree : \n");
@@ -420,7 +420,7 @@ string Tdec_tree::guess(vector<string> &data)
         tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
 
         //cetak("{v {model ");
-        Tmy_svm my_svm(feature_selection, normal_only, 0, "","");
+        Tmy_svm my_svm(feature_selection, normal_only, 0, "", "");
         string nm_model = svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
@@ -472,9 +472,9 @@ void Tdec_tree::test()
   df.read_data_type(_f_datatype);
   df.info();
 
-  cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n",df.getjmlrow(),df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth,_min_sample,_gamma, _nu,_f_train.c_str(),_f_test.c_str());
-  cetak("Test Decission Tree : \n"); 
+  cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
+  cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix;
   vector<string> tmp_data;
@@ -703,4 +703,69 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
 void Tdec_tree::post_pruning(Tdataframe &df_train)
 {
   pruning_dfs(0, df_train);
+}
+
+void Tdec_tree::learn_svm()
+{
+  Tdataframe df_train;
+  df_train.read_data(_f_train);
+  df_train.read_data_type(_f_datatype);
+  df_train.set_id(0);
+  df_train.info();
+
+  cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
+  cetak("Start Train Decission Tree : \n");
+  auto start = std::chrono::steady_clock::now();
+  svm_dfs(0, df_train);
+  auto end = std::chrono::steady_clock::now();
+  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+  cetak("\nLama Training : %f \n", ((float)(elapsed_time / 60)));
+  cetak("End Train Decission Tree : \n");
+  df_train.close_file();
+}
+
+void Tdec_tree::svm_dfs(int node_index , Tdataframe &df_train)
+{
+  cetak("%d?", node_index);
+
+  if (tree[node_index].isLeaf)
+  {
+    cetak("*");
+
+    string label = tree[node_index].label;
+
+    if ((label == "normal") and (tree[node_index].idx_svm != -1))
+    {     
+      cetak("{v");
+      f_train_svm(df_train, tree[node_index].idx_svm);
+      cetak("}");
+    }
+
+  } else {
+
+    cetak("|");
+
+    int left = tree[node_index].children[0];
+    int right = tree[node_index].children[1];
+
+    if (left != -1) {
+      Tdataframe df_left;
+      df_left = df_train;
+      df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+      cetak("->");
+      svm_dfs(left, df_left);
+
+    }
+
+    if (right != -1) {
+      Tdataframe df_right;
+      df_right = df_train;
+      df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+      cetak("<-");
+      svm_dfs(right, df_right);
+
+    }
+  }
+  df_train.clear_memory();
 }
