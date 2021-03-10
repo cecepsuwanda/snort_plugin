@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     int min_sample = stoi(argv[6]);
 
 
-    Tdec_tree dec_tree(train_svm, min_sample, depth);
+    Tdec_tree dec_tree(train_svm, min_sample, depth,1);
     dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
     dec_tree.set_model_path(path_model);
     dec_tree.set_svm_path(svm_path);
@@ -44,10 +44,7 @@ int main(int argc, char *argv[])
     remove(tmp_str.c_str());
 
     for (const auto & file : directory_iterator(path_model + "/train"))
-      remove(file.path());
-
-    for (const auto & file : directory_iterator(path_model + "/test"))
-      remove(file.path());
+      remove(file.path());    
 
     for (const auto & file : directory_iterator(svm_path))
       remove(file.path());
@@ -72,7 +69,7 @@ int main(int argc, char *argv[])
       int depth = stoi(argv[5]);
       int min_sample = stoi(argv[6]);
 
-      Tdec_tree dec_tree(train_svm, min_sample, depth);
+      Tdec_tree dec_tree(train_svm, min_sample, depth,1);
       dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
       dec_tree.set_model_path(path_model);
       dec_tree.set_svm_path(svm_path);
@@ -106,16 +103,13 @@ int main(int argc, char *argv[])
         int min_sample = stoi(argv[6]);
 
 
-        Tdec_tree dec_tree(train_svm, min_sample, depth);
+        Tdec_tree dec_tree(train_svm, min_sample, depth,0);
         dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
         dec_tree.set_model_path(path_model);
         dec_tree.set_svm_path(svm_path);
         dec_tree.set_f_train(f_train);
         //dec_tree.set_f_test(f_test);
-        dec_tree.set_f_datatype(f_datatype);
-
-        for (const auto & file : directory_iterator(path_model + "/train"))
-          remove(file.path());
+        dec_tree.set_f_datatype(f_datatype);        
 
         for (const auto & file : directory_iterator(svm_path))
           remove(file.path());

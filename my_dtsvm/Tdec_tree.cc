@@ -12,12 +12,13 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_subtree)
 {
 
   train_svm = v_train_svm == 1;
   _min_sample = v_min_sample;
   _depth = v_depth;
+  save_subtree = v_save_subtree == 1;
 
   idx_svm = 0;
   id_df = 1;
@@ -114,7 +115,7 @@ string Tdec_tree::create_leaf(Tdataframe & df)
 
 void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
-  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path, svm_path);
+  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path, svm_path,save_subtree);
   my_svm.train(df, _gamma, _nu);
   my_svm.save_model(svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
@@ -417,10 +418,12 @@ string Tdec_tree::guess(vector<string> &data)
       if ((label == "normal") and (tree[leafNode].idx_svm != -1))
       {
         Twrite_file tmp_wf;
-        tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
 
+        if (save_subtree) {
+          tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
+        }
         //cetak("{v {model ");
-        Tmy_svm my_svm(feature_selection, normal_only, 0, "", "");
+        Tmy_svm my_svm(feature_selection, normal_only, 0, "", "",save_subtree);
         string nm_model = svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
@@ -449,8 +452,12 @@ string Tdec_tree::guess(vector<string> &data)
         }
 
         tmp_str = tmp_str + data[data.size() - 1];
-        tmp_wf.write_file(tmp_str);
-        tmp_wf.close_file();
+
+        if (save_subtree)
+        {
+          tmp_wf.write_file(tmp_str);
+          tmp_wf.close_file();
+        }
         //cetak(" {guess ");
         label = my_svm.guess(tmp_data);
         //cetak("}");
@@ -717,7 +724,7 @@ void Tdec_tree::learn_svm()
   cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
-  svm_dfs(0, df_train);
+  svm_dfs(0, 0, df_train);
   auto end = std::chrono::steady_clock::now();
   double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   cetak("\nLama Training : %f \n", ((float)(elapsed_time / 60)));
@@ -725,9 +732,9 @@ void Tdec_tree::learn_svm()
   df_train.close_file();
 }
 
-void Tdec_tree::svm_dfs(int node_index , Tdataframe &df_train)
+void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe &df_train)
 {
-  cetak("%d?", node_index);
+  cetak("%d?", depth);
 
   if (tree[node_index].isLeaf)
   {
@@ -736,7 +743,7 @@ void Tdec_tree::svm_dfs(int node_index , Tdataframe &df_train)
     string label = tree[node_index].label;
 
     if ((label == "normal") and (tree[node_index].idx_svm != -1))
-    {     
+    {
       cetak("{v");
       f_train_svm(df_train, tree[node_index].idx_svm);
       cetak("}");
@@ -754,7 +761,7 @@ void Tdec_tree::svm_dfs(int node_index , Tdataframe &df_train)
       df_left = df_train;
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       cetak("->");
-      svm_dfs(left, df_left);
+      svm_dfs(depth + 1, left, df_left);
 
     }
 
@@ -763,7 +770,7 @@ void Tdec_tree::svm_dfs(int node_index , Tdataframe &df_train)
       df_right = df_train;
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       cetak("<-");
-      svm_dfs(right, df_right);
+      svm_dfs(depth + 1, right, df_right);
 
     }
   }

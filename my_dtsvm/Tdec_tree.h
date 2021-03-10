@@ -56,6 +56,7 @@ private:
 	bool train_svm = false;
 	bool feature_selection = false;
 	bool normal_only = false;
+	bool save_subtree = true;
 
 	int _min_sample = 2;
 	int _depth = 1;
@@ -74,8 +75,8 @@ private:
 	void post_pruning(Tdataframe &df_train);
 	void save_tree();
 
-    
-    void svm_dfs(int node_index , Tdataframe &df_train);
+
+	void svm_dfs(int depth , int node_index , Tdataframe &df_train);
 
 	void cetak ( const char * format, ... );
 
@@ -88,7 +89,7 @@ private:
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth);
+	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_subtree);
 
 
 	string guess(vector<string> &data);

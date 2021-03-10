@@ -497,7 +497,7 @@ string Tdataframe_list::search_idx_list_lvl3(list_item tmp_list, map_list3* map3
 				label = "bingung";
 			} else {
 				auto it_attack = map_attack.begin();
-				label = "attack";//(*it_attack).first;
+				label = (*it_attack).first;//(*it_attack).first;"attack"
 			}
 
 		}
