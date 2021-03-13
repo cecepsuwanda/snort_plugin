@@ -18,17 +18,18 @@
 
 using namespace std;
 
+#ifndef Included_Tread_file_H
+
+#define Included_Tread_file_H
+
 #define pagesize  4096
 
 class Tread_file {
 private:
 	string _nm_f;
 	const char *_separator;
-	FILE *_file = NULL;
-
 	vector<string> _data;
 
-	bool is_fmap = false;
 	int  _posisi = 0;
 	int  _b_posisi = 0;
 	int _fd = -1;
@@ -44,6 +45,8 @@ private:
 
 	vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
+	bool open_file();
+
 
 public:
 	Tread_file();
@@ -53,15 +56,28 @@ public:
 	{
 		this->_nm_f = t._nm_f;
 		this->_separator = t._separator;
+
+		this->_fd = t._fd;
+		this->_file_in_memory = t._file_in_memory;
+		this->_sb = t._sb;
+
+		if (t._jml_index>0) {
+			clear_index();
+			for (int i = 0; i < t._jml_index; ++i)
+			{
+				_index.push_back(t._idx_in_memory[i]);
+			}
+			save_to_memory();
+			clear_index();
+		}
 		return *this;
 	}
 
-	void setnm_f(string nm_f);
+	void setnm_f(string nm_f, const char* separator);
 	void setseparator(const char* separator);
-	void file_map();
 
-	bool open_file();
 	bool open_file(string mode);
+	void reset_file();
 	void read_file();
 	void write_file(string row);
 	void close_file();
@@ -78,3 +94,5 @@ public:
 	void clear_memory();
 
 };
+
+#endif

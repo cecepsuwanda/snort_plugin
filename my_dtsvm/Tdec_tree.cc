@@ -12,13 +12,14 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_subtree)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test)
 {
 
   train_svm = v_train_svm == 1;
   _min_sample = v_min_sample;
   _depth = v_depth;
-  save_subtree = v_save_subtree == 1;
+  save_train = v_save_train == 1;
+  save_test = v_save_test == 1;
 
   idx_svm = 0;
   id_df = 1;
@@ -115,7 +116,7 @@ string Tdec_tree::create_leaf(Tdataframe & df)
 
 void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
-  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path, svm_path,save_subtree);
+  Tmy_svm my_svm(feature_selection, normal_only, v_idx_svm, model_path, svm_path,save_train);
   my_svm.train(df, _gamma, _nu);
   my_svm.save_model(svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
@@ -154,7 +155,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
         idx_svm++;
         tree[node_index].idx_svm = idx_svm;
 
-        cetak("{v");
+        cetak("{v %d %d ",idx_svm,df.getjmlrow());
         f_train_svm(df, idx_svm);
         cetak("}");
 
@@ -201,7 +202,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
 
-          cetak("{v");
+          cetak("{v %d %d ",idx_svm,df.getjmlrow());
           f_train_svm(df, idx_svm);
           cetak("}");
 
@@ -264,7 +265,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
-            cetak("{v");
+            cetak("{v %d %d ",idx_svm,df.getjmlrow());
             f_train_svm(df, idx_svm);
             cetak("}");
 
@@ -419,11 +420,11 @@ string Tdec_tree::guess(vector<string> &data)
       {
         Twrite_file tmp_wf;
 
-        if (save_subtree) {
+        if (save_test) {
           tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
         }
         //cetak("{v {model ");
-        Tmy_svm my_svm(feature_selection, normal_only, 0, "", "",save_subtree);
+        Tmy_svm my_svm(feature_selection, normal_only, 0, "", "",save_train);
         string nm_model = svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
@@ -453,7 +454,7 @@ string Tdec_tree::guess(vector<string> &data)
 
         tmp_str = tmp_str + data[data.size() - 1];
 
-        if (save_subtree)
+        if (save_test)
         {
           tmp_wf.write_file(tmp_str);
           tmp_wf.close_file();
@@ -499,7 +500,7 @@ void Tdec_tree::test()
 
     tmp_str1 = tmp_data[tmp_data.size() - 1];
 
-    tmp_data.erase(tmp_data.end());
+    //tmp_data.erase(tmp_data.end());
 
     tmp_str = guess(tmp_data);
     //if (tmp_str != "dfs failed")
@@ -680,7 +681,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
-            cetak("{v");
+            cetak("{v %d %d ",idx_svm,df_train.getjmlrow());
             f_train_svm(df_train, idx_svm);
             cetak("}");
 

@@ -28,7 +28,7 @@ private:
 
 	bool _feature_selection = false;
 	bool _normal_only = false;
-	bool _save_subtree = true;	
+	bool _save_train = true;	
 
 	void cetak ( const char * format, ... );
 
@@ -39,7 +39,7 @@ private:
 public:
 	Tmy_svm();
 	~Tmy_svm();
-	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path,string svm_path, bool save_subtree);
+	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path,string svm_path, bool save_train);
 
 	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);

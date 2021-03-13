@@ -56,7 +56,8 @@ private:
 	bool train_svm = false;
 	bool feature_selection = false;
 	bool normal_only = false;
-	bool save_subtree = true;
+	bool save_train = true;
+	bool save_test = true;
 
 	int _min_sample = 2;
 	int _depth = 1;
@@ -89,7 +90,7 @@ private:
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_subtree);
+	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test);
 
 
 	string guess(vector<string> &data);

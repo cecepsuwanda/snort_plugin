@@ -27,14 +27,14 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path,string svm_path, bool save_subtree)
+Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path,string svm_path, bool save_train)
 {
 	_feature_selection = feature_selection;
 	_normal_only = normal_only;
 	_idx_svm = idx_svm;
 	_model_path = model_path;
 	_svm_path = svm_path;
-	_save_subtree = save_subtree;
+	_save_train = save_train;
 
 	param.svm_type = ONE_CLASS;
 	param.kernel_type = RBF;
@@ -97,7 +97,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	df.ReFilter();
 
 	Twrite_file tmp_wf;
-    if(_save_subtree){
+    if(_save_train){
 	 tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
     }
 
@@ -205,7 +205,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			}
 
 			tmp_str = tmp_str + tmp[df.getjmlcol() - 1];
-			if(_save_subtree){
+			if(_save_train){
 			  tmp_wf.write_file(tmp_str);
 			}
 
@@ -225,7 +225,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	//cout << i << endl;
 	is_read_problem = true;
 
-	if(_save_subtree){ 
+	if(_save_train){ 
 	 tmp_wf.close_file();
 	} 
 
