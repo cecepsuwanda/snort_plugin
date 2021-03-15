@@ -27,10 +27,14 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only)
+Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path,string svm_path, bool save_train)
 {
 	_feature_selection = feature_selection;
 	_normal_only = normal_only;
+	_idx_svm = idx_svm;
+	_model_path = model_path;
+	_svm_path = svm_path;
+	_save_train = save_train;
 
 	param.svm_type = ONE_CLASS;
 	param.kernel_type = RBF;
@@ -90,136 +94,142 @@ void Tmy_svm::cetak ( const char * format, ... )
 
 void Tmy_svm::read_problem(Tdataframe &df)
 {
-    df.ReFilter();
-	
+	df.ReFilter();
+
+	Twrite_file tmp_wf;
+    if(_save_train){
+	 tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
+    }
+
 	size_t elements, j, i;
 	char *endptr;
 
-	vector<field_filter> df_filter;
-	df_filter = df.get_filter();
-
 	map<int, int> kolom;
-
-	for (size_t i = 0; i < df_filter.size(); ++i)
+	if (_feature_selection)
 	{
-        auto itr = kolom.find(df_filter[i].idx_col);
-        if(itr==kolom.end()){
-	      kolom.insert(pair<int,int>(df_filter[i].idx_col,1));
-        }else{
-           itr->second+=1;	
-        }
+		kolom = df.get_unique_attr();
 	}
-	
 
-	if (df.open_file())
+	df.reset_file();
+
+	map<string, int> stat_label = df.get_stat_label();
+
+	//cout << stat_label["normal"] << endl;
+
+	// cetak("{vid:");
+	// cetak(to_string(df.get_id()).c_str());
+	// cetak("}");
+
+	size_t prm1;
+	size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol() - 1) );
+
+	if ((stat_label.size() > 1) and (!_normal_only))
 	{
-		df.read_file();
+		prm1 = df.getjmlrow();
+	} else {
+		prm1 = stat_label["normal"];
+	}
 
-		map<string, int> stat_label = df.get_stat_label();
+	// if(prm1>10000)
+	// {
+	//   prm1 = prm1/100;
+	// }
 
-		//cout << stat_label["normal"] << endl;
+	prob.l = prm1;
+	elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
 
-		// cetak("{vid:");
-		// cetak(to_string(df.get_id()).c_str());
-		// cetak("}");
 
-		size_t prm1;
-		size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol()-1) );
+	prob.y = Malloc(double, prob.l);
+	prob.x = Malloc(struct svm_node *, prob.l);
 
-		if ((stat_label.size() > 1) and (!_normal_only))
+	// elements_size = elements * sizeof(struct svm_node);
+
+	// x_space =(svm_node*) mmap(NULL, elements_size,
+	//                                PROT_READ | PROT_WRITE,
+	//                                MAP_SHARED | MAP_ANON, -1, 0);
+
+	x_space = Malloc(struct svm_node, elements);
+
+	// cetak(" {");
+	// cetak(to_string(prm1).c_str());
+	// cetak(",");
+	// cetak(to_string(prm2).c_str());
+	// cetak(",");
+	// cetak(to_string(elements).c_str());
+	// cetak(",");
+	// cetak(to_string(df.getjmlrow()).c_str());
+	// cetak(",");
+	// cetak(to_string(stat_label["attack"]).c_str());
+	// cetak("} ");
+
+	j = 0;
+	i = 0;
+	while (!df.is_eof())
+	{
+		vector<string> tmp = df.get_record();
+
+		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
+
+		if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
 		{
-			prm1 = df.getjmlrow();
-		} else {
-			prm1 = stat_label["normal"];
-		}
 
-        // if(prm1>10000)
-        // {
-        //   prm1 = prm1/100;  
-        // }
+			//if ((i < prm1))
+			//{
 
-		prob.l = prm1;
-		elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+			prob.x[i] = &x_space[j];
+			prob.y[i] = 1;
 
- 
-		prob.y = Malloc(double, prob.l);
-		prob.x = Malloc(struct svm_node *, prob.l);
-		
-		// elements_size = elements * sizeof(struct svm_node);
+			string tmp_str = "";
 
-		// x_space =(svm_node*) mmap(NULL, elements_size,
-  //                                PROT_READ | PROT_WRITE,
-  //                                MAP_SHARED | MAP_ANON, -1, 0);
 
-		x_space = Malloc(struct svm_node, elements);
+			auto itr = kolom.begin();
+			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
-		// cetak(" {");
-		// cetak(to_string(prm1).c_str());
-		// cetak(",");
-		// cetak(to_string(prm2).c_str());
-		// cetak(",");
-		// cetak(to_string(elements).c_str());
-		// cetak(",");
-		// cetak(to_string(df.getjmlrow()).c_str());
-		// cetak(",");
-		// cetak(to_string(stat_label["attack"]).c_str());
-		// cetak("} ");		
-		
-		j = 0;
-		i = 0;
-		while (!df.is_eof())
-		{
-			vector<string> tmp = df.get_record();
-
-			bool is_pass = (_normal_only ? ( df.is_pass(tmp) and  (tmp[tmp.size() - 1].compare("normal")==0)) : df.is_pass(tmp));
-
-			if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
-			{
-				
-				//if ((i < prm1))
-				//{
-
-					prob.x[i] = &x_space[j];
-					prob.y[i] = 1;
-
-                    auto itr = kolom.begin(); 
-					for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
-
+				if (_feature_selection)
+				{
+					if (itr != kolom.end()) {
 						x_space[j].index = k;
-						string str = ( _feature_selection ? tmp[itr->first] : tmp[k]);  //string str = tmp[df_filter[k].idx_col];
+						string str = tmp[itr->first];  //string str = tmp[df_filter[k].idx_col];
 						x_space[j].value = strtod(str.c_str(), &endptr);
-
-                        if(itr!=kolom.end()){
-						 itr++;                    
-                        }
-						++j;
+						tmp_str = tmp_str + str + ",";
+						itr++;
 					}
+				} else {
+					x_space[j].index = k;
+					string str = tmp[k];
+					x_space[j].value = strtod(str.c_str(), &endptr);
+					tmp_str = tmp_str + str + ",";
+				}
 
-					x_space[j++].index = -1;
-				//}
-
-				i++;
+				++j;
 			}
 
-			tmp.clear();
-			tmp.shrink_to_fit();
+			tmp_str = tmp_str + tmp[df.getjmlcol() - 1];
+			if(_save_train){
+			  tmp_wf.write_file(tmp_str);
+			}
 
-			df.next_record();
+			x_space[j++].index = -1;
+			//}
 
+			i++;
 		}
 
-        
+		tmp.clear();
+		tmp.shrink_to_fit();
 
-		df.close_file();
-		//cout << i << endl;
-		is_read_problem = true;
+		df.next_record();
 
 	}
 
-	df_filter.clear();
-	df_filter.shrink_to_fit();
-	kolom.clear();
+	//cout << i << endl;
+	is_read_problem = true;
 
+	if(_save_train){ 
+	 tmp_wf.close_file();
+	} 
+
+	kolom.clear();
 	df.clear_memory();
 
 }
@@ -245,7 +255,7 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 	model = svm_train(&prob, &param);
 	// cetak("}");
 
-	
+
 
 	//munmap(x_space, elements_size);
 
@@ -253,15 +263,15 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 
 void Tmy_svm::save_model(string nm_file)
 {
-	
-    // cetak("{ save nSV = ");
-    // cetak(to_string(model->l).c_str());
+
+	// cetak("{ save nSV = ");
+	// cetak(to_string(model->l).c_str());
 	if (svm_save_model(nm_file.c_str(), model))
 	{
 		fprintf(stderr, "can't save model to file %s\n", nm_file.c_str());
 		exit(1);
 	}
-    // cetak(" }");
+	// cetak(" }");
 
 	svm_free_and_destroy_model(&model);
 	svm_destroy_param(&param);
@@ -291,8 +301,7 @@ void Tmy_svm::test(Tdataframe &df)
 
 	asli = "inside";
 
-	df.open_file();
-	df.read_file();
+	df.reset_file();
 
 	while (!df.is_eof())
 	{
@@ -334,7 +343,7 @@ void Tmy_svm::test(Tdataframe &df)
 	cout << conf_metrix << endl;
 }
 
-string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
+string Tmy_svm::guess(vector<string> &data)
 {
 	char *endptr;
 	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));
@@ -360,7 +369,7 @@ string Tmy_svm::guess(Tdataframe &df, vector<string> &data)
 	string label = "normal";
 	if (predict_label == -1)
 	{
-		label = "attack";
+		label = "unknown";
 	}
 	return label;
 }

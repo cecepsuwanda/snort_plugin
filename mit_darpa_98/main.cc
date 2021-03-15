@@ -29,9 +29,12 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 					//cout << tmp_data[tmp_data.size()-3] << " " << tmp_data[tmp_data.size()-2] << " " << tmp_data[tmp_data.size()-5] << " " << tmp_data[tmp_data.size()-4] << " " << tmp_data[tmp_data.size() - 9] << " " << tmp_data[tmp_data.size() - 8] << " " << tmp_data[tmp_data.size() - 7] << " " << tmp_data[tmp_data.size() - 6] << " " << tmp_data[2] <<endl;
 					label = df_list.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[2]);
 					conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
-					for (int j = 0; j < 28; ++j)
+					for (int j = 0; j < 37; ++j)
 					{
-						tmp_str += tmp_data[j] + ",";
+						if((j!=1) and (j!=2) and (j!=3) and (j!=13)){
+						 tmp_str += tmp_data[j] + ",";
+						}
+					
 					}
 
 					tmp_str += label;

@@ -29,7 +29,6 @@ void invalid_option_value(const char *opt, const char *val, const char *progname
 void extract(Sniffer *sniffer, const Config *config, bool is_running_live);
 
 Tdec_tree dec_tree;
-Tdataframe df_save;
 
 int main(int argc, char **argv)
 {
@@ -70,11 +69,13 @@ int main(int argc, char **argv)
 		// 		if (config.should_print_filename())
 		// 			cout << "FILE '" << files[i] << "'" << endl;
 
-		string s = argv[3];
-		df_save.read_data(s + "/dtsvm_model.csv");
 		cout << argv[1] << endl;
-		dec_tree.set_model_path(argv[3]);
-		dec_tree.read_tree(df_save);
+		string path_model = argv[3];
+		string svm_path = path_model + "/" + argv[4];
+		dec_tree.set_model_path(path_model);
+		dec_tree.set_svm_path(svm_path);
+		dec_tree.set_svm_param(0, 0, 0.001, 0.01);
+		dec_tree.read_tree();
 
 		out_stream.open(argv[2]);
 		psbuf = out_stream.rdbuf();
@@ -123,15 +124,15 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			// If sniffer's filter fails to fulfill this assertion, "continue" can be used here
 			eth_field_type_t eth_type = frag->get_eth_type();
 			ip_field_protocol_t ip_proto = frag->get_ip_proto();
-			assert((eth_type == IPV4 && ( ip_proto == TCP ||ip_proto == UDP || ip_proto == ICMP))  
+			assert((eth_type == IPV4 && ( ip_proto == TCP || ip_proto == UDP || ip_proto == ICMP))
 			       && "Sniffer returned packet that is not (TCP or UDP or ICMP)");
 
 			// if(ip_proto == UDP)
 			// {
-   //            if((frag->get_src_port()==123) && (frag->get_dst_port()==123))
-   //            {  
-                //frag->print();
-   //            } 
+			//            if((frag->get_src_port()==123) && (frag->get_dst_port()==123))
+			//            {
+			//frag->print();
+			//            }
 			// }
 
 			Timestamp now = frag->get_end_ts();
@@ -154,16 +155,16 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		while ((conv = conv_reconstructor.get_next_conversation()) != nullptr) {
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
-			
+
 			vector<string> tmp = cf->get_attr();
 
-			string tmp_str = dec_tree.guess(df_save, tmp);
+			string tmp_str = dec_tree.guess(tmp);
 
 			cf->set_label(tmp_str);
 
-            //if(tmp_str=="dfs_failed."){
-			  cf->print(config->should_print_extra_features());
-            //}
+			//if(tmp_str=="dfs_failed."){
+			cf->print(config->should_print_extra_features());
+			//}
 
 			delete cf;
 			tmp.clear();

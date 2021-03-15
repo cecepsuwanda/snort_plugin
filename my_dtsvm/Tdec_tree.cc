@@ -265,7 +265,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
-            cetak("{v %d %d ",idx_svm,df.getjmlrow());
+            cetak("{v {j %d %d} {d %d %d} ",idx_svm,df.getjmlrow(),tree[treeIndex_yes].idx_svm,tree[treeIndex_no].idx_svm);
             f_train_svm(df, idx_svm);
             cetak("}");
 
@@ -681,19 +681,24 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe &df_train)
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
-            cetak("{v %d %d ",idx_svm,df_train.getjmlrow());
+            cetak("{v {j %d %d} ",idx_svm,df_train.getjmlrow());
             f_train_svm(df_train, idx_svm);
-            cetak("}");
+            
+            cetak("{d ");
 
             if (left_label == "normal")
             {
               del_model_train(tree[left].idx_svm);
+              cetak(" %d ",tree[left].idx_svm);              
             }
 
             if (right_label == "normal")
             {
               del_model_train(tree[right].idx_svm );
+              cetak(" %d ",tree[right].idx_svm);
             }
+
+            cetak("} }");
 
           }
 
@@ -745,7 +750,7 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe &df_train)
 
     if ((label == "normal") and (tree[node_index].idx_svm != -1))
     {
-      cetak("{v");
+      cetak("{v {j %d %d}",tree[node_index].idx_svm,df_train.getjmlrow());
       f_train_svm(df_train, tree[node_index].idx_svm);
       cetak("}");
     }

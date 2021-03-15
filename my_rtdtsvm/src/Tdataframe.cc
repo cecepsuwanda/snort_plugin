@@ -13,69 +13,9 @@ Tdataframe::~Tdataframe()
 }
 
 
-
-
-
-map<string, int> Tdataframe::get_unique_value(int idx_col)
-{
-  map<string, int> tmp;
-  vector<string> tmp_data;
-  map<string, int>::iterator it;
-
-  if (_data.open_file())
-  {
-    _data.read_file();
-    while (!_data.is_eof())
-    {
-      tmp_data = _data.get_record();
-      if (is_pass(tmp_data))
-      {
-        if (tmp.size() > 0)
-        {
-          it = tmp.find(tmp_data[idx_col]);
-          if (it == tmp.end())
-          {
-            tmp.insert(pair<string, int>(tmp_data[idx_col], 1));
-          } else {
-            //it->second+=1;
-          }
-        } else {
-          tmp.insert(pair<string, int>(tmp_data[idx_col], 1));
-        }
-      }
-
-      tmp_data.clear();
-      tmp_data.shrink_to_fit();
-      _data.next_record();
-    }
-
-    _data.close_file();
-  } else {
-    cout << "get_unique_value, Gagal buka file !!!" << endl;
-  }
-
-
-  return tmp;
-}
-
-
-
-
-
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
-
-  /*cetak("{ split ");
-  cetak(to_string(split_column).c_str());
-  cetak(",");
-  cetak(split_value.c_str());
-  cetak("}");*/
-  //cetak("split_del_mem");
-  // cetak("{sid:");
-  // cetak(to_string(_id).c_str());
-  // cetak("}");
   _data.clear_memory();
-  //cout << "split_data"<<endl;
   if (_data_type[split_column] == "continuous.")
   {
     data_below.add_filter(split_column, 0, split_value);
@@ -85,9 +25,6 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
     data_below.add_filter(split_column, 2, split_value);
     data_above.add_filter(split_column, 3, split_value);
   }
-
-  data_below.clear_memory();
-  data_above.clear_memory();
 }
 
 void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split)
@@ -99,53 +36,37 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
   vector<string> tmp_data;
   //pot_struct p;
 
-  if (_data.open_file())
+  _data.reset_file();
+  while (!_data.is_eof())
   {
+    tmp_data = _data.get_record();
 
-    _data.read_file();
-    while (!_data.is_eof())
+    Tmy_dttype pot_split_holder(tmp_data[idx], _data_type[idx] == "continuous.");
+
+    if (_col_pot_split.size() > 0)
     {
-      tmp_data = _data.get_record();
-      if (is_pass(tmp_data))
+      it = _col_pot_split.find(pot_split_holder);
+      if (it == _col_pot_split.end())
       {
-
-        Tmy_dttype pot_split_holder(tmp_data[idx], _data_type[idx] == "continuous.");
-
-        if (_col_pot_split.size() > 0)
-        {
-          it = _col_pot_split.find(pot_split_holder);
-          if (it == _col_pot_split.end())
-          {
-            Tlabel_stat p;
-            p.add(tmp_data[_jml_col - 1]);
-            _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
-          } else {
-            it->second.add(tmp_data[_jml_col - 1]);
-          }
-
-        } else {
-          Tlabel_stat p;
-          p.add(tmp_data[_jml_col - 1]);
-          _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
-        }
+        Tlabel_stat p;
+        p.add(tmp_data[_jml_col - 1]);
+        _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
+      } else {
+        it->second.add(tmp_data[_jml_col - 1]);
       }
-      tmp_data.clear();
-      tmp_data.shrink_to_fit();
-      _data.next_record();
 
-
-
+    } else {
+      Tlabel_stat p;
+      p.add(tmp_data[_jml_col - 1]);
+      _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
     }
-    _data.close_file();
 
-
-
-
-  } else {
-    cout << "get_col_pot_split,Gagal buka file !!!" << endl;
+    tmp_data.clear();
+    tmp_data.shrink_to_fit();
+    _data.next_record();
   }
-}
 
+}
 
 
 void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
@@ -215,8 +136,6 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
   //cetak(" calculate_overall_metric ");
   //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
 
-
-
   if (_col_pot_split.size() > 0)
   {
     float entropy_before_split = _stat_label.get_entropy();
@@ -260,12 +179,12 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
           jml_loop += 1;
         }
 
-        const int jml_thread = 10;
-        
+        const int jml_thread = 5;
+
         thread th[jml_thread];
         float arr_gain[jml_thread];
         string arr_split_value[jml_thread];
-        
+
 
         float gain_max = 0;
         string tmp_split_value;
@@ -285,12 +204,12 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
           while ((j < jml_thread) and cthread)
           {
             size_t _begin = (k * dt_per_page) + 1;
-            size_t _end = (dt_per_page * (k + 1))>_col_pot_split.size() ? _col_pot_split.size() : (dt_per_page * (k + 1));
+            size_t _end = (dt_per_page * (k + 1)) > _col_pot_split.size() ? _col_pot_split.size() : (dt_per_page * (k + 1));
 
             if (_begin <= _col_pot_split.size()) {
               // cetak("{start th:");
               // cetak(to_string(j).c_str());
-              th[j] = thread(&Tdataframe::calculate_metric,_begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label));
+              th[j] = thread(&Tdataframe::calculate_metric, _begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label));
               j++;
               // cetak("} ");
             } else {
@@ -321,33 +240,6 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
         }
 
 
-
-        // for (size_t i = 0; i < jml_loop; i += 2)
-        // {
-
-        //   float tmp_best_overall_metric1, tmp_best_overall_metric2;
-        //   string tmp_split_value1, tmp_split_value2;
-
-        //   thread t1(&Tdataframe::calculate_metric, (i * 1000) + 1, 1000 * (i + 1), ref(_col_pot_split), ref(tmp_best_overall_metric1), ref(tmp_split_value1), ref(_stat_label));
-        //   thread t2(&Tdataframe::calculate_metric, ((i + 1) * 1000) + 1, 1000 * (i + 2), ref(_col_pot_split), ref(tmp_best_overall_metric2), ref(tmp_split_value2), ref(_stat_label));
-        //   t1.join();
-        //   t2.join();
-
-        //   if (gain_max < tmp_best_overall_metric1)
-        //   {
-        //     gain_max = tmp_best_overall_metric1;
-        //     tmp_split_value = tmp_split_value1;
-        //   }
-
-        //   if (gain_max < tmp_best_overall_metric2)
-        //   {
-        //     gain_max = tmp_best_overall_metric2;
-        //     tmp_split_value = tmp_split_value2;
-        //   }
-
-
-        // }
-
         current_overall_metric = gain_max;
         split_value = tmp_split_value;
 
@@ -368,18 +260,6 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     _col_pot_split.clear();
 
   }
-
-
-  //     thread t1(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + ((i - 1) * 5000), 5000 * i, ref(vec_col_pot_split), ref(best_overall_metric1), ref(tmp_split_value1), ref(tmp_sum_entropy1));
-  //     thread t2(&Tdataframe::calculate_metric, _data_type[idx] == "continuous.", 1 + (i * 5000), 5000 * (i + 1), ref(vec_col_pot_split), ref(best_overall_metric2), ref(tmp_split_value2), ref(tmp_sum_entropy2));
-
-  //     // cetak("t1");
-  //     t1.join();
-  //     // cetak("t2");
-  //     // cetak("|");
-  //     t2.join();
-
-
 
 }
 
