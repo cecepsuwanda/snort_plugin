@@ -44,6 +44,7 @@ public:
 	void train(Tdataframe &df,double gamma, double nu);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
+	void destroy_model();
 	void test(Tdataframe &df);
 	string guess(vector<string> &data);
 

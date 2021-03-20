@@ -290,6 +290,11 @@ void Tmy_svm::load_model(string nm_file)
 
 }
 
+void Tmy_svm::destroy_model()
+{
+	svm_free_and_destroy_model(&model);
+}
+
 void Tmy_svm::test(Tdataframe &df)
 {
 	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
@@ -363,7 +368,7 @@ string Tmy_svm::guess(vector<string> &data)
 	//cout << predict_label << endl;
 
 	free(x_space);
-	svm_free_and_destroy_model(&model);
+	//svm_free_and_destroy_model(&model);
 	//svm_destroy_param(&param);
 
 	string label = "normal";
