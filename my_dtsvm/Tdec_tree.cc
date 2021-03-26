@@ -187,15 +187,15 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     df_above.set_id(id_df++);
 
     df.split_data(split_column, split_value, df_below, df_above);
-    
+
     int jml_p = df.getjmlrow();
     int jml_a = df_above.getjmlrow();
     int jml_b = df_below.getjmlrow();
 
-    float p_a = ((float) jml_a)/jml_p;
-    float p_b = ((float) jml_b)/jml_p;;
+    float p_a = ((float) jml_a) / jml_p;
+    float p_b = ((float) jml_b) / jml_p;;
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ( (p_a<0.3) and (p_b<0.3)) ) {
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ( (p_a < 0.3) and (p_b < 0.3)) ) {
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
@@ -479,16 +479,126 @@ string Tdec_tree::guess(vector<string> &data)
   return label;
 }
 
-void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix)
+void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix)
 {
   cetak("%d", node_index);
   if (tree[node_index].isLeaf)
   {
 
     string label = tree[node_index].label;
-    vector<string> data;
 
-    if (train_svm)
+    Twrite_file tmp_wf;
+
+    if (save_test) {
+      tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[node_index].idx_svm) + ".csv");
+    }
+
+
+    Tmy_svm my_svm(feature_selection, normal_only, 0, "", "", save_train);
+    if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
+    {
+      cetak("+{v { %d %d }}", tree[node_index].idx_svm, df_test.getjmlrow());
+      string nm_model = svm_path + "/svm_model_" + to_string(tree[node_index].idx_svm) + ".csv";
+      my_svm.load_model(nm_model);
+    } else {
+      cetak("*{{ %d }}", df_test.getjmlrow());
+    }
+
+
+    if (feature_selection)
+    {
+      vec_attr = df_test.get_unique_attr();
+    }
+
+
+    vector<string> data;
+    vector<string> tmp_data;
+
+    df_test.reset_file();
+    while (!df_test.is_eof()) {
+      data = df_test.get_record();
+
+
+      string tmp_str = "";
+      for (size_t i = 0; i < (data.size() - 1); ++i)
+      {
+        if (feature_selection)
+        {
+
+          auto it = vec_attr.find(i);
+          if (it != vec_attr.end()) {
+            tmp_data.push_back(data[i]);
+            tmp_str = tmp_str + data[i] + ",";
+          }
+
+        } else {
+          tmp_data.push_back(data[i]);
+          tmp_str = tmp_str + data[i] + ",";
+        }
+      }
+
+      tmp_str = tmp_str + data[data.size() - 1];
+
+      if (save_test)
+      {
+        tmp_wf.write_file(tmp_str);
+      }
+
+      string tmp_label = label;
+      if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
+      {
+        tmp_label = my_svm.guess(tmp_data);
+
+        string tmp_label_svm = data[data.size() - 1];
+        if (data[data.size() - 1] == "attack")
+        {
+          tmp_label_svm = "normal";
+        }
+
+        svm_conf_metrix.add_jml(tmp_label_svm, tmp_label, 1);
+
+        string tmp_label_dt = data[data.size() - 1];
+        if (data[data.size() - 1] == "unknown")
+        {
+          tmp_label_dt = "attack";
+        }
+
+        dt_conf_metrix.add_jml(tmp_label_dt, tmp_label, 1);
+
+      } else {
+        string tmp_label_dt = data[data.size() - 1];
+        if (data[data.size() - 1] == "unknown")
+        {
+          tmp_label_dt = "attack";
+        }
+
+        dt_conf_metrix.add_jml(tmp_label_dt, tmp_label, 1);
+      }
+
+      conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
+
+      tmp_data.clear();
+      tmp_data.shrink_to_fit();
+
+      data.clear();
+      data.shrink_to_fit();
+
+      df_test.next_record();
+
+    }
+
+    if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
+    {
+      my_svm.destroy_model();
+    }
+
+    if (save_test)
+    {
+      tmp_wf.close_file();
+    }
+
+
+    /*if (train_svm)
     {
 
       if ((label == "normal") and (tree[node_index].idx_svm != -1))
@@ -533,7 +643,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
           if (save_test)
           {
-            tmp_wf.write_file(tmp_str);            
+            tmp_wf.write_file(tmp_str);
           }
 
           label = my_svm.guess(tmp_data);
@@ -552,9 +662,9 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         my_svm.destroy_model();
 
         if (save_test)
-          {            
-            tmp_wf.close_file();
-          }
+        {
+          tmp_wf.close_file();
+        }
       }
     }
 
@@ -574,7 +684,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         df_test.next_record();
 
       }
-    }
+    }*/
 
     df_test.clear_memory();
   } else {
@@ -589,7 +699,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       if (df_left.getjmlrow() > 0) {
         cetak("->");
-        test_dfs(left, df_left, conf_metrix);
+        test_dfs(left, df_left, conf_metrix, dt_conf_metrix, svm_conf_metrix);
       }
       df_left.clear_memory();
     }
@@ -599,7 +709,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       if (df_right.getjmlrow() > 0) {
         cetak("<-");
-        test_dfs(right, df_right, conf_metrix);
+        test_dfs(right, df_right, conf_metrix, dt_conf_metrix, svm_conf_metrix);
       }
       df_right.clear_memory();
     }
@@ -617,8 +727,8 @@ void Tdec_tree::test()
   cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
   cetak("Test Decission Tree : \n");
 
-  Tconf_metrix conf_metrix;
-  test_dfs(0, df, conf_metrix);
+  Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix;
+  test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix);
   /* vector<string> tmp_data;
    string tmp_str, tmp_str1;
 
@@ -653,8 +763,17 @@ void Tdec_tree::test()
   df.close_file();
   cetak("\n");
   //cout << " Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
+  cout << "All Metrix : " << endl;
   conf_metrix.kalkulasi();
-  cout << conf_metrix << endl;
+  cout << conf_metrix << endl << endl;
+
+  cout << "Dession Tree Metrix : " << endl;
+  dt_conf_metrix.kalkulasi();
+  cout << dt_conf_metrix << endl << endl;
+
+  cout << "SVM Metrix : " << endl;
+  svm_conf_metrix.kalkulasi();
+  cout << svm_conf_metrix << endl << endl;
 
 }
 
