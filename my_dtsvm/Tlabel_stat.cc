@@ -9,8 +9,7 @@ Tlabel_stat::Tlabel_stat()
 
 Tlabel_stat::~Tlabel_stat()
 {
-	_jml_row = 0;
-	_map.clear();
+	clear();
 }
 
 void Tlabel_stat::clear()
@@ -37,10 +36,25 @@ string Tlabel_stat::get_first_value_in_map()
 }
 
 
-float Tlabel_stat::get_entropy()
+double Tlabel_stat::get_entropy()
 {
-	float entropy = 0;
-	auto it = _map.begin();
+	double entropy = 0;
+	credal crd;
+
+	vector<int> freq;
+
+	std::transform(_map.begin(), _map.end(),
+	               std::back_inserter(freq),
+	[](const std::pair<string, int> &p) {
+		return p.second;
+	});
+
+
+	crd.input_frec(freq);
+
+	entropy = crd.get_ent();
+
+	/*auto it = _map.begin();
 	while (it != _map.end())
 	{
 		if ( (it->second > 0) and (_jml_row > 0) ) {
@@ -48,7 +62,29 @@ float Tlabel_stat::get_entropy()
 		}
 
 		it++;
-	}
+	}*/
+
+	return entropy;
+}
+
+double Tlabel_stat::get_credal_entropy()
+{
+	double entropy = 0;
+	credal crd;
+
+	vector<int> freq;
+
+	std::transform(_map.begin(), _map.end(),
+	               std::back_inserter(freq),
+	[](const std::pair<string, int> &p) {
+		return p.second;
+	});
+
+
+	crd.input_frec(freq);
+
+	entropy = crd.get_max_ent();
+
 	return entropy;
 }
 

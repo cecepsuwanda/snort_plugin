@@ -19,13 +19,16 @@ using namespace std;
 class Tdataframe : public Tbase_dataframe 
 {
 private:
-    
-  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label);
+  
+  bool use_credal = false;
+
+  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal);
 
   
 public:
   Tdataframe();
   ~Tdataframe();
+  Tdataframe(bool v_use_credal);
    
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
   float get_entropy();

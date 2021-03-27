@@ -7,6 +7,7 @@
 #include "Tmy_dttype.h"
 #include "Tmy_svm.h"
 #include "Twrite_file.h"
+#include "credal.h"
 #include <experimental/filesystem>
 
 using namespace std;
@@ -56,6 +57,8 @@ private:
 	bool train_svm = false;
 	bool feature_selection = false;
 	bool normal_only = false;
+	bool use_credal = false;
+
 	bool save_train = true;
 	bool save_test = true;
 
@@ -91,7 +94,7 @@ private:
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test);
+	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test,int v_use_credal);
 
 
 	string guess(vector<string> &data);

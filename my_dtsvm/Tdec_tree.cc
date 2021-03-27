@@ -12,7 +12,7 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal)
 {
 
   train_svm = v_train_svm == 1;
@@ -20,6 +20,7 @@ Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_
   _depth = v_depth;
   save_train = v_save_train == 1;
   save_test = v_save_test == 1;
+  use_credal = v_use_credal == 1;
 
   idx_svm = 0;
   id_df = 1;
@@ -180,7 +181,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     determine_best_split(df, split_column, split_value);
 
-    Tdataframe df_below, df_above;
+    Tdataframe df_below(use_credal), df_above(use_credal);
     df_below = df;
     df_below.set_id(id_df++);
     df_above = df;
@@ -188,14 +189,14 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     df.split_data(split_column, split_value, df_below, df_above);
 
-    int jml_p = df.getjmlrow();
+    /*int jml_p = df.getjmlrow();
     int jml_a = df_above.getjmlrow();
     int jml_b = df_below.getjmlrow();
 
     float p_a = ((float) jml_a) / jml_p;
-    float p_b = ((float) jml_b) / jml_p;;
+    float p_b = ((float) jml_b) / jml_p;*/
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ( (p_a < 0.3) and (p_b < 0.3)) ) {
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  ) {//or ( (p_a < 0.3) and (p_b < 0.3))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
@@ -305,7 +306,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 void Tdec_tree::build_tree()
 {
-  Tdataframe df_train;
+  Tdataframe df_train(use_credal);
   df_train.read_data(_f_train);
   df_train.read_data_type(_f_datatype);
   df_train.set_id(0);
@@ -537,12 +538,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         }
       }
 
-      tmp_str = tmp_str + data[data.size() - 1];
 
-      if (save_test)
-      {
-        tmp_wf.write_file(tmp_str);
-      }
 
       string tmp_label = label;
       if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
@@ -550,7 +546,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         tmp_label = my_svm.guess(tmp_data);
 
         string tmp_label_svm = data[data.size() - 1];
-        if (data[data.size() - 1] == "attack")
+        if (data[data.size() - 1] == "known")
         {
           tmp_label_svm = "normal";
         }
@@ -560,22 +556,29 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         string tmp_label_dt = data[data.size() - 1];
         if (data[data.size() - 1] == "unknown")
         {
-          tmp_label_dt = "attack";
+          tmp_label_dt = "known";
         }
 
-        dt_conf_metrix.add_jml(tmp_label_dt, tmp_label, 1);
+        dt_conf_metrix.add_jml(tmp_label_dt, label, 1);
 
       } else {
         string tmp_label_dt = data[data.size() - 1];
         if (data[data.size() - 1] == "unknown")
         {
-          tmp_label_dt = "attack";
+          tmp_label_dt = "known";
         }
 
         dt_conf_metrix.add_jml(tmp_label_dt, tmp_label, 1);
       }
 
       conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
+
+      tmp_str = tmp_str + data[data.size() - 1] + "," + tmp_label;
+
+      if (save_test)
+      {
+        tmp_wf.write_file(tmp_str);
+      }
 
       tmp_data.clear();
       tmp_data.shrink_to_fit();
@@ -771,9 +774,13 @@ void Tdec_tree::test()
   dt_conf_metrix.kalkulasi();
   cout << dt_conf_metrix << endl << endl;
 
-  cout << "SVM Metrix : " << endl;
-  svm_conf_metrix.kalkulasi();
-  cout << svm_conf_metrix << endl << endl;
+  if (train_svm)
+  {
+    cout << "SVM Metrix : " << endl;
+    svm_conf_metrix.kalkulasi();
+    cout << svm_conf_metrix << endl << endl;
+  }
+
 
 }
 

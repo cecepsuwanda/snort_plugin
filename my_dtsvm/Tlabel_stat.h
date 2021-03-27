@@ -4,6 +4,8 @@
 #include <iterator>
 #include <string>
 #include <iomanip>
+#include <algorithm>
+#include "credal.h"
 
 using namespace std;
 
@@ -19,14 +21,18 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
+	
 public:
 	Tlabel_stat();
 	~Tlabel_stat();
+	
 	void add(string value);
 	void clear();
     int get_jml_row();
 
-    float get_entropy();
+    double get_entropy();
+    double get_credal_entropy();
+    
     float get_estimate_error();
     map<string, int> get_map();
 

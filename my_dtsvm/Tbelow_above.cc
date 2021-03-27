@@ -6,6 +6,11 @@ Tbelow_above::Tbelow_above()
 
 }
 
+Tbelow_above::Tbelow_above(bool v_use_credal)
+{
+   use_credal=v_use_credal;
+}
+
 Tbelow_above::~Tbelow_above()
 {
 	_below.clear();
@@ -51,15 +56,39 @@ Tlabel_stat Tbelow_above::get_above()
 
 float Tbelow_above::get_overall_metric()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();
-	float p_dt_below = (float) _below.get_jml_row() / jml;
-	float p_dt_above = (float) _above.get_jml_row() / jml;
+	float overall_metric = 0.0;
 
-	float entropy_below = _below.get_entropy();
-	float entropy_above = _above.get_entropy();
+    if(!use_credal){
+		int jml = _below.get_jml_row() + _above.get_jml_row();
+		float p_dt_below = (float) _below.get_jml_row() / jml;
+		float p_dt_above = (float) _above.get_jml_row() / jml;
+
+		double entropy_below = _below.get_entropy();
+		double entropy_above = _above.get_entropy();
 
 
-	float overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+	}else{
+        
+        credal crd;
+
+        vector<int> freq;
+        vector<double> ent,max_ent;
+
+        freq.push_back(_below.get_jml_row());
+        freq.push_back(_above.get_jml_row());
+
+        crd.input_frec(freq);
+ 
+        ent.push_back(_below.get_entropy());
+		ent.push_back(_above.get_entropy());   
+         
+        max_ent.push_back(_below.get_credal_entropy());
+		max_ent.push_back(_above.get_credal_entropy());  
+
+		overall_metric = crd.get_overall_metric(ent,max_ent);
+
+	}
 	return overall_metric;
 }
 

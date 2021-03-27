@@ -12,13 +12,17 @@ using namespace std;
 
 class Tbelow_above
 {
+ private: 
   Tmy_dttype _value;
   Tlabel_stat _below;
   Tlabel_stat _above;
 
+  bool use_credal=false; 
+
 public:
 	Tbelow_above();
 	~Tbelow_above();
+	Tbelow_above(bool v_use_credal);
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();
