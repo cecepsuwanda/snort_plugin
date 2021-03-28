@@ -2,7 +2,7 @@
 
 credal::credal()
 {
-	_s = 0.5;
+	_s = 1.0;
 }
 
 credal::~credal()

@@ -21,9 +21,9 @@ public:
 	~Tmy_dttype();
 	Tmy_dttype(string value, bool is_continue);
 
-	
-    void set_value(string value, bool is_continue);
-    string get_value();
+
+	void set_value(string value, bool is_continue);
+	string get_value();
 
 	string get_string();
 
@@ -41,11 +41,18 @@ public:
 	{
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) < stof(rhs._value));
+			try {
+				return  (stof(_value) < stof(rhs._value));
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "<" << rhs._value << " ";
+				return false;
+			}
+
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)<0);
+				return (_lower_value.compare(rhs._lower_value) < 0);
 			} else {
 				return false;
 			}
@@ -56,11 +63,17 @@ public:
 	{
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) <= stof(rhs._value));
+			try {
+				return  (stof(_value) <= stof(rhs._value));
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "<=" << rhs._value << " ";
+				return false;
+			}
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)<=0);
+				return (_lower_value.compare(rhs._lower_value) <= 0);
 			} else {
 				return false;
 			}
@@ -75,7 +88,7 @@ public:
 		} else {
 			if (!_is_continue)
 			{
-				return (_value.compare(rhs)<=0);
+				return (_value.compare(rhs) <= 0);
 			} else {
 				return false;
 			}
@@ -90,7 +103,7 @@ public:
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)>0);
+				return (_lower_value.compare(rhs._lower_value) > 0);
 			} else {
 				return false;
 			}
@@ -105,7 +118,7 @@ public:
 		} else {
 			if (!_is_continue)
 			{
-				return (_value.compare(rhs)>0);
+				return (_value.compare(rhs) > 0);
 			} else {
 				return false;
 			}
@@ -116,11 +129,11 @@ public:
 	{
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) >= stof(rhs._value));
+			return  (stof(_value) >= stof(rhs._value));			
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)>=0);
+				return (_lower_value.compare(rhs._lower_value) >= 0);
 			} else {
 				return false;
 			}
@@ -129,13 +142,13 @@ public:
 
 	bool operator ==(const Tmy_dttype& rhs) const
 	{
-        if (_is_continue and rhs._is_continue)
+		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) == stof(rhs._value));
+			return  (stof(_value) == stof(rhs._value));			
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)==0);
+				return (_lower_value.compare(rhs._lower_value) == 0);
 			} else {
 				return false;
 			}
@@ -151,7 +164,7 @@ public:
 		} else {
 			if (!_is_continue)
 			{
-				return (_value.compare(rhs)==0);
+				return (_value.compare(rhs) == 0);
 			} else {
 				return false;
 			}
@@ -163,11 +176,11 @@ public:
 
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) != stof(rhs._value));
+			return  (stof(_value) != stof(rhs._value));			
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
-				return (_lower_value.compare(rhs._lower_value)!=0);
+				return (_lower_value.compare(rhs._lower_value) != 0);
 			} else {
 				return false;
 			}
@@ -183,7 +196,7 @@ public:
 		} else {
 			if (!_is_continue)
 			{
-				return (_value.compare(rhs)!=0);
+				return (_value.compare(rhs) != 0);
 			} else {
 				return false;
 			}

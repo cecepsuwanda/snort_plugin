@@ -84,7 +84,7 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   float max_gain = 0;
   bool  first_iteration = true;
 
-  string current_split_value;
+  string current_split_value = "-1";
   float current_overall_metric;
 
   split_column = -1;
@@ -177,7 +177,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     counter++;
 
     int split_column;
-    string split_value;
+    string split_value = "-1";
 
     determine_best_split(df, split_column, split_value);
 
@@ -189,14 +189,14 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     df.split_data(split_column, split_value, df_below, df_above);
 
-    /*int jml_p = df.getjmlrow();
+    int jml_p = df.getjmlrow();
     int jml_a = df_above.getjmlrow();
     int jml_b = df_below.getjmlrow();
 
     float p_a = ((float) jml_a) / jml_p;
-    float p_b = ((float) jml_b) / jml_p;*/
+    float p_b = ((float) jml_b) / jml_p;
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  ) {//or ( (p_a < 0.3) and (p_b < 0.3))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ( (p_a < 0.3) and (p_b < 0.3)) or (split_value == "-1")) { //or ( (p_a < 0.3) and (p_b < 0.3))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
