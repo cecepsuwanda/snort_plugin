@@ -77,7 +77,7 @@ private:
 	int dfs(vector<string> &data, int treeIndex);
 	void pruning_dfs(int node_index , Tdataframe &df_train);
 	void post_pruning(Tdataframe &df_train);
-	void test_dfs(int node_index , Tdataframe &df_test,Tconf_metrix &conf_metrix,Tconf_metrix &dt_conf_metrix,Tconf_metrix &svm_conf_metrix);
+	void test_dfs(int node_index , Tdataframe &df_test,Tconf_metrix &conf_metrix,Tconf_metrix &dt_conf_metrix,Tconf_metrix &svm_conf_metrix,Tconf_metrix &dt_svm_conf_metrix);
 	void save_tree();
 
 
