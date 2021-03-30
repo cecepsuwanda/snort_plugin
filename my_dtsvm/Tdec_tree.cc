@@ -12,7 +12,7 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal,double credal_s)
 {
 
   train_svm = v_train_svm == 1;
@@ -21,6 +21,7 @@ Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_
   save_train = v_save_train == 1;
   save_test = v_save_test == 1;
   use_credal = v_use_credal == 1;
+  _credal_s = credal_s;
 
   idx_svm = 0;
   id_df = 1;
@@ -181,7 +182,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     determine_best_split(df, split_column, split_value);
 
-    Tdataframe df_below(use_credal), df_above(use_credal);
+    Tdataframe df_below(use_credal,_credal_s), df_above(use_credal,_credal_s);
     df_below = df;
     df_below.set_id(id_df++);
     df_above = df;
@@ -306,7 +307,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 void Tdec_tree::build_tree()
 {
-  Tdataframe df_train(use_credal);
+  Tdataframe df_train(use_credal,_credal_s);
   df_train.read_data(_f_train);
   df_train.read_data_type(_f_datatype);
   df_train.set_id(0);

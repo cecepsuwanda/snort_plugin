@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     int save_train = stoi(argv[13]);
     int save_test = stoi(argv[14]);
     int use_credal = stoi(argv[15]);
+    double credal_s = strtod(argv[16], &endptr); 
 
     int train_svm = stoi(argv[2]);
     int feature_selection = stoi(argv[3]);
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
     int min_sample = stoi(argv[6]);
 
 
-    Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal);
+    Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal,credal_s);
     dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
     dec_tree.set_model_path(path_model);
     dec_tree.set_svm_path(svm_path);
@@ -67,6 +68,7 @@ int main(int argc, char *argv[])
       int save_train = stoi(argv[13]);
       int save_test = stoi(argv[14]);
       int use_credal = stoi(argv[15]);
+      double credal_s = strtod(argv[16], &endptr);
 
       int train_svm = stoi(argv[2]);
       int feature_selection = stoi(argv[3]);
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
       int depth = stoi(argv[5]);
       int min_sample = stoi(argv[6]);
 
-      Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal);
+      Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal,credal_s);
       dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
       dec_tree.set_model_path(path_model);
       dec_tree.set_svm_path(svm_path);
@@ -106,6 +108,7 @@ int main(int argc, char *argv[])
         int save_train = stoi(argv[13]);
         int save_test = stoi(argv[14]);
         int use_credal = stoi(argv[15]);
+        double credal_s = strtod(argv[16], &endptr);
 
         int train_svm = stoi(argv[2]);
         int feature_selection = stoi(argv[3]);
@@ -119,7 +122,7 @@ int main(int argc, char *argv[])
         int min_sample = stoi(argv[6]);
 
 
-        Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal);
+        Tdec_tree dec_tree(train_svm, min_sample, depth, save_train, save_test,use_credal,credal_s);
         dec_tree.set_svm_param(feature_selection, normal_only, gamma , nu);
         dec_tree.set_model_path(path_model);
         dec_tree.set_svm_path(svm_path);

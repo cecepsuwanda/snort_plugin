@@ -21,10 +21,11 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
-	
+	double _credal_s=0.0;
 public:
 	Tlabel_stat();
 	~Tlabel_stat();
+	Tlabel_stat(double credal_s);
 	
 	void add(string value);
 	void clear();
@@ -56,7 +57,7 @@ public:
 		this->_max_value = t._max_value;
 		this->_max_label = t._max_label;
 		this->_min_value = t._min_value;
-		
+		this->_credal_s = t._credal_s;
 
 		return *this;
 	}

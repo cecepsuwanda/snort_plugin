@@ -6,9 +6,10 @@ Tbelow_above::Tbelow_above()
 
 }
 
-Tbelow_above::Tbelow_above(bool v_use_credal)
+Tbelow_above::Tbelow_above(bool v_use_credal,double credal_s)
 {
    use_credal=v_use_credal;
+   _credal_s = credal_s;
 }
 
 Tbelow_above::~Tbelow_above()

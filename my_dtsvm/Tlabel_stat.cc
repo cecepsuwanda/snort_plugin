@@ -12,6 +12,13 @@ Tlabel_stat::~Tlabel_stat()
 	clear();
 }
 
+Tlabel_stat::Tlabel_stat(double credal_s)
+{
+	_jml_row = 0;
+	_max_value = 0;
+	_credal_s = credal_s;
+}
+
 void Tlabel_stat::clear()
 {
 	_jml_row = 0;
@@ -39,7 +46,7 @@ string Tlabel_stat::get_first_value_in_map()
 double Tlabel_stat::get_entropy()
 {
 	double entropy = 0;
-	credal crd;
+	credal crd(_credal_s);
 
 	vector<int> freq;
 
@@ -70,7 +77,7 @@ double Tlabel_stat::get_entropy()
 double Tlabel_stat::get_credal_entropy()
 {
 	double entropy = 0;
-	credal crd;
+	credal crd(_credal_s);
 
 	vector<int> freq;
 

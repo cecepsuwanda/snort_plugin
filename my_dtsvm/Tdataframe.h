@@ -21,14 +21,15 @@ class Tdataframe : public Tbase_dataframe
 private:
   
   bool use_credal = false;
+  double _credal_s=0.0;
 
-  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal);
+  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal,double credal_s);
 
   
 public:
   Tdataframe();
   ~Tdataframe();
-  Tdataframe(bool v_use_credal);
+  Tdataframe(bool v_use_credal,double credal_s);
    
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
   float get_entropy();

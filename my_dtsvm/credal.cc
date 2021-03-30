@@ -10,6 +10,11 @@ credal::~credal()
 	clear();
 }
 
+credal::credal(double s)
+{
+	_s = s;
+}
+
 void credal::clear()
 {
 	_prob_int.clear();

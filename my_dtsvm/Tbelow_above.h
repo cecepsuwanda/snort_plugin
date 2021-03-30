@@ -17,12 +17,13 @@ class Tbelow_above
   Tlabel_stat _below;
   Tlabel_stat _above;
 
-  bool use_credal=false; 
+  bool use_credal=false;
+  double _credal_s=0.0;  
 
 public:
 	Tbelow_above();
 	~Tbelow_above();
-	Tbelow_above(bool v_use_credal);
+	Tbelow_above(bool v_use_credal,double credal_s);
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();

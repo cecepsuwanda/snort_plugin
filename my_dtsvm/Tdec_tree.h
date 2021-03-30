@@ -58,6 +58,7 @@ private:
 	bool feature_selection = false;
 	bool normal_only = false;
 	bool use_credal = false;
+	double _credal_s = 0.0;
 
 	bool save_train = true;
 	bool save_test = true;
@@ -94,7 +95,7 @@ private:
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test,int v_use_credal);
+	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test,int v_use_credal,double credal_s);
 
 
 	string guess(vector<string> &data);

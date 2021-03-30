@@ -65,6 +65,7 @@ private:
 public:
 	credal();
 	~credal();
+	credal(double s);
 	void input_frec(vector<int> frec);
 
 	vector<double> get_max_prob();
