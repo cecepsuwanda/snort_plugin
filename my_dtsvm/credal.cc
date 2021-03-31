@@ -12,7 +12,7 @@ credal::~credal()
 
 credal::credal(double s)
 {
-	_s = s;
+	_s = s;    
 }
 
 void credal::clear()

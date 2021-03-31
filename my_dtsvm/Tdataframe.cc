@@ -16,6 +16,7 @@ Tdataframe::Tdataframe(bool v_use_credal,double credal_s)
 {
   use_credal = v_use_credal;
   _credal_s = credal_s;
+  _stat_label.set_credal_s(credal_s);
 }
 
 
@@ -56,7 +57,7 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
       it = _col_pot_split.find(pot_split_holder);
       if (it == _col_pot_split.end())
       {
-        Tlabel_stat p(_credal_s);
+       Tlabel_stat p(_credal_s);
         p.add(tmp_data[_jml_col - 1]);
         _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
       } else {

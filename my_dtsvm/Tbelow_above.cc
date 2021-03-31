@@ -10,6 +10,8 @@ Tbelow_above::Tbelow_above(bool v_use_credal,double credal_s)
 {
    use_credal=v_use_credal;
    _credal_s = credal_s;
+   _below.set_credal_s(credal_s);
+   _above.set_credal_s(credal_s);
 }
 
 Tbelow_above::~Tbelow_above()
@@ -71,7 +73,7 @@ float Tbelow_above::get_overall_metric()
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 	}else{
         
-        credal crd;
+        credal crd(_credal_s);
 
         vector<int> freq;
         vector<double> ent,max_ent;
@@ -83,7 +85,7 @@ float Tbelow_above::get_overall_metric()
  
         ent.push_back(_below.get_entropy());
 		ent.push_back(_above.get_entropy());   
-         
+
         max_ent.push_back(_below.get_credal_entropy());
 		max_ent.push_back(_above.get_credal_entropy());  
 

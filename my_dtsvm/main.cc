@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
 
   if (stoi(argv[1]) == 0)
   {
+    char *endptr;
+
     string f_datatype = argv[9];
     string f_train = argv[10];
     //string f_test = argv[7];
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
     int feature_selection = stoi(argv[3]);
     int normal_only = stoi(argv[4]);
 
-    char *endptr;
+    
     double gamma = strtod(argv[7], &endptr);
     double nu = strtod(argv[8], &endptr);
 
@@ -60,6 +62,8 @@ int main(int argc, char *argv[])
   } else {
     if (stoi(argv[1]) == 1)
     {
+      char *endptr;
+
       string f_datatype = argv[9];
       string f_test = argv[10];
       string path_model = argv[11];
@@ -74,7 +78,7 @@ int main(int argc, char *argv[])
       int feature_selection = stoi(argv[3]);
       int normal_only = stoi(argv[4]);
 
-      char *endptr;
+      
       double gamma = strtod(argv[7], &endptr);
       double nu = strtod(argv[8], &endptr);
 
@@ -99,6 +103,8 @@ int main(int argc, char *argv[])
     } else {
       if (stoi(argv[1]) == 2)
       {
+        char *endptr;
+
         string f_datatype = argv[9];
         string f_train = argv[10];
         //string f_test = argv[7];
@@ -114,7 +120,7 @@ int main(int argc, char *argv[])
         int feature_selection = stoi(argv[3]);
         int normal_only = stoi(argv[4]);
 
-        char *endptr;
+        
         double gamma = strtod(argv[7], &endptr);
         double nu = strtod(argv[8], &endptr);
 

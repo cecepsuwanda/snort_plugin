@@ -491,7 +491,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
     Twrite_file tmp_wf;
 
-    if (save_test) {
+    if ((save_test) and (train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1)) {
       tmp_wf.setnm_f(model_path + "/test/test_model_" + to_string(tree[node_index].idx_svm) + ".csv");
     }
 
@@ -589,7 +589,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       my_svm.destroy_model();
     }
 
-    if (save_test)
+    if ((save_test) and (train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1) )
     {
       tmp_wf.close_file();
     }
