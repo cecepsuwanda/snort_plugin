@@ -269,11 +269,11 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 			for (auto it1 = tc.matrik.begin(); it1 != tc.matrik.end(); it1++)
 			{
 				auto it2 = it1->second.find(it->first);
-				if(it2==it1->second.end())
+				if (it2 == it1->second.end())
 				{
-                  out << setw(10) << 0;
-				}else{
-                  out << setw(10) << it2->second;
+					out << setw(10) << 0;
+				} else {
+					out << setw(10) << it2->second;
 				}
 			}
 
@@ -287,4 +287,22 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 
 
 	return out;
+}
+
+void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, int param_min_sample, double param_gamma, double param_nu, double param_credal_s)
+{
+	Twrite_file tmp_wf;
+	tmp_wf.setnm_f(nm_file);
+
+	for (auto it = matrik.begin(); it != matrik.end(); ++it)
+	{
+		string tmp_str = "";
+		for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++)
+		{
+			string tmp_str = param_nm_file + "," + to_string(param_depth) + "," + to_string(param_min_sample) + "," + to_string(param_gamma) + "," + to_string(param_nu) + "," + to_string(param_credal_s) +  "," + it->first + "," + it1->first + "," + to_string(it1->second);
+		    tmp_wf.write_file(tmp_str);
+		}
+	}
+
+	tmp_wf.close_file();
 }

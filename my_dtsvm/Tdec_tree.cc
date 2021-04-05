@@ -12,7 +12,7 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal,double credal_s)
+Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal, double credal_s)
 {
 
   train_svm = v_train_svm == 1;
@@ -182,7 +182,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     determine_best_split(df, split_column, split_value);
 
-    Tdataframe df_below(use_credal,_credal_s), df_above(use_credal,_credal_s);
+    Tdataframe df_below(use_credal, _credal_s), df_above(use_credal, _credal_s);
     df_below = df;
     df_below.set_id(id_df++);
     df_above = df;
@@ -307,7 +307,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 void Tdec_tree::build_tree()
 {
-  Tdataframe df_train(use_credal,_credal_s);
+  Tdataframe df_train(use_credal, _credal_s);
   df_train.read_data(_f_train);
   df_train.read_data_type(_f_datatype);
   df_train.set_id(0);
@@ -645,22 +645,25 @@ void Tdec_tree::test()
   cout << "All Metrix : " << endl;
   conf_metrix.kalkulasi();
   cout << conf_metrix << endl << endl;
+  conf_metrix.save(model_path + "/all_metrik.csv", _f_test, _depth, _min_sample, _gamma, _nu, _credal_s);
 
   cout << "Dession Tree Metrix : " << endl;
   dt_conf_metrix.kalkulasi();
   cout << dt_conf_metrix << endl << endl;
+  dt_conf_metrix.save(model_path + "/dt_metrik.csv", _f_test, _depth, _min_sample, _gamma, _nu, _credal_s);
 
   if (train_svm)
   {
     cout << "SVM Metrix : " << endl;
     svm_conf_metrix.kalkulasi();
     cout << svm_conf_metrix << endl << endl;
+    svm_conf_metrix.save(model_path + "/svm_metrik.csv", _f_test, _depth, _min_sample, _gamma, _nu, _credal_s);
   }
 
   cout << "SVM & Dession Tree Metrix : " << endl;
   dt_svm_conv_metrix.kalkulasi();
   cout << dt_svm_conv_metrix << endl << endl;
-
+  dt_svm_conv_metrix.save(model_path + "/dtsvm_metrik.csv", _f_test, _depth, _min_sample, _gamma, _nu, _credal_s);
 
 
 }
