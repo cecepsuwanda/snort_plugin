@@ -203,7 +203,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     // float p_a = ((float) jml_a) / jml_p;
     // float p_b = ((float) jml_b) / jml_p;
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (split_value == "-1")) { //or ( (jml_a < jml_p) or (jml_b < jml_p))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples)) or (split_value == "-1")) { //or ( (jml_a < jml_p) or (jml_b < jml_p))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
