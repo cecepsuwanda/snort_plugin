@@ -97,7 +97,7 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
     df.get_col_pot_split(i, _col_pot_split);
-    if (first_iteration or (max_gain < current_overall_metric))
+    if (_col_pot_split.size() < (0.3 * max_attr))
     {
       df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
     }
@@ -320,7 +320,7 @@ void Tdec_tree::build_tree()
   df_train.info();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   train(df_train, 0, 0, _min_sample, _depth);
@@ -639,7 +639,7 @@ void Tdec_tree::test()
   df.info();
 
   cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu,_credal_s , _f_test.c_str());
   cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
@@ -877,7 +877,7 @@ void Tdec_tree::learn_svm()
   df_train.info();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f train : %s test : %s \n", _depth, _min_sample, _gamma, _nu, _f_train.c_str(), _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f train : %s  \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   svm_dfs(0, 0, df_train);
