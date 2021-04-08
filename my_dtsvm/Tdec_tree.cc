@@ -82,11 +82,12 @@ void Tdec_tree::col_pot_split(Tdataframe df, int i, float & current_overall_metr
 void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
 {
   //cout << "determine_best_split " << endl;
+  float max_attr = df.getjmlrow();
   float max_gain = 0;
   bool  first_iteration = true;
 
   string current_split_value = "-1";
-  float current_overall_metric;
+  float current_overall_metric = -1;
 
   split_column = -1;
   split_value = "-1";
@@ -96,15 +97,20 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
     df.get_col_pot_split(i, _col_pot_split);
-    df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
+    if (first_iteration or (max_gain < current_overall_metric))
+    {
+      df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
+    }
 
     if (first_iteration or (max_gain < current_overall_metric))
     {
-      first_iteration = false;
-      max_gain = current_overall_metric;
+      if (_col_pot_split.size() < (0.3 * max_attr)) {
+        first_iteration = false;
+        max_gain = current_overall_metric;
 
-      split_column = i;
-      split_value = current_split_value;
+        split_column = i;
+        split_value = current_split_value;
+      }
     }
 
   }
@@ -190,14 +196,14 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     df.split_data(split_column, split_value, df_below, df_above);
 
-    int jml_p = df.getjmlrow();
-    int jml_a = df_above.getjmlrow();
-    int jml_b = df_below.getjmlrow();
+    // float jml_p = ((float) 0.001*df.getjmlrow());
+    // float jml_a = df_above.getjmlrow();
+    // float jml_b = df_below.getjmlrow();
 
-    float p_a = ((float) jml_a) / jml_p;
-    float p_b = ((float) jml_b) / jml_p;
+    // float p_a = ((float) jml_a) / jml_p;
+    // float p_b = ((float) jml_b) / jml_p;
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ( (p_a < 0.3) and (p_b < 0.3)) or (split_value == "-1")) { //or ( (p_a < 0.3) and (p_b < 0.3))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (split_value == "-1")) { //or ( (jml_a < jml_p) or (jml_b < jml_p))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
