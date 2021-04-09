@@ -25,6 +25,7 @@ private:
 
   static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal,double credal_s);
 
+  void handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);
   
 public:
   Tdataframe();

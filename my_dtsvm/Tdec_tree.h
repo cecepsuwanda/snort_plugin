@@ -92,7 +92,7 @@ private:
 
 	static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
 
-    void handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);
+    
 
 public:
 	Tdec_tree();
