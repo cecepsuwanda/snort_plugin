@@ -140,11 +140,8 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
 
 }
 
-void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
+void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
 {
-  //cetak(" calculate_overall_metric ");
-  //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
-
   if (_col_pot_split.size() > 0)
   {
     float entropy_before_split = _stat_label.get_entropy();
@@ -269,7 +266,17 @@ void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> 
     _col_pot_split.clear();
 
   }
+}
 
+void Tdataframe::calculate_overall_metric(int idx, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
+{
+  //cetak(" calculate_overall_metric ");
+  //cout << "          calculate_overall_metric " << get_nm_header(idx) << endl;
+  if(_data_type[idx] == "continuous."){
+     handle_continuous(_col_pot_split,current_overall_metric,split_value);   
+  }else{
+    
+  }
 }
 
 string Tdataframe::get_nm_header(int idx_col)
