@@ -27,7 +27,7 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path,string svm_path, bool save_train)
+Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path, string svm_path, bool save_train)
 {
 	_feature_selection = feature_selection;
 	_normal_only = normal_only;
@@ -97,11 +97,11 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	df.ReFilter();
 
 	Twrite_file tmp_wf;
-    if(_save_train){
-	 tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
-    }
+	if (_save_train) {
+		tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
+	}
 
-	size_t elements, j, i;
+	size_t elements, j, i, l;
 	char *endptr;
 
 	map<int, int> kolom;
@@ -121,7 +121,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	// cetak("}");
 
 	size_t prm1;
-	size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol() - 1) );
+	size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol_svm() - 1) );
 
 	if ((stat_label.size() > 1) and (!_normal_only))
 	{
@@ -166,7 +166,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	i = 0;
 	while (!df.is_eof())
 	{
-		vector<string> tmp = df.get_record();
+		vector<string> tmp = df.get_record_svm();
 
 		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
@@ -181,7 +181,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 			string tmp_str = "";
 
-
+			l = 0;
 			auto itr = kolom.begin();
 			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
@@ -200,13 +200,12 @@ void Tmy_svm::read_problem(Tdataframe &df)
 					x_space[j].value = strtod(str.c_str(), &endptr);
 					tmp_str = tmp_str + str + ",";
 				}
-
 				++j;
 			}
 
-			tmp_str = tmp_str + tmp[df.getjmlcol() - 1];
-			if(_save_train){
-			  tmp_wf.write_file(tmp_str);
+			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
+			if (_save_train) {
+				tmp_wf.write_file(tmp_str);
 			}
 
 			x_space[j++].index = -1;
@@ -222,12 +221,12 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 	}
 
-	//cout << i << endl;
+//cout << i << endl;
 	is_read_problem = true;
 
-	if(_save_train){ 
-	 tmp_wf.close_file();
-	} 
+	if (_save_train) {
+		tmp_wf.close_file();
+	}
 
 	kolom.clear();
 	df.clear_memory();
@@ -350,22 +349,22 @@ void Tmy_svm::test(Tdataframe &df)
 
 string Tmy_svm::guess(vector<string> &data)
 {
+
 	char *endptr;
 	x_space = (struct svm_node *) malloc(data.size() * sizeof(struct svm_node));
 
 	size_t k = 0;
 	for (; k < data.size(); k++) {
-
 		string str = data[k];
 		x_space[k].index = k;
-		x_space[k].value = strtod(str.c_str(), &endptr);
-
+		x_space[k].value = strtod(str.c_str(), &endptr);		
 	}
 	x_space[k].index = -1;
 
+
 	double predict_label = svm_predict(model, x_space);
 
-	//cout << predict_label << endl;
+	//cout << "{" << predict_label << "}";
 
 	free(x_space);
 	//svm_free_and_destroy_model(&model);

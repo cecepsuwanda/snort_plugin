@@ -97,14 +97,13 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
     df.get_col_pot_split(i, _col_pot_split);
-    if (_col_pot_split.size() < (0.3 * max_attr))
-    {
+    if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
       df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
     }
 
     if (first_iteration or (max_gain < current_overall_metric))
     {
-      if (_col_pot_split.size() < (0.3 * max_attr)) {
+      if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
         first_iteration = false;
         max_gain = current_overall_metric;
 
@@ -112,6 +111,15 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
         split_value = current_split_value;
       }
     }
+
+    auto it = _col_pot_split.begin();
+    while (it != _col_pot_split.end())
+    {
+      it->second.clear();
+      it++;
+    }
+
+    _col_pot_split.clear();
 
   }
 }
@@ -183,27 +191,23 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     counter++;
 
-    int split_column;
+    int split_column = -1;
     string split_value = "-1";
 
     determine_best_split(df, split_column, split_value);
 
     Tdataframe df_below(use_credal, _credal_s), df_above(use_credal, _credal_s);
-    df_below = df;
-    df_below.set_id(id_df++);
-    df_above = df;
-    df_above.set_id(id_df++);
+    if (split_value != "-1")
+    {
+      df_below = df;
+      df_below.set_id(id_df++);
+      df_above = df;
+      df_above.set_id(id_df++);
 
-    df.split_data(split_column, split_value, df_below, df_above);
+      df.split_data(split_column, split_value, df_below, df_above);
+    }
 
-    // float jml_p = ((float) 0.001*df.getjmlrow());
-    // float jml_a = df_above.getjmlrow();
-    // float jml_b = df_below.getjmlrow();
-
-    // float p_a = ((float) jml_a) / jml_p;
-    // float p_b = ((float) jml_b) / jml_p;
-
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples)) or (split_value == "-1")) { //or ( (jml_a < jml_p) or (jml_b < jml_p))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))) { //or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
@@ -231,73 +235,76 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
       df_above.clear_memory();
 
     } else {
-
-      cetak("|");
-
-      tree[node_index].criteriaAttrIndex = split_column;
-
-      int treeIndex_yes, treeIndex_no;
-
-      Node nextNode;
-      nextNode.treeIndex = (int)tree.size();
-      nextNode.attrValue = split_value;
-      nextNode.opt = df.get_opt(split_column, 1);
-      treeIndex_yes = nextNode.treeIndex;
-      tree[node_index].children.push_back(nextNode.treeIndex);
-      tree.push_back(nextNode);
-
-      // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-      cetak("->");
-      train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
-
-
-      Node nextNode1;
-      nextNode1.treeIndex = (int)tree.size();
-      nextNode1.attrValue = split_value;
-      nextNode1.opt = df.get_opt(split_column, 0);
-      treeIndex_no = nextNode1.treeIndex;
-      tree[node_index].children.push_back(nextNode1.treeIndex);
-      tree.push_back(nextNode1);
-
-      // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
-      cetak("<-");
-      train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth);
-
-      if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+      if (split_value != "-1")
       {
 
-        tree[node_index].isLeaf = true;
+        cetak("|");
 
-        string tmp_str = tree[treeIndex_yes].label;
+        tree[node_index].criteriaAttrIndex = split_column;
 
-        if (tmp_str == "normal") {
+        int treeIndex_yes, treeIndex_no;
 
-          cetak("+");
+        Node nextNode;
+        nextNode.treeIndex = (int)tree.size();
+        nextNode.attrValue = split_value;
+        nextNode.opt = df.get_opt(split_column, 1);
+        treeIndex_yes = nextNode.treeIndex;
+        tree[node_index].children.push_back(nextNode.treeIndex);
+        tree.push_back(nextNode);
 
-          if ((train_svm) )
-          {
-            idx_svm++;
-            tree[node_index].idx_svm = idx_svm;
+        // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
+        cetak("->");
+        train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
 
-            cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
-            f_train_svm(df, idx_svm);
-            cetak("}");
 
-            del_model_train(tree[treeIndex_yes].idx_svm);
-            del_model_train(tree[treeIndex_no].idx_svm);
+        Node nextNode1;
+        nextNode1.treeIndex = (int)tree.size();
+        nextNode1.attrValue = split_value;
+        nextNode1.opt = df.get_opt(split_column, 0);
+        treeIndex_no = nextNode1.treeIndex;
+        tree[node_index].children.push_back(nextNode1.treeIndex);
+        tree.push_back(nextNode1);
+
+        // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
+        cetak("<-");
+        train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth);
+
+        if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+        {
+
+          tree[node_index].isLeaf = true;
+
+          string tmp_str = tree[treeIndex_yes].label;
+
+          if (tmp_str == "normal") {
+
+            cetak("+");
+
+            if ((train_svm) )
+            {
+              idx_svm++;
+              tree[node_index].idx_svm = idx_svm;
+
+              cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
+              f_train_svm(df, idx_svm);
+              cetak("}");
+
+              del_model_train(tree[treeIndex_yes].idx_svm);
+              del_model_train(tree[treeIndex_no].idx_svm);
+            }
+
           }
 
+          tree[node_index].label = tree[treeIndex_yes].label;
+          tree[node_index].children.clear();
+          tree[node_index].children.shrink_to_fit();
+          tree.erase(tree.begin() + treeIndex_no);
+          tree.erase(tree.begin() + treeIndex_yes);
+          tree.shrink_to_fit();
+          //cetak("\n");
+
+
         }
-
-        tree[node_index].label = tree[treeIndex_yes].label;
-        tree[node_index].children.clear();
-        tree[node_index].children.shrink_to_fit();
-        tree.erase(tree.begin() + treeIndex_no);
-        tree.erase(tree.begin() + treeIndex_yes);
-        tree.shrink_to_fit();
-        //cetak("\n");
-
-
       }
 
     }
@@ -505,9 +512,10 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
     Tmy_svm my_svm(feature_selection, normal_only, 0, "", "", save_train);
     if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
     {
-      cetak("+{v { %d %d }}", tree[node_index].idx_svm, df_test.getjmlrow());
+      cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow());
       string nm_model = svm_path + "/svm_model_" + to_string(tree[node_index].idx_svm) + ".csv";
       my_svm.load_model(nm_model);
+      cetak("}");
     } else {
       cetak("*{{ %d }}", df_test.getjmlrow());
     }
@@ -524,7 +532,8 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
     df_test.reset_file();
     while (!df_test.is_eof()) {
-      data = df_test.get_record();
+      data = df_test.get_record_svm();
+
 
 
       string tmp_str = "";
@@ -552,6 +561,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       {
         tmp_label = my_svm.guess(tmp_data);
 
+
         string tmp_label_svm = (data[data.size() - 1] == "known") ? "normal" : data[data.size() - 1];
 
         svm_conf_metrix.add_jml(tmp_label_svm, tmp_label, 1);
@@ -571,9 +581,13 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
         dt_svm_conf_metrix.add_jml(tmp_label_dt, tmp_label, 1);
       }
 
+
       conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
 
       tmp_str = tmp_str + data[data.size() - 1] + "," + tmp_label;
+
+
+
 
       if (save_test)
       {
@@ -589,6 +603,8 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       df_test.next_record();
 
     }
+
+
 
     if ((train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
     {
@@ -639,7 +655,7 @@ void Tdec_tree::test()
   df.info();
 
   cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu,_credal_s , _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_test.c_str());
   cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;

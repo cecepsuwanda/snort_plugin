@@ -84,7 +84,9 @@ public:
 	{
 		if (_is_continue)
 		{
+			
 			return  (stof(_value) <= stof(rhs));
+
 		} else {
 			if (!_is_continue)
 			{
@@ -129,7 +131,7 @@ public:
 	{
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) >= stof(rhs._value));			
+			return  (stof(_value) >= stof(rhs._value));
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
@@ -144,7 +146,13 @@ public:
 	{
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) == stof(rhs._value));			
+			try {
+				return  (stof(_value) == stof(rhs._value));
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "==" << rhs._value << " ";
+				return false;
+			}
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{
@@ -176,7 +184,13 @@ public:
 
 		if (_is_continue and rhs._is_continue)
 		{
-			return  (stof(_value) != stof(rhs._value));			
+			try {
+				return  (stof(_value) != stof(rhs._value));
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "!=" << rhs._value << " ";
+				return false;
+			}
 		} else {
 			if (!_is_continue and !rhs._is_continue)
 			{

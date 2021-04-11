@@ -32,7 +32,8 @@ protected:
 	int _idx_label;
 	string _nm_file;
 
-
+    bool is_non_continuous = false;
+    bool is_42 = false;
 
 	void cetak ( const char * format, ... );
 
@@ -54,6 +55,8 @@ public:
 		_stat_label = t._stat_label;
 		_idx_label = t._idx_label;
 		_nm_file = t._nm_file;
+		is_non_continuous = t.is_non_continuous;
+		is_42 = t.is_42;
 	}
 
 	~Tbase_dataframe();
@@ -69,6 +72,8 @@ public:
 		this->_stat_label = t._stat_label;
 		this->_idx_label = t._idx_label;
 		this->_nm_file = t._nm_file;
+		this->is_non_continuous = t.is_non_continuous;
+		this->is_42 = t.is_42;
 		return *this;
 	}
 
@@ -78,6 +83,7 @@ public:
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);	
 	void save_to(string nm_file);
+	string get_data_type(int idx);
 
 	bool is_pass(vector<string> &data);
 
@@ -90,6 +96,8 @@ public:
 
 	int getjmlcol();
 	int getjmlrow();
+    int getjmlcol_svm();
+
 
 	void reset_file();
 	void close_file();
@@ -97,6 +105,8 @@ public:
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+	vector<string> get_record_svm();
+
 
 	void add_filter(int idx_col, int idx_opt, string value);
 	void add_filter(field_filter filter);
