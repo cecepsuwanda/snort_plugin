@@ -203,9 +203,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
       df_below.set_id(id_df++);
       df_above = df;
       df_above.set_id(id_df++);
-
-      df.split_data(split_column, split_value, df_below, df_above);
     }
+    df.split_data(split_column, split_value, df_below, df_above);
+
 
     if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))) { //or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))
       string tmp_str = create_leaf(df);

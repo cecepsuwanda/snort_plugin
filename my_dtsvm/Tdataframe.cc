@@ -75,7 +75,7 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
 
   float entropy_before_split = stat_label.get_entropy();
 
-  float best_overall_metric;
+  float best_overall_metric=0.0;
   float gain = 0, gain_max = 0;
   string mid_point = "0.0";
   string tmp_split_value = "-1";
@@ -123,12 +123,12 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
     itr++;
     i++;
 
-    if (first_iteration or (gain_max < gain))
+    if ((first_iteration and (gain>0)) or (gain_max < gain))
     {
       first_iteration = false;
       gain_max = gain;
       tmp_split_value = mid_point;
-      best_overall_metric = gain_max;
+      best_overall_metric = gain_max;      
     }
 
   }
@@ -156,9 +156,10 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
       float entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
       float gain = (entropy_before_split - entropy_after_split) / split_info;
-
-      current_overall_metric = gain;
-      split_value = ((Tmy_dttype) (*itr).first).get_string();
+      if(gain>0){
+        current_overall_metric = gain;
+        split_value = ((Tmy_dttype) (*itr).first).get_string();
+      }
       //cetak(" ==1 end }");
 
     } else {
@@ -168,12 +169,14 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
 
       if (_col_pot_split.size() < dt_per_page)
       {
-        float tmp_best_overall_metric;
+        float tmp_best_overall_metric=0.0;
         string tmp_split_value = "-1";
         thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label), use_credal, _credal_s);
         t1.join();
+        
         current_overall_metric = tmp_best_overall_metric;
         split_value = tmp_split_value;
+
       } else {
 
         size_t jml_loop = _col_pot_split.size() / dt_per_page;
@@ -295,7 +298,7 @@ void Tdataframe::handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_sp
 
     itr++;
 
-    if (first_iteration or (gain_max < gain))
+    if ((first_iteration and (gain>0)) or (gain_max < gain))
     {
       first_iteration = false;
       gain_max = gain;
