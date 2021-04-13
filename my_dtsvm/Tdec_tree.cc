@@ -206,8 +206,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     }
     df.split_data(split_column, split_value, df_below, df_above);
 
+    //float limit = (0.001 * df.getjmltotalrow());
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))) { //or ((df_below.getjmlrow() < min_samples) or (df_above.getjmlrow() < min_samples))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") ) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
@@ -325,6 +326,7 @@ void Tdec_tree::build_tree()
   df_train.read_data_type(_f_datatype);
   df_train.set_id(0);
   df_train.info();
+  df_train.setjmltotalrow();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
   cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, _f_train.c_str());

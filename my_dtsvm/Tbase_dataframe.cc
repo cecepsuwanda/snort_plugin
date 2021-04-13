@@ -219,6 +219,16 @@ int Tbase_dataframe::getjmlrow()
 	return _jml_row;
 }
 
+void Tbase_dataframe::setjmltotalrow()
+{
+  _jml_total_row = _jml_row;  
+}
+
+int Tbase_dataframe::getjmltotalrow()
+{
+	return _jml_total_row;
+}
+
 void Tbase_dataframe::reset_file()
 {
 	_data.reset_file();

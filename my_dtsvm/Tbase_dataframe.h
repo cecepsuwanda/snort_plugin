@@ -29,6 +29,7 @@ protected:
 
 	int _jml_col = 0;
 	int _jml_row = 0;
+	int _jml_total_row = 0;
 	int _idx_label;
 	string _nm_file;
 
@@ -57,6 +58,7 @@ public:
 		_nm_file = t._nm_file;
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
+		_jml_total_row = t._jml_total_row;
 	}
 
 	~Tbase_dataframe();
@@ -74,6 +76,7 @@ public:
 		this->_nm_file = t._nm_file;
 		this->is_non_continuous = t.is_non_continuous;
 		this->is_42 = t.is_42;
+		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}
 
@@ -97,6 +100,8 @@ public:
 	int getjmlcol();
 	int getjmlrow();
     int getjmlcol_svm();
+    void setjmltotalrow();
+    int getjmltotalrow();
 
 
 	void reset_file();
