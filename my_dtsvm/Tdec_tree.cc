@@ -158,7 +158,12 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
   //cout << counter;
   cetak("%d", counter);
 
-  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
+  // float threshold = 0.1 * min_samples;
+  // threshold = (threshold>0) and (threshold<=1) ? 2 : threshold;
+  // int selisih = df.getjmlrow()-min_samples;
+  // or (selisih<threshold)
+
+  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth)  )
   {
     string tmp_str = create_leaf(df);
 
