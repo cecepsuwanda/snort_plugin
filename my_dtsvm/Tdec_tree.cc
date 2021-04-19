@@ -160,10 +160,10 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
   // float threshold = 0.1 * min_samples;
   // threshold = (threshold>0) and (threshold<=1) ? 2 : threshold;
-  // int selisih = df.getjmlrow()-min_samples;
+  int selisih = df.getjmlrow()-min_samples;
   // or (selisih<threshold)
 
-  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth)  )
+  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) or (selisih<min_samples) )
   {
     string tmp_str = create_leaf(df);
 
@@ -211,9 +211,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     }
     df.split_data(split_column, split_value, df_below, df_above);
 
-    //float limit = (0.001 * df.getjmltotalrow());
+    bool stop = (df_below.getjmlrow() < min_samples) or (df_above.getjmlrow()<min_samples);
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") ) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or stop) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {

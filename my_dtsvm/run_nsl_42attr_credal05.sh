@@ -78,34 +78,34 @@ wait
 ./my_dtsvm  1 1 0 1 100 2 0.001 0.01  data/kddcup.names data/NSLTree_unknown.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm 2 1 0 1 100 2 0.003 0.01  data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt 
+./my_dtsvm 2 1 0 1 100 2 0.003 0.1  data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt 
 wait
 
-./my_dtsvm 1 1 0 1 100 2 0.003 0.01 data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4  0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm 1 1 0 1 100 2 0.003 0.1 data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4  0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm 1 1 0 1 100 2 0.003 0.01 data/kddcup.names data/NSLTree_test.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm 1 1 0 1 100 2 0.003 0.1 data/kddcup.names data/NSLTree_test.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait 
 
-./my_dtsvm  1 1 0 1 100 2 0.003 0.01  data/kddcup.names data/NSLTree_test1.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm  1 1 0 1 100 2 0.003 0.1  data/kddcup.names data/NSLTree_test1.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm  1 1 0 1 100 2 0.003 0.01  data/kddcup.names data/NSLTree_unknown.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm  1 1 0 1 100 2 0.003 0.1  data/kddcup.names data/NSLTree_unknown.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm 2 1 0 1 100 2 0.004 0.01  data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt 
+./my_dtsvm 2 1 0 1 100 2 0.004 0.5  data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt 
 wait
 
-./my_dtsvm 1 1 0 1 100 2 0.004 0.01 data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4  0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm 1 1 0 1 100 2 0.004 0.5 data/kddcup.names data/NSLTree_train.txt model/model_100_2_svm_42attr_credal05 model4  0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm 1 1 0 1 100 2 0.004 0.01 data/kddcup.names data/NSLTree_test.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm 1 1 0 1 100 2 0.004 0.5 data/kddcup.names data/NSLTree_test.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait 
 
-./my_dtsvm  1 1 0 1 100 2 0.004 0.01  data/kddcup.names data/NSLTree_test1.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm  1 1 0 1 100 2 0.004 0.5  data/kddcup.names data/NSLTree_test1.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
-./my_dtsvm  1 1 0 1 100 2 0.004 0.01  data/kddcup.names data/NSLTree_unknown.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
+./my_dtsvm  1 1 0 1 100 2 0.004 0.5  data/kddcup.names data/NSLTree_unknown.txt model/model_100_2_svm_42attr_credal05 model4 0 0 1 0.5 | tee -a model/model_100_2_svm_42attr_credal05/hasil.txt
 wait
 
 mkdir ~/Dataset/NSL/model_100_2_svm_42attr_credal05
