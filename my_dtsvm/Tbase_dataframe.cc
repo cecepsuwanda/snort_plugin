@@ -54,6 +54,7 @@ void Tbase_dataframe::read_data(string nm_f)
 	_data.setnm_f(nm_f, ",");
 }
 
+
 void Tbase_dataframe::read_data_type(string nm_f)
 {
 	Tread_file tmp;
@@ -76,6 +77,7 @@ void Tbase_dataframe::read_data_type(string nm_f)
 		if (tmp_data[1] != "continuous.")
 		{
 			is_non_continuous = true;
+			
 		}
 
 		tmp.next_record();
@@ -90,6 +92,7 @@ void Tbase_dataframe::read_data_type(string nm_f)
 	{
 		is_42 = _jml_col == 42;
 	}
+    
 
 	stat_tabel();
 }
@@ -156,9 +159,6 @@ void Tbase_dataframe::stat_tabel()
 			}
 
 			_stat_label.add(tmp_data[_idx_label]);
-
-
-
 			i++;
 		}
 
@@ -166,12 +166,7 @@ void Tbase_dataframe::stat_tabel()
 		tmp_data.shrink_to_fit();
 		_data.next_record();
 	}
-
-	if (_filter.size() > 0) {
-		_data.clear_memory();
-		_data.save_to_memory();
-		_data.clear_index();
-	}
+	
 
 	_data.index_on();
 	_jml_row = i;
@@ -221,7 +216,7 @@ int Tbase_dataframe::getjmlrow()
 
 void Tbase_dataframe::setjmltotalrow()
 {
-  _jml_total_row = _jml_row;  
+	_jml_total_row = _jml_row;
 }
 
 int Tbase_dataframe::getjmltotalrow()

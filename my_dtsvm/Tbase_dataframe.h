@@ -40,6 +40,8 @@ protected:
 
 	int _id = 0;
 
+	
+
 private:
 	
 public:
@@ -59,6 +61,7 @@ public:
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
 		_jml_total_row = t._jml_total_row;
+
 	}
 
 	~Tbase_dataframe();
@@ -77,6 +80,7 @@ public:
 		this->is_non_continuous = t.is_non_continuous;
 		this->is_42 = t.is_42;
 		this->_jml_total_row = t._jml_total_row;
+		
 		return *this;
 	}
 
@@ -122,6 +126,8 @@ public:
 
 	void info();
 	void head();
+
+	
 
 };
 

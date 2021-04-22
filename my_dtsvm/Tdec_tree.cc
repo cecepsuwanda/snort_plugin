@@ -96,32 +96,35 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
-    df.get_col_pot_split(i, _col_pot_split);
-    if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-      df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
-    }
-
-    if (first_iteration or (max_gain < current_overall_metric))
-    {
+    
+      df.get_col_pot_split(i, _col_pot_split);
       if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-        first_iteration = false;
-        max_gain = current_overall_metric;
-
-        split_column = i;
-        split_value = current_split_value;
+        df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
       }
-    }
 
-    auto it = _col_pot_split.begin();
-    while (it != _col_pot_split.end())
-    {
-      it->second.clear();
-      it++;
-    }
+      if (first_iteration or (max_gain < current_overall_metric))
+      {
+        if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
+          first_iteration = false;
+          max_gain = current_overall_metric;
 
-    _col_pot_split.clear();
+          split_column = i;
+          split_value = current_split_value;
+        }
+      }
 
+      auto it = _col_pot_split.begin();
+      while (it != _col_pot_split.end())
+      {
+        it->second.clear();
+        it++;
+      }
+
+      _col_pot_split.clear();
+    
   }
+
+  
 }
 
 string Tdec_tree::create_leaf(Tdataframe & df)
@@ -158,12 +161,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
   //cout << counter;
   cetak("%d", counter);
 
-  // float threshold = 0.1 * min_samples;
-  // threshold = (threshold>0) and (threshold<=1) ? 2 : threshold;
-  int selisih = df.getjmlrow()-min_samples;
-  // or (selisih<threshold)
-
-  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) or (selisih<min_samples) )
+  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
     string tmp_str = create_leaf(df);
 
@@ -208,12 +206,12 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
       df_below.set_id(id_df++);
       df_above = df;
       df_above.set_id(id_df++);
+
     }
     df.split_data(split_column, split_value, df_below, df_above);
 
-    bool stop = (df_below.getjmlrow() < min_samples) or (df_above.getjmlrow()<min_samples);
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or stop) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
       string tmp_str = create_leaf(df);
 
       if (tmp_str == "normal") {
@@ -308,9 +306,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
           tree.erase(tree.begin() + treeIndex_yes);
           tree.shrink_to_fit();
           //cetak("\n");
-
-
-        }
+        } 
       }
 
     }

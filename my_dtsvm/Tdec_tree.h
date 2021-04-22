@@ -69,6 +69,7 @@ private:
 	double _nu = 0.01;
 
 	map<int, int> vec_attr;
+	
 
 	bool check_purity(Tdataframe &df);
 
