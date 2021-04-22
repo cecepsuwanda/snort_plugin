@@ -130,3 +130,4 @@ cp -rf model/model_100_100_svm_42attr/dt_metrik.csv ~/Dataset/NSL/model_100_100_
 cp -rf model/model_100_100_svm_42attr/svm_metrik.csv ~/Dataset/NSL/model_100_100_svm_42attr
 cp -rf model/model_100_100_svm_42attr/dtsvm_metrik.csv ~/Dataset/NSL/model_100_100_svm_42attr
 
+

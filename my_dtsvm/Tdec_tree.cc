@@ -330,7 +330,7 @@ void Tdec_tree::build_tree()
   df_train.setjmltotalrow();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.5f credal : %.4f  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, _f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   train(df_train, 0, 0, _min_sample, _depth);
@@ -658,7 +658,7 @@ void Tdec_tree::test()
   df.info();
 
   cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.5f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_test.c_str());
   cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
@@ -896,7 +896,7 @@ void Tdec_tree::learn_svm()
   df_train.info();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.5f credal : %.4f train : %s  \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f train : %s  \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   svm_dfs(0, 0, df_train);

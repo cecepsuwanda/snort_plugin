@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 mkdir model/model_100_100_svm_42attr_credal1
 mkdir model/model_100_100_svm_42attr_credal1/test
@@ -129,4 +129,5 @@ cp -rf model/model_100_100_svm_42attr_credal1/all_metrik.csv ~/Dataset/NSL/model
 cp -rf model/model_100_100_svm_42attr_credal1/dt_metrik.csv ~/Dataset/NSL/model_100_100_svm_42attr_credal1
 cp -rf model/model_100_100_svm_42attr_credal1/svm_metrik.csv ~/Dataset/NSL/model_100_100_svm_42attr_credal1
 cp -rf model/model_100_100_svm_42attr_credal1/dtsvm_metrik.csv ~/Dataset/NSL/model_100_100_svm_42attr_credal1
+
 
