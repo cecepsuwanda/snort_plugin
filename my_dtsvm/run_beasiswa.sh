@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# cd data
-# cp -rf ~/Dataset/beasiswa/*.* .
-# dos2unix *.*
-# cd ..
+cd data
+cp -rf ~/Dataset/beasiswa/*.* .
+dos2unix *.*
+cd ..
 
 mkdir model/model_beasiswa
 mkdir model/model_beasiswa/test

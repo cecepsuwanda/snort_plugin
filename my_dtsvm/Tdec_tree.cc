@@ -96,35 +96,35 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
   for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
   {
-    
-      df.get_col_pot_split(i, _col_pot_split);
+
+    df.get_col_pot_split(i, _col_pot_split);
+    if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
+      df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
+    }
+
+    if (first_iteration or (max_gain < current_overall_metric))
+    {
       if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-        df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
+        first_iteration = false;
+        max_gain = current_overall_metric;
+
+        split_column = i;
+        split_value = current_split_value;
       }
+    }
 
-      if (first_iteration or (max_gain < current_overall_metric))
-      {
-        if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-          first_iteration = false;
-          max_gain = current_overall_metric;
+    auto it = _col_pot_split.begin();
+    while (it != _col_pot_split.end())
+    {
+      it->second.clear();
+      it++;
+    }
 
-          split_column = i;
-          split_value = current_split_value;
-        }
-      }
+    _col_pot_split.clear();
 
-      auto it = _col_pot_split.begin();
-      while (it != _col_pot_split.end())
-      {
-        it->second.clear();
-        it++;
-      }
-
-      _col_pot_split.clear();
-    
   }
 
-  
+
 }
 
 string Tdec_tree::create_leaf(Tdataframe & df)
@@ -159,15 +159,14 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
   }
 
   //cout << counter;
-  cetak("%d", counter);
+  cetak("%d {%d}", counter, df.getjmlrow());
 
   if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
   {
     string tmp_str = create_leaf(df);
+    cetak("*");
 
     if (tmp_str == "normal") {
-
-      cetak("*");
 
       if ((train_svm))
       {
@@ -180,6 +179,8 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
       }
 
+    } else {
+      cetak("{A}");
     }
 
     tree[node_index].isLeaf = true;
@@ -210,13 +211,21 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
     }
     df.split_data(split_column, split_value, df_below, df_above);
 
+    bool is_cut = false;
+    // if (((df_below.getjmlrow() > 0) or (df_above.getjmlrow() > 0))  and (split_value != "-1")) {
+    //   float prosen1 = ((float) df_above.getjmlrow()) / df.getjmlrow();
+    //   float prosen2 = ((float) df_below.getjmlrow()) / df.getjmlrow();
+    //   is_cut = (prosen1 < 0.001) or (prosen2 < 0.001);
+    // }
 
-    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
+
+
+    if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1") or is_cut ) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
       string tmp_str = create_leaf(df);
 
-      if (tmp_str == "normal") {
+      cetak("-");
 
-        cetak("-");
+      if (tmp_str == "normal") {
 
         if ((train_svm))
         {
@@ -230,13 +239,17 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
         }
 
+      } else {
+        cetak("{A}");
       }
 
       tree[node_index].isLeaf = true;
       tree[node_index].label = tmp_str;
 
+
       df_below.clear_memory();
       df_above.clear_memory();
+
 
     } else {
       if (split_value != "-1")
@@ -280,9 +293,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
           string tmp_str = tree[treeIndex_yes].label;
 
-          if (tmp_str == "normal") {
+          cetak("+");
 
-            cetak("+");
+          if (tmp_str == "normal") {
 
             if ((train_svm) )
             {
@@ -297,6 +310,8 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
               del_model_train(tree[treeIndex_no].idx_svm);
             }
 
+          } else {
+            cetak("{A}");
           }
 
           tree[node_index].label = tree[treeIndex_yes].label;
@@ -306,7 +321,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
           tree.erase(tree.begin() + treeIndex_yes);
           tree.shrink_to_fit();
           //cetak("\n");
-        } 
+        }
       }
 
     }
@@ -330,7 +345,7 @@ void Tdec_tree::build_tree()
   df_train.setjmltotalrow();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, _f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, (feature_selection ? 1 : 0), (normal_only ? 1 : 0), _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   train(df_train, 0, 0, _min_sample, _depth);
@@ -590,9 +605,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       tmp_str = tmp_str + data[data.size() - 1] + "," + tmp_label;
 
 
-
-
-      if (save_test)
+      if ((save_test) and (train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
       {
         tmp_wf.write_file(tmp_str);
       }
@@ -658,7 +671,7 @@ void Tdec_tree::test()
   df.info();
 
   cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_test.c_str());
   cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
@@ -896,7 +909,7 @@ void Tdec_tree::learn_svm()
   df_train.info();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.2f credal : %.4f train : %s  \n", _depth, _min_sample, _gamma, _nu, _credal_s , _f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f  feature_selection :%d normal only : %d train : %s  \n", _depth, _min_sample, _gamma, _nu, _credal_s , (feature_selection ? 1 : 0), (normal_only ? 1 : 0), _f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   svm_dfs(0, 0, df_train);

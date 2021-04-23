@@ -167,7 +167,12 @@ void Tbase_dataframe::stat_tabel()
 		_data.next_record();
 	}
 	
-
+    if (_filter.size() > 0) {
+		_data.clear_memory();
+		_data.save_to_memory();
+		_data.clear_index();
+	}
+	
 	_data.index_on();
 	_jml_row = i;
 
@@ -285,6 +290,9 @@ vector<string> Tbase_dataframe::get_record_svm()
 				}
 			}
 		}
+
+		tmp_data.clear();
+	    tmp_data.shrink_to_fit();
 
 		return vec;
 	}

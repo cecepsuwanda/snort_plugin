@@ -113,15 +113,9 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	df.reset_file();
 
 	map<string, int> stat_label = df.get_stat_label();
-
-	//cout << stat_label["normal"] << endl;
-
-	// cetak("{vid:");
-	// cetak(to_string(df.get_id()).c_str());
-	// cetak("}");
-
+	
 	size_t prm1;
-	size_t prm2 = (_feature_selection ? kolom.size() : (df.getjmlcol_svm() - 1) );
+	size_t prm2 = (_feature_selection ? kolom.size() :  (df.getjmlcol_svm() - 1));
 
 	if ((stat_label.size() > 1) and (!_normal_only))
 	{
@@ -130,43 +124,24 @@ void Tmy_svm::read_problem(Tdataframe &df)
 		prm1 = stat_label["normal"];
 	}
 
-	// if(prm1>10000)
-	// {
-	//   prm1 = prm1/100;
-	// }
+	
 
 	prob.l = prm1;
 	elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
 
 
 	prob.y = Malloc(double, prob.l);
-	prob.x = Malloc(struct svm_node *, prob.l);
-
-	// elements_size = elements * sizeof(struct svm_node);
-
-	// x_space =(svm_node*) mmap(NULL, elements_size,
-	//                                PROT_READ | PROT_WRITE,
-	//                                MAP_SHARED | MAP_ANON, -1, 0);
+	prob.x = Malloc(struct svm_node *, prob.l);	
 
 	x_space = Malloc(struct svm_node, elements);
-
-	// cetak(" {");
-	// cetak(to_string(prm1).c_str());
-	// cetak(",");
-	// cetak(to_string(prm2).c_str());
-	// cetak(",");
-	// cetak(to_string(elements).c_str());
-	// cetak(",");
-	// cetak(to_string(df.getjmlrow()).c_str());
-	// cetak(",");
-	// cetak(to_string(stat_label["attack"]).c_str());
-	// cetak("} ");
+	
 
 	j = 0;
 	i = 0;
+	vector<string> tmp;
 	while (!df.is_eof())
 	{
-		vector<string> tmp = df.get_record_svm();
+		tmp = df.get_record_svm();
 
 		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
@@ -204,6 +179,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 			}
 
 			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
+			//cout << tmp_str << endl; 
 			if (_save_train) {
 				tmp_wf.write_file(tmp_str);
 			}
@@ -215,11 +191,13 @@ void Tmy_svm::read_problem(Tdataframe &df)
 		}
 
 		tmp.clear();
-		tmp.shrink_to_fit();
+	    tmp.shrink_to_fit();
 
 		df.next_record();
 
 	}
+
+	
 
 //cout << i << endl;
 	is_read_problem = true;
@@ -357,7 +335,7 @@ string Tmy_svm::guess(vector<string> &data)
 	for (; k < data.size(); k++) {
 		string str = data[k];
 		x_space[k].index = k;
-		x_space[k].value = strtod(str.c_str(), &endptr);		
+		x_space[k].value = strtod(str.c_str(), &endptr);
 	}
 	x_space[k].index = -1;
 

@@ -20,6 +20,11 @@ void Twrite_file::setnm_f(string nm_f)
 void Twrite_file::open_file()
 {
 	_file = fopen(_nm_f.c_str(), "a+");
+
+	// if (fstat(_file, &_sb) == -1)
+	// {
+	// 	perror(" couldn't get file size. \n");
+	// }
 }
 
 void Twrite_file::close_file()
