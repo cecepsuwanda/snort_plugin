@@ -30,6 +30,10 @@ int Tbase_dataframe::get_id()
 	return _id;
 }
 
+void Tbase_dataframe::set_min_sample(int m)
+{
+	_min_sample = m;
+}
 
 static void cetak_stdout(const char *s)
 {

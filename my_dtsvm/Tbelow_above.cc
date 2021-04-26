@@ -6,12 +6,12 @@ Tbelow_above::Tbelow_above()
 
 }
 
-Tbelow_above::Tbelow_above(bool v_use_credal,double credal_s)
+Tbelow_above::Tbelow_above(bool v_use_credal, double credal_s)
 {
-   use_credal=v_use_credal;
-   _credal_s = credal_s;
-   _below.set_credal_s(credal_s);
-   _above.set_credal_s(credal_s);
+	use_credal = v_use_credal;
+	_credal_s = credal_s;
+	_below.set_credal_s(credal_s);
+	_above.set_credal_s(credal_s);
 }
 
 Tbelow_above::~Tbelow_above()
@@ -24,6 +24,26 @@ void Tbelow_above::clear()
 {
 	_below.clear();
 	_above.clear();
+}
+
+void Tbelow_above::set_threshold(int t)
+{
+	_threshold  = t;
+}
+
+bool Tbelow_above::cek_valid()
+{
+	// int jml = _below.get_jml_row() + _above.get_jml_row();
+	bool pass = (_below.get_jml_row()>_threshold) and  (_above.get_jml_row()>_threshold);
+	if(!pass){
+       pass = (_below.get_jml_row()<=_threshold) and (_below.get_jml_row()>=2) and (_below.get_jml_row()>=(0.1*_threshold));
+	}
+
+	if(!pass){
+	   pass = (_above.get_jml_row()<=_threshold) and (_above.get_jml_row()>=2) and (_above.get_jml_row()>=(0.1*_threshold)); 	
+	}
+
+	return pass;
 }
 
 void Tbelow_above::set_value(Tmy_dttype value)
@@ -61,7 +81,7 @@ float Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
 
-    if(!use_credal){
+	if (!use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
 		float p_dt_below = (float) _below.get_jml_row() / jml;
 		float p_dt_above = (float) _above.get_jml_row() / jml;
@@ -71,25 +91,25 @@ float Tbelow_above::get_overall_metric()
 
 
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
-	}else{
-        
-        credal crd(_credal_s);
+	} else {
 
-        vector<int> freq;
-        vector<double> ent,max_ent;
+		credal crd(_credal_s);
 
-        freq.push_back(_below.get_jml_row());
-        freq.push_back(_above.get_jml_row());
+		vector<int> freq;
+		vector<double> ent, max_ent;
 
-        crd.input_frec(freq);
- 
-        ent.push_back(_below.get_entropy());
-		ent.push_back(_above.get_entropy());   
+		freq.push_back(_below.get_jml_row());
+		freq.push_back(_above.get_jml_row());
 
-        max_ent.push_back(_below.get_credal_entropy());
-		max_ent.push_back(_above.get_credal_entropy());  
+		crd.input_frec(freq);
 
-		overall_metric = crd.get_overall_metric(ent,max_ent);
+		ent.push_back(_below.get_entropy());
+		ent.push_back(_above.get_entropy());
+
+		max_ent.push_back(_below.get_credal_entropy());
+		max_ent.push_back(_above.get_credal_entropy());
+
+		overall_metric = crd.get_overall_metric(ent, max_ent);
 
 	}
 	return overall_metric;
@@ -101,12 +121,12 @@ float Tbelow_above::get_split_info()
 	float p_dt_below = (float) _below.get_jml_row() / jml;
 	float p_dt_above = (float) _above.get_jml_row() / jml;
 
-	float split_info = 0; 
-	if(p_dt_below>0){   
-	  split_info += (p_dt_below  * (-1 * log2(p_dt_below)));
+	float split_info = 0;
+	if (p_dt_below > 0) {
+		split_info += (p_dt_below  * (-1 * log2(p_dt_below)));
 	}
-	if(p_dt_above>0){
-	  split_info += (p_dt_above  * (-1 * log2(p_dt_above)));
+	if (p_dt_above > 0) {
+		split_info += (p_dt_above  * (-1 * log2(p_dt_above)));
 	}
 	return split_info;
 }

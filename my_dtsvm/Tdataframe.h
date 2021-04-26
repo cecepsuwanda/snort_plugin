@@ -23,7 +23,7 @@ private:
   bool use_credal = false;
   double _credal_s=0.0;
 
-  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal,double credal_s);
+  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal,double credal_s,int threshold);
 
   void handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);
   void handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);

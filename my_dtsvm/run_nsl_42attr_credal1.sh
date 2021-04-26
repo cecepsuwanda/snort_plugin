@@ -1,4 +1,4 @@
-!/bin/bash
+# !/bin/bash
 
 mkdir model/model_100_2_svm_42attr_credal1
 mkdir model/model_100_2_svm_42attr_credal1/test

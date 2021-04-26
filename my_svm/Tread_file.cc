@@ -54,7 +54,8 @@ bool Tread_file::open_file()
 
   if (fstat(_fd, &_sb) == -1)
   {
-    perror("couldn't get file size. \n");
+    cout << _nm_f << endl;
+    perror(" couldn't get file size. \n");
   }
 
   //printf("file size is %ld\n",_sb.st_size);
@@ -130,7 +131,7 @@ void Tread_file::read_file()
     while (( _posisi < _sb.st_size) and (_file_in_memory[_posisi] != '\n') )
     {
       char tmp = _file_in_memory[_posisi];
-      strncat(str, &tmp, 1);
+      strncat(str, &tmp, 1);      
       _posisi++;
     }
     char tmp = _file_in_memory[_posisi];
@@ -141,6 +142,7 @@ void Tread_file::read_file()
 
     _posisi++;
   }
+  //cout << str << endl;
   _data = tokenizer(str, _separator);
   //cout << "Hasil Token : " << _data.size() <<endl;
 

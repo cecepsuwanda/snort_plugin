@@ -39,7 +39,7 @@ protected:
 	void cetak ( const char * format, ... );
 
 	int _id = 0;
-
+    int _min_sample = 0;
 	
 
 private:
@@ -61,6 +61,7 @@ public:
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
 		_jml_total_row = t._jml_total_row;
+		_min_sample = t._min_sample;
 
 	}
 
@@ -80,12 +81,14 @@ public:
 		this->is_non_continuous = t.is_non_continuous;
 		this->is_42 = t.is_42;
 		this->_jml_total_row = t._jml_total_row;
-		
+		this->_min_sample = t._min_sample;
 		return *this;
 	}
 
 	void set_id(int id);
 	int get_id();
+
+	void set_min_sample(int m);
 
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);	

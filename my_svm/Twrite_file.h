@@ -12,6 +12,7 @@ class Twrite_file
 private:
    string _nm_f;
    FILE *_file = NULL;
+   // struct stat _sb;
    void open_file();
 
 public:
