@@ -27,6 +27,15 @@ Tconf_metrix::~Tconf_metrix()
 
 void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 {
+    if(konversi_asli.size()>0)
+    {
+       asli = konversi_asli[asli];
+    }
+
+    if(konversi_tebakan.size()>0)
+    {
+      tebakan = konversi_tebakan[tebakan];
+    }
 
 	if ((tebakan.compare("dfs_failed.") != 0))
 	{
@@ -306,3 +315,13 @@ void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, i
 
 	tmp_wf.close_file();
 }
+
+ void Tconf_metrix::add_konversi_asli(string dari,string ke)
+ {
+    konversi_asli.insert(pair<string,string>(dari,ke));
+ }
+
+ void Tconf_metrix::add_konversi_tebakan(string dari,string ke)
+ {
+   konversi_tebakan.insert(pair<string,string>(dari,ke));
+ }

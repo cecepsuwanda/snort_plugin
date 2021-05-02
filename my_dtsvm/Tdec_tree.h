@@ -59,6 +59,7 @@ private:
 	bool normal_only = false;
 	bool use_credal = false;
 	double _credal_s = 0.0;
+	bool _limited = false;
 
 	bool save_train = true;
 	bool save_test = true;
@@ -69,7 +70,7 @@ private:
 	double _nu = 0.01;
 
 	map<int, int> vec_attr;
-	
+
 
 	bool check_purity(Tdataframe &df);
 
@@ -79,7 +80,7 @@ private:
 	int dfs(vector<string> &data, int treeIndex);
 	void pruning_dfs(int node_index , Tdataframe &df_train);
 	void post_pruning(Tdataframe &df_train);
-	void test_dfs(int node_index , Tdataframe &df_test,Tconf_metrix &conf_metrix,Tconf_metrix &dt_conf_metrix,Tconf_metrix &svm_conf_metrix,Tconf_metrix &dt_svm_conf_metrix);
+	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
 	void save_tree();
 
 
@@ -93,12 +94,12 @@ private:
 
 	static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
 
-    
+
 
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth,int v_save_train,int v_save_test,int v_use_credal,double credal_s);
+	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal, double credal_s, int limited);
 
 
 	string guess(vector<string> &data);

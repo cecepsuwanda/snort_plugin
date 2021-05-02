@@ -6,11 +6,10 @@ Tbelow_above::Tbelow_above()
 
 }
 
-Tbelow_above::Tbelow_above(bool v_use_credal, double credal_s, bool v_limited)
+Tbelow_above::Tbelow_above(bool v_use_credal, double credal_s)
 {
 	use_credal = v_use_credal;
 	_credal_s = credal_s;
-	_limited = v_limited;
 	_below.set_credal_s(credal_s);
 	_above.set_credal_s(credal_s);
 }
@@ -35,18 +34,13 @@ void Tbelow_above::set_threshold(int t)
 bool Tbelow_above::cek_valid()
 {
 	// int jml = _below.get_jml_row() + _above.get_jml_row();
-	bool pass = true;
+	bool pass = (_below.get_jml_row()>_threshold) and  (_above.get_jml_row()>_threshold);
+	if(!pass){
+       pass = (_below.get_jml_row()<=_threshold) and (_below.get_jml_row()>=2) and (_below.get_jml_row()>=(0.1*_threshold));
+	}
 
-	if (_limited)
-	{
-		pass = (_below.get_jml_row() > _threshold) and  (_above.get_jml_row() > _threshold);
-		if (!pass) {
-			pass = (_below.get_jml_row() <= _threshold) and (_below.get_jml_row() >= 2) and (_below.get_jml_row() >= (0.1 * _threshold));
-		}
-
-		if (!pass) {
-			pass = (_above.get_jml_row() <= _threshold) and (_above.get_jml_row() >= 2) and (_above.get_jml_row() >= (0.1 * _threshold));
-		}
+	if(!pass){
+	   pass = (_above.get_jml_row()<=_threshold) and (_above.get_jml_row()>=2) and (_above.get_jml_row()>=(0.1*_threshold)); 	
 	}
 
 	return pass;

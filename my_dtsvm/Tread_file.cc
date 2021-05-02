@@ -131,7 +131,7 @@ void Tread_file::read_file()
     while (( _posisi < _sb.st_size) and (_file_in_memory[_posisi] != '\n') )
     {
       char tmp = _file_in_memory[_posisi];
-      strncat(str, &tmp, 1);      
+      strncat(str, &tmp, 1);
       _posisi++;
     }
     char tmp = _file_in_memory[_posisi];
@@ -145,7 +145,7 @@ void Tread_file::read_file()
   //cout << str << endl;
   _data = tokenizer(str, _separator);
   //cout << "Hasil Token : " << _data.size() <<endl;
-
+  _idx_col = 0;
 
 
 }
@@ -185,6 +185,31 @@ bool Tread_file::is_eof()
 vector<string> Tread_file::get_record()
 {
   return _data;
+}
+
+void Tread_file::next_col()
+{
+  _idx_col = _idx_col + 1;
+}
+
+bool Tread_file::is_end_col()
+{
+  return  !(_idx_col < _data.size());
+}
+
+string Tread_file::get_col_val()
+{
+  return _data[_idx_col];
+}
+
+int Tread_file::get_idx_col()
+{
+  return _idx_col;
+}
+
+string Tread_file::get_col_val(int idx_col)
+{
+  return _data[idx_col];
 }
 
 void Tread_file::next_record()

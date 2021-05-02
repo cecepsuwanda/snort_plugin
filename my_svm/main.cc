@@ -9,24 +9,26 @@ int main(int argc, char *argv[])
 {
   string path_model = argv[1];
 
-  double gamma = 0.0001;
-  double nu = 0.01;
+  double gamma = 0.0005;
+  double nu = 0.5;
 
   for (const auto & file : directory_iterator(path_model + "/train"))
   {
-    Tdataframe df_train;
+    Tdataframe df_train(false,0.0);
     df_train.read_data(file.path());
     df_train.read_data_type(argv[2]);
+    df_train.setjmltotalrow();
+    df_train.set_min_sample(2);
     
-    if((!df_train.is_single_label()) and (df_train.getjmlrow()>100) )
-    {
+    // if( (df_train.getjmlrow()>10000) ) //(!df_train.is_single_label()) and
+    // {
       df_train.info();
       
-      Tmy_svm my_svm;
+      Tmy_svm my_svm(false,true,0,"","",false);
       my_svm.train(df_train,gamma,nu);
       my_svm.test(df_train);
 
-    }
+    // }
 
     df_train.clear_memory();
     df_train.close_file();

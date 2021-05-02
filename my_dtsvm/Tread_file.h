@@ -47,6 +47,8 @@ private:
 	void clear_data();
 	bool open_file();
 
+	int _idx_col=0;
+
 
 public:
 	Tread_file();
@@ -85,6 +87,12 @@ public:
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+
+	void next_col();
+	bool is_end_col();
+	string get_col_val();
+	string get_col_val(int idx_col);
+	int get_idx_col();
 
 	void clear_index();
 	void index_on();

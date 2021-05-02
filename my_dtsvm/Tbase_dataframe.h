@@ -1,6 +1,7 @@
 #include "Tread_file.h"
 #include "Tlabel_stat.h"
 #include "Tmy_dttype.h"
+#include "Tmap_col_split.h"
 #include <string>
 
 using namespace std;
@@ -26,6 +27,7 @@ protected:
 	vector<field_filter> _filter;
 	map<int, int> _unique_attr;
 	Tlabel_stat _stat_label;
+	Tmap_col_split _map_col_split;
 
 	int _jml_col = 0;
 	int _jml_row = 0;
@@ -33,17 +35,24 @@ protected:
 	int _idx_label;
 	string _nm_file;
 
-    bool is_non_continuous = false;
-    bool is_42 = false;
+	bool is_non_continuous = false;
+	bool is_42 = false;
 
 	void cetak ( const char * format, ... );
 
 	int _id = 0;
-    int _min_sample = 0;
-	
+	int _min_sample = 0;
+
+	bool feature_select = false;
+	bool _normal_only = false;
+
+	bool use_credal = false;
+	double _credal_s = 0.0;
+
+	bool _limited = false;
 
 private:
-	
+
 public:
 	Tbase_dataframe();
 	Tbase_dataframe(const Tbase_dataframe &t)
@@ -62,7 +71,9 @@ public:
 		is_42 = t.is_42;
 		_jml_total_row = t._jml_total_row;
 		_min_sample = t._min_sample;
-
+		feature_select = t.feature_select;
+		_normal_only = t._normal_only;
+		_limited = t._limited;
 	}
 
 	~Tbase_dataframe();
@@ -82,6 +93,9 @@ public:
 		this->is_42 = t.is_42;
 		this->_jml_total_row = t._jml_total_row;
 		this->_min_sample = t._min_sample;
+		this->feature_select = t.feature_select;
+		this->_normal_only = t._normal_only;
+		this->_limited = t._limited;
 		return *this;
 	}
 
@@ -91,11 +105,12 @@ public:
 	void set_min_sample(int m);
 
 	void read_data(string nm_f);
-	void read_data_type(string nm_f);	
+	void read_data_type(string nm_f);
 	void save_to(string nm_file);
 	string get_data_type(int idx);
 
 	bool is_pass(vector<string> &data);
+	bool is_pass();
 
 	void stat_tabel();
 	map<string, int> get_stat_label();
@@ -106,9 +121,10 @@ public:
 
 	int getjmlcol();
 	int getjmlrow();
-    int getjmlcol_svm();
-    void setjmltotalrow();
-    int getjmltotalrow();
+	int getjmlcol_svm();
+	int getjmlrow_svm();
+	void setjmltotalrow();
+	int getjmltotalrow();
 
 
 	void reset_file();
@@ -118,6 +134,12 @@ public:
 	void next_record();
 	vector<string> get_record();
 	vector<string> get_record_svm();
+
+	void next_col();
+	bool is_end_col();
+	string get_col_val();
+	string get_col_val(int idx_col);
+	int get_idx_col();
 
 
 	void add_filter(int idx_col, int idx_opt, string value);
@@ -130,7 +152,8 @@ public:
 	void info();
 	void head();
 
-	
+	map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
+	void clear_col_split();
 
 };
 

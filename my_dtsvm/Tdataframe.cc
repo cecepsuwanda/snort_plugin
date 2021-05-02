@@ -12,11 +12,13 @@ Tdataframe::~Tdataframe()
 
 }
 
-Tdataframe::Tdataframe(bool v_use_credal, double credal_s)
+Tdataframe::Tdataframe(bool v_use_credal, double credal_s, bool v_feature_select, bool v_normal_only)
 {
   use_credal = v_use_credal;
   _credal_s = credal_s;
   _stat_label.set_credal_s(credal_s);
+  feature_select = v_feature_select;
+  _normal_only = v_normal_only;
 }
 
 
@@ -42,37 +44,43 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
   //cout << "get_col_pot_split " << idx <<endl;
   map<Tmy_dttype, Tlabel_stat>::iterator it;
   map<string, int>::iterator it_pot_struct;
-  vector<string> tmp_data;
+  // vector<string> tmp_data;
   //pot_struct p;
 
   _data.reset_file();
   while (!_data.is_eof())
   {
-    tmp_data = _data.get_record();
+    // tmp_data = _data.get_record();
 
-    Tmy_dttype pot_split_holder(tmp_data[idx], _data_type[idx] == "continuous.");
+    Tmy_dttype pot_split_holder(_data.get_col_val(idx), _data_type[idx] == "continuous.");
 
     it = _col_pot_split.find(pot_split_holder);
     if (it == _col_pot_split.end())
     {
       Tlabel_stat p(_credal_s);
-      p.add(tmp_data[_idx_label]);
+      p.add(_data.get_col_val(_idx_label));
       _col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(pot_split_holder, p));
     } else {
-      it->second.add(tmp_data[_idx_label]);
+      it->second.add(_data.get_col_val(_idx_label));
     }
 
-    tmp_data.clear();
-    tmp_data.shrink_to_fit();
+    // tmp_data.clear();
+    // tmp_data.shrink_to_fit();
     _data.next_record();
   }
 }
 
 
-void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label, bool v_use_credal, double credal_s,int threshold)
+void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label, bool v_use_credal, double credal_s, int threshold, int limited)
 {
 
-  float entropy_before_split = stat_label.get_entropy();
+  float entropy_before_split;
+
+  if (!v_use_credal) {
+    entropy_before_split = stat_label.get_entropy();
+  } else {
+    entropy_before_split = stat_label.get_credal_entropy();
+  }
 
   float best_overall_metric = 0.0;
   float gain = 0, gain_max = 0;
@@ -105,7 +113,7 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
 
       }
 
-      Tbelow_above ba(v_use_credal, credal_s);
+      Tbelow_above ba(v_use_credal, credal_s, limited);
       //ba.set_value(mid_point);
       ba.set_threshold(threshold);
       ba.add_below(_stat_label_below);
@@ -144,7 +152,13 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
 {
   if (_col_pot_split.size() > 0)
   {
-    float entropy_before_split = _stat_label.get_entropy();
+    // float entropy_before_split;
+
+    // if (!use_credal) {
+    //   entropy_before_split = _stat_label.get_entropy();
+    // } else {
+    //   entropy_before_split = _stat_label.get_credal_entropy();
+    // }
 
     if (_col_pot_split.size() == 1)
     {
@@ -174,7 +188,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
       {
         float tmp_best_overall_metric = 0.0;
         string tmp_split_value = "-1";
-        thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label), use_credal, _credal_s,_min_sample);
+        thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label), use_credal, _credal_s, _min_sample, _limited);
         t1.join();
 
         current_overall_metric = tmp_best_overall_metric;
@@ -219,7 +233,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
             if (_begin <= _col_pot_split.size()) {
               // cetak("{start th:");
               // cetak(to_string(j).c_str());
-              th[j] = thread(&Tdataframe::calculate_metric, _begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label), use_credal, _credal_s,_min_sample);
+              th[j] = thread(&Tdataframe::calculate_metric, _begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label), use_credal, _credal_s, _min_sample, _limited);
               j++;
               // cetak("} ");
             } else {
@@ -274,7 +288,13 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
 
 void Tdataframe::handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value)
 {
-  float entropy_before_split = _stat_label.get_entropy();
+  float entropy_before_split;
+
+  if (!use_credal) {
+    entropy_before_split = _stat_label.get_entropy();
+  } else {
+    entropy_before_split = _stat_label.get_credal_entropy();
+  }
 
   float best_overall_metric = 0.0;
   float gain = 0, gain_max = 0;
@@ -286,7 +306,7 @@ void Tdataframe::handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_sp
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
   {
-    Tbelow_above ba(use_credal, _credal_s);
+    Tbelow_above ba(use_credal, _credal_s, _limited);
     ba.set_threshold(_min_sample);
 
     mid_point = ((Tmy_dttype) (*itr).first).get_string();

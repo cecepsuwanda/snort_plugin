@@ -95,6 +95,7 @@ void Tmy_svm::cetak ( const char * format, ... )
 void Tmy_svm::read_problem(Tdataframe &df)
 {
 	df.ReFilter();
+	df.clear_col_split();
 
 	Twrite_file tmp_wf;
 	if (_save_train) {
@@ -104,37 +105,29 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	size_t elements, j, i, l;
 	char *endptr;
 
-	map<int, int> kolom;
-	if (_feature_selection)
-	{
-		kolom = df.get_unique_attr();
-	}
-
 	df.reset_file();
 
-	map<string, int> stat_label = df.get_stat_label();
-	
-	size_t prm1;
-	size_t prm2 = (_feature_selection ? kolom.size() :  (df.getjmlcol_svm() - 1));
+	// map<string, int> stat_label = df.get_stat_label();
 
-	if ((stat_label.size() > 1) and (!_normal_only))
-	{
-		prm1 = df.getjmlrow();
-	} else {
-		prm1 = stat_label["normal"];
-	}
+	size_t prm1 = df.getjmlrow_svm();
+	size_t prm2 =   (df.getjmlcol_svm() - 1);// (_feature_selection ? kolom.size() :)
 
-	
+	// if ((stat_label.size() > 1) and (!_normal_only))
+	// {
+	// 	prm1 = df.getjmlrow();
+	// } else {
+	// 	prm1 = stat_label["normal"];
+	// }
+
 
 	prob.l = prm1;
-	elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+	elements = (prm1 * prm2) + prm1;
 
 
 	prob.y = Malloc(double, prob.l);
-	prob.x = Malloc(struct svm_node *, prob.l);	
+	prob.x = Malloc(struct svm_node *, prob.l);
 
 	x_space = Malloc(struct svm_node, elements);
-	
 
 	j = 0;
 	i = 0;
@@ -145,59 +138,43 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
-		if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
+		if (is_pass) 
 		{
-
-			//if ((i < prm1))
-			//{
-
 			prob.x[i] = &x_space[j];
 			prob.y[i] = 1;
 
 			string tmp_str = "";
 
 			l = 0;
-			auto itr = kolom.begin();
-			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
 
-				if (_feature_selection)
-				{
-					if (itr != kolom.end()) {
-						x_space[j].index = k;
-						string str = tmp[itr->first];  //string str = tmp[df_filter[k].idx_col];
-						x_space[j].value = strtod(str.c_str(), &endptr);
-						tmp_str = tmp_str + str + ",";
-						itr++;
-					}
-				} else {
-					x_space[j].index = k;
-					string str = tmp[k];
-					x_space[j].value = strtod(str.c_str(), &endptr);
-					tmp_str = tmp_str + str + ",";
-				}
+			for (size_t k = 0; k < (prm2); k++) {
+
+				x_space[j].index = k;
+				string str = tmp[k];
+				x_space[j].value = strtod(str.c_str(), &endptr);
+				tmp_str = tmp_str + str + ",";
+
 				++j;
 			}
 
 			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
-			//cout << tmp_str << endl; 
+			//cout << tmp_str << endl;
 			if (_save_train) {
 				tmp_wf.write_file(tmp_str);
 			}
 
 			x_space[j++].index = -1;
-			//}
-
 			i++;
 		}
 
 		tmp.clear();
-	    tmp.shrink_to_fit();
+		tmp.shrink_to_fit();
 
 		df.next_record();
 
 	}
 
-	
+
 
 //cout << i << endl;
 	is_read_problem = true;
@@ -206,7 +183,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 		tmp_wf.close_file();
 	}
 
-	kolom.clear();
+	
 	df.clear_memory();
 
 }

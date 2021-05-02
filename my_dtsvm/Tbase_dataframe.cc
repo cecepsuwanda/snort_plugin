@@ -64,29 +64,29 @@ void Tbase_dataframe::read_data_type(string nm_f)
 	Tread_file tmp;
 	tmp.setnm_f(nm_f, ": ");
 
-	vector<string> tmp_data;
+	// vector<string> tmp_data;
 
 	int i = 0;
 	while (!tmp.is_eof())
 	{
-		tmp_data = tmp.get_record();
-		_data_header.push_back(tmp_data[0]);
-		_data_type.push_back(tmp_data[1]);
+		// tmp_data = tmp.get_record();
+		_data_header.push_back(tmp.get_col_val(0));
+		_data_type.push_back(tmp.get_col_val(1));
 
-		if (tmp_data[0] == "label")
+		if (tmp.get_col_val(0) == "label")
 		{
 			_idx_label = i;
 		}
 
-		if (tmp_data[1] != "continuous.")
+		if ((tmp.get_col_val(0) != "label") and (tmp.get_col_val(1) != "continuous."))
 		{
 			is_non_continuous = true;
-			
+
 		}
 
 		tmp.next_record();
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
+		// tmp_data.clear();
+		// tmp_data.shrink_to_fit();
 		i++;
 	}
 	_jml_col = i;
@@ -96,7 +96,7 @@ void Tbase_dataframe::read_data_type(string nm_f)
 	{
 		is_42 = _jml_col == 42;
 	}
-    
+
 
 	stat_tabel();
 }
@@ -136,6 +136,40 @@ bool Tbase_dataframe::is_pass(vector<string> &data)
 	return pass;
 }
 
+bool Tbase_dataframe::is_pass()
+{
+
+	bool pass = true;
+	if (_filter.size() > 0)
+	{
+		size_t i = 0;
+		while ((i < _filter.size()) and pass)
+		{
+			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
+
+			switch (_filter[i].idx_opt)
+			{
+			case 0 :
+				pass = tmp2 <= tmp1 ;
+				break;
+			case 1 :
+				pass = tmp1  < tmp2;
+				break;
+			case 2 :
+				pass = tmp1 == tmp2;
+				break;
+			case 3 :
+				pass = tmp1 != tmp2;
+				break;
+			}
+			i++;
+		}
+	}
+
+	return pass;
+}
+
 void Tbase_dataframe::stat_tabel()
 {
 	_stat_label.clear();
@@ -149,34 +183,41 @@ void Tbase_dataframe::stat_tabel()
 
 	int i = 0;
 
-	vector<string> tmp_data;
+	// vector<string> tmp_data;
 
 	_data.reset_file();
 	while (!_data.is_eof())
 	{
-		tmp_data = _data.get_record();
+		// tmp_data = _data.get_record();
 
-		if (is_pass(tmp_data))
+		if (is_pass())
 		{
 			if (_filter.size() > 0) {
 				_data.add_index();
 			}
 
-			_stat_label.add(tmp_data[_idx_label]);
+			_stat_label.add(_data.get_col_val(_idx_label));
+
+			while(!_data.is_end_col())
+			{
+              _map_col_split.add_data(_data.get_idx_col(),_data.get_col_val(),_data_type[_data.get_idx_col()],_data.get_col_val(_idx_label),_credal_s); 
+              _data.next_col();
+			}
+
 			i++;
 		}
 
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
+		// tmp_data.clear();
+		// tmp_data.shrink_to_fit();
 		_data.next_record();
 	}
-	
-    if (_filter.size() > 0) {
+
+	if (_filter.size() > 0) {
 		_data.clear_memory();
 		_data.save_to_memory();
 		_data.clear_index();
 	}
-	
+
 	_data.index_on();
 	_jml_row = i;
 
@@ -215,7 +256,51 @@ int Tbase_dataframe::getjmlcol()
 
 int Tbase_dataframe::getjmlcol_svm()
 {
-	return is_non_continuous ? (is_42 ? 46 : 33) : _jml_col;
+	if (is_non_continuous)
+	{
+		if (feature_select)
+		{
+			int jml = 0;
+			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
+			{
+				switch (itr->first) {
+				case 1:
+					jml = jml + 3;
+					break;
+				case 2:
+					jml = jml + 2;
+					break;
+				case 3:
+					jml = jml + 2;
+					break;
+				default:
+					jml = jml + 1;
+					break;
+				}
+			}
+			return jml + 1;
+
+		} else {
+			return  (is_42 ? 46 : 33);
+		}
+	} else {
+		if (feature_select)
+		{
+			return _unique_attr.size() + 1;
+		} else {
+			return _jml_col;
+		}
+	}
+}
+
+int Tbase_dataframe::getjmlrow_svm()
+{
+	if(_normal_only)
+	{
+      return _stat_label.get_value("normal");
+	}else{
+      return _jml_row; 
+	}
 }
 
 int Tbase_dataframe::getjmlrow()
@@ -260,45 +345,115 @@ vector<string> Tbase_dataframe::get_record()
 	return _data.get_record();
 }
 
+void Tbase_dataframe::next_col()
+{
+	_data.next_col();
+}
+
+bool Tbase_dataframe::is_end_col()
+{
+	return _data.is_end_col();
+}
+
+string Tbase_dataframe::get_col_val()
+{
+	return _data.get_col_val();
+}
+
+string Tbase_dataframe::get_col_val(int idx_col)
+{
+	return _data.get_col_val(idx_col);
+}
+
+int Tbase_dataframe::get_idx_col()
+{
+	return _data.get_idx_col();
+}
+
+
 vector<string> Tbase_dataframe::get_record_svm()
 {
 	if (!is_non_continuous)
 	{
-		return _data.get_record();
-	} else {
-		vector<string> vec, tmp_data = _data.get_record();
+		if (feature_select) {
 
-		for (int i = 0; i < tmp_data.size(); ++i)
-		{
-			if (_data_type[i] == "continuous.")
+			vector<string> vec;
+			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
 			{
-				vec.push_back(tmp_data[i]);
-			} else {
-				switch (i) {
+				vec.push_back(_data.get_col_val(itr->first));
+			}
+
+			vec.push_back(_data.get_col_val(_idx_label));
+
+			return vec;
+
+		} else {
+			return _data.get_record();
+		}
+
+	} else {
+
+		if (feature_select) {
+
+			vector<string> vec;
+			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
+			{
+				switch (itr->first) {
 				case 1:
-					vec.push_back((tmp_data[i] == "tcp" ? "1" : "0" ));
-					vec.push_back((tmp_data[i] == "udp" ? "1" : "0" ));
-					vec.push_back((tmp_data[i] == "icmp" ? "1" : "0" ));
+					vec.push_back((_data.get_col_val(itr->first) == "tcp" ? "1" : "0" ));
+					vec.push_back((_data.get_col_val(itr->first) == "udp" ? "1" : "0" ));
+					vec.push_back((_data.get_col_val(itr->first) == "icmp" ? "1" : "0" ));
 					break;
 				case 2:
-					vec.push_back(((tmp_data[i] == "private") or (tmp_data[i] == "ecri") or (tmp_data[i] == "http")) ? "0" : "1");
-					vec.push_back(((tmp_data[i] == "private") or (tmp_data[i] == "ecri") or (tmp_data[i] == "http")) ? "1" : "0");
+					vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "http")) ? "0" : "1");
+					vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "http")) ? "1" : "0");
 					break;
 				case 3:
-					vec.push_back((tmp_data[i] == "SF") ? "0" : "1");
-					vec.push_back((tmp_data[i] == "SF") ? "1" : "0");
+					vec.push_back((_data.get_col_val(itr->first) == "SF") ? "0" : "1");
+					vec.push_back((_data.get_col_val(itr->first) == "SF") ? "1" : "0");
 					break;
 				default:
-					vec.push_back(tmp_data[i]);
+					vec.push_back(_data.get_col_val(itr->first));
 					break;
 				}
 			}
+
+			vec.push_back(_data.get_col_val(_idx_label));
+
+			return vec;
+		} else {
+
+			vector<string> vec;//, tmp_data = _data.get_record();
+
+			for (int i = 0; i < _jml_col; ++i)
+			{
+
+				switch (i) {
+				case 1:
+					vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
+					vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
+					vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
+					break;
+				case 2:
+					vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "http")) ? "0" : "1");
+					vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "http")) ? "1" : "0");
+					break;
+				case 3:
+					vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
+					vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
+					break;
+				default:
+					vec.push_back(_data.get_col_val(i));
+					break;
+				}
+
+			}
+
+			//tmp_data.clear();
+			//tmp_data.shrink_to_fit();
+
+			return vec;
 		}
-
-		tmp_data.clear();
-	    tmp_data.shrink_to_fit();
-
-		return vec;
 	}
 }
 
@@ -419,4 +574,15 @@ void Tbase_dataframe::head()
 void Tbase_dataframe::clear_memory()
 {
 	_data.clear_memory();
+}
+
+map<Tmy_dttype, Tlabel_stat> Tbase_dataframe::get_col_split(int idx)
+{
+  return _map_col_split.get_pot_split(idx);
+}
+
+
+void Tbase_dataframe::clear_col_split()
+{
+    _map_col_split.clear();
 }

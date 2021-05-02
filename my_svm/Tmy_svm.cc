@@ -229,6 +229,9 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 	}
 
 	// cetak(" {train");
+	// double *target = Malloc(double,prob.l);
+	// svm_cross_validation(&prob,&param,2,target);
+
 	model = svm_train(&prob, &param);
 	// cetak("}");
 
@@ -281,7 +284,7 @@ void Tmy_svm::test(Tdataframe &df)
 	string asli, tebakan;
 	char *endptr;
 
-	asli = "inside";
+	asli = "normal";
 
 	df.reset_file();
 
@@ -301,10 +304,10 @@ void Tmy_svm::test(Tdataframe &df)
 
 		predict_label = svm_predict(model, x_space);
 
-		tebakan = "inside";
+		tebakan = "normal";
 		if (predict_label == -1)
 		{
-			tebakan = "outside";
+			tebakan = "unknown";
 		}
 
 		//cout << predict_label << endl;

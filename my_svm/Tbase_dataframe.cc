@@ -30,6 +30,10 @@ int Tbase_dataframe::get_id()
 	return _id;
 }
 
+void Tbase_dataframe::set_min_sample(int m)
+{
+	_min_sample = m;
+}
 
 static void cetak_stdout(const char *s)
 {
@@ -74,7 +78,7 @@ void Tbase_dataframe::read_data_type(string nm_f)
 			_idx_label = i;
 		}
 
-		if (tmp_data[1] != "continuous.")
+		if ((tmp_data[0] != "label") and (tmp_data[1] != "continuous."))
 		{
 			is_non_continuous = true;
 			
@@ -92,7 +96,7 @@ void Tbase_dataframe::read_data_type(string nm_f)
 	{
 		is_42 = _jml_col == 42;
 	}
-    
+   
 
 	stat_tabel();
 }

@@ -38,6 +38,7 @@ public:
     
     float get_estimate_error();
     map<string, int> get_map();
+    int get_value(string key);
 
     int get_jml_row_in_map();
     string get_first_value_in_map();

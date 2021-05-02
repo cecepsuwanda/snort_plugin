@@ -19,13 +19,12 @@ class Tbelow_above
 
   bool use_credal=false;
   double _credal_s=0.0;
-  int _threshold = 2;
-  bool _limited = false;  
+  int _threshold = 2;  
 
 public:
 	Tbelow_above();
 	~Tbelow_above();
-	Tbelow_above(bool v_use_credal,double credal_s,bool v_limited);
+	Tbelow_above(bool v_use_credal,double credal_s);
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();
