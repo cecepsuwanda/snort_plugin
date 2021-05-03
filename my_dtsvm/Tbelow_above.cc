@@ -6,14 +6,12 @@ Tbelow_above::Tbelow_above()
 
 }
 
-Tbelow_above::Tbelow_above(bool v_use_credal, double credal_s, bool v_limited)
+void Tbelow_above::set_config(Tconfig v_config)
 {
-	use_credal = v_use_credal;
-	_credal_s = credal_s;
-	_limited = v_limited;
-	_below.set_credal_s(credal_s);
-	_above.set_credal_s(credal_s);
-}
+	config=v_config;
+	_below.set_config(config);
+	_above.set_config(config);
+} 
 
 Tbelow_above::~Tbelow_above()
 {
@@ -37,7 +35,7 @@ bool Tbelow_above::cek_valid()
 	// int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
-	if (_limited)
+	if (config.limited)
 	{
 		pass = (_below.get_jml_row() > _threshold) and  (_above.get_jml_row() > _threshold);
 		if (!pass) {
@@ -87,7 +85,7 @@ float Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
 
-	if (!use_credal) {
+	if (!config.use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
 		float p_dt_below = (float) _below.get_jml_row() / jml;
 		float p_dt_above = (float) _above.get_jml_row() / jml;
@@ -99,7 +97,7 @@ float Tbelow_above::get_overall_metric()
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 	} else {
 
-		credal crd(_credal_s);
+		credal crd(config.credal_s);
 
 		vector<int> freq;
 		vector<double> ent, max_ent;

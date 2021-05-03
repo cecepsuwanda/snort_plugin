@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 #include "credal.h"
+#include "global.h"
 
 using namespace std;
 
@@ -21,13 +22,12 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
-	double _credal_s=0.0;
+	Tconfig config;
 public:
 	Tlabel_stat();
 	~Tlabel_stat();
-	Tlabel_stat(double credal_s);
-
-	void set_credal_s(double credal_s);
+	
+	void set_config(Tconfig v_config);
 	
 	void add(string value);
 	void clear();

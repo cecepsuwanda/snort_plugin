@@ -42,7 +42,7 @@ protected:
 	void cetak ( const char * format, ... );
 
 	int _id = 0;	
-	bool _limited = false;
+	
 
 	Tconfig config;
 
@@ -64,9 +64,7 @@ public:
 		_nm_file = t._nm_file;
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
-		_jml_total_row = t._jml_total_row;
-				
-		_limited = t._limited;
+		_jml_total_row = t._jml_total_row;		
 	}
 
 	~Tbase_dataframe();
@@ -84,17 +82,13 @@ public:
 		this->_nm_file = t._nm_file;
 		this->is_non_continuous = t.is_non_continuous;
 		this->is_42 = t.is_42;
-		this->_jml_total_row = t._jml_total_row;
-		
-		this->_limited = t._limited;
+		this->_jml_total_row = t._jml_total_row;		
 		return *this;
 	}
 
 	void set_id(int id);
 	int get_id();
-
-	void set_min_sample(int m);
-
+	
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);
 	void save_to(string nm_file);

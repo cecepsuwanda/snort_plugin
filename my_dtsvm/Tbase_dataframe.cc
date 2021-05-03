@@ -195,7 +195,7 @@ void Tbase_dataframe::stat_tabel()
 
 			while (!_data.is_end_col())
 			{
-				_map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label), _credal_s);
+				_map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
 				_data.next_col();
 			}
 
@@ -253,7 +253,7 @@ int Tbase_dataframe::getjmlcol_svm()
 {
 	if (is_non_continuous)
 	{
-		if (feature_select)
+		if (config.feature_selection)
 		{
 			int jml = 0;
 			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
@@ -279,7 +279,7 @@ int Tbase_dataframe::getjmlcol_svm()
 			return  (is_42 ? 46 : 33);
 		}
 	} else {
-		if (feature_select)
+		if (config.feature_selection)
 		{
 			return _unique_attr.size() + 1;
 		} else {
@@ -290,7 +290,7 @@ int Tbase_dataframe::getjmlcol_svm()
 
 int Tbase_dataframe::getjmlrow_svm()
 {
-	if (_normal_only)
+	if (config.normal_only)
 	{
 		return _stat_label.get_value("normal");
 	} else {
@@ -370,7 +370,7 @@ vector<string> Tbase_dataframe::get_record_svm()
 {
 	if (!is_non_continuous)
 	{
-		if (feature_select) {
+		if (config.feature_selection) {
 
 			vector<string> vec;
 			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
@@ -388,7 +388,7 @@ vector<string> Tbase_dataframe::get_record_svm()
 
 	} else {
 
-		if (feature_select) {
+		if (config.feature_selection) {
 
 			vector<string> vec;
 			for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
@@ -585,4 +585,6 @@ void Tbase_dataframe::clear_col_split()
 void Tbase_dataframe::set_config(Tconfig v_config)
 {
 	config = v_config;
+	_stat_label.set_config(config);
+	_map_col_split.set_config(config);
 }

@@ -27,37 +27,6 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path, string svm_path, bool save_train)
-{
-	_feature_selection = feature_selection;
-	_normal_only = normal_only;
-	_idx_svm = idx_svm;
-	_model_path = model_path;
-	_svm_path = svm_path;
-	_save_train = save_train;
-
-	param.svm_type = ONE_CLASS;
-	param.kernel_type = RBF;
-	param.degree = 3;
-	param.gamma = 0.0001;    // 1/num_features
-	param.coef0 = 0;
-	param.nu = 0.01;
-	param.cache_size = 512;
-	param.C = 1;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
-
-	void (*print_func)(const char*) = NULL;	// default printing to stdout
-	print_func = &print_null;
-	svm_set_print_string_function(print_func);
-
-	is_read_problem = false;
-}
 
 Tmy_svm::~Tmy_svm()
 {
@@ -98,8 +67,8 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	df.clear_col_split();
 
 	Twrite_file tmp_wf;
-	if (_save_train) {
-		tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
+	if (config.save_train) {
+		tmp_wf.setnm_f(config.path_model + "/train/train_model_" + to_string(_idx_svm) + ".csv");
 	}
 
 	size_t elements, j, i, l;
@@ -136,7 +105,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	{
 		tmp = df.get_record_svm();
 
-		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
+		bool is_pass = (config.normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
 		if (is_pass) 
 		{
@@ -159,7 +128,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
 			//cout << tmp_str << endl;
-			if (_save_train) {
+			if (config.save_train) {
 				tmp_wf.write_file(tmp_str);
 			}
 
@@ -179,7 +148,7 @@ void Tmy_svm::read_problem(Tdataframe &df)
 //cout << i << endl;
 	is_read_problem = true;
 
-	if (_save_train) {
+	if (config.save_train) {
 		tmp_wf.close_file();
 	}
 
@@ -188,11 +157,15 @@ void Tmy_svm::read_problem(Tdataframe &df)
 
 }
 
-
-void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
+void Tmy_svm::set_config(Tconfig v_config)
 {
-	param.gamma = gamma;
-	param.nu = nu;
+  config = v_config;	
+}
+
+void Tmy_svm::train(Tdataframe &df)
+{
+	param.gamma = config.gamma;
+	param.nu = config.nu;
 
 	read_problem(df);
 

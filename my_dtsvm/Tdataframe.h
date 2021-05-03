@@ -23,7 +23,7 @@ private:
   
   
 
-  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label,bool v_use_credal,double credal_s,int threshold,int limited);
+  static void calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value,Tlabel_stat & stat_label, Tconfig v_config, int threshold);
 
   void handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);
   void handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value);
