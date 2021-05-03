@@ -772,16 +772,21 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
   if ((left != -1) and (!tree[left].isLeaf)) {
     Tdataframe df_left;
     df_left = df_train;
+    df_left.set_config(config);
     df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+    df_left.clear_col_split();
     pruning_dfs(left, df_left);
-    df_left.clear_memory();
+    df_left.clear_memory();    
   }
   if ((right != -1) and (!tree[right].isLeaf) ) {
     Tdataframe df_right;
     df_right = df_train;
+    df_right.set_config(config);
     df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+    df_right.clear_col_split();
     pruning_dfs(right, df_right);
     df_right.clear_memory();
+    
   }
 
 
@@ -801,18 +806,24 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
       Tdataframe df_left, df_right;
       df_left = df_train;
+      df_left.set_config(config);
       df_right = df_train;
+      df_right.set_config(config); 
 
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       error_left = df_left.get_estimate_error();
+      df_left.clear_col_split();
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       error_right = df_right.get_estimate_error();
+      df_right.clear_col_split();
 
       sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
 
       df_left.clear_memory();
       df_right.clear_memory();
-      df_train.clear_memory();
+      df_train.clear_memory();      
+      
+      df_train.clear_col_split();
 
       if (error_node < sum_error)
       {
@@ -871,6 +882,7 @@ void Tdec_tree::learn_svm()
   Tdataframe df_train;
   df_train.read_data(config.f_train);
   df_train.read_data_type(config.f_datatype);
+  df_train.set_config(config);
   df_train.set_id(0);
   df_train.info();
   
@@ -916,6 +928,7 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
       df_left = df_train;
       df_left.set_config(config);
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+      df_left.clear_col_split();
       cetak("->");
       svm_dfs(depth + 1, left, df_left);
 
@@ -926,10 +939,12 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
       df_right = df_train;
       df_right.set_config(config);
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+      df_right.clear_col_split();
       cetak("<-");
       svm_dfs(depth + 1, right, df_right);
 
     }
   }
   df_train.clear_memory();
+  df_train.clear_col_split();
 }

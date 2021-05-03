@@ -17,10 +17,7 @@ class Tbelow_above
   Tmy_dttype _value;
   Tlabel_stat _below;
   Tlabel_stat _above;
-
-  
-  int _threshold = 2;
-  
+ 
   Tconfig config;
 
 public:
@@ -43,7 +40,7 @@ public:
 	void clear();
 
 	bool cek_valid();
-	void set_threshold(int t);
+	
 	
 };
 

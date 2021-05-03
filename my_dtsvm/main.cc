@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     {
 
       config.f_test = argv[10];
+      config.normal_only = false;
 
       Tdec_tree dec_tree;
       dec_tree.set_config(config);

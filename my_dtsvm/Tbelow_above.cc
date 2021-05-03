@@ -25,10 +25,6 @@ void Tbelow_above::clear()
 	_above.clear();
 }
 
-void Tbelow_above::set_threshold(int t)
-{
-	_threshold  = t;
-}
 
 bool Tbelow_above::cek_valid()
 {
@@ -37,13 +33,13 @@ bool Tbelow_above::cek_valid()
 
 	if (config.limited)
 	{
-		pass = (_below.get_jml_row() > _threshold) and  (_above.get_jml_row() > _threshold);
+		pass = (_below.get_jml_row() > config.min_sample) and  (_above.get_jml_row() > config.min_sample);
 		if (!pass) {
-			pass = (_below.get_jml_row() <= _threshold) and (_below.get_jml_row() >= 2) and (_below.get_jml_row() >= (0.1 * _threshold));
+			pass = (_below.get_jml_row() <= config.min_sample) and (_below.get_jml_row() >= 2) and (_below.get_jml_row() >= (0.1 * config.min_sample));
 		}
 
 		if (!pass) {
-			pass = (_above.get_jml_row() <= _threshold) and (_above.get_jml_row() >= 2) and (_above.get_jml_row() >= (0.1 * _threshold));
+			pass = (_above.get_jml_row() <= config.min_sample) and (_above.get_jml_row() >= 2) and (_above.get_jml_row() >= (0.1 * config.min_sample));
 		}
 	}
 

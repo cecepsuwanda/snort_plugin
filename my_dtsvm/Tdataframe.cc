@@ -61,7 +61,7 @@ void Tdataframe::get_col_pot_split(int idx, map<Tmy_dttype, Tlabel_stat> &_col_p
 }
 
 
-void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label, Tconfig v_config, int threshold)
+void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlabel_stat> &_col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label, Tconfig v_config)
 {
 
   float entropy_before_split;
@@ -108,7 +108,7 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
       Tbelow_above ba;
       ba.set_config(v_config);
       //ba.set_value(mid_point);
-      ba.set_threshold(threshold);
+      
       ba.add_below(_stat_label_below);
       Tlabel_stat tmp_stat = stat_label - _stat_label_below;
       tmp_stat.set_config(v_config);
@@ -182,7 +182,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
       {
         float tmp_best_overall_metric = 0.0;
         string tmp_split_value = "-1";
-        thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label), config, _limited);
+        thread t1(&Tdataframe::calculate_metric, 1, _col_pot_split.size(), ref(_col_pot_split), ref(tmp_best_overall_metric), ref(tmp_split_value), ref(_stat_label), config);
         t1.join();
 
         current_overall_metric = tmp_best_overall_metric;
@@ -227,7 +227,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
             if (_begin <= _col_pot_split.size()) {
               // cetak("{start th:");
               // cetak(to_string(j).c_str());
-              th[j] = thread(&Tdataframe::calculate_metric, _begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label), config, _limited);
+              th[j] = thread(&Tdataframe::calculate_metric, _begin , _end, ref(_col_pot_split), ref(arr_gain[j]), ref(arr_split_value[j]), ref(_stat_label), config);
               j++;
               // cetak("} ");
             } else {
@@ -302,8 +302,7 @@ void Tdataframe::handle_non_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_sp
   {
     Tbelow_above ba;
     ba.set_config(config);
-    ba.set_threshold(config.min_sample);
-
+    
     mid_point = ((Tmy_dttype) (*itr).first).get_string();
 
     //ba.set_value(mid_point);
