@@ -8,6 +8,7 @@
 #include "Tmy_svm.h"
 #include "Twrite_file.h"
 #include "credal.h"
+#include "global.h"
 #include <experimental/filesystem>
 
 using namespace std;
@@ -48,26 +49,8 @@ private:
 
 	int idx_svm;
 	int id_df;
-	string model_path;
-	string svm_path;
-	string _f_train;
-	string _f_datatype;
-	string _f_test;
-
-	bool train_svm = false;
-	bool feature_selection = false;
-	bool normal_only = false;
-	bool use_credal = false;
-	double _credal_s = 0.0;
-	bool _limited = false;
-
-	bool save_train = true;
-	bool save_test = true;
-
-	int _min_sample = 2;
-	int _depth = 1;
-	double _gamma = 0.0001;
-	double _nu = 0.01;
+	
+    Tconfig config;
 
 	map<int, int> vec_attr;
 
@@ -76,7 +59,7 @@ private:
 
 	string create_leaf(Tdataframe &df);
 	void determine_best_split(Tdataframe &df, int &split_column, string &split_value);
-	void train(Tdataframe &df, int node_index , int counter, int min_samples, int max_depth);
+	void train(Tdataframe &df, int node_index , int counter);
 	int dfs(vector<string> &data, int treeIndex);
 	void pruning_dfs(int node_index , Tdataframe &df_train);
 	void post_pruning(Tdataframe &df_train);
@@ -99,20 +82,13 @@ private:
 public:
 	Tdec_tree();
 	~Tdec_tree();
-	Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal, double credal_s, int limited);
 
-
+	void set_config(Tconfig v_config);
+	
 	string guess(vector<string> &data);
 
 	void test();
 	void read_tree();
 	void build_tree();
-	void learn_svm();
-
-	void set_model_path(string path);
-	void set_svm_path(string path);
-	void set_svm_param(int v_feature_selection, int v_normal_only, double v_gamma, double v_nu);
-	void set_f_train(string f_train);
-	void set_f_test(string f_test);
-	void set_f_datatype(string f_datatype);
+	void learn_svm();	
 };

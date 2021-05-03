@@ -12,44 +12,11 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-Tdec_tree::Tdec_tree(int v_train_svm, int v_min_sample, int v_depth, int v_save_train, int v_save_test, int v_use_credal, double credal_s, int limited)
+void Tdec_tree::set_config(Tconfig v_config)
 {
-
-  train_svm = v_train_svm == 1;
-  _min_sample = v_min_sample;
-  _depth = v_depth;
-  save_train = v_save_train == 1;
-  save_test = v_save_test == 1;
-  use_credal = v_use_credal == 1;
-  _credal_s = credal_s;
-  _limited = limited == 1;
-
-  idx_svm = 0;
-  id_df = 1;
+  config = v_config;
 }
 
-void Tdec_tree::set_svm_param(int v_feature_selection, int v_normal_only, double v_gamma, double v_nu)
-{
-  feature_selection = v_feature_selection == 1;
-  normal_only = v_normal_only == 1;
-  _gamma = v_gamma;
-  _nu = v_nu;
-}
-
-void Tdec_tree::set_f_train(string f_train)
-{
-  _f_train = f_train;
-}
-
-void Tdec_tree::set_f_test(string f_test)
-{
-  _f_test = f_test;
-}
-
-void Tdec_tree::set_f_datatype(string f_datatype)
-{
-  _f_datatype = f_datatype;
-}
 
 static void cetak_stdout(const char *s)
 {
@@ -154,7 +121,7 @@ void Tdec_tree::del_model_train(int idx)
   remove(filename.c_str());
 }
 
-void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_samples, int max_depth)
+void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 {
   if (node_index == 0)
   {
@@ -166,7 +133,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
   //cout << counter;
   cetak("[%d %d]", counter, df.getjmlrow());
 
-  if (check_purity(df) or (df.getjmlrow() < min_samples) or (counter == max_depth) )
+  if (check_purity(df) or (df.getjmlrow() < config.min_samples) or (counter == config.max_depth) )
   {
     string tmp_str = create_leaf(df);
     cetak("*");
@@ -208,7 +175,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
     determine_best_split(df, split_column, split_value);
 
-    Tdataframe df_below(use_credal, _credal_s, feature_selection, normal_only), df_above(use_credal, _credal_s, feature_selection, normal_only);
+    Tdataframe df_below, df_above;
+    df_below.set_config(config);
+    df_above.set_config(config);
     if (split_value != "-1")
     {
       df_below = df;
@@ -274,7 +243,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
         // cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
         cetak("->");
-        train(df_below, nextNode.treeIndex, counter, min_samples, max_depth);
+        train(df_below, nextNode.treeIndex, counter);
 
 
         Node nextNode1;
@@ -294,7 +263,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 
         cetak("<-");
-        train(df_above, nextNode1.treeIndex, counter, min_samples, max_depth);
+        train(df_above, nextNode1.treeIndex, counter);
 
         if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
         {
@@ -347,16 +316,16 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter, int min_sam
 
 void Tdec_tree::build_tree()
 {
-  Tdataframe df_train(use_credal, _credal_s, feature_selection, normal_only);
-  df_train.read_data(_f_train);
-  df_train.read_data_type(_f_datatype);
+  Tdataframe df_train;
+  df_train.read_data(config.f_train);
+  df_train.read_data_type(config.f_datatype);
+  df_train.set_config(config);
   df_train.set_id(0);
   df_train.info();
-  df_train.setjmltotalrow();
-  df_train.set_min_sample(_min_sample);
+  df_train.setjmltotalrow();  
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", _depth, _min_sample, _gamma, _nu, _credal_s, (feature_selection ? 1 : 0), (normal_only ? 1 : 0), _f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s, (config.feature_selection ? 1 : 0), (config.normal_only ? 1 : 0), config.f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   auto start = std::chrono::steady_clock::now();
   train(df_train, 0, 0, _min_sample, _depth);
@@ -674,7 +643,6 @@ void Tdec_tree::test()
   dt_svm_conv_metrix.add_konversi_asli("unknown","known");
   dt_svm_conv_metrix.add_konversi_tebakan("unknown","known");
 
-
   test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix);
 
   df.close_file();
@@ -785,15 +753,7 @@ void Tdec_tree::read_tree()
 
 }
 
-void Tdec_tree::set_model_path(string path)
-{
-  model_path = path;
-}
 
-void Tdec_tree::set_svm_path(string path)
-{
-  svm_path = path;
-}
 
 void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 {

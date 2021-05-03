@@ -30,11 +30,6 @@ int Tbase_dataframe::get_id()
 	return _id;
 }
 
-void Tbase_dataframe::set_min_sample(int m)
-{
-	_min_sample = m;
-}
-
 static void cetak_stdout(const char *s)
 {
 	fputs(s, stdout);
@@ -198,10 +193,10 @@ void Tbase_dataframe::stat_tabel()
 
 			_stat_label.add(_data.get_col_val(_idx_label));
 
-			while(!_data.is_end_col())
+			while (!_data.is_end_col())
 			{
-              _map_col_split.add_data(_data.get_idx_col(),_data.get_col_val(),_data_type[_data.get_idx_col()],_data.get_col_val(_idx_label),_credal_s); 
-              _data.next_col();
+				_map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label), _credal_s);
+				_data.next_col();
 			}
 
 			i++;
@@ -295,11 +290,11 @@ int Tbase_dataframe::getjmlcol_svm()
 
 int Tbase_dataframe::getjmlrow_svm()
 {
-	if(_normal_only)
+	if (_normal_only)
 	{
-      return _stat_label.get_value("normal");
-	}else{
-      return _jml_row; 
+		return _stat_label.get_value("normal");
+	} else {
+		return _jml_row;
 	}
 }
 
@@ -578,11 +573,16 @@ void Tbase_dataframe::clear_memory()
 
 map<Tmy_dttype, Tlabel_stat> Tbase_dataframe::get_col_split(int idx)
 {
-  return _map_col_split.get_pot_split(idx);
+	return _map_col_split.get_pot_split(idx);
 }
 
 
 void Tbase_dataframe::clear_col_split()
 {
-    _map_col_split.clear();
+	_map_col_split.clear();
+}
+
+void Tbase_dataframe::set_config(Tconfig v_config)
+{
+	config = v_config;
 }

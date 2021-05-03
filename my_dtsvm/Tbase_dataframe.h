@@ -2,6 +2,7 @@
 #include "Tlabel_stat.h"
 #include "Tmy_dttype.h"
 #include "Tmap_col_split.h"
+#include "global.h"
 #include <string>
 
 using namespace std;
@@ -40,16 +41,10 @@ protected:
 
 	void cetak ( const char * format, ... );
 
-	int _id = 0;
-	int _min_sample = 0;
-
-	bool feature_select = false;
-	bool _normal_only = false;
-
-	bool use_credal = false;
-	double _credal_s = 0.0;
-
+	int _id = 0;	
 	bool _limited = false;
+
+	Tconfig config;
 
 private:
 
@@ -70,9 +65,7 @@ public:
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
 		_jml_total_row = t._jml_total_row;
-		_min_sample = t._min_sample;
-		feature_select = t.feature_select;
-		_normal_only = t._normal_only;
+				
 		_limited = t._limited;
 	}
 
@@ -92,9 +85,7 @@ public:
 		this->is_non_continuous = t.is_non_continuous;
 		this->is_42 = t.is_42;
 		this->_jml_total_row = t._jml_total_row;
-		this->_min_sample = t._min_sample;
-		this->feature_select = t.feature_select;
-		this->_normal_only = t._normal_only;
+		
 		this->_limited = t._limited;
 		return *this;
 	}
@@ -154,6 +145,8 @@ public:
 
 	map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
 	void clear_col_split();
+
+	void set_config(Tconfig v_config);
 
 };
 

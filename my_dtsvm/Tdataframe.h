@@ -31,8 +31,7 @@ private:
 public:
   Tdataframe();
   ~Tdataframe();
-  Tdataframe(bool v_use_credal,double credal_s,bool v_feature_select,bool v_normal_only);
-   
+     
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
   float get_entropy();
 

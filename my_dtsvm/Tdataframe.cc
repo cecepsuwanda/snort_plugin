@@ -12,16 +12,6 @@ Tdataframe::~Tdataframe()
 
 }
 
-Tdataframe::Tdataframe(bool v_use_credal, double credal_s, bool v_feature_select, bool v_normal_only)
-{
-  use_credal = v_use_credal;
-  _credal_s = credal_s;
-  _stat_label.set_credal_s(credal_s);
-  feature_select = v_feature_select;
-  _normal_only = v_normal_only;
-}
-
-
 void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
   _data.clear_memory();

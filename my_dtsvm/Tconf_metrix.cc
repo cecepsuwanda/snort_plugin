@@ -27,15 +27,23 @@ Tconf_metrix::~Tconf_metrix()
 
 void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 {
-    if(konversi_asli.size()>0)
-    {
-       asli = konversi_asli[asli];
-    }
+	if (konversi_asli.size() > 0)
+	{
+		auto itr = konversi_asli.find(asli);
+		if (itr != konversi_asli.end())
+		{
+			asli = konversi_asli[asli];
+		}
+	}
 
-    if(konversi_tebakan.size()>0)
-    {
-      tebakan = konversi_tebakan[tebakan];
-    }
+	if (konversi_tebakan.size() > 0)
+	{
+		auto itr = konversi_tebakan.find(tebakan);
+		if (itr != konversi_tebakan.end())
+		{
+			tebakan = konversi_tebakan[tebakan];
+		}
+	}
 
 	if ((tebakan.compare("dfs_failed.") != 0))
 	{
@@ -309,19 +317,19 @@ void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, i
 		for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++)
 		{
 			string tmp_str = param_nm_file + "," + to_string(param_depth) + "," + to_string(param_min_sample) + "," + to_string(param_gamma) + "," + to_string(param_nu) + "," + to_string(param_credal_s) +  "," + it->first + "," + it1->first + "," + to_string(it1->second);
-		    tmp_wf.write_file(tmp_str);
+			tmp_wf.write_file(tmp_str);
 		}
 	}
 
 	tmp_wf.close_file();
 }
 
- void Tconf_metrix::add_konversi_asli(string dari,string ke)
- {
-    konversi_asli.insert(pair<string,string>(dari,ke));
- }
+void Tconf_metrix::add_konversi_asli(string dari, string ke)
+{
+	konversi_asli.insert(pair<string, string>(dari, ke));
+}
 
- void Tconf_metrix::add_konversi_tebakan(string dari,string ke)
- {
-   konversi_tebakan.insert(pair<string,string>(dari,ke));
- }
+void Tconf_metrix::add_konversi_tebakan(string dari, string ke)
+{
+	konversi_tebakan.insert(pair<string, string>(dari, ke));
+}
