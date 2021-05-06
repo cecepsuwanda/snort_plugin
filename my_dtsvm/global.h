@@ -29,6 +29,8 @@ using namespace std;
 
     int depth = 0;
     int min_sample = 0;
+    int threshold = 0;
+
   };
 
 #endif

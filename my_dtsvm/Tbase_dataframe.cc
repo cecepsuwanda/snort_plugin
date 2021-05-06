@@ -452,6 +452,45 @@ vector<string> Tbase_dataframe::get_record_svm()
 	}
 }
 
+vector<vector<string>> Tbase_dataframe::get_all_record()
+{
+	vector<vector<string>> Table;
+
+	_data.reset_file();
+	while (!_data.is_eof())
+	{
+		Table.push_back(_data.get_record());
+		_data.next_record();
+	}
+
+	return Table;
+}
+
+vector<vector<string>> Tbase_dataframe::get_all_record_svm()
+{
+	ReFilter();
+	clear_col_split();
+
+	vector<vector<string>> Table;
+
+	vector<string> tmp_data;
+
+	_data.reset_file();
+	while (!_data.is_eof())
+	{
+		tmp_data = get_record_svm();
+		
+		bool is_pass = (config.normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
+        if(is_pass){
+		  Table.push_back(tmp_data);
+        }
+
+		_data.next_record();
+	}
+
+	return Table;
+}
+
 void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 {
 	field_filter f;

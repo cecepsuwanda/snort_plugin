@@ -61,25 +61,25 @@ void Tmy_svm::cetak ( const char * format, ... )
 
 
 
-void Tmy_svm::read_problem(Tdataframe &df)
+void Tmy_svm::read_problem(vector<vector<string>> table)
 {
-	df.ReFilter();
-	df.clear_col_split();
+	// df.ReFilter();
+	// df.clear_col_split();
 
-	Twrite_file tmp_wf;
-	if (config.save_train) {
-		tmp_wf.setnm_f(config.path_model + "/train/train_model_" + to_string(_idx_svm) + ".csv");
-	}
+	// Twrite_file tmp_wf;
+	// if (config.save_train) {
+	// 	tmp_wf.setnm_f(config.path_model + "/train/train_model_" + to_string(_idx_svm) + ".csv");
+	// }
 
-	size_t elements, j, i, l;
+	size_t elements, j, i;
 	char *endptr;
 
-	df.reset_file();
+	// df.reset_file();
 
 	// map<string, int> stat_label = df.get_stat_label();
 
-	size_t prm1 = df.getjmlrow_svm();
-	size_t prm2 =   (df.getjmlcol_svm() - 1);// (_feature_selection ? kolom.size() :)
+	size_t prm1 = table.size();//df.getjmlrow_svm();
+	size_t prm2 = (table[0].size()-1);//(df.getjmlcol_svm() - 1);// (_feature_selection ? kolom.size() :)
 
 	// if ((stat_label.size() > 1) and (!_normal_only))
 	// {
@@ -101,59 +101,60 @@ void Tmy_svm::read_problem(Tdataframe &df)
 	j = 0;
 	i = 0;
 	vector<string> tmp;
-	while (!df.is_eof())
-	{
-		tmp = df.get_record_svm();
+	// while (!df.is_eof())
+	for (int l = 0; l < prm1; ++l)
+	 {
+		tmp =  table[l];//df.get_record_svm();
 
-		bool is_pass = (config.normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
+		// bool is_pass = (config.normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
-		if (is_pass) 
-		{
+		// if (is_pass) 
+		// {
 			prob.x[i] = &x_space[j];
 			prob.y[i] = 1;
 
 			string tmp_str = "";
 
-			l = 0;
+			
 
 			for (size_t k = 0; k < (prm2); k++) {
 
 				x_space[j].index = k;
 				string str = tmp[k];
 				x_space[j].value = strtod(str.c_str(), &endptr);
-				tmp_str = tmp_str + str + ",";
+				// tmp_str = tmp_str + str + ",";
 
 				++j;
 			}
 
-			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
-			//cout << tmp_str << endl;
-			if (config.save_train) {
-				tmp_wf.write_file(tmp_str);
-			}
+			// tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
+			// //cout << tmp_str << endl;
+			// if (config.save_train) {
+			// 	tmp_wf.write_file(tmp_str);
+			// }
 
 			x_space[j++].index = -1;
 			i++;
-		}
+		// }
 
 		tmp.clear();
 		tmp.shrink_to_fit();
 
-		df.next_record();
+	// 	df.next_record();
 
-	}
+	 }
 
 
 
 //cout << i << endl;
 	is_read_problem = true;
 
-	if (config.save_train) {
-		tmp_wf.close_file();
-	}
+	// if (config.save_train) {
+	// 	tmp_wf.close_file();
+	// }
 
 	
-	df.clear_memory();
+	// df.clear_memory();
 
 }
 
@@ -162,12 +163,12 @@ void Tmy_svm::set_config(Tconfig v_config)
   config = v_config;	
 }
 
-void Tmy_svm::train(Tdataframe &df)
+void Tmy_svm::train(vector<vector<string>> table)
 {
 	param.gamma = config.gamma;
 	param.nu = config.nu;
 
-	read_problem(df);
+	read_problem(table);
 
 	const char *error_msg;
 	error_msg = svm_check_parameter(&prob, &param);

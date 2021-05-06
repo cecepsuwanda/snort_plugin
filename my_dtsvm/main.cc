@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
   config.use_credal = stoi(argv[15]) == 1;
   config.credal_s = strtod(argv[16], &endptr);
   config.limited = stoi(argv[17]) == 1;
+  config.threshold = stoi(argv[18]);
 
   config.train_svm = stoi(argv[2]) == 1;
   config.feature_selection = stoi(argv[3]) == 1;

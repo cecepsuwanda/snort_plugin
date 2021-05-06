@@ -75,9 +75,14 @@ private:
 	void f_train_svm(Tdataframe &df, int v_idx_svm);
 	void del_model_train(int idx);
 
-	static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
+	//static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
 
-
+    static void thread_save_test(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
+    static void thread_train_svm(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
+    
+    bool t_save_test_on = false;
+    bool t_train_svm_on = false;
+    thread t_save_test,t_train_svm;
 
 public:
 	Tdec_tree();

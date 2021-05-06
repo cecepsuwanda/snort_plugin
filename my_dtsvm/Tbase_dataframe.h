@@ -119,6 +119,8 @@ public:
 	void next_record();
 	vector<string> get_record();
 	vector<string> get_record_svm();
+	vector<vector<string>> get_all_record();
+	vector<vector<string>> get_all_record_svm();
 
 	void next_col();
 	bool is_end_col();

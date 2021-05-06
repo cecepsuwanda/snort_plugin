@@ -23,7 +23,7 @@ private:
 
 	bool is_read_problem; 
 
-	void read_problem(Tdataframe &df);
+	void read_problem(vector<vector<string>> table);
 
 	static void print_null(const char *s) {}
 
@@ -37,7 +37,7 @@ public:
 	Tmy_svm();
 	~Tmy_svm();
 	void set_config(Tconfig v_config);
-	void train(Tdataframe &df);
+	void train(vector<vector<string>> table);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
 	void destroy_model();
