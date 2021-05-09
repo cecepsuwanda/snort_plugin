@@ -195,7 +195,9 @@ void Tbase_dataframe::stat_tabel()
 
 			while (!_data.is_end_col())
 			{
-				_map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
+				if(_data.get_idx_col()!=_idx_label){
+				  _map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
+				}
 				_data.next_col();
 			}
 
@@ -207,6 +209,8 @@ void Tbase_dataframe::stat_tabel()
 		_data.next_record();
 	}
 
+
+
 	if (_filter.size() > 0) {
 		_data.clear_memory();
 		_data.save_to_memory();
@@ -216,7 +220,7 @@ void Tbase_dataframe::stat_tabel()
 	_data.index_on();
 	_jml_row = i;
 
-
+   _map_col_split.cek_valid_attr(_jml_row);
 }
 
 map<string, int> Tbase_dataframe::get_stat_label()
@@ -626,4 +630,14 @@ void Tbase_dataframe::set_config(Tconfig v_config)
 	config = v_config;
 	_stat_label.set_config(config);
 	_map_col_split.set_config(config);
+}
+
+int Tbase_dataframe::get_jml_valid_attr()
+{
+  return _map_col_split.get_jml_valid_attr();
+}
+
+int Tbase_dataframe::get_valid_attr(int idx)
+{
+   return _map_col_split.get_valid_attr(idx);
 }

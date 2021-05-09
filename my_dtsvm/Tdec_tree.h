@@ -77,12 +77,25 @@ private:
 
 	//static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
 
+    static void thread_save_train(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
     static void thread_save_test(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
-    static void thread_train_svm(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
+
+    static void thread_train_svm(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);    
     
-    bool t_save_test_on = false;
+    void isi_conf_metrix_attack(string label,vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
+
+    static void thread_test_svm(int idx_svm,Tconfig v_config,string label,vector<vector<string>> &table);
+    void isi_conf_metrix_svm(vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
+
+    bool t_save_train_on = false;
     bool t_train_svm_on = false;
-    thread t_save_test,t_train_svm;
+    bool t_test_svm_on = false;
+    thread t_save_train,t_save_test,t_train_svm,t_test_svm;
+
+    vector<vector<string>> _table_svm;
+    int t_idx_svm=-1;
+    
+
 
 public:
 	Tdec_tree();

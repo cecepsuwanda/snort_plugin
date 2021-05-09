@@ -127,7 +127,7 @@ void Tdataframe::calculate_metric(size_t start, size_t end, map<Tmy_dttype, Tlab
     itr++;
     i++;
 
-    if ((first_iteration and (gain >= 0)) or (gain_max < gain))
+    if ((first_iteration and (gain > 0)) or (gain_max < gain))
     {
       first_iteration = false;
       gain_max = gain;
@@ -162,8 +162,8 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
       //cetak("{ ==1 start ");
       auto itr = _col_pot_split.begin();
 
-      
-      Tlabel_stat _stat_label_below=(*itr).second;
+
+      Tlabel_stat _stat_label_below = (*itr).second;
       _stat_label_below.set_config(config);
 
       Tmy_dttype tmp1 = (*itr).first;
@@ -177,11 +177,13 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
       tmp_stat.set_config(config);
       ba.add_above(tmp_stat);
 
-      float entropy_after_split = ba.get_overall_metric();
-      float split_info = ba.get_split_info();
-      float gain = (entropy_before_split - entropy_after_split) / split_info;// 0; 
-
-      if (gain >= 0) {
+      float gain = 0;
+      if (ba.cek_valid()) {
+        float entropy_after_split = ba.get_overall_metric();
+        float split_info = ba.get_split_info();
+        gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
+      }
+      if (gain > 0) {
         current_overall_metric = gain;
         split_value = tmp1.get_string();
       }
@@ -190,7 +192,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
     } else {
       //cetak("{ ==2 start ");
 
-      const int dt_per_page = 1000;
+      const int dt_per_page = 100;
 
       if (_col_pot_split.size() < dt_per_page)
       {
@@ -211,7 +213,7 @@ void Tdataframe::handle_continuous(map<Tmy_dttype, Tlabel_stat> &_col_pot_split,
           jml_loop += 1;
         }
 
-        const int jml_thread = 10;
+        const int jml_thread = 2;
 
         thread th[jml_thread];
         float arr_gain[jml_thread];

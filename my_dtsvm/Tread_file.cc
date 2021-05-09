@@ -209,7 +209,14 @@ int Tread_file::get_idx_col()
 
 string Tread_file::get_col_val(int idx_col)
 {
-  return _data[idx_col];
+  try {
+    return _data[idx_col];
+  } catch ( std::logic_error ) {
+    cout << "idx_col " << idx_col <<  " data size " << _data.size() << endl;
+    return "error";
+
+  }
+
 }
 
 void Tread_file::next_record()

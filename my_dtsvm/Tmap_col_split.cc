@@ -45,6 +45,35 @@ void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data,
 
 }
 
+void Tmap_col_split::cek_valid_attr(int jml_row)
+{
+	for (auto itr = _pot_split.begin(); itr != _pot_split.end(); ++itr)
+	{
+
+		auto tmp = itr->second.begin();
+		Tmy_dttype tmp_dttype= tmp->first;
+
+		if (tmp_dttype.is_continue()) {
+			//cout << itr->first << "-" << itr->second.size() << endl;
+			if ( itr->second.size() < (0.3 * jml_row) ) {				
+				_valid_attr.push_back(itr->first);
+			}
+		} else {
+			_valid_attr.push_back(itr->first);
+		}
+	}
+}
+
+int Tmap_col_split::get_jml_valid_attr()
+{
+	return _valid_attr.size();
+}
+
+int Tmap_col_split::get_valid_attr(int idx)
+{
+	return _valid_attr[idx];
+}
+
 void Tmap_col_split::clear()
 {
 	for (auto i = _pot_split.begin(); i != _pot_split.end(); ++i)

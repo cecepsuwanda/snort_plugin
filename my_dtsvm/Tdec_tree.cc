@@ -62,25 +62,27 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
 
   map<Tmy_dttype, Tlabel_stat> _col_pot_split;
 
-  for (int i = 0; i < (df.getjmlcol() - 1)  ; ++i)
+  cetak("{valid %d}", df.get_jml_valid_attr());
+
+  for (int i = 0; i < df.get_jml_valid_attr(); ++i)
   {
 
     //df.get_col_pot_split(i, _col_pot_split);
-    _col_pot_split = df.get_col_split(i);
+    _col_pot_split = df.get_col_split(df.get_valid_attr(i));
 
-    if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-      df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
-    }
+    //if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
+    df.calculate_overall_metric(df.get_valid_attr(i), _col_pot_split, current_overall_metric, current_split_value);
+    //}
 
     if (first_iteration or (max_gain < current_overall_metric))
     {
-      if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-        first_iteration = false;
-        max_gain = current_overall_metric;
+      //if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
+      first_iteration = false;
+      max_gain = current_overall_metric;
 
-        split_column = i;
-        split_value = current_split_value;
-      }
+      split_column = df.get_valid_attr(i);
+      split_value = current_split_value;
+      //}
     }
 
     auto it = _col_pot_split.begin();
@@ -106,6 +108,29 @@ string Tdec_tree::create_leaf(Tdataframe & df)
 }
 
 void Tdec_tree::thread_save_test(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
+{
+  Twrite_file tmp_wf;
+  tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(v_idx_svm) + ".csv");
+
+  for (int i = 0; i < table.size(); ++i)
+  {
+    string tmp_str = "";
+    for (int j = 0; j < (table[i].size() - 1); ++j)
+    {
+      tmp_str = tmp_str + table[i][j] + ",";
+    }
+
+    tmp_str = tmp_str + table[i][table[i].size() - 1];
+    tmp_wf.write_file(tmp_str);
+
+  }
+
+  tmp_wf.close_file();
+
+
+}
+
+void Tdec_tree::thread_save_train(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
 {
   Twrite_file tmp_wf;
   tmp_wf.setnm_f(v_config.path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
@@ -142,13 +167,13 @@ void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
   vector<vector<string>> table = df.get_all_record_svm();
 
   if (config.save_train) {
-    if (t_save_test_on) {
-      t_save_test.join();
-      t_save_test_on = false;
+    if (t_save_train_on) {
+      t_save_train.join();
+      t_save_train_on = false;
     }
-    t_save_test = thread(&Tdec_tree::thread_save_test, config, table, v_idx_svm);
+    t_save_train = thread(&Tdec_tree::thread_save_train, config, table, v_idx_svm);
     //thread_save_test(config,table,v_idx_svm);
-    t_save_test_on = true;
+    t_save_train_on = true;
   }
 
   if (t_train_svm_on) {
@@ -352,11 +377,10 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
         }
       }
 
-      if (t_save_test_on) {
-        t_save_test.join();
-        t_save_test_on = false;
+      if (t_save_train_on) {
+        t_save_train.join();
+        t_save_train_on = false;
       }
-
       if (t_train_svm_on) {
         t_train_svm.join();
         t_train_svm_on = false;
@@ -552,6 +576,87 @@ string Tdec_tree::guess(vector<string> &data)
   return label;
 }
 
+void Tdec_tree::isi_conf_metrix_attack(string label,vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+{
+  for (int i = 0; i < table.size(); ++i)
+  {
+    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+
+    conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+  }
+}
+
+void Tdec_tree::isi_conf_metrix_svm(vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+{
+  for (int i = 0; i < table.size(); ++i)
+  {
+    svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+    dt_conf_metrix.add_jml(table[i][table[i].size() - 2], "normal", 1);
+    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+
+    conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+  }
+}
+
+void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vector<vector<string>> &table)
+{
+  // Twrite_file tmp_wf;
+
+  // if (v_config.save_test) {
+  //   tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
+  // }
+
+  Tmy_svm my_svm;
+  my_svm.set_config(v_config);
+
+  string nm_model = v_config.svm_path + "/svm_model_" + to_string(idx_svm) + ".csv";
+  my_svm.load_model(nm_model);
+
+  vector<string> tmp_data;
+  // string tmp_str;
+  for (int i = 0; i < table.size(); ++i)
+  {
+    // tmp_str = "";
+    for (int j = 0; j < (table[i].size() - 1); ++j)
+    {
+      tmp_data.push_back(table[i][j]);
+      // tmp_str = tmp_str + table[i][j] + ",";
+    }
+
+    string tmp_label = label;
+
+    tmp_label = my_svm.guess(tmp_data);
+    table[i].push_back(tmp_label);
+
+
+    // svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    // dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+    // dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+
+
+    // conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    // tmp_str = tmp_str + table[i][table[i].size() - 1] + "," + tmp_label;
+
+    // if (v_config.save_test)
+    // {
+    //   tmp_wf.write_file(tmp_str);
+    // }
+
+    tmp_data.clear();
+    tmp_data.shrink_to_fit();
+  }
+
+  my_svm.destroy_model();
+
+  // if (v_config.save_test)
+  // {
+  //   tmp_wf.close_file();
+  // }
+
+
+}
+
 void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
 {
   //cetak("%d", node_index);
@@ -560,177 +665,51 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
     string label = tree[node_index].label;
 
-
+    vector<vector<string>> table;
     if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-    {
+    {     
 
-      Twrite_file tmp_wf;
+      if (t_test_svm_on) {
+        t_test_svm.join();
 
-      if (config.save_test) {
-        tmp_wf.setnm_f(config.path_model + "/test/test_model_" + to_string(tree[node_index].idx_svm) + ".csv");
-      }
-
-      Tmy_svm my_svm;
-      my_svm.set_config(config);
-
-      cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow());
-      string nm_model = config.svm_path + "/svm_model_" + to_string(tree[node_index].idx_svm) + ".csv";
-      my_svm.load_model(nm_model);
-      cetak("}");
-
-      vector<string> data;
-      vector<string> tmp_data;
-
-      df_test.reset_file();
-      while (!df_test.is_eof()) {
-        data = df_test.get_record_svm();
-
-        string tmp_str = "";
-        for (size_t i = 0; i < (data.size() - 1); ++i)
-        {
-          tmp_data.push_back(data[i]);
-          tmp_str = tmp_str + data[i] + ",";
+        if (config.save_test) {
+          t_save_test = thread(&Tdec_tree::thread_save_test, config, _table_svm, t_idx_svm);
         }
 
-        string tmp_label = label;
+        isi_conf_metrix_svm(_table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix); 
 
-        tmp_label = my_svm.guess(tmp_data);
-        svm_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-        dt_conf_metrix.add_jml(data[data.size() - 1], label, 1);
-        dt_svm_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
+        if (config.save_test) {
+          t_save_test.join();
+        }       
 
+        _table_svm.clear();
+        _table_svm.shrink_to_fit();        
 
-        conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-        tmp_str = tmp_str + data[data.size() - 1] + "," + tmp_label;
-
-        if (config.save_test)
-        {
-          tmp_wf.write_file(tmp_str);
-        }
-
-        tmp_data.clear();
-        tmp_data.shrink_to_fit();
-
-        data.clear();
-        data.shrink_to_fit();
-
-        df_test.next_record();
-
+        t_test_svm_on = false;
       }
 
-      my_svm.destroy_model();
-
-      if (config.save_test)
-      {
-        tmp_wf.close_file();
-      }
-
-
-
-    } else {
-
-      cetak("+{A}");
-
-      vector<string> data;
-
-      df_test.reset_file();
-      while (!df_test.is_eof()) {
-
-        data = df_test.get_record();
-
-        dt_conf_metrix.add_jml(data[data.size() - 1], label, 1);
-        dt_svm_conf_metrix.add_jml(data[data.size() - 1], label, 1);
-
-        conf_metrix.add_jml(data[data.size() - 1], label, 1);
-
-        data.clear();
-        data.shrink_to_fit();
-
-        df_test.next_record();
-      }
-
-    }
-
-    /*Twrite_file tmp_wf;
-
-    if ((config.save_test) and (config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1)) {
-      tmp_wf.setnm_f(config.path_model + "/test/test_model_" + to_string(tree[node_index].idx_svm) + ".csv");
-    }
-
-
-    Tmy_svm my_svm;
-    my_svm.set_config(config);
-    if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-    {
+      _table_svm = df_test.get_all_record_svm();
       cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow());
-      string nm_model = config.svm_path + "/svm_model_" + to_string(tree[node_index].idx_svm) + ".csv";
-      my_svm.load_model(nm_model);
+      //thread_test_svm(tree[node_index].idx_svm, config, label, table, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+      t_idx_svm = tree[node_index].idx_svm;
+      t_test_svm = thread(&Tdec_tree::thread_test_svm, t_idx_svm, config, label, ref(_table_svm));
+      t_test_svm_on = true;
       cetak("}");
+
     } else {
-      cetak("*{{ %d }}", df_test.getjmlrow());
+      cetak("+{A}");      
+      vector<vector<string>> _table_attack = df_test.get_all_record();
+      isi_conf_metrix_attack(label,_table_attack, conf_metrix, dt_conf_metrix, dt_svm_conf_metrix);      
     }
 
+    // for (int i = 0; i < table.size(); ++i)
+    // {
+    //   table[i].clear();
+    //   table[i].shrink_to_fit();
+    // }
 
-    vector<string> data;
-    vector<string> tmp_data;
-
-    df_test.reset_file();
-    while (!df_test.is_eof()) {
-      data = df_test.get_record_svm();
-
-      string tmp_str = "";
-      for (size_t i = 0; i < (data.size() - 1); ++i)
-      {
-        tmp_data.push_back(data[i]);
-        tmp_str = tmp_str + data[i] + ",";
-      }
-
-
-
-      string tmp_label = label;
-      if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-      {
-        tmp_label = my_svm.guess(tmp_data);
-        svm_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-        dt_conf_metrix.add_jml(data[data.size() - 1], label, 1);
-        dt_svm_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-      } else {
-        dt_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-        dt_svm_conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-      }
-
-
-      conf_metrix.add_jml(data[data.size() - 1], tmp_label, 1);
-      tmp_str = tmp_str + data[data.size() - 1] + "," + tmp_label;
-
-
-      if ((config.save_test) and (config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-      {
-        tmp_wf.write_file(tmp_str);
-      }
-
-      tmp_data.clear();
-      tmp_data.shrink_to_fit();
-
-      data.clear();
-      data.shrink_to_fit();
-
-      df_test.next_record();
-
-    }
-
-
-
-    if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-    {
-
-    }
-
-    if ((config.save_test) and (config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1) )
-    {
-      tmp_wf.close_file();
-    }*/
-
+    // table.clear();
+    // table.shrink_to_fit();
 
     df_test.clear_memory();
     cetak("\n");
@@ -771,7 +750,30 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       }
       df_right.clear_memory();
     }
-  }
+
+  }    
+
+    if (t_test_svm_on) {
+      t_test_svm.join();
+
+      if (config.save_test) {
+        t_save_test = thread(&Tdec_tree::thread_save_test, config, _table_svm, t_idx_svm);
+      }
+
+      isi_conf_metrix_svm(_table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+
+      if (config.save_test) {
+        t_save_test.join();
+      }
+
+      _table_svm.clear();
+      _table_svm.shrink_to_fit();      
+
+      t_test_svm_on = false;
+    }
+  
+
+
 }
 
 void Tdec_tree::test()
@@ -789,15 +791,20 @@ void Tdec_tree::test()
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
 
-  svm_conf_metrix.add_konversi_asli("known", "unknown");
+  svm_conf_metrix.add_konversi_asli("known", "normal");
   dt_conf_metrix.add_konversi_asli("unknown", "known");
   dt_svm_conv_metrix.add_konversi_asli("unknown", "known");
   dt_svm_conv_metrix.add_konversi_tebakan("unknown", "known");
 
+  auto start = std::chrono::steady_clock::now();
   test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix);
+  auto end = std::chrono::steady_clock::now();
+  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+  cetak("\nLama Test : %f \n", ((float)(elapsed_time / 60)));
+  cetak("End Test Decission Tree : \n");
 
   df.close_file();
-  cetak("\n");
+
   //cout << " Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
   cout << "All Metrix : " << endl;
   conf_metrix.kalkulasi();
@@ -934,11 +941,15 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
   }
 
-  if (t_train_svm_on) {
-      t_train_svm.join();
-      t_train_svm_on = false;
-    }
+  if (t_save_train_on) {
+    t_save_train.join();
+    t_save_train_on = false;
+  }
 
+  if (t_train_svm_on) {
+    t_train_svm.join();
+    t_train_svm_on = false;
+  }
 
   if ((left != -1) and (right != -1) ) {
     if ((tree[left].isLeaf) and (tree[right].isLeaf))
@@ -1020,6 +1031,9 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
     }
 
   }
+
+
+
 }
 
 void Tdec_tree::post_pruning(Tdataframe & df_train)
@@ -1064,6 +1078,8 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
       cetak("{v {j %d %d}", tree[node_index].idx_svm, df_train.getjmlrow_svm());
       f_train_svm(df_train, tree[node_index].idx_svm);
       cetak("}");
+    } else {
+      cetak("{A}");
     }
 
     cetak("\n");
@@ -1096,6 +1112,19 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
       svm_dfs(depth + 1, right, df_right);
 
     }
+
+    if (t_save_train_on) {
+      t_save_train.join();
+      t_save_train_on = false;
+    }
+
+
+    if (t_train_svm_on) {
+      t_train_svm.join();
+      t_train_svm_on = false;
+    }
+
+
   }
   df_train.clear_memory();
   df_train.clear_col_split();

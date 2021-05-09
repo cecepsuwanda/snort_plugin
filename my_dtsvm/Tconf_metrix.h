@@ -30,6 +30,9 @@ private:
 public:
   Tconf_metrix();
   ~Tconf_metrix();
+  
+  
+
   void add_jml(string asli, string tebakan, int jml);
   void kalkulasi();
   int get_TP(string kelas);

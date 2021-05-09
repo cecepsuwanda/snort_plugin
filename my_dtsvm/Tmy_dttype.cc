@@ -53,3 +53,8 @@ string Tmy_dttype::get_string()
 {
 	return _value;
 }
+
+bool Tmy_dttype::is_continue()
+{
+	return _is_continue;
+}

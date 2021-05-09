@@ -144,6 +144,9 @@ public:
 
 	void set_config(Tconfig v_config);
 
+	int get_jml_valid_attr();
+	int get_valid_attr(int idx);
+
 };
 
 #endif
