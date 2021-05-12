@@ -1,4 +1,4 @@
-
+#include <mutex>
 #include <map>
 #include <string>
 #include <iostream>
@@ -14,7 +14,7 @@ using namespace std;
 struct Tdata
 {
   int TP, FP, TN, FN, jml;
-  float accuracy, recall, specificity;
+  float  recall, precision;
 };
 
 class Tconf_metrix
@@ -24,15 +24,16 @@ private:
   map<string, Tdata> matrik1;
   float accuracy, precision, recall;
   int failed, tepat, tdk_tepat, jml_data;
-  map<string, int> guess;
+  map<string, int> label;
   map<string, string> konversi_asli;
   map<string, string> konversi_tebakan;
+
+  mutable std::mutex v_mutex;
+
 public:
   Tconf_metrix();
   ~Tconf_metrix();
   
-  
-
   void add_jml(string asli, string tebakan, int jml);
   void kalkulasi();
   int get_TP(string kelas);

@@ -16,6 +16,7 @@ cp -rf ~/snort_plugin/my_dtsvm/Tmy_dttype.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tlabel_stat.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tbelow_above.* .
 cp -rf ~/snort_plugin/my_dtsvm/Tbase_dataframe.* .
+cp -rf ~/snort_plugin/my_dtsvm/Timer.* .
 cp -rf ~/snort_plugin/my_dtsvm/main.cc .
 make
 

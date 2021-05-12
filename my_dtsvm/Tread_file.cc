@@ -143,6 +143,14 @@ void Tread_file::read_file()
     _posisi++;
   }
   //cout << str << endl;
+
+  int len;
+
+  len = strlen(str);
+  if (str[len - 1] == '\n')
+    str[len - 1] = 0;
+
+  _data_str = str;
   _data = tokenizer(str, _separator);
   //cout << "Hasil Token : " << _data.size() <<endl;
   _idx_col = 0;
@@ -209,13 +217,13 @@ int Tread_file::get_idx_col()
 
 string Tread_file::get_col_val(int idx_col)
 {
-  try {
-    return _data[idx_col];
-  } catch ( std::logic_error ) {
-    cout << "idx_col " << idx_col <<  " data size " << _data.size() << endl;
-    return "error";
+  // try {
+  return _data[idx_col];
+  // } catch ( std::logic_error ) {
+  //   cout << "idx_col " << idx_col <<  " data size " << _data.size() << endl;
+  //   return "error";
 
-  }
+  // }
 
 }
 

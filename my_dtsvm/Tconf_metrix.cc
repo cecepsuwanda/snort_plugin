@@ -22,11 +22,12 @@ Tconf_metrix::~Tconf_metrix()
 	}
 
 	matrik1.clear();
-	guess.clear();
+	label.clear();
 }
 
 void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 {
+	v_mutex.lock();
 	if (konversi_asli.size() > 0)
 	{
 		auto itr = konversi_asli.find(asli);
@@ -47,7 +48,19 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 
 	if ((tebakan.compare("dfs_failed.") != 0))
 	{
-		guess.insert(pair<string, int>(tebakan, 0));
+		
+        auto itr = label.find(asli);
+        if (itr == label.end())
+        {
+          label.insert(pair<string, int>(asli, 0));	
+        }
+
+        auto itr1 = label.find(tebakan);
+        if (itr1 == label.end())
+        {
+          label.insert(pair<string, int>(tebakan, 0));	
+        }
+				
 
 		jml_data++;
 		if (asli == tebakan)
@@ -57,38 +70,29 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 			tdk_tepat++;
 		}
 
-		if (matrik.size() > 0)
+		auto it = matrik.find(asli);
+		if (it == matrik.end())
 		{
-			map<string, map<string, int>>::iterator it;
-
-			it = matrik.find(asli);
-			if (it == matrik.end())
-			{
-				map<string, int> tmp_map;
-				tmp_map.insert(pair<string, int>(tebakan, jml));
-				matrik.insert(pair<string, map<string, int>>(asli, tmp_map));
-			} else {
-				map<string, int>::iterator it1;
-				it1 = it->second.find(tebakan);
-				if (it1 == it->second.end())
-				{
-					it->second.insert(pair<string, int>(tebakan, jml));
-				} else {
-					it1->second += jml;
-				}
-			}
-
-		} else {
 			map<string, int> tmp_map;
 			tmp_map.insert(pair<string, int>(tebakan, jml));
 			matrik.insert(pair<string, map<string, int>>(asli, tmp_map));
+		} else {
+			auto it1 = it->second.find(tebakan);
+			if (it1 == it->second.end())
+			{
+				it->second.insert(pair<string, int>(tebakan, jml));
+			} else {
+				it1->second += jml;
+			}
 		}
+
+
 
 	} else {
 		failed++;
 	}
 
-
+   v_mutex.unlock();
 
 }
 
@@ -96,35 +100,12 @@ void Tconf_metrix::kalkulasi()
 {
 	if (matrik.size() > 0) {
 
-
-		for (auto itr = guess.begin(); itr != guess.end(); itr++)
-		{
-			auto itr1 = matrik.find(itr->first);
-			if (itr1 == matrik.end())
-			{
-				map<string, int> tmp_map;
-				tmp_map.insert(pair<string, int>(itr->first, 0));
-				matrik.insert(pair<string, map<string, int>>(itr->first, tmp_map));
-
-				itr1 = matrik.find(itr->first);
-				for (auto itr2 = matrik.begin(); itr2 != matrik.end(); itr2++)
-				{
-					auto it1 = itr1->second.find(itr2->first);
-					if (it1 == itr1->second.end())
-					{
-						itr1->second.insert(pair<string, int>(itr2->first, 0));
-					}
-				}
-			}
-		}
-
-
 		int TP = 0;
 		int FN = 0;
 		int FP = 0;
 		int TN = 0;
 
-		for (auto it = matrik.begin(); it != matrik.end(); ++it)
+		for (auto it = label.begin(); it != label.end(); ++it)
 		{
 			Tdata tmp_data;
 			tmp_data.TP = get_TP(it->first);
@@ -136,18 +117,24 @@ void Tconf_metrix::kalkulasi()
 			tmp_data.TN = get_TN(it->first);
 			TN += tmp_data.TN;
 			tmp_data.jml = tmp_data.TP + tmp_data.FN;
-			tmp_data.accuracy = 0;
-			if ((tmp_data.TP + tmp_data.FP) > 0) {
-				tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
-			}
+			// tmp_data.accuracy = 0;
+			// if ((tmp_data.TP + tmp_data.FP) > 0) {
+			// 	tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
+			// }
 			tmp_data.recall = 0;
 			if ((tmp_data.jml) > 0) {
 				tmp_data.recall =  tmp_data.TP / (double) tmp_data.jml;
 			}
-			tmp_data.specificity = 0;
-			if ((tmp_data.TN + tmp_data.FP) > 0) {
-				tmp_data.specificity =  tmp_data.TN / (double)(tmp_data.TN + tmp_data.FP);
+
+			tmp_data.precision = 0;
+			if ((tmp_data.TP+tmp_data.FP) > 0) {
+				tmp_data.precision =  tmp_data.TP / ((double) (tmp_data.TP+tmp_data.FP));
 			}
+
+			// tmp_data.specificity = 0;
+			// if ((tmp_data.TN + tmp_data.FP) > 0) {
+			// 	tmp_data.specificity =  tmp_data.TN / (double)(tmp_data.TN + tmp_data.FP);
+			// }
 
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
@@ -252,7 +239,7 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 
 	if (tc.matrik1.size() > 0) {
 		out << "   Confusion Metrik     : " << endl;
-		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10) << "recall" << setw(13) << "specificity" << endl;
+		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10)   << "recall" << setw(13) << "precision" << endl; //<< "accuracy" << setw(10)
 		for (auto it = tc.matrik1.begin(); it != tc.matrik1.end(); ++it)
 		{
 			out << setw(30) << it->first;
@@ -261,9 +248,9 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 			out << setw(10) << it->second.jml;
 			out << setw(10) << it->second.FP;
 			out << setw(10) << it->second.TN;
-			out << setprecision(3) << setw(10) << it->second.accuracy;
+			//out << setprecision(3) << setw(10) << it->second.accuracy;
 			out << setprecision(3) << setw(10) << it->second.recall;
-			out << setprecision(3) << setw(13) << it->second.specificity << endl;
+			out << setprecision(3) << setw(13) << it->second.precision << endl;
 		}
 	}
 
@@ -273,24 +260,29 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	{
 		out << setw(20);
 
-		for (auto it = tc.matrik.begin(); it != tc.matrik.end(); it++)
+		for (auto it = tc.label.begin(); it != tc.label.end(); it++)
 		{
 			out << it->first << setw(10);
 		}
 
 		out << endl;
 
-		for (auto it = tc.guess.begin(); it != tc.guess.end(); it++)
+		for (auto it = tc.label.begin(); it != tc.label.end(); it++)
 		{
 			out << setw(10) << it->first;
-			for (auto it1 = tc.matrik.begin(); it1 != tc.matrik.end(); it1++)
+			for (auto it1 = tc.label.begin(); it1 != tc.label.end(); it1++)
 			{
-				auto it2 = it1->second.find(it->first);
-				if (it2 == it1->second.end())
+				auto it2 = tc.matrik.find(it->first);
+				if (it2 == tc.matrik.end())
 				{
 					out << setw(10) << 0;
 				} else {
-					out << setw(10) << it2->second;
+					auto it3 = it2->second.find(it1->first);
+                    if(it3==it2->second.end()){
+					   out << setw(10) << 0;
+                    }else{
+                       out << setw(10) << it3->second;	
+                    }
 				}
 			}
 

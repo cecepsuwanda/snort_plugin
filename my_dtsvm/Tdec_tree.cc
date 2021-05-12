@@ -5,6 +5,8 @@ Tdec_tree::Tdec_tree()
 {
   idx_svm = 0;
   id_df = 1;
+
+
 }
 
 Tdec_tree::~Tdec_tree()
@@ -15,6 +17,25 @@ Tdec_tree::~Tdec_tree()
 void Tdec_tree::set_config(Tconfig v_config)
 {
   config = v_config;
+}
+
+void Tdec_tree::clear_worker(int limit)
+{
+
+  bool pass = limit == 0  ? true : worker.size() == limit ;
+
+  if (pass)
+  {
+    for (std::thread & th : worker)
+    {
+      // If thread Object is Joinable then Join that thread.
+      if (th.joinable())
+        th.join();
+    }
+
+    worker.clear();
+    worker.shrink_to_fit();
+  }
 }
 
 
@@ -107,28 +128,7 @@ string Tdec_tree::create_leaf(Tdataframe & df)
   return vlabel;
 }
 
-void Tdec_tree::thread_save_test(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
-{
-  Twrite_file tmp_wf;
-  tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(v_idx_svm) + ".csv");
 
-  for (int i = 0; i < table.size(); ++i)
-  {
-    string tmp_str = "";
-    for (int j = 0; j < (table[i].size() - 1); ++j)
-    {
-      tmp_str = tmp_str + table[i][j] + ",";
-    }
-
-    tmp_str = tmp_str + table[i][table[i].size() - 1];
-    tmp_wf.write_file(tmp_str);
-
-  }
-
-  tmp_wf.close_file();
-
-
-}
 
 void Tdec_tree::thread_save_train(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
 {
@@ -164,25 +164,18 @@ void Tdec_tree::thread_train_svm(Tconfig v_config, vector<vector<string>> table,
 void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
 
+
+
   vector<vector<string>> table = df.get_all_record_svm();
 
   if (config.save_train) {
-    if (t_save_train_on) {
-      t_save_train.join();
-      t_save_train_on = false;
-    }
-    t_save_train = thread(&Tdec_tree::thread_save_train, config, table, v_idx_svm);
+
+    worker.push_back(thread(&Tdec_tree::thread_save_train, config, table, v_idx_svm));
     //thread_save_test(config,table,v_idx_svm);
-    t_save_train_on = true;
+
   }
 
-  if (t_train_svm_on) {
-    t_train_svm.join();
-    t_train_svm_on = false;
-  }
-  t_train_svm = thread(&Tdec_tree::thread_train_svm, config, table, v_idx_svm);
-  t_train_svm_on = true;
-
+  worker.push_back(thread(&Tdec_tree::thread_train_svm, config, table, v_idx_svm));
 
 }
 
@@ -216,6 +209,8 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
       if ((config.train_svm))
       {
+        clear_worker(20);
+
         idx_svm++;
         tree[node_index].idx_svm = idx_svm;
 
@@ -271,6 +266,8 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
         if ((config.train_svm))
         {
+
+          clear_worker(20);
 
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
@@ -352,6 +349,9 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
             if ((config.train_svm) )
             {
+
+              clear_worker(20);
+
               idx_svm++;
               tree[node_index].idx_svm = idx_svm;
 
@@ -377,23 +377,16 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
         }
       }
 
-      if (t_save_train_on) {
-        t_save_train.join();
-        t_save_train_on = false;
-      }
-      if (t_train_svm_on) {
-        t_train_svm.join();
-        t_train_svm_on = false;
-      }
+
 
     }
 
   }
 
-  /*if (node_index == 0)
+  if (node_index == 0)
   {
-    cetak("\n");
-  }*/
+    clear_worker(0);
+  }
 
 }
 
@@ -410,11 +403,12 @@ void Tdec_tree::build_tree()
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
   cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s, (config.feature_selection ? 1 : 0), (config.normal_only ? 1 : 0), config.f_train.c_str());
   cetak("Start Train Decission Tree : \n");
-  auto start = std::chrono::steady_clock::now();
-  train(df_train, 0, 0);
-  auto end = std::chrono::steady_clock::now();
-  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-  cetak("\nLama Training : %f \n", ((float)(elapsed_time / 60)));
+
+  {
+    Timer timer;
+    train(df_train, 0, 0);
+  }
+
   cetak("End Train Decission Tree : \n");
 
   cetak("Start Prunning Decission Tree : \n");
@@ -576,8 +570,9 @@ string Tdec_tree::guess(vector<string> &data)
   return label;
 }
 
-void Tdec_tree::isi_conf_metrix_attack(string label,vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
 {
+
   for (int i = 0; i < table.size(); ++i)
   {
     dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
@@ -585,27 +580,18 @@ void Tdec_tree::isi_conf_metrix_attack(string label,vector<vector<string>> table
 
     conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
   }
+
+
 }
 
-void Tdec_tree::isi_conf_metrix_svm(vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
-{
-  for (int i = 0; i < table.size(); ++i)
-  {
-    svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-    dt_conf_metrix.add_jml(table[i][table[i].size() - 2], "normal", 1);
-    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
 
-    conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+{
+  Twrite_file tmp_wf;
+
+  if (v_config.save_test) {
+    tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
   }
-}
-
-void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vector<vector<string>> &table)
-{
-  // Twrite_file tmp_wf;
-
-  // if (v_config.save_test) {
-  //   tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
-  // }
 
   Tmy_svm my_svm;
   my_svm.set_config(v_config);
@@ -614,34 +600,32 @@ void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vec
   my_svm.load_model(nm_model);
 
   vector<string> tmp_data;
-  // string tmp_str;
+  string tmp_str;
   for (int i = 0; i < table.size(); ++i)
   {
-    // tmp_str = "";
+    tmp_str = "";
     for (int j = 0; j < (table[i].size() - 1); ++j)
     {
       tmp_data.push_back(table[i][j]);
-      // tmp_str = tmp_str + table[i][j] + ",";
+      tmp_str = tmp_str + table[i][j] + ",";
     }
 
     string tmp_label = label;
-
     tmp_label = my_svm.guess(tmp_data);
-    table[i].push_back(tmp_label);
+    //table[i].push_back(tmp_label);
 
+    svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
 
-    // svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    // dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-    // dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
 
+    tmp_str = tmp_str + table[i][table[i].size() - 1] + "," + tmp_label;
 
-    // conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    // tmp_str = tmp_str + table[i][table[i].size() - 1] + "," + tmp_label;
-
-    // if (v_config.save_test)
-    // {
-    //   tmp_wf.write_file(tmp_str);
-    // }
+    if (v_config.save_test)
+    {
+      tmp_wf.write_file(tmp_str);
+    }
 
     tmp_data.clear();
     tmp_data.shrink_to_fit();
@@ -649,17 +633,17 @@ void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vec
 
   my_svm.destroy_model();
 
-  // if (v_config.save_test)
-  // {
-  //   tmp_wf.close_file();
-  // }
+  if (v_config.save_test)
+  {
+    tmp_wf.close_file();
+  }
 
 
 }
 
 void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
 {
-  //cetak("%d", node_index);
+  cetak("%d", node_index);
   if (tree[node_index].isLeaf)
   {
 
@@ -667,54 +651,29 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
     vector<vector<string>> table;
     if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-    {     
-
-      if (t_test_svm_on) {
-        t_test_svm.join();
-
-        if (config.save_test) {
-          t_save_test = thread(&Tdec_tree::thread_save_test, config, _table_svm, t_idx_svm);
-        }
-
-        isi_conf_metrix_svm(_table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix); 
-
-        if (config.save_test) {
-          t_save_test.join();
-        }       
-
-        _table_svm.clear();
-        _table_svm.shrink_to_fit();        
-
-        t_test_svm_on = false;
-      }
-
-      _table_svm = df_test.get_all_record_svm();
-      cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow());
+    {
+      clear_worker(1);      
+      cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow_svm());
+      vector<vector<string>> _table_svm = df_test.get_all_record_svm();
       //thread_test_svm(tree[node_index].idx_svm, config, label, table, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
-      t_idx_svm = tree[node_index].idx_svm;
-      t_test_svm = thread(&Tdec_tree::thread_test_svm, t_idx_svm, config, label, ref(_table_svm));
-      t_test_svm_on = true;
+      worker.push_back(thread(&Tdec_tree::thread_test_svm, tree[node_index].idx_svm, config, label, _table_svm, ref(conf_metrix), ref(dt_conf_metrix), ref(svm_conf_metrix), ref(dt_svm_conf_metrix)));
       cetak("}");
-
+      _table_svm.clear();
+      _table_svm.shrink_to_fit();
     } else {
-      cetak("+{A}");      
+      clear_worker(1);
+      cetak("+{A { %d }}", df_test.getjmlrow());
       vector<vector<string>> _table_attack = df_test.get_all_record();
-      isi_conf_metrix_attack(label,_table_attack, conf_metrix, dt_conf_metrix, dt_svm_conf_metrix);      
+      worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(conf_metrix), ref(dt_conf_metrix), ref(dt_svm_conf_metrix)));
+      _table_attack.clear();
+      _table_attack.shrink_to_fit();
     }
-
-    // for (int i = 0; i < table.size(); ++i)
-    // {
-    //   table[i].clear();
-    //   table[i].shrink_to_fit();
-    // }
-
-    // table.clear();
-    // table.shrink_to_fit();
 
     df_test.clear_memory();
     cetak("\n");
   } else {
-    //cetak("|?");
+    cetak("|?");
+
     int left = tree[node_index].children[0];
     int right = tree[node_index].children[1];
 
@@ -724,55 +683,61 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
     opt.push_back("==");
     opt.push_back("!=");
 
+    Tdataframe df_left, df_right;
+    df_left = df_test;
+    df_left.set_config(config);
+    df_left.set_search_uniqe_val_off();
+    df_right = df_test;
+    df_right.set_config(config);
+    df_right.set_search_uniqe_val_off();
+    df_test.clear_memory();
+    df_test.clear_col_split();
+
+    clear_worker(1);
+
     if (left != -1) {
-      Tdataframe df_left;
-      df_left = df_test;
-      df_left.set_config(config);
+
+      cetak("->");
+      cetak("[%d %d %s %s ", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       df_left.clear_col_split();
+      cetak("%d ]", df_left.getjmlrow());
       if (df_left.getjmlrow() > 0) {
         //cetak("->");
-        cetak("[%d %d %s %s]", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
+        //cetak("[%d %d %s %s]", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
         test_dfs(left, df_left, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+      } else {
+        cetak("\n");
       }
       df_left.clear_memory();
     }
+
+    clear_worker(1);
+
     if (right != -1) {
-      Tdataframe df_right;
-      df_right = df_test;
-      df_right.set_config(config);
+      cetak("<-");
+      cetak("[%d %d %s %s ", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       df_right.clear_col_split();
+      cetak("%d ]", df_right.getjmlrow());
       if (df_right.getjmlrow() > 0) {
         //cetak("<-");
-        cetak("[%d %d %s %s]", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
+        //cetak("[%d %d %s %s]", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
         test_dfs(right, df_right, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+      } else {
+        cetak("\n");
       }
       df_right.clear_memory();
     }
 
-  }    
+    clear_worker(1);
 
-    if (t_test_svm_on) {
-      t_test_svm.join();
+  }
 
-      if (config.save_test) {
-        t_save_test = thread(&Tdec_tree::thread_save_test, config, _table_svm, t_idx_svm);
-      }
-
-      isi_conf_metrix_svm(_table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
-
-      if (config.save_test) {
-        t_save_test.join();
-      }
-
-      _table_svm.clear();
-      _table_svm.shrink_to_fit();      
-
-      t_test_svm_on = false;
-    }
-  
-
+  if (node_index == 0)
+  {
+    clear_worker(10);
+  }
 
 }
 
@@ -780,6 +745,7 @@ void Tdec_tree::test()
 {
   Tdataframe df;
   df.set_config(config);
+  df.set_search_uniqe_val_off();
   df.read_data(config.f_test);
   df.read_data_type(config.f_datatype);
   df.info();
@@ -796,11 +762,13 @@ void Tdec_tree::test()
   dt_svm_conv_metrix.add_konversi_asli("unknown", "known");
   dt_svm_conv_metrix.add_konversi_tebakan("unknown", "known");
 
-  auto start = std::chrono::steady_clock::now();
-  test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix);
-  auto end = std::chrono::steady_clock::now();
-  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-  cetak("\nLama Test : %f \n", ((float)(elapsed_time / 60)));
+
+  {
+    Timer timer;
+    test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix);
+    //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+  }
+
   cetak("End Test Decission Tree : \n");
 
   df.close_file();
@@ -925,6 +893,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
     Tdataframe df_left;
     df_left = df_train;
     df_left.set_config(config);
+    df_left.set_search_uniqe_val_off()
     df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
     df_left.clear_col_split();
     pruning_dfs(left, df_left);
@@ -934,6 +903,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
     Tdataframe df_right;
     df_right = df_train;
     df_right.set_config(config);
+    df_right.set_search_uniqe_val_off();
     df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
     df_right.clear_col_split();
     pruning_dfs(right, df_right);
@@ -941,15 +911,6 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
   }
 
-  if (t_save_train_on) {
-    t_save_train.join();
-    t_save_train_on = false;
-  }
-
-  if (t_train_svm_on) {
-    t_train_svm.join();
-    t_train_svm_on = false;
-  }
 
   if ((left != -1) and (right != -1) ) {
     if ((tree[left].isLeaf) and (tree[right].isLeaf))
@@ -1001,6 +962,18 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
+            if (worker.size() > 0)
+            {
+              for (std::thread & th : worker)
+              {
+                // If thread Object is Joinable then Join that thread.
+                if (th.joinable())
+                  th.join();
+              }
+
+              worker.clear();
+            }
+
             cetak("{v {j %d %d} ", idx_svm, df_train.getjmlrow());
             f_train_svm(df_train, idx_svm);
 
@@ -1032,7 +1005,17 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
   }
 
+  if (node_index == 0)
+  {
+    for (std::thread & th : worker)
+    {
+      // If thread Object is Joinable then Join that thread.
+      if (th.joinable())
+        th.join();
+    }
 
+    worker.clear();
+  }
 
 }
 
@@ -1047,6 +1030,7 @@ void Tdec_tree::learn_svm()
   df_train.read_data(config.f_train);
   df_train.read_data_type(config.f_datatype);
   df_train.set_config(config);
+  df_train.set_search_uniqe_val_off();
   df_train.set_id(0);
   df_train.info();
 
@@ -1054,11 +1038,11 @@ void Tdec_tree::learn_svm()
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
   cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f  feature_selection :%d normal only : %d train : %s  \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s , (config.feature_selection ? 1 : 0), (config.normal_only ? 1 : 0), config.f_train.c_str());
   cetak("Start Train Decission Tree : \n");
-  auto start = std::chrono::steady_clock::now();
-  svm_dfs(0, 0, df_train);
-  auto end = std::chrono::steady_clock::now();
-  double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
-  cetak("\nLama Training : %f \n", ((float)(elapsed_time / 60)));
+  {
+    Timer timer;
+    svm_dfs(0, 0, df_train);
+  }
+
   cetak("End Train Decission Tree : \n");
   df_train.close_file();
 }
@@ -1075,6 +1059,9 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
 
     if ((label == "normal") and (tree[node_index].idx_svm != -1))
     {
+
+      clear_worker(20);
+
       cetak("{v {j %d %d}", tree[node_index].idx_svm, df_train.getjmlrow_svm());
       f_train_svm(df_train, tree[node_index].idx_svm);
       cetak("}");
@@ -1091,41 +1078,36 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
     int left = tree[node_index].children[0];
     int right = tree[node_index].children[1];
 
+    Tdataframe df_left, df_right;
+    df_left = df_train;
+    df_left.set_config(config);
+    df_left.set_search_uniqe_val_off();
+    df_right = df_train;
+    df_right.set_config(config);
+    df_right.set_search_uniqe_val_off();
+    df_train.clear_memory();
+    df_train.clear_col_split();
+
     if (left != -1) {
-      Tdataframe df_left;
-      df_left = df_train;
-      df_left.set_config(config);
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       df_left.clear_col_split();
       cetak("->");
       svm_dfs(depth + 1, left, df_left);
-
-    }
+    }   
 
     if (right != -1) {
-      Tdataframe df_right;
-      df_right = df_train;
-      df_right.set_config(config);
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       df_right.clear_col_split();
       cetak("<-");
       svm_dfs(depth + 1, right, df_right);
-
     }
 
-    if (t_save_train_on) {
-      t_save_train.join();
-      t_save_train_on = false;
-    }
-
-
-    if (t_train_svm_on) {
-      t_train_svm.join();
-      t_train_svm_on = false;
-    }
-
-
+    clear_worker(20);
   }
-  df_train.clear_memory();
-  df_train.clear_col_split();
+
+  if (node_index == 0)
+  {
+    clear_worker(0);
+  }
+
 }

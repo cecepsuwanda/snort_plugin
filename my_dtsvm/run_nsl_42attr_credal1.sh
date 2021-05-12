@@ -1,12 +1,12 @@
 # !/bin/bash
 
-PATH_MODEL='model_100_2_svm_42attr_credal1' 
+PATH_MODEL='model_100_700_svm_42attr_credal1' 
 DEPTH=100
-MIN_SAMP=2
+MIN_SAMP=700
 USE_CREDAL=1
 CREDAL_S=1.0
 LIMIT=1
-THRESHOLD=2
+THRESHOLD=70
 F=0
 N=0
 
@@ -29,8 +29,10 @@ rm -rf model/$PATH_MODEL/dt_metrik.csv
 rm -rf model/$PATH_MODEL/svm_metrik.csv
 rm -rf model/$PATH_MODEL/dtsvm_metrik.csv
 
+START="$(date +"%r")"
+echo "START : $START"
 
-./my_dtsvm 0 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
+./my_dtsvm 0 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
 wait
 
 ./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
@@ -143,7 +145,8 @@ wait
 ./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-
+END="$(date +"%r")"
+echo "START : $START END : $END"
 
 rm -rf ~/Dataset/NSL/$PATH_MODEL/hasil.txt
 rm -rf ~/Dataset/NSL/$PATH_MODEL/all_metrik.csv

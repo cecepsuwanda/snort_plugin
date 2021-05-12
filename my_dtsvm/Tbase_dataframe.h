@@ -43,6 +43,7 @@ protected:
 
 	int _id = 0;	
 	
+    bool _search_uniqe_val_on = true;
 
 	Tconfig config;
 
@@ -88,6 +89,8 @@ public:
 
 	void set_id(int id);
 	int get_id();
+
+	void set_search_uniqe_val_off();
 	
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);
@@ -118,6 +121,7 @@ public:
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+	
 	vector<string> get_record_svm();
 	vector<vector<string>> get_all_record();
 	vector<vector<string>> get_all_record_svm();

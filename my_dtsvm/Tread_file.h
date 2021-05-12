@@ -29,6 +29,7 @@ private:
 	string _nm_f;
 	const char *_separator;
 	vector<string> _data;
+	string _data_str;
 
 	int  _posisi = 0;
 	int  _b_posisi = 0;
@@ -39,6 +40,7 @@ private:
 	int _idx_posisi = 0;
 	bool is_index = false;
 	vector<int> _index;
+	
 	int *_idx_in_memory = NULL;
 	int _jml_index = 0;
 	int _ukuran_index = 0;
@@ -87,6 +89,7 @@ public:
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+	
 
 	void next_col();
 	bool is_end_col();

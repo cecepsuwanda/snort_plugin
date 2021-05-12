@@ -25,6 +25,11 @@ void Tbase_dataframe::set_id(int id)
 	_id = id;
 }
 
+void Tbase_dataframe::set_search_uniqe_val_off()
+{
+	_search_uniqe_val_on = false;
+}
+
 int Tbase_dataframe::get_id()
 {
 	return _id;
@@ -193,12 +198,15 @@ void Tbase_dataframe::stat_tabel()
 
 			_stat_label.add(_data.get_col_val(_idx_label));
 
-			while (!_data.is_end_col())
+			if (_search_uniqe_val_on)
 			{
-				if(_data.get_idx_col()!=_idx_label){
-				  _map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
+				while (!_data.is_end_col())
+				{
+					if (_data.get_idx_col() != _idx_label) {
+						_map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
+					}
+					_data.next_col();
 				}
-				_data.next_col();
 			}
 
 			i++;
@@ -220,7 +228,7 @@ void Tbase_dataframe::stat_tabel()
 	_data.index_on();
 	_jml_row = i;
 
-   _map_col_split.cek_valid_attr(_jml_row);
+	_map_col_split.cek_valid_attr(_jml_row);
 }
 
 map<string, int> Tbase_dataframe::get_stat_label()
@@ -483,11 +491,11 @@ vector<vector<string>> Tbase_dataframe::get_all_record_svm()
 	while (!_data.is_eof())
 	{
 		tmp_data = get_record_svm();
-		
+
 		bool is_pass = (config.normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
-        if(is_pass){
-		  Table.push_back(tmp_data);
-        }
+		if (is_pass) {
+			Table.push_back(tmp_data);
+		}
 
 		_data.next_record();
 	}
@@ -634,10 +642,10 @@ void Tbase_dataframe::set_config(Tconfig v_config)
 
 int Tbase_dataframe::get_jml_valid_attr()
 {
-  return _map_col_split.get_jml_valid_attr();
+	return _map_col_split.get_jml_valid_attr();
 }
 
 int Tbase_dataframe::get_valid_attr(int idx)
 {
-   return _map_col_split.get_valid_attr(idx);
+	return _map_col_split.get_valid_attr(idx);
 }
