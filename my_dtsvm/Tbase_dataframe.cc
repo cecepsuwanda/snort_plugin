@@ -178,7 +178,7 @@ void Tbase_dataframe::stat_tabel()
 	if (_filter.size() > 0) {
 		_data.clear_index();
 	} else {
-		_data.index_off();
+		//_data.index_off();
 	}
 
 	int i = 0;
@@ -556,30 +556,30 @@ void Tbase_dataframe::info()
 
 void Tbase_dataframe::save_to(string nm_file)
 {
-	Tread_file tmp;
-	tmp.setnm_f(nm_file, ",");
-	tmp.open_file("w+");
+	// Tread_file tmp;
+	// tmp.setnm_f(nm_file, ",");
+	// tmp.open_file("w+");
 
-	vector<string> tmp_data;
-	_data.reset_file();
-	while (!_data.is_eof())
-	{
-		tmp_data = _data.get_record();
+	// vector<string> tmp_data;
+	// _data.reset_file();
+	// while (!_data.is_eof())
+	// {
+	// 	tmp_data = _data.get_record();
 
-		string tmp_str = "";
-		for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
-		{
-			tmp_str = tmp_str + tmp_data[i] + ",";
-		}
-		tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
+	// 	string tmp_str = "";
+	// 	for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
+	// 	{
+	// 		tmp_str = tmp_str + tmp_data[i] + ",";
+	// 	}
+	// 	tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
 
-		tmp.write_file(tmp_str);
+	// 	tmp.write_file(tmp_str);
 
 
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
-		_data.next_record();
-	}
+	// 	tmp_data.clear();
+	// 	tmp_data.shrink_to_fit();
+	// 	_data.next_record();
+	// }
 }
 
 string Tbase_dataframe::get_data_type(int idx)

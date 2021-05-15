@@ -38,7 +38,7 @@ private:
 	struct stat _sb;
 
 	int _idx_posisi = 0;
-	bool is_index = false;
+	bool is_index = true;
 	vector<int> _index;
 	
 	int *_idx_in_memory = NULL;
@@ -50,6 +50,9 @@ private:
 	bool open_file();
 
 	int _idx_col=0;
+
+	int _jml_row=0;
+	int _jml_col=0;
 
 
 public:
@@ -79,11 +82,13 @@ public:
 
 	void setnm_f(string nm_f, const char* separator);
 	void setseparator(const char* separator);
+	int get_jml_row();
+	int get_jml_col();
+
 
 	bool open_file(string mode);
 	void reset_file();
 	void read_file();
-	void write_file(string row);
 	void close_file();
 
 	bool is_eof();

@@ -38,6 +38,15 @@ void Tread_file::setseparator(const char* separator)
   _separator = separator;
 }
 
+int Tread_file::get_jml_row()
+{
+  return _jml_row;
+}
+
+int Tread_file::get_jml_col()
+{
+  return _jml_col;
+}
 
 
 bool Tread_file::open_file(string mode)
@@ -61,6 +70,42 @@ bool Tread_file::open_file()
   //printf("file size is %ld\n",_sb.st_size);
 
   _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);
+  _posisi = 0;
+  _idx_posisi = 0;
+
+
+  clear_index();
+
+  bool index_it = false;
+
+  _index.push_back(_posisi);
+  while (_posisi < _sb.st_size)
+  {
+
+    if (index_it) {
+      _index.push_back(_posisi);
+      index_it = false;
+    }
+
+
+    if ((_jml_row == 0) and (_file_in_memory[_posisi] == _separator[0]))
+    {
+      _jml_col++;
+    }
+
+    if (_file_in_memory[_posisi] == '\n')
+    {
+      _jml_row++;
+      index_it = true;
+    }
+    _posisi++;
+  }
+
+  _jml_col = _jml_col > 0 ? _jml_col + 1 : 0;
+
+  save_to_memory();
+  clear_index();
+
   _posisi = 0;
   _idx_posisi = 0;
 
@@ -156,12 +201,6 @@ void Tread_file::read_file()
   _idx_col = 0;
 
 
-}
-
-void Tread_file::write_file(string row)
-{
-  // fputs((char *) row.c_str(), _file);
-  // fputc('\n', _file);
 }
 
 void Tread_file::clear_data()

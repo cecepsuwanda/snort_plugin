@@ -9,7 +9,7 @@ using namespace std;
 using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
-{
+{  
   char *endptr;
   Tconfig config;
 

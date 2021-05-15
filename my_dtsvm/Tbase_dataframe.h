@@ -63,12 +63,17 @@ public:
 		_data_header = t._data_header;
 		_data_type = t._data_type;
 		_filter = t._filter;
+		
 		_unique_attr = t._unique_attr;
+		
 		_jml_col = t._jml_col;
 		_jml_row = t._jml_row;
+		
 		_stat_label = t._stat_label;
 		_idx_label = t._idx_label;
+		
 		_nm_file = t._nm_file;
+		
 		is_non_continuous = t.is_non_continuous;
 		is_42 = t.is_42;
 		_jml_total_row = t._jml_total_row;		
