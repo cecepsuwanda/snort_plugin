@@ -2,6 +2,7 @@
 
 Tconf_metrix::Tconf_metrix()
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	failed = 0;
 	tepat = 0;
 	tdk_tepat = 0;
@@ -10,6 +11,7 @@ Tconf_metrix::Tconf_metrix()
 
 Tconf_metrix::~Tconf_metrix()
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	map<string, map<string, int>>::iterator it, it1;
 
 	if (matrik.size() > 0)
@@ -27,7 +29,8 @@ Tconf_metrix::~Tconf_metrix()
 
 void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 {
-	v_mutex.lock();
+	std::lock_guard<std::mutex> lock(v_mutex);
+
 	if (konversi_asli.size() > 0)
 	{
 		auto itr = konversi_asli.find(asli);
@@ -92,12 +95,13 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 		failed++;
 	}
 
-   v_mutex.unlock();
+   
 
 }
 
 void Tconf_metrix::kalkulasi()
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	if (matrik.size() > 0) {
 
 		int TP = 0;
@@ -147,6 +151,7 @@ void Tconf_metrix::kalkulasi()
 
 int Tconf_metrix::get_TP(string kelas)
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -166,6 +171,7 @@ int Tconf_metrix::get_TP(string kelas)
 
 int Tconf_metrix::get_TN(string kelas)
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -188,6 +194,7 @@ int Tconf_metrix::get_TN(string kelas)
 
 int Tconf_metrix::get_FP(string kelas)
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -208,6 +215,7 @@ int Tconf_metrix::get_FP(string kelas)
 
 int Tconf_metrix::get_FN(string kelas)
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -300,6 +308,7 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 
 void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, int param_min_sample, double param_gamma, double param_nu, double param_credal_s)
 {
+	//std::lock_guard<std::mutex> lock(v_mutex);
 	Twrite_file tmp_wf;
 	tmp_wf.setnm_f(nm_file);
 
@@ -318,10 +327,12 @@ void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, i
 
 void Tconf_metrix::add_konversi_asli(string dari, string ke)
 {
+	std::lock_guard<std::mutex> lock(v_mutex);
 	konversi_asli.insert(pair<string, string>(dari, ke));
 }
 
 void Tconf_metrix::add_konversi_tebakan(string dari, string ke)
 {
+	std::lock_guard<std::mutex> lock(v_mutex);
 	konversi_tebakan.insert(pair<string, string>(dari, ke));
 }

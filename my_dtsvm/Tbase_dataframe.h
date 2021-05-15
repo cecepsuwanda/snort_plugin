@@ -25,15 +25,21 @@ protected:
 	Tread_file _data;
 	vector<string> _data_header;
 	vector<string> _data_type;
+
 	vector<field_filter> _filter;
+	
 	map<int, int> _unique_attr;
+	
 	Tlabel_stat _stat_label;
+	
 	Tmap_col_split _map_col_split;
 
 	int _jml_col = 0;
 	int _jml_row = 0;
 	int _jml_total_row = 0;
+	
 	int _idx_label;
+	
 	string _nm_file;
 
 	bool is_non_continuous = false;
