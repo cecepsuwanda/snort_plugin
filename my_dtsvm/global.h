@@ -31,6 +31,8 @@ using namespace std;
     int min_sample = 0;
     int threshold = 0;
 
+    bool search_uniqe_val = false;
+
   };
 
 #endif

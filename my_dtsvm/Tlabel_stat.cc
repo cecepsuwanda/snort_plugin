@@ -7,12 +7,20 @@ Tlabel_stat::Tlabel_stat()
 	_max_value = 0;
 }
 
+Tlabel_stat::Tlabel_stat(Tconfig* v_config)
+{
+	_jml_row = 0;
+	_max_value = 0;
+
+	config = v_config;
+}
+
 Tlabel_stat::~Tlabel_stat()
 {
 	clear();
 }
 
-void Tlabel_stat::set_config(Tconfig v_config)
+void Tlabel_stat::set_config(Tconfig* v_config)
 {
 	config = v_config;
 }
@@ -45,7 +53,7 @@ string Tlabel_stat::get_first_value_in_map()
 double Tlabel_stat::get_entropy()
 {
 	double entropy = 0;
-	credal crd(config.credal_s);
+	credal crd(config->credal_s);
 
 	vector<int> freq;
 
@@ -76,7 +84,7 @@ double Tlabel_stat::get_entropy()
 double Tlabel_stat::get_credal_entropy()
 {
 	double entropy = 0;
-	credal crd(config.credal_s);
+	credal crd(config->credal_s);
 
 	vector<int> freq;
 

@@ -58,9 +58,12 @@ private:
 	int idx_svm;
 	int id_df;
 	
-    Tconfig config;
+    Tconfig *config;
 
 	map<int, int> vec_attr;
+
+	vector<vector<string>> _table_svm;
+	vector<vector<string>> _table_attack;
 
 
 	bool check_purity(Tdataframe &df);
@@ -85,22 +88,22 @@ private:
 
 	//static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
 
-    static void thread_save_train(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);
+    static void thread_save_train(Tconfig* v_config, vector<vector<string>> table,int v_idx_svm);
     
-    static void thread_train_svm(Tconfig v_config, vector<vector<string>> table,int v_idx_svm);    
+    static void thread_train_svm(Tconfig* v_config, vector<vector<string>> table,int v_idx_svm);    
     
     static void thread_test_attack(string label,vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
 
-    static void thread_test_svm(int idx_svm,Tconfig v_config,string label,vector<vector<string>> table,Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
+    void thread_test_svm(int idx_svm,string label,vector<vector<string>> table,Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
         
     vector<thread> worker;
     void clear_worker(int limit);
     
 public:
-	Tdec_tree();
+	Tdec_tree(Tconfig *v_config);
 	~Tdec_tree();
 
-	void set_config(Tconfig v_config);
+	//void set_config(Tconfig v_config);
 	
 	string guess(vector<string> &data);
 

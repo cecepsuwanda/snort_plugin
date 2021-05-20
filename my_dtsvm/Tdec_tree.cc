@@ -1,12 +1,12 @@
 #include "Tdec_tree.h"
 
 
-Tdec_tree::Tdec_tree()
+Tdec_tree::Tdec_tree(Tconfig *v_config)
 {
   idx_svm = 0;
   id_df = 1;
 
-
+  config = v_config;
 }
 
 Tdec_tree::~Tdec_tree()
@@ -14,10 +14,10 @@ Tdec_tree::~Tdec_tree()
 
 }
 
-void Tdec_tree::set_config(Tconfig v_config)
-{
-  config = v_config;
-}
+// void Tdec_tree::set_config(Tconfig v_config)
+// {
+//   config = v_config;
+// }
 
 void Tdec_tree::clear_worker(int limit)
 {
@@ -26,6 +26,7 @@ void Tdec_tree::clear_worker(int limit)
 
   if (pass)
   {
+    cetak("{clear worker}");
     for (std::thread & th : worker)
     {
       // If thread Object is Joinable then Join that thread.
@@ -81,45 +82,23 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   split_column = -1;
   split_value = "-1";
 
-  map<Tmy_dttype, Tlabel_stat> _col_pot_split;
-
-  cetak("{valid %d}", df.get_jml_valid_attr());
-
   for (int i = 0; i < df.get_jml_valid_attr(); ++i)
   {
 
-    //df.get_col_pot_split(i, _col_pot_split);
-    _col_pot_split = df.get_col_split(df.get_valid_attr(i));
-
-    //if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
-    df.calculate_overall_metric(df.get_valid_attr(i), _col_pot_split, current_overall_metric, current_split_value);
-    //}
+    //df.get_col_pot_split(i);
+    df.calculate_overall_metric(df.get_valid_attr(i), current_overall_metric, current_split_value);
 
     if (first_iteration or (max_gain < current_overall_metric))
     {
-      //if ( (df.get_data_type(i) != "continuous.")  or  ((df.get_data_type(i) == "continuous.")  and (_col_pot_split.size() < (0.3 * max_attr)))) {
       first_iteration = false;
       max_gain = current_overall_metric;
 
       split_column = df.get_valid_attr(i);
       split_value = current_split_value;
-      //}
     }
-
-    auto it = _col_pot_split.begin();
-    while (it != _col_pot_split.end())
-    {
-      it->second.clear();
-      it++;
-    }
-
-    _col_pot_split.clear();
-
   }
 
-  df.clear_col_split();
-
-
+  df.clear_map_col_split();
 }
 
 string Tdec_tree::create_leaf(Tdataframe & df)
@@ -130,10 +109,10 @@ string Tdec_tree::create_leaf(Tdataframe & df)
 
 
 
-void Tdec_tree::thread_save_train(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
+void Tdec_tree::thread_save_train(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
 {
   Twrite_file tmp_wf;
-  tmp_wf.setnm_f(v_config.path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
+  tmp_wf.setnm_f(v_config->path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
 
 
   for (int i = 0; i < table.size(); ++i)
@@ -153,38 +132,34 @@ void Tdec_tree::thread_save_train(Tconfig v_config, vector<vector<string>> table
 
 }
 
-void Tdec_tree::thread_train_svm(Tconfig v_config, vector<vector<string>> table, int v_idx_svm)
+void Tdec_tree::thread_train_svm(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
 {
-  Tmy_svm my_svm;
-  my_svm.set_config(v_config);
+  Tmy_svm my_svm(v_config);
   my_svm.train(table);
-  my_svm.save_model(v_config.svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
+  my_svm.save_model(v_config->svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
 
 void Tdec_tree::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
-
-
-
   vector<vector<string>> table = df.get_all_record_svm();
 
-  if (config.save_train) {
+  if (config->save_train) {
 
-    worker.push_back(thread(&Tdec_tree::thread_save_train, config, table, v_idx_svm));
+    worker.push_back(thread(&Tdec_tree::thread_save_train, ref(config), table, v_idx_svm));
     //thread_save_test(config,table,v_idx_svm);
 
   }
 
-  worker.push_back(thread(&Tdec_tree::thread_train_svm, config, table, v_idx_svm));
+  worker.push_back(thread(&Tdec_tree::thread_train_svm, ref(config), table, v_idx_svm));
 
 }
 
 void Tdec_tree::del_model_train(int idx)
 {
-  string filename = config.svm_path + "/svm_model_" + to_string(idx) + ".csv";
+  string filename = config->svm_path + "/svm_model_" + to_string(idx) + ".csv";
   remove(filename.c_str());
 
-  filename = config.path_model + "/train/train_model_" + to_string(idx) + ".csv";
+  filename = config->path_model + "/train/train_model_" + to_string(idx) + ".csv";
   remove(filename.c_str());
 }
 
@@ -200,16 +175,16 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
   //cout << counter;
   cetak("[%d %d]", counter, df.getjmlrow());
 
-  if (check_purity(df) or (df.getjmlrow() < config.min_sample) or (counter == config.depth) )
+  if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter == config->depth) )
   {
     string tmp_str = create_leaf(df);
     cetak("*");
 
     if (tmp_str == "normal") {
 
-      if ((config.train_svm))
+      if ((config->train_svm))
       {
-        clear_worker(20);
+        clear_worker(10);
 
         idx_svm++;
         tree[node_index].idx_svm = idx_svm;
@@ -245,8 +220,6 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
     determine_best_split(df, split_column, split_value);
 
     Tdataframe df_below, df_above;
-    df_below.set_config(config);
-    df_above.set_config(config);
     if (split_value != "-1")
     {
       df_below = df;
@@ -264,10 +237,10 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
       if (tmp_str == "normal") {
 
-        if ((config.train_svm))
+        if ((config->train_svm))
         {
 
-          clear_worker(20);
+          clear_worker(10);
 
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
@@ -347,10 +320,10 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
           if (tmp_str == "normal") {
 
-            if ((config.train_svm) )
+            if ((config->train_svm) )
             {
 
-              clear_worker(20);
+              clear_worker(10);
 
               idx_svm++;
               tree[node_index].idx_svm = idx_svm;
@@ -392,16 +365,17 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
 void Tdec_tree::build_tree()
 {
-  Tdataframe df_train;
-  df_train.read_data(config.f_train);
-  df_train.read_data_type(config.f_datatype);
-  df_train.set_config(config);
+  config->search_uniqe_val = true;
+
+  Tdataframe df_train(config);
+  df_train.read_data(config->f_train);
+  df_train.read_data_type(config->f_datatype);
   df_train.set_id(0);
   df_train.info();
   df_train.setjmltotalrow();
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s, (config.feature_selection ? 1 : 0), (config.normal_only ? 1 : 0), config.f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
   cetak("Start Train Decission Tree : \n");
 
   {
@@ -410,6 +384,8 @@ void Tdec_tree::build_tree()
   }
 
   cetak("End Train Decission Tree : \n");
+
+  config->search_uniqe_val = false;
 
   cetak("Start Prunning Decission Tree : \n");
   post_pruning(df_train);
@@ -510,19 +486,18 @@ string Tdec_tree::guess(vector<string> &data)
     return "dfs_failed.";
   } else {
     label = tree[leafNode].label;
-    if (config.train_svm)
+    if (config->train_svm)
     {
       if ((label == "normal") and (tree[leafNode].idx_svm != -1))
       {
         Twrite_file tmp_wf;
 
-        if (config.save_test) {
-          tmp_wf.setnm_f(config.path_model + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
+        if (config->save_test) {
+          tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
         }
         //cetak("{v {model ");
-        Tmy_svm my_svm;
-        my_svm.set_config(config);
-        string nm_model = config.svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
+        Tmy_svm my_svm(config);
+        string nm_model = config->svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
         my_svm.load_model(nm_model);
         //cetak("save_model_");
         //cetak(to_string(tree[leafNode].idx_svm).c_str());
@@ -530,7 +505,7 @@ string Tdec_tree::guess(vector<string> &data)
 
         vector<string> tmp_data;
         string tmp_str = "";
-        if (config.feature_selection)
+        if (config->feature_selection)
         {
 
           for (auto itr = vec_attr.begin(); itr != vec_attr.end(); ++itr)
@@ -551,7 +526,7 @@ string Tdec_tree::guess(vector<string> &data)
 
         tmp_str = tmp_str + data[data.size() - 1];
 
-        if (config.save_test)
+        if (config->save_test)
         {
           tmp_wf.write_file(tmp_str);
           tmp_wf.close_file();
@@ -572,15 +547,14 @@ string Tdec_tree::guess(vector<string> &data)
 
 void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
 {
-  std::mutex v_mutex;
+  // std::mutex v_mutex;
 
-  std::lock_guard<std::mutex> lock(v_mutex);
+  // std::lock_guard<std::mutex> lock(v_mutex);
 
   for (int i = 0; i < table.size(); ++i)
   {
     dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
     dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-
     conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
   }
 
@@ -588,20 +562,20 @@ void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, T
 }
 
 
-void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+void Tdec_tree::thread_test_svm(int idx_svm, string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
 {
-  std::mutex v_mutex;
+  // std::mutex v_mutex;
+  // std::lock_guard<std::mutex> lock(v_mutex);
 
   Twrite_file tmp_wf;
 
-  if (v_config.save_test) {
-    tmp_wf.setnm_f(v_config.path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
+  if (config->save_test) {
+    tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
   }
 
-  Tmy_svm my_svm;
-  my_svm.set_config(v_config);
+  Tmy_svm my_svm(config);
 
-  string nm_model = v_config.svm_path + "/svm_model_" + to_string(idx_svm) + ".csv";
+  string nm_model = config->svm_path + "/svm_model_" + to_string(idx_svm) + ".csv";
   my_svm.load_model(nm_model);
 
   vector<string> tmp_data;
@@ -617,19 +591,20 @@ void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vec
 
     string tmp_label = label;
     tmp_label = my_svm.guess(tmp_data);
-    table[i].push_back(tmp_label);
 
-    // v_mutex.lock();
-    // svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    // dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-    // dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    //table[i].push_back(tmp_label);
 
-    // conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    // v_mutex.unlock();
+    //v_mutex.lock();
+    svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+
+    conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
+    //v_mutex.unlock();
 
     tmp_str = tmp_str + table[i][table[i].size() - 1] + "," + tmp_label;
 
-    if (v_config.save_test)
+    if (config->save_test)
     {
       tmp_wf.write_file(tmp_str);
     }
@@ -640,25 +615,25 @@ void Tdec_tree::thread_test_svm(int idx_svm, Tconfig v_config, string label, vec
 
   my_svm.destroy_model();
 
-  if (v_config.save_test)
+  if (config->save_test)
   {
     tmp_wf.close_file();
   }
 
-  std::lock_guard<std::mutex> lock(v_mutex);
+  //std::lock_guard<std::mutex> lock(v_mutex);
 
-  for (int i = 0; i < table.size(); ++i)
-  {
+  // for (int i = 0; i < table.size(); ++i)
+  // {
 
 // v_mutex.lock();
-    svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-    dt_conf_metrix.add_jml(table[i][table[i].size() - 2], label, 1);
-    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+  // svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+  // dt_conf_metrix.add_jml(table[i][table[i].size() - 2], label, 1);
+  // dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
 
-    conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-    // v_mutex.unlock();
+  // conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
+  // v_mutex.unlock();
 
-  }
+  // }
 
 
 
@@ -671,27 +646,25 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
   {
 
     string label = tree[node_index].label;
-
-    vector<vector<string>> table;
-    if ((config.train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
+    
+    if ((config->train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
     {
-      clear_worker(1);
+      //clear_worker(1);
       cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow_svm());
-      vector<vector<string>> _table_svm = df_test.get_all_record_svm();
-      //thread_test_svm(tree[node_index].idx_svm, config, label, table, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
-      worker.push_back(thread(&Tdec_tree::thread_test_svm, tree[node_index].idx_svm, config, label, _table_svm, ref(conf_metrix), ref(dt_conf_metrix), ref(svm_conf_metrix), ref(dt_svm_conf_metrix)));
+      _table_svm = df_test.get_all_record_svm();
+      thread_test_svm(tree[node_index].idx_svm, label, _table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+      //worker.push_back(thread(&Tdec_tree::thread_test_svm, tree[node_index].idx_svm, ref(config), label, _table_svm, ref(conf_metrix), ref(dt_conf_metrix), ref(svm_conf_metrix), ref(dt_svm_conf_metrix)));
       cetak("}");
       _table_svm.clear();
       _table_svm.shrink_to_fit();
     } else {
-      clear_worker(1);
+      //clear_worker(1);
       cetak("+{A { %d }}", df_test.getjmlrow());
-      vector<vector<string>> _table_attack = df_test.get_all_record();
+      _table_attack = df_test.get_all_record();
       worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(conf_metrix), ref(dt_conf_metrix), ref(dt_svm_conf_metrix)));
       _table_attack.clear();
       _table_attack.shrink_to_fit();
     }
-
     df_test.clear_memory();
     cetak("\n");
   } else {
@@ -708,22 +681,17 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
     Tdataframe df_left, df_right;
     df_left = df_test;
-    df_left.set_config(config);
-    df_left.set_search_uniqe_val_off();
     df_right = df_test;
-    df_right.set_config(config);
-    df_right.set_search_uniqe_val_off();
     df_test.clear_memory();
-    df_test.clear_col_split();
 
-    //clear_worker(0);
+    clear_worker(0);
 
     if (left != -1) {
 
       cetak("->");
       cetak("[%d %d %s %s ", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-      df_left.clear_col_split();
+
       cetak("%d ]", df_left.getjmlrow());
       if (df_left.getjmlrow() > 0) {
         //cetak("->");
@@ -741,7 +709,6 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       cetak("<-");
       cetak("[%d %d %s %s ", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-      df_right.clear_col_split();
       cetak("%d ]", df_right.getjmlrow());
       if (df_right.getjmlrow() > 0) {
         //cetak("<-");
@@ -766,16 +733,14 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
 void Tdec_tree::test()
 {
-  Tdataframe df;
-  df.set_config(config);
-  df.set_search_uniqe_val_off();
-  df.read_data(config.f_test);
-  df.read_data_type(config.f_datatype);
+  Tdataframe df(config);
+  df.read_data(config->f_test);
+  df.read_data_type(config->f_datatype);
   df.info();
 
 
   cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s , config.f_test.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s , config->f_test.c_str());
   cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
@@ -800,25 +765,25 @@ void Tdec_tree::test()
   cout << "All Metrix : " << endl;
   conf_metrix.kalkulasi();
   cout << conf_metrix << endl << endl;
-  conf_metrix.save(config.path_model + "/all_metrik.csv", config.f_test, config.depth, config.min_sample, config.gamma, config.nu, config.credal_s);
+  conf_metrix.save(config->path_model + "/all_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
   cout << "Dession Tree Metrix : " << endl;
   dt_conf_metrix.kalkulasi();
   cout << dt_conf_metrix << endl << endl;
-  dt_conf_metrix.save(config.path_model + "/dt_metrik.csv", config.f_test, config.depth, config.min_sample, config.gamma, config.nu, config.credal_s);
+  dt_conf_metrix.save(config->path_model + "/dt_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
-  if (config.train_svm)
+  if (config->train_svm)
   {
     cout << "SVM Metrix : " << endl;
     svm_conf_metrix.kalkulasi();
     cout << svm_conf_metrix << endl << endl;
-    svm_conf_metrix.save(config.path_model + "/svm_metrik.csv", config.f_test, config.depth, config.min_sample, config.gamma, config.nu, config.credal_s);
+    svm_conf_metrix.save(config->path_model + "/svm_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
   }
 
   cout << "SVM & Dession Tree Metrix : " << endl;
   dt_svm_conv_metrix.kalkulasi();
   cout << dt_svm_conv_metrix << endl << endl;
-  dt_svm_conv_metrix.save(config.path_model + "/dtsvm_metrik.csv", config.f_test, config.depth, config.min_sample, config.gamma, config.nu, config.credal_s);
+  dt_svm_conv_metrix.save(config->path_model + "/dtsvm_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
 
 }
@@ -826,7 +791,7 @@ void Tdec_tree::test()
 void Tdec_tree::save_tree()
 {
   Twrite_file tmp_wf;
-  tmp_wf.setnm_f(config.path_model + "/dtsvm_model.csv");
+  tmp_wf.setnm_f(config->path_model + "/dtsvm_model.csv");
 
   string tmp_str = "";
   vector<string> vec;
@@ -862,7 +827,7 @@ void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
   Tdataframe df;
-  df.read_data(config.path_model + "/dtsvm_model.csv");
+  df.read_data(config->path_model + "/dtsvm_model.csv");
 
   df.reset_file();
   while (!df.is_eof()) {
@@ -915,8 +880,6 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
   if ((left != -1) and (!tree[left].isLeaf)) {
     Tdataframe df_left;
     df_left = df_train;
-    df_left.set_config(config);
-    df_left.set_search_uniqe_val_off();
     df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
     df_left.clear_col_split();
     pruning_dfs(left, df_left);
@@ -925,8 +888,6 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
   if ((right != -1) and (!tree[right].isLeaf) ) {
     Tdataframe df_right;
     df_right = df_train;
-    df_right.set_config(config);
-    df_right.set_search_uniqe_val_off();
     df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
     df_right.clear_col_split();
     pruning_dfs(right, df_right);
@@ -951,16 +912,14 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
       Tdataframe df_left, df_right;
       df_left = df_train;
-      df_left.set_config(config);
       df_right = df_train;
-      df_right.set_config(config);
 
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
       error_left = df_left.get_estimate_error();
-      df_left.clear_col_split();
+
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
       error_right = df_right.get_estimate_error();
-      df_right.clear_col_split();
+
 
       sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
 
@@ -968,7 +927,6 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
       df_right.clear_memory();
       df_train.clear_memory();
 
-      df_train.clear_col_split();
 
       if (error_node < sum_error)
       {
@@ -980,22 +938,12 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
         if (node_label == "normal")
         {
-          if ((config.train_svm) ) //and (df.getjmlrow() < 10000)
+          if ((config->train_svm) ) //and (df.getjmlrow() < 10000)
           {
             idx_svm++;
             tree[node_index].idx_svm = idx_svm;
 
-            if (worker.size() > 0)
-            {
-              for (std::thread & th : worker)
-              {
-                // If thread Object is Joinable then Join that thread.
-                if (th.joinable())
-                  th.join();
-              }
-
-              worker.clear();
-            }
+            clear_worker(0);
 
             cetak("{v {j %d %d} ", idx_svm, df_train.getjmlrow());
             f_train_svm(df_train, idx_svm);
@@ -1030,14 +978,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
   if (node_index == 0)
   {
-    for (std::thread & th : worker)
-    {
-      // If thread Object is Joinable then Join that thread.
-      if (th.joinable())
-        th.join();
-    }
-
-    worker.clear();
+    clear_worker(0);
   }
 
 }
@@ -1049,17 +990,15 @@ void Tdec_tree::post_pruning(Tdataframe & df_train)
 
 void Tdec_tree::learn_svm()
 {
-  Tdataframe df_train;
-  df_train.read_data(config.f_train);
-  df_train.read_data_type(config.f_datatype);
-  df_train.set_config(config);
-  df_train.set_search_uniqe_val_off();
+  Tdataframe df_train(config);
+  df_train.read_data(config->f_train);
+  df_train.read_data_type(config->f_datatype);
   df_train.set_id(0);
   df_train.info();
 
 
   cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f  feature_selection :%d normal only : %d train : %s  \n", config.depth, config.min_sample, config.gamma, config.nu, config.credal_s , (config.feature_selection ? 1 : 0), (config.normal_only ? 1 : 0), config.f_train.c_str());
+  cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f  feature_selection :%d normal only : %d train : %s  \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s , (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
   cetak("Start Train Decission Tree : \n");
   {
     Timer timer;
@@ -1103,24 +1042,18 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
 
     Tdataframe df_left, df_right;
     df_left = df_train;
-    df_left.set_config(config);
-    df_left.set_search_uniqe_val_off();
     df_right = df_train;
-    df_right.set_config(config);
-    df_right.set_search_uniqe_val_off();
     df_train.clear_memory();
-    df_train.clear_col_split();
+
 
     if (left != -1) {
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-      df_left.clear_col_split();
       cetak("->");
       svm_dfs(depth + 1, left, df_left);
     }
 
     if (right != -1) {
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-      df_right.clear_col_split();
       cetak("<-");
       svm_dfs(depth + 1, right, df_right);
     }

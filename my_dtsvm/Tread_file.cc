@@ -19,7 +19,15 @@ Tread_file::Tread_file(const Tread_file &t)
   cout << "Copy constructor called " << endl;
 }
 
+void Tread_file::set_shared_memory_on()
+{
+  _shared_memory = true;
+}
 
+void Tread_file::set_shared_memory_off()
+{
+  _shared_memory = false;
+}
 
 void Tread_file::setnm_f(string nm_f, const char* separator)
 {
@@ -59,63 +67,38 @@ bool Tread_file::open_file(string mode)
 bool Tread_file::open_file()
 {
 
-  _fd = open(_nm_f.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
+  _fd = open(_nm_f.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);//, S_IRUSR | S_IWUSR
 
   if (fstat(_fd, &_sb) == -1)
   {
     cout << _nm_f << endl;
     perror(" couldn't get file size. \n");
+  } else {
+    memory_map_file();
   }
 
   //printf("file size is %ld\n",_sb.st_size);
-
-  _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);
-  _posisi = 0;
-  _idx_posisi = 0;
-
-
-  clear_index();
-
-  bool index_it = false;
-
-  _index.push_back(_posisi);
-  while (_posisi < _sb.st_size)
-  {
-
-    if (index_it) {
-      _index.push_back(_posisi);
-      index_it = false;
-    }
-
-
-    if ((_jml_row == 0) and (_file_in_memory[_posisi] == _separator[0]))
-    {
-      _jml_col++;
-    }
-
-    if (_file_in_memory[_posisi] == '\n')
-    {
-      _jml_row++;
-      index_it = true;
-    }
-    _posisi++;
-  }
-
-  _jml_col = _jml_col > 0 ? _jml_col + 1 : 0;
-
-  save_to_memory();
-  clear_index();
-
-  _posisi = 0;
-  _idx_posisi = 0;
-
+  //close(_fd);
   return !(_fd == -1);
 
 }
 
-void Tread_file::close_file()
+void Tread_file::memory_map_file()
 {
 
+  _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);//MAP_SHARED
+
+  if (_file_in_memory == MAP_FAILED)
+  {
+    perror(" mmap error \n");
+  }
+
+  _posisi = 0;
+  _idx_posisi = 0;
+}
+
+void Tread_file::close_file()
+{
   munmap(_file_in_memory, _sb.st_size);
   _file_in_memory = NULL;
   _posisi = 0;
@@ -126,6 +109,7 @@ void Tread_file::close_file()
 
 vector<string> Tread_file::tokenizer(char * str, const char* separator)
 {
+
   char *token;
   vector<string> vec;
   int len;
@@ -145,6 +129,7 @@ vector<string> Tread_file::tokenizer(char * str, const char* separator)
 
 void Tread_file::reset_file()
 {
+
   _posisi = 0;
   _idx_posisi = 0;
   read_file();
@@ -205,12 +190,14 @@ void Tread_file::read_file()
 
 void Tread_file::clear_data()
 {
+
   _data.clear();
   _data.shrink_to_fit();
 }
 
 void Tread_file::clear_index()
 {
+
   _index.clear();
   _index.shrink_to_fit();
 }
@@ -218,6 +205,7 @@ void Tread_file::clear_index()
 
 bool Tread_file::is_eof()
 {
+
   if (is_index and (_jml_index > 0))
   {
     return (_idx_posisi > _jml_index);
@@ -231,6 +219,7 @@ bool Tread_file::is_eof()
 
 vector<string> Tread_file::get_record()
 {
+
   return _data;
 }
 
@@ -241,28 +230,31 @@ void Tread_file::next_col()
 
 bool Tread_file::is_end_col()
 {
+
   return  !(_idx_col < _data.size());
 }
 
 string Tread_file::get_col_val()
 {
+
   return _data[_idx_col];
 }
 
 int Tread_file::get_idx_col()
 {
+
   return _idx_col;
 }
 
 string Tread_file::get_col_val(int idx_col)
 {
-  // try {
-  return _data[idx_col];
-  // } catch ( std::logic_error ) {
-  //   cout << "idx_col " << idx_col <<  " data size " << _data.size() << endl;
-  //   return "error";
-
-  // }
+  try
+  {
+    return _data[idx_col];
+  } catch (std::bad_alloc) {
+    cout << _data.size() << " " << _idx_col << endl;
+    return "-1";
+  }
 
 }
 
@@ -274,13 +266,11 @@ void Tread_file::next_record()
 void Tread_file::index_on()
 {
   is_index = true;
-  //cout << "is_index on " << is_index << endl;
 }
 
 void Tread_file::index_off()
 {
   is_index = false;
-  //cout << "is_index off " << is_index << endl;
 }
 
 void Tread_file::add_index()
@@ -290,7 +280,6 @@ void Tread_file::add_index()
 
 void Tread_file::save_to_memory()
 {
-
   _jml_index = _index.size();
   _ukuran_index = (((_jml_index * sizeof(int)) / pagesize) + 1) * pagesize;
 
