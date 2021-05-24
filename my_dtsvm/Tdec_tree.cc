@@ -184,7 +184,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
       if ((config->train_svm))
       {
-        clear_worker(10);
+        clear_worker(2);
 
         idx_svm++;
         tree[node_index].idx_svm = idx_svm;
@@ -240,7 +240,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
         if ((config->train_svm))
         {
 
-          clear_worker(10);
+          clear_worker(2);
 
           idx_svm++;
           tree[node_index].idx_svm = idx_svm;
@@ -323,7 +323,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
             if ((config->train_svm) )
             {
 
-              clear_worker(10);
+              clear_worker(2);
 
               idx_svm++;
               tree[node_index].idx_svm = idx_svm;

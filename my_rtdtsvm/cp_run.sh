@@ -1,11 +1,29 @@
 #!/bin/bash
 
+# DIR='Dataset/mit_darpa_98/train'
+DIR='Dataset/mit_darpa_98/test'
+# WEEKS=('1week' '2week' '3week' '4week' '5week' '6week' '7week')
+WEEKS=('1week' '2week')
+# WEEKS_STR=('first_week' 'second_week' 'third_week' 'fourth_week' 'fifth_week' 'sixth_week' 'seventh_week')
+WEEKS_STR=('first_week' 'second_week')
+DAYS=('monday' 'tuesday' 'wednesday' 'thursday' 'friday')
+
 cd build-files/src
 # rm -rf model
 # mkdir model
-# cp -rf ~/snort_plugin/my_rtdtsvm/model .
+# cp -rf ~/snort_plugin/my_rtdtsvm/model/model_100_700_svm_29attr/model* .
 
-# mkdir output
+mkdir output1
+
+COUNTER=0
+for WEEK in ${WEEKS_STR[@]}; do
+  for DAY in ${DAYS[@]}; do
+   	rm -rf output1/${WEEKS[$COUNTER]}_$DAY.csv
+   	./my_rtdtsvm ~/$DIR/$WEEK/$DAY/tcpdump output1/${WEEKS[$COUNTER]}_$DAY.csv model model1
+   	done   	
+  ((COUNTER++)) 	
+done
+
 
 # rm -rf output/1week_monday.csv
 # ./my_rtdtsvm ~/Dataset/mit_darpa_98/first_week/monday/tcpdump output/1week_monday.csv model model1
@@ -150,11 +168,11 @@ cd build-files/src
 # wait
 
 # rm -rf output/7week_friday.csv
-# ./my_rtdtsvm ~/Dataset/mit_darpa_98/seventh_week/friday/outside.tcpdump output/7week_friday.csv model model1
+# ./my_rtdtsvm ~/Dataset/mit_darpa_98/train/seventh_week/friday/tcpdump output/7week_friday.csv model model1
 # wait
 
-rm -rf ~/Dataset/mit_darpa_98/output
-mkdir ~/Dataset/mit_darpa_98/output
-cp -rf output/*.csv ~/Dataset/mit_darpa_98/output
+rm -rf ~/$DIR/hsl_extract
+mkdir ~/$DIR/hsl_extract
+cp -rf output1/*.csv ~/$DIR/hsl_extract
 
 cd ../..

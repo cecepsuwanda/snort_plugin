@@ -7,7 +7,7 @@ using namespace std;
 
 void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_dataframe &df_save)
 {
-	
+    cout << "Proses Labeling : " << endl;	
 
 	if (df_label.getjmlrow() > 0)
 	{
@@ -15,8 +15,8 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 		{
 		    vector<string> vec;
 
-		    Tconf_metrix conf_metrix;
-			string label;
+		    //Tconf_metrix conf_metrix;
+			string label="";
 			// df_label.read_file();
 			vector<string> tmp_data;
 			int i = 0;
@@ -27,13 +27,13 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 				if (tmp_data.size() > 1)
 				{
 					//cout << tmp_data[tmp_data.size()-3] << " " << tmp_data[tmp_data.size()-2] << " " << tmp_data[tmp_data.size()-5] << " " << tmp_data[tmp_data.size()-4] << " " << tmp_data[tmp_data.size() - 9] << " " << tmp_data[tmp_data.size() - 8] << " " << tmp_data[tmp_data.size() - 7] << " " << tmp_data[tmp_data.size() - 6] << " " << tmp_data[2] <<endl;
-					label = df_list.search(tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 5], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 9], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[2]);
-					conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
-					for (int j = 0; j < 37; ++j)
+					label = df_list.search(tmp_data[tmp_data.size() - 2], tmp_data[tmp_data.size() - 1], tmp_data[tmp_data.size() - 4], tmp_data[tmp_data.size() - 3], tmp_data[tmp_data.size() - 8], tmp_data[tmp_data.size() - 7], tmp_data[tmp_data.size() - 6], tmp_data[tmp_data.size() - 5], tmp_data[2]);
+					//conf_metrix.add_jml(label, tmp_data[tmp_data.size() - 1], 1);
+					for (int j = 0; j < 36; ++j)
 					{
-						if((j!=1) and (j!=2) and (j!=3) and (j!=13)){
+						//if((j!=1) and (j!=2) and (j!=3) and (j!=13)){
 						 tmp_str += tmp_data[j] + ",";
-						}
+						//}
 					
 					}
 
@@ -64,8 +64,8 @@ void labeling_1(Tdataframe_list &df_list, Tdataframe_label &df_label, Tbase_data
 			vec.clear();
 			vec.shrink_to_fit();
 
-			conf_metrix.kalkulasi();
-			cout << conf_metrix << endl;
+			//conf_metrix.kalkulasi();
+			//cout << conf_metrix << endl;
 		} else {
 			cout << "Gagal Buka File !!!" << endl;
 		}
@@ -100,11 +100,11 @@ void proses_labeling1(char const *argv[])
 	// f.value = "dfs_failed.";
 	// df_label.add_filter(f);
 
-	df_label.info();
+	//df_label.info();
 	//df_label.head();
 
 	Tbase_dataframe df_save;
-	df_save.read_data(argv[4]);
+	df_save.read_data(argv[3]);
 
 	labeling_1(df_list, df_label, df_save);
 

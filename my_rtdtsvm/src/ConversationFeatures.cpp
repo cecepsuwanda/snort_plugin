@@ -185,58 +185,58 @@ void ConversationFeatures::print(bool print_extra_features) const
 	ss << conv->get_service_str() << ',';
 	ss << conv->get_state_str() << ',';
 
-	if (strcmp(conv->get_protocol_type_str(), "tcp") == 0)
-	{
-		ss <<"1"<< ',';
-		ss <<"0"<< ',';
-		ss <<"0"<< ',';
-	} else {
-		if (strcmp(conv->get_protocol_type_str(), "udp") == 0)
-		{
-			ss <<"0"<< ',';
-			ss <<"1"<< ',';
-			ss <<"0"<< ',';
-		} else {
-			if (strcmp(conv->get_protocol_type_str(), "icmp") == 0)
-			{
-				ss <<"0"<< ',';
-				ss <<"0"<< ',';
-				ss <<"1"<< ',';
-			}
-		}
-	}
+	// if (strcmp(conv->get_protocol_type_str(), "tcp") == 0)
+	// {
+	// 	ss <<"1"<< ',';
+	// 	ss <<"0"<< ',';
+	// 	ss <<"0"<< ',';
+	// } else {
+	// 	if (strcmp(conv->get_protocol_type_str(), "udp") == 0)
+	// 	{
+	// 		ss <<"0"<< ',';
+	// 		ss <<"1"<< ',';
+	// 		ss <<"0"<< ',';
+	// 	} else {
+	// 		if (strcmp(conv->get_protocol_type_str(), "icmp") == 0)
+	// 		{
+	// 			ss <<"0"<< ',';
+	// 			ss <<"0"<< ',';
+	// 			ss <<"1"<< ',';
+	// 		}
+	// 	}
+	// }
 
-	if ((strcmp(conv->get_service_str(), "private") == 0) or (strcmp(conv->get_service_str(), "ecr_i") == 0) or (strcmp(conv->get_service_str(), "http") == 0))
-	{
-		ss <<"0"<< ',';
-		ss <<"1"<< ',';
-	} else {
-		ss <<"1"<< ',';
-		ss <<"0"<< ',';
-	}
+	// if ((strcmp(conv->get_service_str(), "private") == 0) or (strcmp(conv->get_service_str(), "ecr_i") == 0) or (strcmp(conv->get_service_str(), "http") == 0))
+	// {
+	// 	ss <<"0"<< ',';
+	// 	ss <<"1"<< ',';
+	// } else {
+	// 	ss <<"1"<< ',';
+	// 	ss <<"0"<< ',';
+	// }
 
-	if (strcmp(conv->get_state_str(), "SF") == 0)
-	{
-		ss <<"0"<< ',';
-		ss <<"1"<< ',';
-	} else {
-		ss <<"1"<< ',';
-		ss <<"0"<< ',';
-	}
+	// if (strcmp(conv->get_state_str(), "SF") == 0)
+	// {
+	// 	ss <<"0"<< ',';
+	// 	ss <<"1"<< ',';
+	// } else {
+	// 	ss <<"1"<< ',';
+	// 	ss <<"0"<< ',';
+	// }
 
 	ss << conv->get_src_bytes() << ',';
 	ss << conv->get_dst_bytes() << ',';
 
 	ss << conv->land() << ',';
 
-	if (conv->land() == 1)
-	{
-		ss <<"0"<< ',';
-		ss <<"1"<< ',';
-	} else {
-		ss <<"1"<< ',';
-		ss <<"0"<< ',';
-	}
+	// if (conv->land() == 1)
+	// {
+	// 	ss <<"0"<< ',';
+	// 	ss <<"1"<< ',';
+	// } else {
+	// 	ss <<"1"<< ',';
+	// 	ss <<"0"<< ',';
+	// }
 
 	ss << conv->get_wrong_fragments() << ',';
 	ss << conv->get_urgent_packets() << ',';
@@ -302,8 +302,8 @@ void ConversationFeatures::print(bool print_extra_features) const
 		//strftime(timestr, sizeof timestr, "%Y-%m-%dT%H:%M:%S", &timeinfo);
 		ss << timestr1;
 	}
-	ss << ',';
-	ss << label;
+	//ss << ',';
+	//ss << label;
 
 	cout << ss.str() << endl;
 
