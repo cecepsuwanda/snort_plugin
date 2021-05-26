@@ -1,25 +1,26 @@
 #!/bin/bash
 
-PATH_MODEL='darpa98_model_40_1000_svm_29attr' 
+PATH_MODEL='darpa98_model_40_700_svm_29attr' 
 NAMES='data/kddcup_29attr.names'
 TRAIN='Dataset/mit_darpa_98/train/label/darpa98_train.csv'
 TEST='Dataset/mit_darpa_98/train/label/darpa98_test.csv'
 TEST1='Dataset/mit_darpa_98/train/label/darpa98_test1.csv'
 UNKNOWN='Dataset/mit_darpa_98/train/label/darpa98_unknown.csv'
 DEPTH=40
-MIN_SAMP=1000
+MIN_SAMP=700
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=100
+THRESHOLD=70
 F=0
 N=0
 
-dos2unix ~/$TRAIN
-dos2unix ~/$TEST
-dos2unix ~/$TEST1
-dos2unix ~/$UNKNOWN
+# dos2unix ~/$TRAIN
+# dos2unix ~/$TEST
+# dos2unix ~/$TEST1
+# dos2unix ~/$UNKNOWN
 
+mkdir model
 mkdir model/$PATH_MODEL
 mkdir model/$PATH_MODEL/test
 mkdir model/$PATH_MODEL/train
@@ -31,12 +32,12 @@ mkdir model/$PATH_MODEL/model5
 mkdir model/$PATH_MODEL/model6
 
 
-rm -rf model/$PATH_MODEL/hasil.txt
-rm -rf model/$PATH_MODEL/dtsvm_model.csv
-rm -rf model/$PATH_MODEL/all_metrik.csv
-rm -rf model/$PATH_MODEL/dt_metrik.csv
-rm -rf model/$PATH_MODEL/svm_metrik.csv
-rm -rf model/$PATH_MODEL/dtsvm_metrik.csv
+# rm -rf model/$PATH_MODEL/hasil.txt
+# rm -rf model/$PATH_MODEL/dtsvm_model.csv
+# rm -rf model/$PATH_MODEL/all_metrik.csv
+# rm -rf model/$PATH_MODEL/dt_metrik.csv
+# rm -rf model/$PATH_MODEL/svm_metrik.csv
+# rm -rf model/$PATH_MODEL/dtsvm_metrik.csv
 
 START="$(date +"%r")"
 echo "START : $START"

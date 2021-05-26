@@ -182,12 +182,12 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
     if (tmp_str == "normal") {
 
+      idx_svm++;
+      tree[node_index].idx_svm = idx_svm;
+
       if ((config->train_svm))
       {
-        clear_worker(2);
-
-        idx_svm++;
-        tree[node_index].idx_svm = idx_svm;
+        clear_worker(2);        
 
         cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
         f_train_svm(df, idx_svm);
@@ -237,13 +237,13 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
       if (tmp_str == "normal") {
 
+        idx_svm++;
+        tree[node_index].idx_svm = idx_svm;
+
         if ((config->train_svm))
         {
 
           clear_worker(2);
-
-          idx_svm++;
-          tree[node_index].idx_svm = idx_svm;
 
           cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
           f_train_svm(df, idx_svm);
@@ -320,13 +320,13 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
           if (tmp_str == "normal") {
 
+            idx_svm++;
+            tree[node_index].idx_svm = idx_svm;
+
             if ((config->train_svm) )
             {
 
-              clear_worker(2);
-
-              idx_svm++;
-              tree[node_index].idx_svm = idx_svm;
+              clear_worker(2);              
 
               cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
               f_train_svm(df, idx_svm);
@@ -938,10 +938,11 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
 
         if (node_label == "normal")
         {
+          idx_svm++;
+          tree[node_index].idx_svm = idx_svm;
+
           if ((config->train_svm) ) //and (df.getjmlrow() < 10000)
-          {
-            idx_svm++;
-            tree[node_index].idx_svm = idx_svm;
+          {           
 
             clear_worker(0);
 
@@ -1022,7 +1023,7 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
     if ((label == "normal") and (tree[node_index].idx_svm != -1))
     {
 
-      clear_worker(20);
+      clear_worker(2);
 
       cetak("{v {j %d %d}", tree[node_index].idx_svm, df_train.getjmlrow_svm());
       f_train_svm(df_train, tree[node_index].idx_svm);
@@ -1058,7 +1059,7 @@ void Tdec_tree::svm_dfs(int depth , int node_index , Tdataframe & df_train)
       svm_dfs(depth + 1, right, df_right);
     }
 
-    clear_worker(20);
+    clear_worker(2);
   }
 
   if (node_index == 0)

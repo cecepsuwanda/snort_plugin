@@ -8,27 +8,27 @@
 using namespace std;
 using std::experimental::filesystem::directory_iterator;
 
-// void coba(Tdataframe &df_tmp, int idx, float & overall_metric, string & split_value)
-// {
+void coba(Tdataframe &df_tmp, int idx, float & overall_metric, string & split_value)
+{
 
-//   //df.set_shared_memory_on();
-//   // Tdataframe df_tmp(&config);
-//   // df_tmp.read_data(config.f_train);
-//   // df_tmp.read_data_type(config.f_datatype);
-//   //df_tmp = df;
+  //df.set_shared_memory_on();
+  // Tdataframe df_tmp(&config);
+  // df_tmp.read_data(config.f_train);
+  // df_tmp.read_data_type(config.f_datatype);
+  //df_tmp = df;
 
-//   string current_split_value = "-1";
-//   float current_overall_metric = -1;
+  string current_split_value = "-1";
+  float current_overall_metric = -1;
 
-//   //df_tmp.get_col_pot_split(idx);
-//   df_tmp.calculate_overall_metric(idx, current_overall_metric, current_split_value);
+  //df_tmp.get_col_pot_split(idx);
+  df_tmp.calculate_overall_metric(idx, current_overall_metric, current_split_value);
 
-//   overall_metric = current_overall_metric;
-//   split_value = current_split_value;
+  overall_metric = current_overall_metric;
+  split_value = current_split_value;
 
-//   //df_tmp.clear_memory();
-//   //df_tmp.close_file();
-// }
+  //df_tmp.clear_memory();
+  //df_tmp.close_file();
+}
 
 int main(int argc, char *argv[])
 {
@@ -65,40 +65,40 @@ int main(int argc, char *argv[])
 
     vector<thread> worker;
 
-    // config.search_uniqe_val = true;
+    config.search_uniqe_val = true;
 
-    // Tdataframe df_train(&config);
-    // df_train.read_data(config.f_train);
-    // df_train.read_data_type(config.f_datatype);
-    // df_train.info();
+    Tdataframe df_train(&config);
+    df_train.read_data(config.f_train);
+    df_train.read_data_type(config.f_datatype);
+    df_train.info();
 
-    // float overall_metric[42];
-    // string split_value[42];
+    float overall_metric[42];
+    string split_value[42];
 
-    // for (int i = 0; i < df_train.get_jml_valid_attr(); ++i)
-    // {
-    //   cout << i << endl;
-    //   worker.push_back(thread(&coba, ref(df_train), df_train.get_valid_attr(i), ref(overall_metric[i]), ref(split_value[i])));
-    // }
+    for (int i = 0; i < df_train.get_jml_valid_attr(); ++i)
+    {
+      cout << i << endl;
+      worker.push_back(thread(&coba, ref(df_train), df_train.get_valid_attr(i), ref(overall_metric[i]), ref(split_value[i])));
+    }
 
-    // if (worker.size() > 0)
-    // {
-    //   cout << "Join" << endl;
-    //   int i = 0;
-    //   for (std::thread & th : worker)
-    //   {
-    //     // If thread Object is Joinable then Join that thread.
-    //     if (th.joinable()) {
-    //       th.join();
-    //       cout << overall_metric[i] << " " << split_value[i] << endl;
-    //     }
-    //     i++;
-    //   }
+    if (worker.size() > 0)
+    {
+      cout << "Join" << endl;
+      int i = 0;
+      for (std::thread & th : worker)
+      {
+        // If thread Object is Joinable then Join that thread.
+        if (th.joinable()) {
+          th.join();
+          cout << overall_metric[i] << " " << split_value[i] << endl;
+        }
+        i++;
+      }
 
-    //   worker.clear();
-    //   worker.shrink_to_fit();
+      worker.clear();
+      worker.shrink_to_fit();
 
-    // }
+    }
 
 
     // vector<vector<string>> table = df_train.get_all_record_svm();
@@ -114,11 +114,11 @@ int main(int argc, char *argv[])
 
     
 
-    // df_train.clear_memory();
-    // df_train.close_file();
+    df_train.clear_memory();
+    df_train.close_file();
 
 
-    Tdec_tree dec_tree(&config);
+    /*Tdec_tree dec_tree(&config);
 
     string tmp_str = config.path_model + "/dtsvm_model.csv";
     remove(tmp_str.c_str());
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     for (const auto & file : directory_iterator(config.svm_path))
       remove(file.path());
 
-    dec_tree.build_tree();
+    dec_tree.build_tree();*/
   } else {
     if (stoi(argv[1]) == 1)
     {

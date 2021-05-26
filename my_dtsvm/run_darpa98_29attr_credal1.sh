@@ -1,17 +1,17 @@
 #!/bin/bash
 
-PATH_MODEL='darpa98_model_100_700_svm_29attr_credal1' 
+PATH_MODEL='darpa98_model_40_1000_svm_29attr_credal1' 
 NAMES='data/kddcup_29attr.names'
 TRAIN='Dataset/mit_darpa_98/train/label/darpa98_train.csv'
-TEST='Dataset/mit_darpa_98/train/label/darpa98_test.txt'
-TEST1='Dataset/mit_darpa_98/train/label/darpa98_test1.txt'
-UNKNOWN='Dataset/mit_darpa_98/train/label/darpa98_unknown.txt'
-DEPTH=100
-MIN_SAMP=700
+TEST='Dataset/mit_darpa_98/train/label/darpa98_test.csv'
+TEST1='Dataset/mit_darpa_98/train/label/darpa98_test1.csv'
+UNKNOWN='Dataset/mit_darpa_98/train/label/darpa98_unknown.csv'
+DEPTH=40
+MIN_SAMP=1000
 USE_CREDAL=1
 CREDAL_S=1.0
 LIMIT=1
-THRESHOLD=70
+THRESHOLD=100
 F=0
 N=0
 
@@ -36,7 +36,10 @@ rm -rf model/$PATH_MODEL/dtsvm_metrik.csv
 START="$(date +"%r")"
 echo "START : $START"
 
-./my_dtsvm 0 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES ~/$TRAIN model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
+./my_dtsvm 0 0 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES ~/$TRAIN model/$PATH_MODEL model1 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
+wait
+
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES ~/$TRAIN model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
 wait
 
 ./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  $NAMES ~/$TRAIN model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
