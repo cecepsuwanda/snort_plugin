@@ -62,12 +62,20 @@ bool Tdec_tree::check_purity(Tdataframe &df)
   return df.is_single_label();
 }
 
-/*void Tdec_tree::col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value)
+Tmetric_split_value Tdec_tree::get_split_value(Tdataframe &df, int idx)
 {
-  map<Tmy_dttype, Tlabel_stat> _col_pot_split;
-  df.get_col_pot_split(i, _col_pot_split);
-  df.calculate_overall_metric(i, _col_pot_split, current_overall_metric, current_split_value);
-}*/
+  Tmetric_split_value hsl;
+
+  string current_split_value = "-1";
+  float current_overall_metric = -1;
+
+  df.calculate_overall_metric(idx, current_overall_metric, current_split_value);
+
+  hsl.idx = idx;
+  hsl.overall_metric = current_overall_metric;
+  hsl.split_value = current_split_value;
+  return hsl;
+}
 
 void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
 {
@@ -82,7 +90,36 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
   split_column = -1;
   split_value = "-1";
 
+  vector<future<Tmetric_split_value>> async_worker;
+
   for (int i = 0; i < df.get_jml_valid_attr(); ++i)
+  {
+    async_worker.push_back(async(std::launch::async, &Tdec_tree::get_split_value, ref(df), df.get_valid_attr(i)));
+  }
+
+  if (async_worker.size() > 0)
+  {   
+
+    Tmetric_split_value hsl;
+    for (future<Tmetric_split_value> & th : async_worker)
+    {      
+      hsl = th.get();
+      if (first_iteration or (max_gain < hsl.overall_metric))
+      {
+        first_iteration = false;
+        max_gain = hsl.overall_metric;
+
+        split_column = hsl.idx;
+        split_value = hsl.split_value;
+      }
+    }
+
+    async_worker.clear();
+    async_worker.shrink_to_fit();
+
+  }
+
+  /*for (int i = 0; i < df.get_jml_valid_attr(); ++i)
   {
 
     //df.get_col_pot_split(i);
@@ -96,7 +133,7 @@ void Tdec_tree::determine_best_split(Tdataframe &df, int &split_column, string &
       split_column = df.get_valid_attr(i);
       split_value = current_split_value;
     }
-  }
+  }*/
 
   df.clear_map_col_split();
 }
@@ -187,7 +224,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
 
       if ((config->train_svm))
       {
-        clear_worker(2);        
+        clear_worker(2);
 
         cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
         f_train_svm(df, idx_svm);
@@ -326,7 +363,7 @@ void Tdec_tree::train(Tdataframe & df, int node_index , int counter)
             if ((config->train_svm) )
             {
 
-              clear_worker(2);              
+              clear_worker(2);
 
               cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
               f_train_svm(df, idx_svm);
@@ -646,7 +683,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
   {
 
     string label = tree[node_index].label;
-    
+
     if ((config->train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
     {
       //clear_worker(1);
@@ -942,7 +979,7 @@ void Tdec_tree::pruning_dfs(int node_index , Tdataframe & df_train)
           tree[node_index].idx_svm = idx_svm;
 
           if ((config->train_svm) ) //and (df.getjmlrow() < 10000)
-          {           
+          {
 
             clear_worker(0);
 

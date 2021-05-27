@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <thread>
+#include <future>
 #include <mutex>
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
@@ -22,7 +23,12 @@ using std::experimental::filesystem::directory_iterator;
 
 static void cetak_stdout(const char *s);
 
-
+struct Tmetric_split_value
+{
+  int idx = 0;
+  float overall_metric = -1;
+  string split_value = "-1";
+};
 
 class Node {
 public:
@@ -86,7 +92,7 @@ private:
 	void f_train_svm(Tdataframe &df, int v_idx_svm);
 	void del_model_train(int idx);
 
-	//static void col_pot_split(Tdataframe df, int i, float & current_overall_metric, string & current_split_value);
+	static Tmetric_split_value get_split_value(Tdataframe &df, int idx);
 
     static void thread_save_train(Tconfig* v_config, vector<vector<string>> table,int v_idx_svm);
     
