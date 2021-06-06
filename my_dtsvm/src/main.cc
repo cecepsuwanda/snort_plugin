@@ -4,6 +4,8 @@
 #include <experimental/filesystem>
 #include "global.h"
 #include "Tdec_tree.h"
+#include "Tdt_build.h"
+#include "Tdt_learn_svm.h"
 
 
 using namespace std;
@@ -42,7 +44,7 @@ int main(int argc, char *argv[])
   {
     config.f_train = argv[10];
 
-    Tdec_tree dec_tree(&config);
+    Tdt_build dec_tree(&config);
 
     string tmp_str = config.path_model + "/dtsvm_model.csv";
     remove(tmp_str.c_str());
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
 
         config.f_train = argv[10];
 
-        Tdec_tree dec_tree(&config);
+        Tdt_learn_svm dec_tree(&config);
 
         for (const auto & file : directory_iterator(config.svm_path))
           remove(file.path());

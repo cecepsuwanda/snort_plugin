@@ -30,7 +30,6 @@ protected:
 	int _jml_row = 0;
 	int _jml_total_row = 0;
 	string _nm_file;
-	void cetak ( const char * format, ... );
 	int _id = 0;
 
 	mutable std::mutex v_mutex;

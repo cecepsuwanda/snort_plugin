@@ -242,8 +242,8 @@ vector<string> Tdataframe::get_record_svm()
           vec.push_back((_data.get_col_val(itr->first) == "icmp" ? "1" : "0" ));
           break;
         case 2:
-          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "http")) ? "0" : "1");
-          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "http")) ? "1" : "0");
+          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "ecr_i") or (_data.get_col_val(itr->first) == "http")) ? "0" : "1");
+          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "ecr_i") or (_data.get_col_val(itr->first) == "http")) ? "1" : "0");
           break;
         case 3:
           vec.push_back((_data.get_col_val(itr->first) == "SF") ? "0" : "1");
@@ -272,8 +272,8 @@ vector<string> Tdataframe::get_record_svm()
           vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
           break;
         case 2:
-          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "http")) ? "0" : "1");
-          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "http")) ? "1" : "0");
+          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
+          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
           break;
         case 3:
           vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");

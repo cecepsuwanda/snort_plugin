@@ -31,22 +31,7 @@ int Tbase_dataframe::get_id()
 	return _id;
 }
 
-static void cetak_stdout(const char *s)
-{
-	fputs(s, stdout);
-	fflush(stdout);
-}
 
-void Tbase_dataframe::cetak ( const char * format, ... )
-{
-	char buffer[256];
-	va_list args;
-	va_start (args, format);
-	vsprintf (buffer, format, args);
-	//perror (buffer);
-	va_end (args);
-	cetak_stdout(buffer);
-}
 
 void Tbase_dataframe::read_data(string nm_f)
 {

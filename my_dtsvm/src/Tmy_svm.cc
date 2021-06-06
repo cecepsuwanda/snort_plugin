@@ -69,25 +69,6 @@ Tmy_svm::~Tmy_svm()
 	// cetak(" }");
 }
 
-static void cetak_stdout(const char *s)
-{
-	fputs(s, stdout);
-	fflush(stdout);
-}
-
-void Tmy_svm::cetak ( const char * format, ... )
-{
-	char buffer[256];
-	va_list args;
-	va_start (args, format);
-	vsprintf (buffer, format, args);
-	//perror (buffer);
-	va_end (args);
-	cetak_stdout(buffer);
-}
-
-
-
 void Tmy_svm::read_problem(vector<vector<string>> table)
 {
 	// df.ReFilter();

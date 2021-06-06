@@ -1,17 +1,17 @@
 #!/bin/bash
 
-PATH_MODEL='darpa98_model_40_1000_svm_29attr_credal1' 
+PATH_MODEL='darpa98_model_40_700_svm_29attr_credal1' 
 NAMES='data/kddcup_29attr.names'
 TRAIN='Dataset/mit_darpa_98/train/label/darpa98_train.csv'
 TEST='Dataset/mit_darpa_98/train/label/darpa98_test.csv'
 TEST1='Dataset/mit_darpa_98/train/label/darpa98_test1.csv'
 UNKNOWN='Dataset/mit_darpa_98/train/label/darpa98_unknown.csv'
 DEPTH=40
-MIN_SAMP=1000
+MIN_SAMP=700
 USE_CREDAL=1
 CREDAL_S=1.0
 LIMIT=1
-THRESHOLD=100
+THRESHOLD=70
 F=0
 N=0
 

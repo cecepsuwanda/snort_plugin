@@ -8,6 +8,10 @@
 
 using namespace std;
 
+#ifndef Included_Tmy_svm_H
+
+#define Included_Tmy_svm_H
+
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
 class Tmy_svm
@@ -26,9 +30,7 @@ private:
 	void read_problem(vector<vector<string>> table);
 
 	static void print_null(const char *s) {}
-
-	void cetak ( const char * format, ... );
-
+	
 	int _idx_svm;
 	
 	Tconfig* config;
@@ -45,3 +47,5 @@ public:
 	string guess(vector<string> &data);
 
 };
+
+#endif
