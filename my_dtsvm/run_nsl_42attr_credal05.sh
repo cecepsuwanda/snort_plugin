@@ -1,12 +1,18 @@
 #!/bin/bash
 
-PATH_MODEL='model_100_700_svm_42attr_credal05' 
+PATH_MODEL='model_100_2_svm_42attr_credal05_100'
+NAMES='data/kddcup.names'
+TRAIN='data/NSLTree_train.txt'
+TEST='data/NSLTree_test.txt'
+TEST1='data/NSLTree_test1.txt'
+UNKNOWN='data/NSLTree_unknown.txt'
+
 DEPTH=100
-MIN_SAMP=700
+MIN_SAMP=2
 USE_CREDAL=1
 CREDAL_S=0.5
 LIMIT=1
-THRESHOLD=70
+THRESHOLD=100
 F=0
 N=0
 
@@ -31,22 +37,22 @@ rm -rf model/$PATH_MODEL/dtsvm_metrik.csv
 START="$(date +"%r")"
 echo "START : $START"
 
-./my_dtsvm 0 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
+./my_dtsvm 0 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES $TRAIN model/$PATH_MODEL model1 1 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  $NAMES $TRAIN model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
-./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  $NAMES $TRAIN model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
-./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  $NAMES $TRAIN model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
-./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  $NAMES $TRAIN model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
-./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 2 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  $NAMES $TRAIN model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
 
@@ -60,88 +66,87 @@ cp -rf model/$PATH_MODEL/model* ~/Dataset/NSL/$PATH_MODEL
 cp -rf model/$PATH_MODEL/train ~/Dataset/NSL/$PATH_MODEL
 cp -rf model/$PATH_MODEL/dtsvm_model.csv ~/Dataset/NSL/$PATH_MODEL
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model1 0 1 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES $TEST1 model/$PATH_MODEL model1 0 1 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait
 
 rm -rf ~/Dataset/NSL/$PATH_MODEL/test
 cp -rf model/$PATH_MODEL/test ~/Dataset/NSL/$PATH_MODEL
 
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model1  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01 $NAMES $TRAIN model/$PATH_MODEL model1  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model1 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01 $NAMES $TEST model/$PATH_MODEL model1 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model1 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0001 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model1 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model2  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01 $NAMES $TRAIN model/$PATH_MODEL model2  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01 $NAMES $TEST model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt 
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  $NAMES $TEST1 model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0003 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model2 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model3  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01 $NAMES $TRAIN model/$PATH_MODEL model3  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01 $NAMES $TEST model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  $NAMES $TEST1 model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.0005 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model3 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
 
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model4  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01 $NAMES $TRAIN model/$PATH_MODEL model4  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01 $NAMES $TEST model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  $NAMES $TEST1 model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.001 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model4 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
 
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model5  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01 $NAMES $TRAIN model/$PATH_MODEL model5  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01 $NAMES $TEST model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  $NAMES $TEST1 model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.003 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model5 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-
-
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01 data/kddcup.names data/NSLTree_train.txt model/$PATH_MODEL model6  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01 $NAMES $TRAIN model/$PATH_MODEL model6  0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01 data/kddcup.names data/NSLTree_test.txt model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm 1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01 $NAMES $TEST model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait 
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  data/kddcup.names data/NSLTree_test1.txt model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  $NAMES $TEST1 model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
-./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  data/kddcup.names data/NSLTree_unknown.txt model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
+./my_dtsvm  1 1 $F $N $DEPTH $MIN_SAMP 0.004 0.01  $NAMES $UNKNOWN model/$PATH_MODEL model6 0 0 $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD | tee -a model/$PATH_MODEL/hasil.txt
 wait
 
 END="$(date +"%r")"

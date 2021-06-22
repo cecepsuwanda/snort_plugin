@@ -1,17 +1,18 @@
 #!/bin/bash
 
-PATH_MODEL='model_100_700_svm_29attr_credal05' 
+PATH_MODEL='model_100_100_svm_29attr_credal05' 
 NAMES='data/kddcup_29attr.names'
 TRAIN='data/NSLTree_29attr_train.txt'
 TEST='data/NSLTree_29attr_test.txt'
 TEST1='data/NSLTree_29attr_test1.txt'
 UNKNOWN='data/NSLTree_29attr_unknown.txt'
+
 DEPTH=100
-MIN_SAMP=700
+MIN_SAMP=100
 USE_CREDAL=1
 CREDAL_S=0.5
 LIMIT=1
-THRESHOLD=70
+THRESHOLD=2
 F=0
 N=0
 
