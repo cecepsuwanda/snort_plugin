@@ -10,7 +10,7 @@ Tmy_svm::Tmy_svm()
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 512; //100
+	param.cache_size = 100; //100
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
@@ -27,22 +27,15 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string model_path, string svm_path, bool save_train)
+Tmy_svm::Tmy_svm(Tconfig* v_config)
 {
-	_feature_selection = feature_selection;
-	_normal_only = normal_only;
-	_idx_svm = idx_svm;
-	_model_path = model_path;
-	_svm_path = svm_path;
-	_save_train = save_train;
-
 	param.svm_type = ONE_CLASS;
 	param.kernel_type = RBF;
 	param.degree = 3;
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 512;
+	param.cache_size = 100; //100
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
@@ -57,7 +50,10 @@ Tmy_svm::Tmy_svm(bool feature_selection, bool normal_only, int idx_svm, string m
 	svm_set_print_string_function(print_func);
 
 	is_read_problem = false;
+
+	config = v_config;
 }
+
 
 Tmy_svm::~Tmy_svm()
 {
@@ -73,151 +69,110 @@ Tmy_svm::~Tmy_svm()
 	// cetak(" }");
 }
 
-static void cetak_stdout(const char *s)
+void Tmy_svm::read_problem(vector<vector<string>> table)
 {
-	fputs(s, stdout);
-	fflush(stdout);
-}
+	// df.ReFilter();
+	// df.clear_col_split();
 
-void Tmy_svm::cetak ( const char * format, ... )
-{
-	char buffer[256];
-	va_list args;
-	va_start (args, format);
-	vsprintf (buffer, format, args);
-	//perror (buffer);
-	va_end (args);
-	cetak_stdout(buffer);
-}
+	// Twrite_file tmp_wf;
+	// if (config.save_train) {
+	// 	tmp_wf.setnm_f(config.path_model + "/train/train_model_" + to_string(_idx_svm) + ".csv");
+	// }
 
-
-
-void Tmy_svm::read_problem(Tdataframe &df)
-{
-	df.ReFilter();
-
-	Twrite_file tmp_wf;
-	if (_save_train) {
-		tmp_wf.setnm_f(_model_path + "/train/train_model_" + to_string(_idx_svm) + ".csv");
-	}
-
-	size_t elements, j, i, l;
+	size_t elements, j, i;
 	char *endptr;
 
-	map<int, int> kolom;
-	if (_feature_selection)
-	{
-		kolom = df.get_unique_attr();
-	}
+	// df.reset_file();
 
-	df.reset_file();
+	// map<string, int> stat_label = df.get_stat_label();
 
-	map<string, int> stat_label = df.get_stat_label();
-	
-	size_t prm1;
-	size_t prm2 = (_feature_selection ? kolom.size() :  (df.getjmlcol_svm() - 1));
+	size_t prm1 = table.size();//df.getjmlrow_svm();
+	size_t prm2 = (table[0].size()-1);//(df.getjmlcol_svm() - 1);// (_feature_selection ? kolom.size() :)
 
-	if ((stat_label.size() > 1) and (!_normal_only))
-	{
-		prm1 = df.getjmlrow();
-	} else {
-		prm1 = stat_label["normal"];
-	}
+	// if ((stat_label.size() > 1) and (!_normal_only))
+	// {
+	// 	prm1 = df.getjmlrow();
+	// } else {
+	// 	prm1 = stat_label["normal"];
+	// }
 
-	
 
 	prob.l = prm1;
-	elements = (prm1 * prm2) + prm1; //elements = (stat_label["normal"] * (df_filter.size())) + stat_label["normal"];
+	elements = (prm1 * prm2) + prm1;
 
 
 	prob.y = Malloc(double, prob.l);
-	prob.x = Malloc(struct svm_node *, prob.l);	
+	prob.x = Malloc(struct svm_node *, prob.l);
 
 	x_space = Malloc(struct svm_node, elements);
-	
 
 	j = 0;
 	i = 0;
 	vector<string> tmp;
-	while (!df.is_eof())
-	{
-		tmp = df.get_record_svm();
+	// while (!df.is_eof())
+	for (int l = 0; l < prm1; ++l)
+	 {
+		tmp =  table[l];//df.get_record_svm();
 
-		bool is_pass = (_normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
+		// bool is_pass = (config.normal_only ? (tmp[tmp.size() - 1].compare("normal") == 0) : true);
 
-		if (is_pass) //and (tmp[tmp.size() - 1] == "normal")
-		{
-
-			//if ((i < prm1))
-			//{
-
+		// if (is_pass) 
+		// {
 			prob.x[i] = &x_space[j];
 			prob.y[i] = 1;
 
 			string tmp_str = "";
 
-			l = 0;
-			auto itr = kolom.begin();
-			for (size_t k = 0; k < (prm2); k++) {  //for (int k = 0; k < (df_filter.size()); k++) {
+			
 
-				if (_feature_selection)
-				{
-					if (itr != kolom.end()) {
-						x_space[j].index = k;
-						string str = tmp[itr->first];  //string str = tmp[df_filter[k].idx_col];
-						x_space[j].value = strtod(str.c_str(), &endptr);
-						tmp_str = tmp_str + str + ",";
-						itr++;
-					}
-				} else {
-					x_space[j].index = k;
-					string str = tmp[k];
-					x_space[j].value = strtod(str.c_str(), &endptr);
-					tmp_str = tmp_str + str + ",";
-				}
+			for (size_t k = 0; k < (prm2); k++) {
+
+				x_space[j].index = k;
+				string str = tmp[k];
+				x_space[j].value = strtod(str.c_str(), &endptr);
+				// tmp_str = tmp_str + str + ",";
+
 				++j;
 			}
 
-			tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
-			//cout << tmp_str << endl; 
-			if (_save_train) {
-				tmp_wf.write_file(tmp_str);
-			}
+			// tmp_str = tmp_str + tmp[df.getjmlcol_svm() - 1];
+			// //cout << tmp_str << endl;
+			// if (config.save_train) {
+			// 	tmp_wf.write_file(tmp_str);
+			// }
 
 			x_space[j++].index = -1;
-			//}
-
 			i++;
-		}
+		// }
 
 		tmp.clear();
-	    tmp.shrink_to_fit();
+		tmp.shrink_to_fit();
 
-		df.next_record();
+	// 	df.next_record();
 
-	}
+	 }
 
-	
+
 
 //cout << i << endl;
 	is_read_problem = true;
 
-	if (_save_train) {
-		tmp_wf.close_file();
-	}
+	// if (config.save_train) {
+	// 	tmp_wf.close_file();
+	// }
 
-	kolom.clear();
-	df.clear_memory();
+	
+	// df.clear_memory();
 
 }
 
 
-void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
+void Tmy_svm::train(vector<vector<string>> table)
 {
-	param.gamma = gamma;
-	param.nu = nu;
+	param.gamma = config->gamma;
+	param.nu = config->nu;
 
-	read_problem(df);
+	read_problem(table);
 
 	const char *error_msg;
 	error_msg = svm_check_parameter(&prob, &param);
@@ -229,9 +184,6 @@ void Tmy_svm::train(Tdataframe &df, double gamma, double nu)
 	}
 
 	// cetak(" {train");
-	// double *target = Malloc(double,prob.l);
-	// svm_cross_validation(&prob,&param,2,target);
-
 	model = svm_train(&prob, &param);
 	// cetak("}");
 
@@ -284,7 +236,7 @@ void Tmy_svm::test(Tdataframe &df)
 	string asli, tebakan;
 	char *endptr;
 
-	asli = "normal";
+	asli = "inside";
 
 	df.reset_file();
 
@@ -293,7 +245,7 @@ void Tmy_svm::test(Tdataframe &df)
 		vector<string> tmp = df.get_record();
 
 		size_t k = 0;
-		for (; k < (tmp.size() - 1); k++) {
+		for (; k < (df.getjmlcol_svm() - 1); k++) {
 
 			string str = tmp[k];
 			x_space[k].index = k;
@@ -304,10 +256,10 @@ void Tmy_svm::test(Tdataframe &df)
 
 		predict_label = svm_predict(model, x_space);
 
-		tebakan = "normal";
+		tebakan = "inside";
 		if (predict_label == -1)
 		{
-			tebakan = "unknown";
+			tebakan = "outside";
 		}
 
 		//cout << predict_label << endl;

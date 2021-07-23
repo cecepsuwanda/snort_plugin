@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 #include "credal.h"
+#include "global.h"
 
 using namespace std;
 
@@ -21,13 +22,13 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
-	double _credal_s=0.0;
+	Tconfig* config;
 public:
 	Tlabel_stat();
+	Tlabel_stat(Tconfig* v_config);
 	~Tlabel_stat();
-	Tlabel_stat(double credal_s);
-
-	void set_credal_s(double credal_s);
+	
+	void set_config(Tconfig* v_config);
 	
 	void add(string value);
 	void clear();
@@ -38,6 +39,7 @@ public:
     
     float get_estimate_error();
     map<string, int> get_map();
+    int get_value(string key);
 
     int get_jml_row_in_map();
     string get_first_value_in_map();
@@ -59,7 +61,7 @@ public:
 		this->_max_value = t._max_value;
 		this->_max_label = t._max_label;
 		this->_min_value = t._min_value;
-		//this->_credal_s = t._credal_s;
+		this->config = t.config;
 
 		return *this;
 	}

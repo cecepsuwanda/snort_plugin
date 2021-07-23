@@ -1,6 +1,7 @@
 
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
+#include "global.h"
 #include <string>
 
 using namespace std;
@@ -16,15 +17,15 @@ class Tbelow_above
   Tmy_dttype _value;
   Tlabel_stat _below;
   Tlabel_stat _above;
-
-  bool use_credal=false;
-  double _credal_s=0.0;
-  int _threshold = 2;  
+ 
+  Tconfig* config;
 
 public:
 	Tbelow_above();
+	Tbelow_above(Tconfig* v_config);
 	~Tbelow_above();
-	Tbelow_above(bool v_use_credal,double credal_s);
+	
+    //void set_config(Tconfig* v_config); 
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();
@@ -40,7 +41,7 @@ public:
 	void clear();
 
 	bool cek_valid();
-	void set_threshold(int t);
+	
 	
 };
 

@@ -4,8 +4,13 @@
 #include <string>
 #include <sys/mman.h>
 #include "Twrite_file.h"
+#include "global.h"
 
 using namespace std;
+
+#ifndef Included_Tmy_svm_H
+
+#define Included_Tmy_svm_H
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
@@ -22,26 +27,19 @@ private:
 
 	bool is_read_problem; 
 
-	void read_problem(Tdataframe &df);
+	void read_problem(vector<vector<string>> table);
 
 	static void print_null(const char *s) {}
-
-	bool _feature_selection = false;
-	bool _normal_only = false;
-	bool _save_train = true;	
-
-	void cetak ( const char * format, ... );
-
+	
 	int _idx_svm;
-	string _model_path;
-	string _svm_path;
+	
+	Tconfig* config;
 
 public:
 	Tmy_svm();
+	Tmy_svm(Tconfig* v_config);
 	~Tmy_svm();
-	Tmy_svm(bool feature_selection, bool _normal_only, int idx_svm,string model_path,string svm_path, bool save_train);
-
-	void train(Tdataframe &df,double gamma, double nu);
+	void train(vector<vector<string>> table);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
 	void destroy_model();
@@ -49,3 +47,5 @@ public:
 	string guess(vector<string> &data);
 
 };
+
+#endif

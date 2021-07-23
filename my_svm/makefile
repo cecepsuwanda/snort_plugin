@@ -1,3 +1,12 @@
 
-my_svm : main.cc svm.cpp Tmy_svm.cc Tbase_dataframe.cc Tdataframe.cc Twrite_file.cc Tread_file.cc Tconf_metrix.cc Tmy_dttype.cc Tlabel_stat.cc credal.cc Tbelow_above.cc
-	       g++ -o my_svm -std=c++17 main.cc svm.cpp Tmy_svm.cc Tbase_dataframe.cc Tdataframe.cc Twrite_file.cc Tread_file.cc Tconf_metrix.cc Tmy_dttype.cc Tlabel_stat.cc credal.cc Tbelow_above.cc -lstdc++fs -pthread -g -I.
+CC=g++
+
+SRC_DIRS=./src
+SRCS=$(shell find $(SRC_DIRS) -name *.cpp -or -name *.cc)
+INC_DIRS=$(shell find $(SRC_DIRS) -type d)
+INC_FLAGS=$(addprefix -I,$(INC_DIRS))
+
+CFLAGS=-pthread -g $(INC_FLAGS)
+
+my_svm : $(SRCS)
+	       $(CC) $(CFLAGS) -o my_svm $(SRCS) -std=c++17 -lstdc++fs

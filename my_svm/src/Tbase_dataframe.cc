@@ -3,7 +3,7 @@
 
 Tbase_dataframe::Tbase_dataframe()
 {
-	_idx_label = -1;
+
 }
 
 Tbase_dataframe::~Tbase_dataframe()
@@ -14,7 +14,6 @@ Tbase_dataframe::~Tbase_dataframe()
 	_data_type.shrink_to_fit();
 	_filter.clear();
 	_filter.shrink_to_fit();
-	_stat_label.clear();
 }
 
 void Tbase_dataframe::set_id(int id)
@@ -25,35 +24,19 @@ void Tbase_dataframe::set_id(int id)
 	_id = id;
 }
 
+
+
 int Tbase_dataframe::get_id()
 {
 	return _id;
 }
 
-void Tbase_dataframe::set_min_sample(int m)
-{
-	_min_sample = m;
-}
 
-static void cetak_stdout(const char *s)
-{
-	fputs(s, stdout);
-	fflush(stdout);
-}
-
-void Tbase_dataframe::cetak ( const char * format, ... )
-{
-	char buffer[256];
-	va_list args;
-	va_start (args, format);
-	vsprintf (buffer, format, args);
-	//perror (buffer);
-	va_end (args);
-	cetak_stdout(buffer);
-}
 
 void Tbase_dataframe::read_data(string nm_f)
 {
+	//cout << "Tbase_dataframe read_data " << endl;
+	
 	_nm_file = nm_f;
 	_data.setnm_f(nm_f, ",");
 }
@@ -61,50 +44,28 @@ void Tbase_dataframe::read_data(string nm_f)
 
 void Tbase_dataframe::read_data_type(string nm_f)
 {
+	//cout << "Tbase_dataframe read_data_type " << endl;
+		
 	Tread_file tmp;
 	tmp.setnm_f(nm_f, ": ");
-
-	vector<string> tmp_data;
 
 	int i = 0;
 	while (!tmp.is_eof())
 	{
-		tmp_data = tmp.get_record();
-		_data_header.push_back(tmp_data[0]);
-		_data_type.push_back(tmp_data[1]);
-
-		if (tmp_data[0] == "label")
-		{
-			_idx_label = i;
-		}
-
-		if ((tmp_data[0] != "label") and (tmp_data[1] != "continuous."))
-		{
-			is_non_continuous = true;
-			
-		}
-
+		_data_header.push_back(tmp.get_col_val(0));
+		_data_type.push_back(tmp.get_col_val(1));
 		tmp.next_record();
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
 		i++;
 	}
 	_jml_col = i;
 	tmp.close_file();
-
-	if (is_non_continuous)
-	{
-		is_42 = _jml_col == 42;
-	}
-   
-
 	stat_tabel();
 }
 
 
 bool Tbase_dataframe::is_pass(vector<string> &data)
 {
-
+    
 	bool pass = true;
 	if (_filter.size() > 0)
 	{
@@ -136,10 +97,42 @@ bool Tbase_dataframe::is_pass(vector<string> &data)
 	return pass;
 }
 
+bool Tbase_dataframe::is_pass()
+{
+    
+	bool pass = true;
+	if (_filter.size() > 0)
+	{
+		size_t i = 0;
+		while ((i < _filter.size()) and pass)
+		{
+			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
+
+			switch (_filter[i].idx_opt)
+			{
+			case 0 :
+				pass = tmp2 <= tmp1 ;
+				break;
+			case 1 :
+				pass = tmp1  < tmp2;
+				break;
+			case 2 :
+				pass = tmp1 == tmp2;
+				break;
+			case 3 :
+				pass = tmp1 != tmp2;
+				break;
+			}
+			i++;
+		}
+	}
+
+	return pass;
+}
+
 void Tbase_dataframe::stat_tabel()
 {
-	_stat_label.clear();
-
 	_data.index_on();
 	if (_filter.size() > 0) {
 		_data.clear_index();
@@ -149,73 +142,34 @@ void Tbase_dataframe::stat_tabel()
 
 	int i = 0;
 
-	vector<string> tmp_data;
-
 	_data.reset_file();
 	while (!_data.is_eof())
 	{
-		tmp_data = _data.get_record();
-
-		if (is_pass(tmp_data))
+		
+		if (is_pass())
 		{
 			if (_filter.size() > 0) {
 				_data.add_index();
 			}
-
-			_stat_label.add(tmp_data[_idx_label]);
 			i++;
-		}
-
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
+		}		
 		_data.next_record();
 	}
-	
-    if (_filter.size() > 0) {
+
+
+	if (_filter.size() > 0) {
 		_data.clear_memory();
 		_data.save_to_memory();
 		_data.clear_index();
 	}
-	
+
 	_data.index_on();
-	_jml_row = i;
-
-
-}
-
-map<string, int> Tbase_dataframe::get_stat_label()
-{
-	return _stat_label.get_map();
-}
-
-float Tbase_dataframe::get_estimate_error()
-{
-	return _stat_label.get_estimate_error();
-}
-
-map<int, int> Tbase_dataframe::get_unique_attr()
-{
-	return _unique_attr;
-}
-
-bool Tbase_dataframe::is_single_label()
-{
-	return _stat_label.is_single_label();
-}
-
-string Tbase_dataframe::get_max_label()
-{
-	return _stat_label.get_max_label();
+	_jml_row = i;	
 }
 
 int Tbase_dataframe::getjmlcol()
 {
 	return _jml_col;
-}
-
-int Tbase_dataframe::getjmlcol_svm()
-{
-	return is_non_continuous ? (is_42 ? 46 : 33) : _jml_col;
 }
 
 int Tbase_dataframe::getjmlrow()
@@ -242,7 +196,7 @@ void Tbase_dataframe::reset_file()
 
 void Tbase_dataframe::close_file()
 {
-	//_data.close_file();
+	_data.close_file();
 }
 
 bool Tbase_dataframe::is_eof()
@@ -260,77 +214,71 @@ vector<string> Tbase_dataframe::get_record()
 	return _data.get_record();
 }
 
-vector<string> Tbase_dataframe::get_record_svm()
+void Tbase_dataframe::next_col()
 {
-	if (!is_non_continuous)
-	{
-		return _data.get_record();
-	} else {
-		vector<string> vec, tmp_data = _data.get_record();
-
-		for (int i = 0; i < tmp_data.size(); ++i)
-		{
-			if (_data_type[i] == "continuous.")
-			{
-				vec.push_back(tmp_data[i]);
-			} else {
-				switch (i) {
-				case 1:
-					vec.push_back((tmp_data[i] == "tcp" ? "1" : "0" ));
-					vec.push_back((tmp_data[i] == "udp" ? "1" : "0" ));
-					vec.push_back((tmp_data[i] == "icmp" ? "1" : "0" ));
-					break;
-				case 2:
-					vec.push_back(((tmp_data[i] == "private") or (tmp_data[i] == "ecri") or (tmp_data[i] == "http")) ? "0" : "1");
-					vec.push_back(((tmp_data[i] == "private") or (tmp_data[i] == "ecri") or (tmp_data[i] == "http")) ? "1" : "0");
-					break;
-				case 3:
-					vec.push_back((tmp_data[i] == "SF") ? "0" : "1");
-					vec.push_back((tmp_data[i] == "SF") ? "1" : "0");
-					break;
-				default:
-					vec.push_back(tmp_data[i]);
-					break;
-				}
-			}
-		}
-
-		tmp_data.clear();
-	    tmp_data.shrink_to_fit();
-
-		return vec;
-	}
+	_data.next_col();
 }
+
+bool Tbase_dataframe::is_end_col()
+{
+	return _data.is_end_col();
+}
+
+string Tbase_dataframe::get_col_val()
+{
+	return _data.get_col_val();
+}
+
+string Tbase_dataframe::get_col_val(int idx_col)
+{
+	return _data.get_col_val(idx_col);
+}
+
+int Tbase_dataframe::get_idx_col()
+{
+	return _data.get_idx_col();
+}
+
+
+
+
+vector<vector<string>> Tbase_dataframe::get_all_record()
+{
+	//std::lock_guard<std::mutex> lock(v_mutex);
+    //ReFilter();
+
+	vector<vector<string>> Table;
+
+	_data.reset_file();
+	while (!_data.is_eof())
+	{
+		Table.push_back(_data.get_record());
+		_data.next_record();
+	}
+
+	//clear_memory();
+
+	return Table;
+}
+
+
 
 void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 {
+	
 	field_filter f;
 	f.idx_col = idx_col;
 	f.idx_opt = idx_opt;
 	f.value = value;
 	_filter.push_back(f);
 
-	auto itr = _unique_attr.find(idx_col);
-	if (itr == _unique_attr.end()) {
-		_unique_attr.insert(pair<int, int>(idx_col, 1));
-	} else {
-		itr->second += 1;
-	}
-
 	stat_tabel();
 }
 
 void Tbase_dataframe::add_filter(field_filter filter)
 {
+	
 	_filter.push_back(filter);
-
-	auto itr = _unique_attr.find(filter.idx_col);
-	if (itr == _unique_attr.end()) {
-		_unique_attr.insert(pair<int, int>(filter.idx_col, 1));
-	} else {
-		itr->second += 1;
-	}
-
 	stat_tabel();
 }
 
@@ -349,36 +297,34 @@ void Tbase_dataframe::info()
 	cout << " Info" << endl;
 	cout << " Nama File   : " << _nm_file << endl;
 	cout << " Jumlah Data : " << _jml_row << endl;
-
-	cout << _stat_label << endl ;
 }
 
 void Tbase_dataframe::save_to(string nm_file)
 {
-	Tread_file tmp;
-	tmp.setnm_f(nm_file, ",");
-	tmp.open_file("w+");
+	// Tread_file tmp;
+	// tmp.setnm_f(nm_file, ",");
+	// tmp.open_file("w+");
 
-	vector<string> tmp_data;
-	_data.reset_file();
-	while (!_data.is_eof())
-	{
-		tmp_data = _data.get_record();
+	// vector<string> tmp_data;
+	// _data.reset_file();
+	// while (!_data.is_eof())
+	// {
+	// 	tmp_data = _data.get_record();
 
-		string tmp_str = "";
-		for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
-		{
-			tmp_str = tmp_str + tmp_data[i] + ",";
-		}
-		tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
+	// 	string tmp_str = "";
+	// 	for (size_t i = 0; i < (tmp_data.size() - 1); ++i)
+	// 	{
+	// 		tmp_str = tmp_str + tmp_data[i] + ",";
+	// 	}
+	// 	tmp_str = tmp_str + tmp_data[tmp_data.size() - 1];
 
-		tmp.write_file(tmp_str);
+	// 	tmp.write_file(tmp_str);
 
 
-		tmp_data.clear();
-		tmp_data.shrink_to_fit();
-		_data.next_record();
-	}
+	// 	tmp_data.clear();
+	// 	tmp_data.shrink_to_fit();
+	// 	_data.next_record();
+	// }
 }
 
 string Tbase_dataframe::get_data_type(int idx)
@@ -420,3 +366,4 @@ void Tbase_dataframe::clear_memory()
 {
 	_data.clear_memory();
 }
+

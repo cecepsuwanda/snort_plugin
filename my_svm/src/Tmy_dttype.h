@@ -27,6 +27,8 @@ public:
 
 	string get_string();
 
+	bool is_continue();
+
 
 	Tmy_dttype& operator = (const Tmy_dttype &t)
 	{
