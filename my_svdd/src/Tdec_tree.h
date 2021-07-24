@@ -8,7 +8,7 @@
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
 #include "Tmy_dttype.h"
-#include "Tmy_svm.h"
+#include "Tmy_svdd.h"
 #include "Twrite_file.h"
 #include "credal.h"
 

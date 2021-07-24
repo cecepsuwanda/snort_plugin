@@ -8,5 +8,5 @@ INC_FLAGS=$(addprefix -I,$(INC_DIRS))
 
 CFLAGS=-pthread -g $(INC_FLAGS)
 
-my_svm : $(SRCS)
-	       $(CC) $(CFLAGS) -o my_svm $(SRCS) -std=c++17 -lstdc++fs
+my_svdd : $(SRCS)
+	       $(CC) $(CFLAGS) -o my_svdd $(SRCS) -std=c++17 -lstdc++fs

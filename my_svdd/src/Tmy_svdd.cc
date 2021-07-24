@@ -1,10 +1,10 @@
-#include "Tmy_svm.h"
+#include "Tmy_svdd.h"
 
 
 
-Tmy_svm::Tmy_svm()
+Tmy_svdd::Tmy_svdd()
 {
-	param.svm_type = ONE_CLASS;
+	param.svm_type = SVDD;
 	param.kernel_type = RBF;
 	param.degree = 3;
 	param.gamma = 0.0001;    // 1/num_features
@@ -27,9 +27,9 @@ Tmy_svm::Tmy_svm()
 	is_read_problem = false;
 }
 
-Tmy_svm::Tmy_svm(Tconfig* v_config)
+Tmy_svdd::Tmy_svdd(Tconfig* v_config)
 {
-	param.svm_type = ONE_CLASS;
+	param.svm_type = SVDD;
 	param.kernel_type = RBF;
 	param.degree = 3;
 	param.gamma = 0.0001;    // 1/num_features
@@ -55,7 +55,7 @@ Tmy_svm::Tmy_svm(Tconfig* v_config)
 }
 
 
-Tmy_svm::~Tmy_svm()
+Tmy_svdd::~Tmy_svdd()
 {
 	// cetak("{ my_svm");
 	// svm_free_and_destroy_model(&model);
@@ -69,7 +69,7 @@ Tmy_svm::~Tmy_svm()
 	// cetak(" }");
 }
 
-void Tmy_svm::read_problem(vector<vector<string>> table)
+void Tmy_svdd::read_problem(vector<vector<string>> table)
 {
 	// df.ReFilter();
 	// df.clear_col_split();
@@ -167,10 +167,10 @@ void Tmy_svm::read_problem(vector<vector<string>> table)
 }
 
 
-void Tmy_svm::train(vector<vector<string>> table)
+void Tmy_svdd::train(vector<vector<string>> table)
 {
 	param.gamma = config->gamma;
-	param.nu = config->nu;
+	param.C = config->C;
 
 	read_problem(table);
 
@@ -193,7 +193,7 @@ void Tmy_svm::train(vector<vector<string>> table)
 
 }
 
-void Tmy_svm::save_model(string nm_file)
+void Tmy_svdd::save_model(string nm_file)
 {
 
 	// cetak("{ save nSV = ");
@@ -212,7 +212,7 @@ void Tmy_svm::save_model(string nm_file)
 	free(x_space);
 }
 
-void Tmy_svm::load_model(string nm_file)
+void Tmy_svdd::load_model(string nm_file)
 {
 	if ((model = svm_load_model(nm_file.c_str())) == 0)
 	{
@@ -222,12 +222,12 @@ void Tmy_svm::load_model(string nm_file)
 
 }
 
-void Tmy_svm::destroy_model()
+void Tmy_svdd::destroy_model()
 {
 	svm_free_and_destroy_model(&model);
 }
 
-void Tmy_svm::test(Tdataframe &df)
+void Tmy_svdd::test(Tdataframe &df)
 {
 	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
 
@@ -280,7 +280,7 @@ void Tmy_svm::test(Tdataframe &df)
 	cout << conf_metrix << endl;
 }
 
-string Tmy_svm::guess(vector<string> &data)
+string Tmy_svdd::guess(vector<string> &data)
 {
 
 	char *endptr;

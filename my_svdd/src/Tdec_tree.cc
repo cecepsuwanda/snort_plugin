@@ -119,9 +119,9 @@ string Tdec_tree::guess(vector<string> &data)
           tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
         }
         //cetak("{v {model ");
-        Tmy_svm my_svm(config);
+        Tmy_svdd my_svdd(config);
         string nm_model = config->svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
-        my_svm.load_model(nm_model);
+        my_svdd.load_model(nm_model);
         //cetak("save_model_");
         //cetak(to_string(tree[leafNode].idx_svm).c_str());
         //cetak(".csv} ");
@@ -155,7 +155,7 @@ string Tdec_tree::guess(vector<string> &data)
           tmp_wf.close_file();
         }
         //cetak(" {guess ");
-        label = my_svm.guess(tmp_data);
+        label = my_svdd.guess(tmp_data);
         //cetak("}");
 
         tmp_data.clear();
@@ -196,10 +196,10 @@ void Tdec_tree::thread_test_svm(int idx_svm, string label, vector<vector<string>
     tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
   }
 
-  Tmy_svm my_svm(config);
+  Tmy_svdd my_svdd(config);
 
   string nm_model = config->svm_path + "/svm_model_" + to_string(idx_svm) + ".csv";
-  my_svm.load_model(nm_model);
+  my_svdd.load_model(nm_model);
 
   vector<string> tmp_data;
   string tmp_str;
@@ -213,7 +213,7 @@ void Tdec_tree::thread_test_svm(int idx_svm, string label, vector<vector<string>
     }
 
     string tmp_label = label;
-    tmp_label = my_svm.guess(tmp_data);
+    tmp_label = my_svdd.guess(tmp_data);
 
     //table[i].push_back(tmp_label);
 
@@ -236,7 +236,7 @@ void Tdec_tree::thread_test_svm(int idx_svm, string label, vector<vector<string>
     tmp_data.shrink_to_fit();
   }
 
-  my_svm.destroy_model();
+  my_svdd.destroy_model();
 
   if (config->save_test)
   {

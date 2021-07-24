@@ -125,9 +125,9 @@ void Tdt_build::thread_save_train(Tconfig* v_config, vector<vector<string>> tabl
 
 void Tdt_build::thread_train_svm(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
 {
-	Tmy_svm my_svm(v_config);
-	my_svm.train(table);
-	my_svm.save_model(v_config->svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
+	Tmy_svdd my_svdd(v_config);
+	my_svdd.train(table);
+	my_svdd.save_model(v_config->svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
 }
 
 void Tdt_build::f_train_svm(Tdataframe &df, int v_idx_svm)

@@ -2,7 +2,7 @@
 #include <thread>
 #include "Tdataframe.h"
 #include "Timer.h"
-#include "Tmy_svm.h"
+#include "Tmy_svdd.h"
 
 #ifndef Included_Tdt_learn_svm_H
 

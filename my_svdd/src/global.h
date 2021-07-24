@@ -30,6 +30,7 @@ struct Tconfig
 
   double gamma = 0.0;
   double nu = 0.0;
+  double C = 0.0;
 
   int depth = 0;
   int min_sample = 0;

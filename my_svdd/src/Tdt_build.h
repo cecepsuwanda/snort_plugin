@@ -3,7 +3,7 @@
 #include "Tdataframe.h"
 #include "Timer.h"
 #include "Twrite_file.h"
-#include "Tmy_svm.h"
+#include "Tmy_svdd.h"
 
 #ifndef Included_Tdt_build_H
 

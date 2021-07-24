@@ -8,13 +8,13 @@
 
 using namespace std;
 
-#ifndef Included_Tmy_svm_H
+#ifndef Included_Tmy_svdd_H
 
-#define Included_Tmy_svm_H
+#define Included_Tmy_svdd_H
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
-class Tmy_svm
+class Tmy_svdd
 {
 
 private:
@@ -36,9 +36,9 @@ private:
 	Tconfig* config;
 
 public:
-	Tmy_svm();
-	Tmy_svm(Tconfig* v_config);
-	~Tmy_svm();
+	Tmy_svdd();
+	Tmy_svdd(Tconfig* v_config);
+	~Tmy_svdd();
 	void train(vector<vector<string>> table);
 	void save_model(string nm_file);
 	void load_model(string nm_file);
