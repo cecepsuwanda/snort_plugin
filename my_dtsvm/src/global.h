@@ -22,6 +22,7 @@ struct Tconfig
   bool use_credal = false;
   double credal_s = 0.0;
   bool limited = false;
+  bool prunning = false;
 
   bool train_svm = false;
   bool feature_selection = false;

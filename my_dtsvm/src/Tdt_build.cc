@@ -16,11 +16,11 @@ Tdt_build::~Tdt_build()
 
 void Tdt_build::del_model_train(int idx)
 {
-  string filename = config->svm_path + "/svm_model_" + to_string(idx) + ".csv";
-  remove(filename.c_str());
+	string filename = config->svm_path + "/svm_model_" + to_string(idx) + ".csv";
+	remove(filename.c_str());
 
-  filename = config->path_model + "/train/train_model_" + to_string(idx) + ".csv";
-  remove(filename.c_str());
+	filename = config->path_model + "/train/train_model_" + to_string(idx) + ".csv";
+	remove(filename.c_str());
 }
 
 Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
@@ -323,44 +323,47 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				cetak("<-");
 				train(df_above, nextNode1.treeIndex, counter);
 
-				if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
-				{
+				if (config->prunning) {
 
-					tree[node_index].isLeaf = true;
+					if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+					{
 
-					string tmp_str = tree[treeIndex_yes].label;
+						tree[node_index].isLeaf = true;
 
-					cetak("+");
+						string tmp_str = tree[treeIndex_yes].label;
 
-					if (tmp_str == "normal") {
+						cetak("+");
 
-						idx_svm++;
-						tree[node_index].idx_svm = idx_svm;
+						if (tmp_str == "normal") {
 
-						if ((config->train_svm) )
-						{
+							idx_svm++;
+							tree[node_index].idx_svm = idx_svm;
 
-							clear_worker(20);
+							if ((config->train_svm) )
+							{
 
-							cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
-							f_train_svm(df, idx_svm);
-							cetak("}");
+								clear_worker(20);
 
-							del_model_train(tree[treeIndex_yes].idx_svm);
-							del_model_train(tree[treeIndex_no].idx_svm);
+								cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
+								f_train_svm(df, idx_svm);
+								cetak("}");
+
+								del_model_train(tree[treeIndex_yes].idx_svm);
+								del_model_train(tree[treeIndex_no].idx_svm);
+							}
+
+						} else {
+							cetak("{A}");
 						}
 
-					} else {
-						cetak("{A}");
+						tree[node_index].label = tree[treeIndex_yes].label;
+						tree[node_index].children.clear();
+						tree[node_index].children.shrink_to_fit();
+						tree.erase(tree.begin() + treeIndex_no);
+						tree.erase(tree.begin() + treeIndex_yes);
+						tree.shrink_to_fit();
+						//cetak("\n");
 					}
-
-					tree[node_index].label = tree[treeIndex_yes].label;
-					tree[node_index].children.clear();
-					tree[node_index].children.shrink_to_fit();
-					tree.erase(tree.begin() + treeIndex_no);
-					tree.erase(tree.begin() + treeIndex_yes);
-					tree.shrink_to_fit();
-					//cetak("\n");
 				}
 			}
 
@@ -555,9 +558,11 @@ void Tdt_build::build_tree()
 
 	config->search_uniqe_val = false;
 
-	cetak("Start Prunning Decission Tree : \n");
-	post_pruning(df_train);
-	cetak("\nEnd Prunning Decission Tree : \n");
+	if (config->prunning) {
+		cetak("Start Prunning Decission Tree : \n");
+		post_pruning(df_train);
+		cetak("\nEnd Prunning Decission Tree : \n");
+	}
 
 	save_tree();
 

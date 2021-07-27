@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   config.svm_path = config.path_model + "/" + argv[3];
 
   config.gamma = strtod(argv[4], &endptr);
-  //config.C = strtod(argv[5], &endptr);
+  config.C = strtod(argv[5], &endptr);
 
   int jml = 0;
 
@@ -42,16 +42,16 @@ int main(int argc, char *argv[])
       df_train.info();
 
       jml = jml + df_train.getjmlrow_svm();
-      config.C = (float) 1/df_train.getjmlrow_svm();
+      //config.C = (float) 1/df_train.getjmlrow_svm();
 
-      cout << "C " << config.C << endl;
+      //cout << "C " << config.C << endl;
 
 
-      //Tmy_svdd my_svdd(&config);
+      Tmy_svdd my_svdd(&config);
       //my_svdd.load_model(config.svm_path + "/" + str);
-      //vector<vector<string>> table = df_train.get_all_record_svm();
-      //my_svdd.train(table);
-      //my_svdd.test(df_train);
+      vector<vector<string>> table = df_train.get_all_record_svm();
+      my_svdd.train(table);
+      my_svdd.test(df_train);
 
       df_train.clear_memory();
       df_train.close_file();
