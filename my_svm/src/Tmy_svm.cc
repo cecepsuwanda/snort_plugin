@@ -227,7 +227,7 @@ void Tmy_svm::destroy_model()
 	svm_free_and_destroy_model(&model);
 }
 
-void Tmy_svm::test(Tdataframe &df)
+void Tmy_svm::test(Tdataframe &df,Tconf_metrix &p_conf_metrix)
 {
 	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
 
@@ -237,6 +237,9 @@ void Tmy_svm::test(Tdataframe &df)
 	char *endptr;
 
 	asli = "inside";
+	conf_metrix.add_konversi_asli("known","inside");
+	conf_metrix.add_konversi_asli("normal","inside");
+	conf_metrix.add_konversi_asli("unknown","outside");
 
 	df.reset_file();
 
@@ -254,6 +257,8 @@ void Tmy_svm::test(Tdataframe &df)
 		}
 		x_space[k].index = -1;
 
+		asli = tmp[k];
+
 		predict_label = svm_predict(model, x_space);
 
 		tebakan = "inside";
@@ -265,6 +270,7 @@ void Tmy_svm::test(Tdataframe &df)
 		//cout << predict_label << endl;
 
 		conf_metrix.add_jml(asli, tebakan, 1);
+		p_conf_metrix.add_jml(asli, tebakan, 1);
 
 		tmp.clear();
 		tmp.shrink_to_fit();

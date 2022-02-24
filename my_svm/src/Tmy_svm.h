@@ -43,7 +43,7 @@ public:
 	void save_model(string nm_file);
 	void load_model(string nm_file);
 	void destroy_model();
-	void test(Tdataframe &df);
+	void test(Tdataframe &df,Tconf_metrix &p_conf_metrix);
 	string guess(vector<string> &data);
 
 };

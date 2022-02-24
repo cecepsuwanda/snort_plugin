@@ -1,5 +1,6 @@
 #include <iostream>
 #include <experimental/filesystem>
+#include "Tconf_metrix.h"
 #include "Tmy_svm.h"
 
 using namespace std;
@@ -17,6 +18,11 @@ int main(int argc, char *argv[])
 
   config.gamma = strtod(argv[4], &endptr);
   config.nu = strtod(argv[5], &endptr);
+
+  Tconf_metrix conf_metrix;
+  conf_metrix.add_konversi_asli("known","inside");
+  conf_metrix.add_konversi_asli("normal","inside");
+  conf_metrix.add_konversi_asli("unknown","outside");
 
   int jml = 0;
 
@@ -36,28 +42,28 @@ int main(int argc, char *argv[])
 
     // df_train.set_min_sample(2);
 
-    //cout << str << endl;
+    // cout << str << endl;
 
     // if( (df_train.getjmlrow()>10000) ) //(!df_train.is_single_label()) and
     // {
     // df_train.info();
     if (exists(v_path)) {
+       // if(str=="svm_model_36.csv"){  
+        Tdataframe df_train(&config);
+        df_train.read_data(file.path());
+        df_train.read_data_type(config.f_datatype);
+        df_train.info();
 
-      Tdataframe df_train(&config);
-      df_train.read_data(file.path());
-      df_train.read_data_type(config.f_datatype);
-      df_train.info();
+        jml = jml + df_train.getjmlrow_svm();
 
-      jml = jml + df_train.getjmlrow_svm();
+        Tmy_svm my_svm(&config);
+        //my_svm.load_model(config.svm_path + "/" + str);
+        my_svm.train(df_train.get_all_record_svm());
+        my_svm.test(df_train,conf_metrix);
 
-      Tmy_svm my_svm(&config);
-      my_svm.load_model(config.svm_path + "/" + str);
-      // my_svm.train(df_train,gamma,nu);
-      my_svm.test(df_train);
-
-      df_train.clear_memory();
-      df_train.close_file();
-
+        df_train.clear_memory();
+        df_train.close_file();
+       // } 
     }else{
       cout << str << " tidak ada !!!" << endl;
     }
@@ -67,6 +73,8 @@ int main(int argc, char *argv[])
   }
 
   cout << "jml = " << jml << endl;
+  conf_metrix.kalkulasi();
+  cout << conf_metrix << endl;
 
   /*Tdataframe df_train, df_test, df_save;
   df_train.read_data(argv[4]);
