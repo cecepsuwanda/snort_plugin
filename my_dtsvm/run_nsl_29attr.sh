@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH_MODEL='model_100_2_svm_29attr_100' 
+PATH_MODEL='model_100_2_svm_29attr_300' 
 NAMES='data/kddcup_29attr.names'
 TRAIN='data/NSLTree_29attr_train.txt'
 TEST='data/NSLTree_29attr_test.txt'
@@ -12,7 +12,7 @@ MIN_SAMP=2
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=100
+THRESHOLD=300
 F=0
 N=0
 

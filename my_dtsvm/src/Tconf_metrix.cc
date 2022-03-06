@@ -121,10 +121,10 @@ void Tconf_metrix::kalkulasi()
 			tmp_data.TN = get_TN(it->first);
 			TN += tmp_data.TN;
 			tmp_data.jml = tmp_data.TP + tmp_data.FN;
-			// tmp_data.accuracy = 0;
-			// if ((tmp_data.TP + tmp_data.FP) > 0) {
-			// 	tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
-			// }
+			tmp_data.accuracy = 0;
+			if ((tmp_data.TP + tmp_data.FP) > 0) {
+			 	 tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
+			}
 			tmp_data.recall = 0;
 			if ((tmp_data.jml) > 0) {
 				tmp_data.recall =  tmp_data.TP / (double) tmp_data.jml;
@@ -140,12 +140,18 @@ void Tconf_metrix::kalkulasi()
 			// 	tmp_data.specificity =  tmp_data.TN / (double)(tmp_data.TN + tmp_data.FP);
 			// }
 
+			tmp_data.f1 = 0;
+			if ((tmp_data.recall + tmp_data.precision) > 0) {
+			  	tmp_data.f1 =  (2*tmp_data.recall*tmp_data.precision) / (double)(tmp_data.recall + tmp_data.precision);
+			}
+
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
 
 		accuracy = (TP + TN) / (double)(TP + TN + FP + FN);
 		precision = TP / (double)(TP + FP);
 		recall = TP / (double)(TP + FN);
+		f1 = (2*recall*precision)/(double)(recall+precision);
 	}
 }
 
@@ -243,11 +249,12 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	//out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100);
 	out << " Akurasi: " << tc.accuracy ;
 	out << " Precision: " << tc.precision ;
-	out << " Recall: " << tc.recall << endl;
+	out << " Recall: " << tc.recall ;
+	out << " F1 : " << tc.f1 << endl;
 
 	if (tc.matrik1.size() > 0) {
 		out << "   Confusion Metrik     : " << endl;
-		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10)   << "recall" << setw(13) << "precision" << endl; //<< "accuracy" << setw(10)
+		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10)  << "recall" << setw(13) << "precision" << setw(13) << "f1" << endl; 
 		for (auto it = tc.matrik1.begin(); it != tc.matrik1.end(); ++it)
 		{
 			out << setw(30) << it->first;
@@ -256,9 +263,10 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 			out << setw(10) << it->second.jml;
 			out << setw(10) << it->second.FP;
 			out << setw(10) << it->second.TN;
-			//out << setprecision(3) << setw(10) << it->second.accuracy;
+			out << setprecision(3) << setw(10) << it->second.accuracy;
 			out << setprecision(3) << setw(10) << it->second.recall;
-			out << setprecision(3) << setw(13) << it->second.precision << endl;
+			out << setprecision(3) << setw(13) << it->second.precision;
+			out << setprecision(3) << setw(13) << it->second.f1 << endl;
 		}
 	}
 

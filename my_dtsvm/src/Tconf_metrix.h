@@ -14,7 +14,7 @@ using namespace std;
 struct Tdata
 {
   int TP, FP, TN, FN, jml;
-  float  recall, precision;
+  float  accuracy,recall, precision,f1;
 };
 
 class Tconf_metrix
@@ -22,7 +22,7 @@ class Tconf_metrix
 private:
   map<string, map<string, int>> matrik;
   map<string, Tdata> matrik1;
-  float accuracy, precision, recall;
+  float accuracy, precision, recall,f1;
   int failed, tepat, tdk_tepat, jml_data;
   map<string, int> label;
   map<string, string> konversi_asli;
