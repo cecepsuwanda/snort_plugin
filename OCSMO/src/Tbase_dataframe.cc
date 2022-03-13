@@ -31,6 +31,13 @@ int Tbase_dataframe::get_id()
 	return _id;
 }
 
+void Tbase_dataframe::by_pass_filter_on(){
+	_by_pass_filter = true;
+}
+
+void Tbase_dataframe::by_pass_filter_off(){
+   _by_pass_filter = false;
+}	
 
 
 void Tbase_dataframe::read_data(string nm_f)
@@ -134,7 +141,7 @@ bool Tbase_dataframe::is_pass()
 void Tbase_dataframe::stat_tabel()
 {
 	_data.index_on();
-	if (_filter.size() > 0) {
+	if ((_filter.size() > 0) or (_by_pass_filter==true)) {
 		_data.clear_index();
 	} else {
 		_data.index_off();
@@ -148,7 +155,7 @@ void Tbase_dataframe::stat_tabel()
 		
 		if (is_pass())
 		{
-			if (_filter.size() > 0) {
+			if ((_filter.size() > 0) or (_by_pass_filter==true)) {
 				_data.add_index();
 			}
 			i++;
@@ -157,7 +164,7 @@ void Tbase_dataframe::stat_tabel()
 	}
 
 
-	if (_filter.size() > 0) {
+	if ((_filter.size() > 0) or (_by_pass_filter==true)) {
 		_data.clear_memory();
 		_data.save_to_memory();
 		_data.clear_index();

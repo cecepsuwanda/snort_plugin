@@ -46,10 +46,11 @@ int main(int argc, char *argv[])
         Tdataframe df_train(&config);
         df_train.read_data(file.path());
         df_train.read_data_type(config.f_datatype);
+        df_train.by_pass_filter_on();
         df_train.info();
 
         jml = jml + df_train.getjmlrow_svm();
-
+        
         Tmy_svm my_svm(&config);
         // //my_svm.load_model(config.svm_path + "/" + str);
         my_svm.train(df_train);

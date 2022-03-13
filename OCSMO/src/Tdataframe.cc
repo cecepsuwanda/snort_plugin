@@ -85,7 +85,7 @@ void Tdataframe::stat_tabel()
   _stat_label.clear();
 
   _data.index_on();
-  if (_filter.size() > 0) {
+  if ((_filter.size() > 0) or (_by_pass_filter==true)) {
     _data.clear_index();
   } else {
     _data.index_off();
@@ -99,7 +99,7 @@ void Tdataframe::stat_tabel()
 
     if (is_pass())
     {
-      if (_filter.size() > 0) {
+      if ((_filter.size() > 0) or (_by_pass_filter==true)) {
         _data.add_index();
       }
 
@@ -121,7 +121,7 @@ void Tdataframe::stat_tabel()
     _data.next_record();
   }
 
-  if (_filter.size() > 0) {
+  if ((_filter.size() > 0) or (_by_pass_filter==true)) {
     _data.clear_memory();
     _data.save_to_memory();
     _data.clear_index();
@@ -326,6 +326,19 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
   clear_memory();
 
   return Table;
+}
+
+vector<string> Tdataframe::goto_rec(int idx)
+{
+  ReFilter();
+  
+  vector<string> tmp_data;
+  _data.reset_file();
+  _data.goto_rec(idx);
+  tmp_data = get_record_svm();
+  tmp_data.erase(tmp_data.begin()+_idx_label);
+  return tmp_data;
+
 }
 
 map<Tmy_dttype, Tlabel_stat>* Tdataframe::get_col_split(int idx)

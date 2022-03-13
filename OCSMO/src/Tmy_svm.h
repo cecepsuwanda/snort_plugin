@@ -1,6 +1,7 @@
 #include <string>
 #include "Tdataframe.h"
 #include "Tmy_alpha.h"
+#include "Tmy_kernel.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ class Tmy_svm
 private:
     Tconfig *_config;
     Tmy_alpha *_my_alpha;
+    Tmy_kernel *_my_kernel;
 public:
 	Tmy_svm(Tconfig *v_config);
 	~Tmy_svm();

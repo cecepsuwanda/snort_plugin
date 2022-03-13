@@ -130,6 +130,8 @@ public:
 	void save_to_memory();
 	void clear_memory();
 
+	void goto_rec(int idx);
+
 };
 
 #endif

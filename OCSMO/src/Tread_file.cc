@@ -300,3 +300,18 @@ void Tread_file::clear_memory()
     _jml_index = 0;
   }
 }
+
+void Tread_file::goto_rec(int idx)
+{
+  if (is_index and (_jml_index > 0))
+  {
+    _idx_posisi = idx;
+  }
+  else
+  {
+    _posisi = idx;
+  }
+  
+  read_file();
+
+}

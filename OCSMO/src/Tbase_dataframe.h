@@ -32,6 +32,8 @@ protected:
 	string _nm_file;
 	int _id = 0;
 
+	bool _by_pass_filter = false;
+
 	mutable std::mutex v_mutex;
 
 private:
@@ -69,7 +71,10 @@ public:
 	}
 
 	void set_id(int id);
-	int get_id();	
+	int get_id();
+
+	void by_pass_filter_on();
+	void by_pass_filter_off();	
 
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);
