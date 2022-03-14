@@ -168,3 +168,38 @@ bool Tmy_list_alpha::is_free(int idx)
 {
   return (_alpha_status[idx]==2);
 }
+
+vector<double> Tmy_list_alpha::calculateBoundaries(int i,int j)
+{
+  double t      = _alpha[i]+_alpha[j];
+  double diff   = t-_ub;
+  double diff1  = t+abs(_lb);
+  vector<double> hasil = {_lb,_ub};
+  if(((_alpha[i]<=_ub) and (_alpha[i]>=_lb)) and ((_alpha[j]<=_ub) and (_alpha[j]>=_lb))){
+    hasil = {max(diff,_lb),min(_ub,diff1)}; 
+  }
+  return hasil;
+}
+
+vector<double> Tmy_list_alpha::limit_alpha(double alpha_a,double alpha_b,double Low,double High, int flag)
+{
+  vector<double> hasil={alpha_a,alpha_b};
+  if (alpha_a>High){
+     if(flag==1)
+     {
+        double s=alpha_a-High;
+        hasil[1]= alpha_b+s;
+     }
+     hasil[0]=High; 
+  }else{
+     if (alpha_a<Low){
+      if(flag==1)
+      {
+        double s=alpha_a-Low;
+        hasil[1]= alpha_b+s;
+      }
+      hasil[0]=Low; 
+     } 
+  }
+  return hasil;
+}

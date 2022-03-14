@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "global.h"
 
 using namespace std;
@@ -30,6 +31,8 @@ private:
    void update_alpha_sv(int idx);
 
    vector<bool> is_alpha_sv(int idx);
+   vector<double> calculateBoundaries(int i,int j);
+   vector<double> limit_alpha(double alpha_a,double alpha_b,double Low,double High, int flag);
 
 public:
 	Tmy_list_alpha(int v_jml_data,double v_lb,double v_ub);
@@ -42,6 +45,8 @@ public:
    bool is_lower_bound(int idx);
    bool is_upper_bound(int idx);
    bool is_free(int idx);
+
+
 	
 };
 
