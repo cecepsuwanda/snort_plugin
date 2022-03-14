@@ -37,7 +37,11 @@ public:
 
 	void init(double V,double eps);
 	void update_alpha(int idx,double value);
+   void update_lb_ub(int idx);
 
+   bool is_lower_bound(int idx);
+   bool is_upper_bound(int idx);
+   bool is_free(int idx);
 	
 };
 

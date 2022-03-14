@@ -81,6 +81,7 @@ void Tmy_list_alpha::update_alpha(int idx,double value)
 
   update_alpha_sv(idx);
   update_alpha_status(idx);
+  update_lb_ub(idx);
 	
 }
 
@@ -114,6 +115,35 @@ void Tmy_list_alpha::update_alpha_sv(int idx)
   }
 }
 
+void Tmy_list_alpha::update_lb_ub(int idx)
+{
+  for(int i=0;i<_alpha_not_ub.size();i++){
+    if(_alpha_not_ub[i]==idx){
+      _alpha_not_ub.erase(_alpha_not_ub.begin()+i);
+      break;
+    } 
+  }
+
+  for(int i=0;i<_alpha_not_lb.size();i++){
+    if(_alpha_not_lb[i]==idx){
+      _alpha_not_lb.erase(_alpha_not_lb.begin()+i);
+      break;
+    } 
+  }
+
+  if (is_upper_bound(idx)==false)
+  {
+    _alpha_not_ub.push_back(idx);
+  }
+
+  if (is_lower_bound(idx)==false)
+  {
+    _alpha_not_lb.push_back(idx);
+  }
+
+
+}
+
 vector<bool> Tmy_list_alpha::is_alpha_sv(int idx)
 {
   vector<bool> tmp;
@@ -122,4 +152,19 @@ vector<bool> Tmy_list_alpha::is_alpha_sv(int idx)
   tmp.push_back((_alpha[idx]==_ub));
   tmp.push_back((_alpha[idx]==_lb));
   return tmp;
+}
+
+bool Tmy_list_alpha::is_lower_bound(int idx)
+{
+  return (_alpha_status[idx]==0);
+}
+
+bool Tmy_list_alpha::is_upper_bound(int idx)
+{
+  return (_alpha_status[idx]==1);
+}
+
+bool Tmy_list_alpha::is_free(int idx)
+{
+  return (_alpha_status[idx]==2);
 }
