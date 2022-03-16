@@ -23,26 +23,8 @@ int main(int argc, char *argv[])
   for (const auto & file : directory_iterator(config.path_model + "/" + argv[6]))
   {
 
-    string str = file.path().filename();
-    string tmp = argv[6];
-    if ( tmp == "train")
-    {
-      str.replace(0, 5, "svm");
-    } else {
-      str.replace(0, 4, "svm");
-    }
-
-    path v_path(config.svm_path + "/" + str);
-
-    // df_train.set_min_sample(2);
-
-    // cout << str << endl;
-
-    // if( (df_train.getjmlrow()>10000) ) //(!df_train.is_single_label()) and
-    // {
-    // df_train.info();
-    if (exists(v_path)) {
-       // if(str=="svm_model_36.csv"){  
+       string str = file.path().filename();       
+       if(str=="train_model_2.csv"){  
         Tdataframe df_train(&config);
         df_train.read_data(file.path());
         df_train.read_data_type(config.f_datatype);
@@ -51,20 +33,13 @@ int main(int argc, char *argv[])
 
         jml = jml + df_train.getjmlrow_svm();
         
-        Tmy_svm my_svm(&config);
-        // //my_svm.load_model(config.svm_path + "/" + str);
+        Tmy_svm my_svm(&config);        
         my_svm.train(df_train);
         // my_svm.test(df_train,conf_metrix);
 
         df_train.clear_memory();
-        df_train.close_file();
-       // } 
-    }else{
-      cout << str << " tidak ada !!!" << endl;
-    }
-    // }
-
-    
+        df_train.close_file(); 
+        }   
   }
 
   cout << "jml = " << jml << endl;

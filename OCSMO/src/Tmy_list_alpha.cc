@@ -35,13 +35,13 @@ void Tmy_list_alpha::init(double V,double eps){
   if(_jml_alpha<eps)
   {
     update_alpha(jml,1-_jml_alpha);
+    jml=jml+1;
   }
 
-  cout << "_ub             = " << _ub << endl;
-  cout << "_jml_alpha      = " << _jml_alpha << endl;
-  cout << "_jml_alpha_n_sv = " << _jml_alpha_n_sv << endl;
-  cout << "_n_all_sv       = " << _n_all_sv << endl;
-  cout << "_n_sv           = " << _n_sv << endl;
+  for(int idx=jml;idx<_jml_data;idx++){
+     update_alpha(idx,0);
+  }
+  
 }
 
 void Tmy_list_alpha::update_alpha(int idx,double value)
@@ -203,3 +203,72 @@ vector<double> Tmy_list_alpha::limit_alpha(double alpha_a,double alpha_b,double 
   }
   return hasil;
 }
+
+vector<double> Tmy_list_alpha::calculateNewAlpha(int i,int j,double delta,double Low,double High)
+{
+  double alpha_a_new = _alpha[i]+delta;
+  vector<double> tmp = limit_alpha(alpha_a_new,0,Low,High,0);
+  alpha_a_new = tmp[0];
+  double alpha_b_new = _alpha[j]+(_alpha[i]-alpha_a_new);
+  tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
+  alpha_b_new = tmp[0];
+  alpha_a_new = tmp[1];
+  return {_alpha[i],_alpha[j],alpha_a_new,alpha_b_new};
+}
+
+bool Tmy_list_alpha::is_pass(int i,int j,double delta,vector<double> *alpha)
+{
+  
+  if(i==j)
+  {    
+    alpha->push_back(_alpha[i]);
+    alpha->push_back(_alpha[j]);
+    alpha->push_back(_alpha[i]);
+    alpha->push_back(_alpha[j]);
+    return false;
+  }else{
+    vector<double> tmp=calculateBoundaries(i,j);
+    double Low=tmp[0],High=tmp[1];
+    if(Low==High){
+       alpha->push_back(_alpha[i]);
+       alpha->push_back(_alpha[j]);
+       alpha->push_back(_alpha[i]);
+       alpha->push_back(_alpha[j]);
+       return false;
+    }else{
+       tmp=calculateNewAlpha(i,j,delta,Low,High);
+       double alpha_a_old=tmp[0],alpha_b_old=tmp[1],alpha_a_new=tmp[2],alpha_b_new=tmp[3];
+       if(abs(alpha_a_new-alpha_a_old)<10e-5)
+       {
+        alpha->push_back(_alpha[i]);
+        alpha->push_back(_alpha[j]);
+        alpha->push_back(_alpha[i]);
+        alpha->push_back(_alpha[j]);
+        return false;
+       }else{
+          alpha->push_back(alpha_a_old);
+          alpha->push_back(alpha_b_old);
+          alpha->push_back(alpha_a_new);
+          alpha->push_back(alpha_b_new);        
+          return true;
+       }
+    }
+  }  
+}
+
+double Tmy_list_alpha::get_alpha(int idx)
+{
+  return _alpha[idx];  
+}
+
+vector<int> Tmy_list_alpha::get_list_lb_ub(int flag)
+{
+  if(flag==0){
+     return _alpha_not_lb;
+  }else{
+    if(flag==1){
+       return _alpha_not_ub;
+    }  
+  }
+}
+

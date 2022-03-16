@@ -22,3 +22,8 @@ void Tmy_alpha::update_alpha(int idx1,double value1,int idx2,double value2)
 	_my_list_alpha->update_alpha(idx1,value1);
 	_my_list_alpha->update_alpha(idx2,value2);
 }
+
+Tmy_list_alpha* Tmy_alpha::get_alpha()
+{
+	return _my_list_alpha; 
+}

@@ -19,6 +19,9 @@ public:
 
     void init(int jml_data);
     void update_alpha(int idx1,double value1,int idx2,double value2);
+
+    Tmy_list_alpha* get_alpha();
+    
 	
 };
 
