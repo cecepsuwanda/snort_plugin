@@ -28,13 +28,14 @@ Tmy_list_alpha::~Tmy_list_alpha(){
 
 void Tmy_list_alpha::init(double V,double eps){
   int jml = (int) (V*_jml_data);
+  
   for(int idx=0;idx<jml;idx++){
   	 update_alpha(idx,_ub);
   }
 
-  if(_jml_alpha<eps)
+  if(_jml_alpha<1)
   {
-    update_alpha(jml,1-_jml_alpha);
+    update_alpha(jml,bulat_nol(1-_ub,1e-5,10));
     jml=jml+1;
   }
 
@@ -174,6 +175,9 @@ vector<double> Tmy_list_alpha::calculateBoundaries(int i,int j)
   double t      = _alpha[i]+_alpha[j];
   double diff   = t-_ub;
   double diff1  = t+abs(_lb);
+  t = bulat_nol(t,1e-5,10);
+  diff = bulat_nol(diff,1e-5,10);
+  diff1 = bulat_nol(diff1,1e-5,10);
   vector<double> hasil = {_lb,_ub};
   if(((_alpha[i]<=_ub) and (_alpha[i]>=_lb)) and ((_alpha[j]<=_ub) and (_alpha[j]>=_lb))){
     hasil = {max(diff,_lb),min(_ub,diff1)}; 
@@ -189,6 +193,7 @@ vector<double> Tmy_list_alpha::limit_alpha(double alpha_a,double alpha_b,double 
      {
         double s=alpha_a-High;
         hasil[1]= alpha_b+s;
+        hasil[1]=bulat_nol(hasil[1],1e-5,10);
      }
      hasil[0]=High; 
   }else{
@@ -197,6 +202,7 @@ vector<double> Tmy_list_alpha::limit_alpha(double alpha_a,double alpha_b,double 
       {
         double s=alpha_a-Low;
         hasil[1]= alpha_b+s;
+        hasil[1]=bulat_nol(hasil[1],1e-5,10);
       }
       hasil[0]=Low; 
      } 
@@ -207,9 +213,11 @@ vector<double> Tmy_list_alpha::limit_alpha(double alpha_a,double alpha_b,double 
 vector<double> Tmy_list_alpha::calculateNewAlpha(int i,int j,double delta,double Low,double High)
 {
   double alpha_a_new = _alpha[i]+delta;
+  alpha_a_new = bulat_nol(alpha_a_new,1e-5,10);
   vector<double> tmp = limit_alpha(alpha_a_new,0,Low,High,0);
   alpha_a_new = tmp[0];
   double alpha_b_new = _alpha[j]+(_alpha[i]-alpha_a_new);
+  alpha_b_new = bulat_nol(alpha_b_new,1e-5,10);
   tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
   alpha_b_new = tmp[0];
   alpha_a_new = tmp[1];
@@ -229,6 +237,7 @@ bool Tmy_list_alpha::is_pass(int i,int j,double delta,vector<double> *alpha)
   }else{
     vector<double> tmp=calculateBoundaries(i,j);
     double Low=tmp[0],High=tmp[1];
+    //cout <<"Low "<<Low<<" High "<<High<<endl;
     if(Low==High){
        alpha->push_back(_alpha[i]);
        alpha->push_back(_alpha[j]);
@@ -238,8 +247,11 @@ bool Tmy_list_alpha::is_pass(int i,int j,double delta,vector<double> *alpha)
     }else{
        tmp=calculateNewAlpha(i,j,delta,Low,High);
        double alpha_a_old=tmp[0],alpha_b_old=tmp[1],alpha_a_new=tmp[2],alpha_b_new=tmp[3];
-       if(abs(alpha_a_new-alpha_a_old)<10e-5)
-       {
+       //cout<<alpha_a_new<<","<<alpha_a_old<<" "<<alpha_b_new<<","<<alpha_b_old<<endl;
+       double diff = alpha_a_new-alpha_a_old;
+       diff=bulat_nol(diff,1e-5,10);
+       if(abs(diff)<10e-5)
+       {        
         alpha->push_back(_alpha[i]);
         alpha->push_back(_alpha[j]);
         alpha->push_back(_alpha[i]);
@@ -270,5 +282,29 @@ vector<int> Tmy_list_alpha::get_list_lb_ub(int flag)
        return _alpha_not_ub;
     }  
   }
+}
+
+void Tmy_list_alpha::mv_lb_ub(int idx,int posisi,int flag1)
+{
+   if(flag1==0)
+   {
+      for(int i=0;i<_alpha_not_lb.size();i++){
+          if(_alpha_not_lb[i]==idx){
+             swap(_alpha_not_lb[i],_alpha_not_lb[posisi]);
+             break;
+         }
+      }    
+    }
+   else{
+     if(flag1==1)
+     {
+         for(int i=0;i<_alpha_not_ub.size();i++){
+             if(_alpha_not_ub[i]==idx){
+             swap(_alpha_not_ub[i],_alpha_not_ub[posisi]);   
+             break;
+            } 
+         }
+     }
+   }
 }
 

@@ -18,11 +18,11 @@ bool Tmy_svm::cari_idx_alpha(vector<int> *idx_alpha)
    vector<double> gmax_gmin;
    vector<int> tmp_idx_alpha = _my_list_G->cari_idx(_rho,&gmax_gmin);
    
-   double diff = gmax_gmin[0]-gmax_gmin[1];
-   
+   double diff = abs(gmax_gmin[0]+gmax_gmin[1]);
+   cout<<gmax_gmin[0]<<"+"<<gmax_gmin[1]<<"="<<diff<<endl;
    bool stat = true;
    if((diff<1e-3) or ((tmp_idx_alpha[0]==-1) or (tmp_idx_alpha[1]==-1)))
-   {
+   {  //(diff<1e-3) or
       stat = false;
    }else{
      idx_alpha->push_back(tmp_idx_alpha[0]);
@@ -41,9 +41,12 @@ bool Tmy_svm::take_step(int idx_b,int idx_a)
      Tmy_list_alpha* _my_list_alpha = _my_alpha->get_alpha();
      double Fb = _my_list_G->get_G(idx_b)-_rho;
      double Fa = _my_list_G->get_G(idx_a)-_rho;
+     //cout <<"Fb "<<Fb<<" "<<"Fa "<<Fa<<endl;
 
      vector<double> hsl_eta = _my_kernel->hit_eta(idx_b,idx_a);
-     double delta = (Fa-Fb)/hsl_eta[0];
+     
+     double delta = (Fa-Fb)*hsl_eta[0];
+     //cout<<"delta "<<delta<<endl;
      vector<double> alpha;
      bool is_pass = _my_list_alpha->is_pass(idx_b,idx_a,delta,&alpha);
      if(is_pass==false)
@@ -69,7 +72,7 @@ void Tmy_svm::train(Tdataframe &df){
    _my_G->init();
    _rho = _my_G->update_rho(0,1);
    
-   int max_iter = 100; 
+   int max_iter = 10000000; 
    int iter = 0;
    bool is_alpha_changed = true;
 
@@ -82,7 +85,9 @@ void Tmy_svm::train(Tdataframe &df){
       {
          cout<<iter<<" sebelum "<<_rho<<","<<idx_alpha[0]<<","<<idx_alpha[1]<<endl;
          is_alpha_changed = take_step(idx_alpha[0],idx_alpha[1]);
-         cout<<iter<<" sesudah "<<_rho<<","<<idx_alpha[0]<<","<<idx_alpha[1]<<endl;
+         cout<<iter<<" sesudah "<<_rho<<","<<idx_alpha[0]<<","<<idx_alpha[1]<<endl;         
+      }else{
+         is_alpha_changed = false;
       }
       
    }

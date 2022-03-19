@@ -16,7 +16,7 @@ double Tmy_kernel::dot(vector<string> x,vector<string> y){
    double sum=0;
    for (int i = 0; i < jml; ++i)
    {
-      sum = (stof(x[i])*stof(y[i]));
+      sum = sum+(stof(x[i])*stof(y[i]));
    }
    return sum;
 }
@@ -24,7 +24,8 @@ double Tmy_kernel::dot(vector<string> x,vector<string> y){
 double Tmy_kernel::kernel_function(int i,int j){
   vector<string> x_i = _df->goto_rec(i);
   vector<string> x_j = _df->goto_rec(j);
-  return exp(-_gamma*dot(x_i,x_i)+dot(x_j,x_j)-2*dot(x_i,x_j));
+  double tmp = exp(-_gamma*(dot(x_i,x_i)+dot(x_j,x_j)-2*dot(x_i,x_j)));
+  return bulat_nol(tmp,1e-5,10);
 }
 
 vector<double> Tmy_kernel::get_Q(int i)
@@ -51,6 +52,6 @@ vector<double> Tmy_kernel::hit_eta(int i,int j)
    }else{
      eta = 1/1e-12;
    }
-
+   //cout<<eta<<","<<k11<<","<<k12<<","<<k22<<endl; 
    return {eta,k11,k12,k22};
 }

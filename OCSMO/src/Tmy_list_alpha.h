@@ -48,6 +48,7 @@ public:
    bool is_free(int idx);
    bool is_pass(int i,int j,double delta,vector<double> *alpha);
    vector<bool> is_alpha_sv(int idx);
+   void mv_lb_ub(int idx,int posisi,int flag1);
    
    double get_alpha(int idx);
    vector<int> get_list_lb_ub(int flag);   

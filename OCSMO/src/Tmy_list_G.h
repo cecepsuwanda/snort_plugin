@@ -1,6 +1,7 @@
 #include <string>
 #include "Tmy_kernel.h"
 #include "Tmy_list_alpha.h"
+#include "global.h"
 
 using namespace std;
 

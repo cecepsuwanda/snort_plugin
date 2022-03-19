@@ -1,6 +1,7 @@
 #include <string>
 #include <math.h>
 #include "Tdataframe.h"
+#include "global.h"
 
 using namespace std;
 
