@@ -19,7 +19,7 @@ void Tmy_G::init()
 
 Tmy_double Tmy_G::update_rho(int idx_a,int idx_b)
 {
-  Tmy_double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2;  
+  Tmy_double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2.0;  
   return tmp_rho;
 }
 

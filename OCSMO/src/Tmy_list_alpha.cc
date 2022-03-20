@@ -27,22 +27,25 @@ Tmy_list_alpha::~Tmy_list_alpha(){
 
 
 void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
-  Tmy_double tmp = V*((double)_jml_data);
+  Tmy_double tmp = V*((double)_jml_data);  
   int jml = (int) tmp;
-  
+    
   for(int idx=0;idx<jml;idx++){
   	 update_alpha(idx,_ub);
   }
 
   if(_jml_alpha<1.0)
   {
-    update_alpha(jml,1.0-_ub);
+    tmp = 1.0-_jml_alpha;       
+    update_alpha(jml,tmp);
     jml=jml+1;
   }
 
   for(int idx=jml;idx<_jml_data;idx++){
-     update_alpha(idx,0);
+     update_alpha(idx,0.0);
   }
+
+  cout <<"jml alpha "<<_jml_alpha<<endl;
   
 }
 
@@ -84,6 +87,10 @@ void Tmy_list_alpha::update_alpha(int idx,Tmy_double value)
   update_alpha_sv(idx);
   update_alpha_status(idx);
   update_lb_ub(idx);
+
+  cout <<"jml alpha "<<_jml_alpha<<endl;
+  cout <<"jml all sv "<<_n_all_sv<<endl;
+  cout <<"jml sv "<<_n_sv<<endl;
 	
 }
 

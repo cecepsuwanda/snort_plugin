@@ -96,9 +96,19 @@ public:
       return (_val/rhs._val);
 	}
 
+	Tmy_double operator / (const double& rhs) 
+	{  
+      return (_val/rhs);
+	}
+
 	Tmy_double operator + (const Tmy_double& rhs) 
 	{  
       return (_val+rhs._val);
+	}
+
+	Tmy_double operator + (const double& rhs) 
+	{  
+      return (_val+rhs);
 	}
 
 	Tmy_double operator - (const Tmy_double& rhs) 

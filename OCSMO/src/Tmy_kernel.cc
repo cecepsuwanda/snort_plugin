@@ -24,8 +24,8 @@ Tmy_double Tmy_kernel::dot(vector<string> x,vector<string> y){
 Tmy_double Tmy_kernel::kernel_function(int i,int j){
   vector<string> x_i = _df->goto_rec(i);
   vector<string> x_j = _df->goto_rec(j);
-  double tmp1 = (dot(x_i,x_i)+dot(x_j,x_j)-2*dot(x_i,x_j));
-  double tmp2 = (-1*_gamma);
+  double tmp1 = (dot(x_i,x_i)+dot(x_j,x_j)-2.0*dot(x_i,x_j));
+  double tmp2 = (-1.0*_gamma);
   Tmy_double tmp = exp(tmp2*tmp1);
   return tmp;
 }
@@ -47,13 +47,13 @@ vector<Tmy_double> Tmy_kernel::hit_eta(int i,int j)
    Tmy_double k11 = kernel_function(i,i);
    Tmy_double k12 = kernel_function(j,i);
    Tmy_double k22 = kernel_function(j,j);
-   Tmy_double p_eta = k11+k22-(2*k12);
-   Tmy_double eta = -1;
-   if(p_eta!=0)
+   Tmy_double p_eta = k11+k22-(2.0*k12);
+   Tmy_double eta = -1.0;
+   if(p_eta!=0.0)
    {
-     eta = 1/p_eta;
+     eta = 1.0/p_eta;
    }else{
-     eta = 1/1e-12;
+     eta = 1.0/1e-12;
    }   
    //cout<<eta<<","<<k11<<","<<k12<<","<<k22<<endl; 
    return {eta,k11,k12,k22};
