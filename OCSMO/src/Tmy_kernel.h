@@ -1,6 +1,7 @@
 #include <string>
 #include <math.h>
 #include "Tdataframe.h"
+#include "Tmy_double.h"
 #include "global.h"
 
 using namespace std;
@@ -13,17 +14,17 @@ class Tmy_kernel
 {
 private:
 	Tdataframe *_df;
-	double _gamma;
+	Tmy_double _gamma;
 	int _jml_data;
 
-	double dot(vector<string> x,vector<string> y);
-	double kernel_function(int i,int j);
+	Tmy_double dot(vector<string> x,vector<string> y);
+	Tmy_double kernel_function(int i,int j);
 public:
 	Tmy_kernel(Tdataframe &df,double gamma);
 	~Tmy_kernel();
 
-	vector<double> get_Q(int i);
-	vector<double> hit_eta(int i,int j);  
+	vector<Tmy_double> get_Q(int i);
+	vector<Tmy_double> hit_eta(int i,int j);  
 	
 };
 

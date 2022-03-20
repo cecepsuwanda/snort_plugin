@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Tmy_list_alpha.h"
+#include "Tmy_double.h"
 #include "global.h"
 
 using namespace std;
@@ -18,7 +19,7 @@ public:
 	~Tmy_alpha();
 
     void init(int jml_data);
-    void update_alpha(int idx1,double value1,int idx2,double value2);
+    void update_alpha(int idx1,Tmy_double value1,int idx2,Tmy_double value2);
 
     Tmy_list_alpha* get_alpha();
     

@@ -12,13 +12,12 @@ Tmy_alpha::~Tmy_alpha(){
 
 void Tmy_alpha::init(int jml_data)
 {
-	double ub = _config->eps/(_config->V * jml_data);
-	ub=bulat_nol(ub,1e-5,10);	
+	Tmy_double ub = _config->eps/(_config->V * jml_data);
 	_my_list_alpha = new Tmy_list_alpha(jml_data,0,ub);
 	_my_list_alpha->init(_config->V,_config->eps);
 }
 
-void Tmy_alpha::update_alpha(int idx1,double value1,int idx2,double value2)
+void Tmy_alpha::update_alpha(int idx1,Tmy_double value1,int idx2,Tmy_double value2)
 {
 	_my_list_alpha->update_alpha(idx1,value1);
 	_my_list_alpha->update_alpha(idx2,value2);

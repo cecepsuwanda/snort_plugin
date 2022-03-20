@@ -2,6 +2,7 @@
 #include "Tmy_list_G.h"
 #include "Tmy_kernel.h"
 #include "Tmy_alpha.h"
+#include "Tmy_double.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ public:
 	Tmy_G(int jml_data,Tmy_kernel *kernel,Tmy_alpha *alphas);
 	~Tmy_G();
 	void init();
-	double update_rho(int idx_a,int idx_b);
+	Tmy_double update_rho(int idx_a,int idx_b);
 	Tmy_list_G* get_list_G();
 };
 

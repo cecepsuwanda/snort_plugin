@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   {
 
        string str = file.path().filename();       
-       if(str=="train_model_1.csv"){  
+       if(str=="train_model_2.csv"){  
         Tdataframe df_train(&config);
         df_train.read_data(file.path());
         df_train.read_data_type(config.f_datatype);

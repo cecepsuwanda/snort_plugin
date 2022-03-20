@@ -5,6 +5,7 @@
 #include "Tmy_G.h"
 #include "Tmy_list_G.h"
 #include "Tmy_list_alpha.h"
+#include "Tmy_double.h"
 
 using namespace std;
 
@@ -20,12 +21,13 @@ private:
     Tmy_alpha *_my_alpha;
     Tmy_kernel *_my_kernel;
     Tmy_G *_my_G;
-    double _rho;
+    Tmy_double _rho;
 public:
 	Tmy_svm(Tconfig *v_config);
 	~Tmy_svm();
 	void train(Tdataframe &df);
 	bool cari_idx_alpha(vector<int> *idx_alpha);
+	bool cari_idx_a_lain(int idx_b,int *idx_alpha);
 	bool take_step(int idx_b,int idx_a);
 	
 };

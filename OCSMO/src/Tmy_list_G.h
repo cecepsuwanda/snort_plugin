@@ -1,6 +1,7 @@
 #include <string>
 #include "Tmy_kernel.h"
 #include "Tmy_list_alpha.h"
+#include "Tmy_double.h"
 #include "global.h"
 
 using namespace std;
@@ -17,16 +18,17 @@ private:
 	Tmy_kernel *_kernel;
     Tmy_list_alpha *_alpha;
 
-    vector<double> _arr_G;
+    vector<Tmy_double> _arr_G;
 
-    bool is_kkt(int idx,double rho);
+    bool is_kkt(int idx,Tmy_double rho);
 public:
 	Tmy_list_G(int jml_data,Tmy_kernel *kernel,Tmy_list_alpha *alpha);
 	~Tmy_list_G();
 	void init();
-	void update_G(int idx_b,int idx_a,double delta_1,double delta_2);
-	double get_G(int idx);
-	vector<int> cari_idx(double rho,vector<double> *gmax_gmin);
+	void update_G(int idx_b,int idx_a,Tmy_double delta_1,Tmy_double delta_2);
+	Tmy_double get_G(int idx);
+	vector<int> cari_idx(Tmy_double rho,vector<Tmy_double> *gmax_gmin);
+	int cari_idx_lain(int idx_b,Tmy_double rho);
 	
 };
 

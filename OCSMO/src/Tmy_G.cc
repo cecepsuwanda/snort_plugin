@@ -17,10 +17,9 @@ void Tmy_G::init()
   _my_list_G = new Tmy_list_G(_jml_data,_kernel,_alphas->get_alpha());
 }
 
-double Tmy_G::update_rho(int idx_a,int idx_b)
+Tmy_double Tmy_G::update_rho(int idx_a,int idx_b)
 {
-  double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2;
-  tmp_rho=bulat_nol(tmp_rho,1e-5,10);
+  Tmy_double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2;  
   return tmp_rho;
 }
 
