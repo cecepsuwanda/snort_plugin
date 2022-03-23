@@ -10,11 +10,12 @@ Tmy_list_alpha::Tmy_list_alpha(int v_jml_data,Tmy_double v_lb,Tmy_double v_ub){
    _jml_alpha_n_sv=0;
    _n_all_sv=0;
    _n_sv=0;
-   for(int i=0;i<_jml_data;i++)
-   {
-     _alpha.push_back(0);
-     _alpha_status.push_back(0);
-   }
+   
+   _alpha.reserve(_jml_data);
+   _alpha_status.reserve(_jml_data);
+   _alpha.assign(_jml_data,0.0);   
+   _alpha_status.assign(_jml_data,0);
+   
 }
 
 Tmy_list_alpha::~Tmy_list_alpha(){
@@ -27,9 +28,12 @@ Tmy_list_alpha::~Tmy_list_alpha(){
 
 
 void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
+  cetak("init alpha : \n");
   Tmy_double tmp = V*((double)_jml_data);  
   int jml = (int) tmp;
-    
+  
+  _alpha_not_lb.reserve(jml);
+
   for(int idx=0;idx<jml;idx++){
   	 update_alpha(idx,_ub);
   }
@@ -41,11 +45,11 @@ void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
     jml=jml+1;
   }
 
+  _alpha_not_lb.reserve(_jml_data-jml);
+
   for(int idx=jml;idx<_jml_data;idx++){
      update_alpha(idx,0.0);
-  }
-
-  cout <<"jml alpha "<<_jml_alpha<<endl;
+  }  
   
 }
 
@@ -86,11 +90,7 @@ void Tmy_list_alpha::update_alpha(int idx,Tmy_double value)
 
   update_alpha_sv(idx);
   update_alpha_status(idx);
-  update_lb_ub(idx);
-
-  cout <<"jml alpha "<<_jml_alpha<<endl;
-  cout <<"jml all sv "<<_n_all_sv<<endl;
-  cout <<"jml sv "<<_n_sv<<endl;
+  update_lb_ub(idx);  
 	
 }
 
@@ -115,16 +115,15 @@ void Tmy_list_alpha::update_alpha_status(int idx)
 
 void Tmy_list_alpha::update_alpha_sv(int idx)
 {
-  for(int i=0;i<_alpha_sv.size();i++){
-    if(_alpha_sv[i]==idx){
-      _alpha_sv.erase(_alpha_sv.begin()+i);
-      break;
-    } 
-  }
-
+  
+  map<int,Tmy_double>::iterator it;  
+  it = _alpha_sv.find(idx);
+  if (it != _alpha_sv.end())
+     _alpha_sv.erase (it);
+  
   vector<bool> hasil = is_alpha_sv(idx);
   if(hasil[0]==true){
-     _alpha_sv.push_back(idx);  
+     _alpha_sv[idx]=_alpha[idx];  
   }
 }
 
@@ -314,4 +313,9 @@ void Tmy_list_alpha::mv_lb_ub(int idx,int posisi,int flag1)
      }
    }
 }
+
+map<int,Tmy_double> Tmy_list_alpha::get_list_alpha_sv()
+{
+  return _alpha_sv;
+} 
 

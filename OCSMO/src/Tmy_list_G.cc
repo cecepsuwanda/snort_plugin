@@ -6,6 +6,8 @@ Tmy_list_G::Tmy_list_G(int jml_data,Tmy_kernel *kernel,Tmy_list_alpha *alpha)
   _jml_data = jml_data;
   _kernel = kernel;
   _alpha = alpha;
+  _arr_G.reserve(_jml_data);
+  _arr_G.assign(_jml_data,0.0);
   init();
 }
 
@@ -14,35 +16,145 @@ Tmy_list_G::~Tmy_list_G()
    _arr_G.clear();
 }
 
-void Tmy_list_G::init()
+void Tmy_list_G::thread_isi_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double alpha,vector<Tmy_double> data)
 {
-   
-   for (int i = 0; i < _jml_data; ++i)
-   {  	 
-   	 _arr_G.push_back(0);
-   } 
-   
+   for (int j = awal; j < akhir; ++j)
+   {        
+       _arr_G[j]=_arr_G[j]+(alpha*data[j]);
+   }   
+}
+
+
+
+void Tmy_list_G::init()
+{   
+   cetak("Start init G : \n");
+
    vector<int> idx_alpha = _alpha->get_list_lb_ub(0);
+   
+   int jml_thread = _jml_data/50;
+   int sisa = _jml_data % 50;
+   if(sisa!=0)
+   {
+     jml_thread=jml_thread+1;
+   }
+
    for (int i = 0; i < idx_alpha.size(); ++i)
    {   	 
-   	 Tmy_double alpha = _alpha->get_alpha(idx_alpha[i]);
-   	 vector<Tmy_double> data = _kernel->get_Q(idx_alpha[i]);
-     for (int j = 0; j < _jml_data; ++j)
-     {   	    
-   	    _arr_G[j]=_arr_G[j]+(alpha*data[j]);
-     }     
+   	 if((i%100)==0){
+       cetak(".");
+      }
+     Tmy_double alpha = _alpha->get_alpha(idx_alpha[i]);
+   	 vector<Tmy_double> data = _kernel->get_Q(idx_alpha[i]);     
+     
+     vector<thread> worker;
+
+     for (int k = 0; k < jml_thread; ++k)
+     {
+       int awal = 50*k;
+       int akhir = 50*(k+1);
+       if(akhir>_jml_data)
+       {
+         akhir=_jml_data; 
+       }
+       worker.push_back(thread(&Tmy_list_G::thread_isi_G,awal,akhir,ref(_arr_G),alpha, data));
+
+       if((worker.size() % 10)==0)
+       {
+         for (std::thread & th : worker)
+         {      
+            if (th.joinable())
+               th.join();
+         }
+
+         worker.clear();
+         worker.shrink_to_fit();
+       } 
+
+     }
+
+     if(worker.size()>0)
+     {
+        for (std::thread & th : worker)
+        {      
+          if (th.joinable())
+             th.join();
+        }
+
+       worker.clear();
+       worker.shrink_to_fit();
+     }       
+        // for (int j = 0; j < _jml_data; ++j)
+        // {   	    
+   	    //    _arr_G[j]=_arr_G[j]+(alpha*data[j]);
+        // }     
    } 
+   cetak("\nEnd init G : \n");
 
 }
 
-void Tmy_list_G::update_G(int idx_b,int idx_a,Tmy_double delta_1,Tmy_double delta_2)
+void Tmy_list_G::thread_update_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double delta_a,Tmy_double delta_b,vector<Tmy_double> data_a,vector<Tmy_double> data_b)
 {
-  vector<Tmy_double> data_b = _kernel->get_Q(idx_b);
-  vector<Tmy_double> data_a = _kernel->get_Q(idx_a);
-  for (int i = 0; i < _jml_data; ++i)
+  for (int i = awal; i < akhir; ++i)
   {    
-    _arr_G[i]=_arr_G[i]+((data_b[i]*delta_1)+(data_a[i]*delta_2));            
+    _arr_G[i]=_arr_G[i]+((data_b[i]*delta_b)+(data_a[i]*delta_a));            
   }
+}
+
+void Tmy_list_G::update_G(int idx_b,int idx_a,Tmy_double delta_1,Tmy_double delta_2)
+{  
+  vector<Tmy_double> data_a = _kernel->get_Q(idx_a);
+  vector<Tmy_double> data_b = _kernel->get_Q(idx_b);
+  
+   int jml_thread = _jml_data/50;
+   int sisa = _jml_data % 50;
+   if(sisa!=0)
+   {
+     jml_thread=jml_thread+1;
+   }
+
+     vector<thread> worker;
+
+     for (int k = 0; k < jml_thread; ++k)
+     {
+       int awal = 50*k;
+       int akhir = 50*(k+1);
+       if(akhir>_jml_data)
+       {
+         akhir=_jml_data; 
+       }
+       worker.push_back(thread(&Tmy_list_G::thread_update_G,awal,akhir,ref(_arr_G),delta_2,delta_1,data_a,data_b));
+
+       if((worker.size() % 10)==0)
+       {
+         for (std::thread & th : worker)
+         {      
+            if (th.joinable())
+               th.join();
+         }
+
+         worker.clear();
+         worker.shrink_to_fit();
+       } 
+
+     }
+
+     if(worker.size()>0)
+     {
+        for (std::thread & th : worker)
+        {      
+          if (th.joinable())
+             th.join();
+        }
+
+       worker.clear();
+       worker.shrink_to_fit();
+     }  
+
+  // for (int i = 0; i < _jml_data; ++i)
+  // {    
+  //   _arr_G[i]=_arr_G[i]+((data_b[i]*delta_1)+(data_a[i]*delta_2));            
+  // }
     
 }
 

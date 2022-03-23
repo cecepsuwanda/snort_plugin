@@ -1,4 +1,5 @@
 #include <string>
+#include <thread>
 #include "Tmy_kernel.h"
 #include "Tmy_list_alpha.h"
 #include "Tmy_double.h"
@@ -21,6 +22,9 @@ private:
     vector<Tmy_double> _arr_G;
 
     bool is_kkt(int idx,Tmy_double rho);
+
+    static void thread_isi_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double alpha,vector<Tmy_double> data);
+    static void thread_update_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double delta_a,Tmy_double delta_b,vector<Tmy_double> data_a,vector<Tmy_double> data_b);
 public:
 	Tmy_list_G(int jml_data,Tmy_kernel *kernel,Tmy_list_alpha *alpha);
 	~Tmy_list_G();

@@ -10,6 +10,7 @@ Tmy_svm::~Tmy_svm(){
    delete _my_alpha;
    delete _my_kernel;
    delete _my_G;
+   _model.clear();
 }
 
 bool Tmy_svm::cari_idx_alpha(vector<int> *idx_alpha)
@@ -19,7 +20,7 @@ bool Tmy_svm::cari_idx_alpha(vector<int> *idx_alpha)
    vector<int> tmp_idx_alpha = _my_list_G->cari_idx(_rho,&gmax_gmin);
    
    Tmy_double diff = gmax_gmin[0]+gmax_gmin[1];
-   cout<<gmax_gmin[0]<<"+"<<gmax_gmin[1]<<"="<<diff<<endl;
+   //cout<<gmax_gmin[0]<<"+"<<gmax_gmin[1]<<"="<<diff<<endl;
    bool stat = true;
    if((diff<1e-3) or ((tmp_idx_alpha[0]==-1) or (tmp_idx_alpha[1]==-1)))
    {  //(diff<1e-3) or
@@ -86,23 +87,29 @@ void Tmy_svm::train(Tdataframe &df){
 
    while((is_alpha_changed==true) and (iter<max_iter))
    {
+      if((iter%100)==0){
+       cetak(".");
+      }
+
       iter = iter+1;
+      //cetak("iterasi ke - %d \n",iter);
+      
       vector<int> idx_alpha;
       bool pass = cari_idx_alpha(&idx_alpha);
       if(pass==true)
       {
-         cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_alpha[1];
+         //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_alpha[1];
          is_alpha_changed = take_step(idx_alpha[0],idx_alpha[1]);
-         cout<<" rho sesudah "<<_rho<<endl;
+         //cout<<" rho sesudah "<<_rho<<endl;
          if(is_alpha_changed==false)
          {
             int idx_a;
             pass = cari_idx_a_lain(idx_alpha[0],&idx_a);
             if(pass==true)
             {
-              cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_a;   
+              //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_a;   
               is_alpha_changed = take_step(idx_alpha[0],idx_a);
-              cout<<" rho sesudah "<<_rho<<endl; 
+              //cout<<" rho sesudah "<<_rho<<endl; 
             }    
          }         
       }else{
@@ -111,4 +118,59 @@ void Tmy_svm::train(Tdataframe &df){
       
    }
 
+   Tmy_list_alpha *list_alpha = _my_alpha->get_alpha();
+   map<int,Tmy_double> alpha_sv = list_alpha->get_list_alpha_sv();
+   _model.reserve(alpha_sv.size());
+   for (map<int, Tmy_double>::iterator it = alpha_sv.begin(); it != alpha_sv.end(); ++it)
+   {
+      int idx = it->first;
+      vector<string> data = df.goto_rec(idx);
+      _model.push_back(data);
+   }
+
+}
+
+vector<string> Tmy_svm::test(Tdataframe &df)
+{
+   Tmy_list_alpha *list_alpha = _my_alpha->get_alpha();
+   map<int,Tmy_double> alpha_sv = list_alpha->get_list_alpha_sv();
+   int jml_data = df.getjmlrow_svm();
+   std::vector<string> hasil;
+   hasil.reserve(jml_data);
+   hasil.assign(jml_data,"inside");
+   
+   vector<string> tmp_data;
+   
+   int j=0;
+   df.reset_file();
+   while (!df.is_eof()) {
+      
+      tmp_data = df.get_record_svm();
+
+      Tmy_double sum = 0.0;
+      int i=0;
+      Tmy_double jml_alpha;
+      for (map<int, Tmy_double>::iterator it = alpha_sv.begin(); it != alpha_sv.end(); ++it)
+      {
+          Tmy_double tmp = _my_kernel->kernel_function_f(tmp_data,_model[i]);
+          Tmy_double alpha = it->second;                   
+          tmp = alpha * tmp;
+          sum = sum + tmp;          
+          i=i+1;
+      }
+      
+      sum = sum - _rho;
+      if(sum>=0.0){
+
+      }else{
+         if(sum<0.0){
+           hasil[j]="outside";    
+         }  
+      }
+
+   df.next_record();
+   j=j+1;
+  }
+
+  return hasil;
 }

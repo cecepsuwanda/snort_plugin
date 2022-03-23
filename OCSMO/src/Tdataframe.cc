@@ -19,6 +19,7 @@ Tdataframe::Tdataframe(Tconfig* v_config)
 Tdataframe::~Tdataframe()
 {
   _stat_label.clear();
+  _list_label.clear();
 }
 
 // void Tdataframe::set_search_uniqe_val_off()
@@ -92,6 +93,7 @@ void Tdataframe::stat_tabel()
   }
 
   int i = 0;
+  _list_label.clear();
 
   _data.reset_file();
   while (!_data.is_eof())
@@ -104,6 +106,7 @@ void Tdataframe::stat_tabel()
       }
 
       _stat_label.add(_data.get_col_val(_idx_label));
+      _list_label.push_back(_data.get_col_val(_idx_label));
 
       if (config->search_uniqe_val)
       {
@@ -330,7 +333,7 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
 
 vector<string> Tdataframe::goto_rec(int idx)
 {
-  ReFilter();
+  //ReFilter();
   
   vector<string> tmp_data;
   _data.reset_file();
@@ -683,4 +686,9 @@ int Tdataframe::get_opt(int idx_col, int is_below)
 float Tdataframe::get_entropy()
 {
   return _stat_label.get_entropy();
+}
+
+vector<string> Tdataframe::get_list_label()
+{
+  return _list_label;
 }

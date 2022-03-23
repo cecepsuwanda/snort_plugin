@@ -1,4 +1,6 @@
 #include <string>
+#include <iterator>
+#include <map>
 #include "Tdataframe.h"
 #include "Tmy_alpha.h"
 #include "Tmy_kernel.h"
@@ -22,10 +24,12 @@ private:
     Tmy_kernel *_my_kernel;
     Tmy_G *_my_G;
     Tmy_double _rho;
+    vector<vector<string>> _model;
 public:
 	Tmy_svm(Tconfig *v_config);
 	~Tmy_svm();
 	void train(Tdataframe &df);
+	vector<string> test(Tdataframe &df);
 	bool cari_idx_alpha(vector<int> *idx_alpha);
 	bool cari_idx_a_lain(int idx_b,int *idx_alpha);
 	bool take_step(int idx_b,int idx_a);

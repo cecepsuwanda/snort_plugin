@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <iterator>
+#include <map>
 #include "Tmy_double.h"
 #include "global.h"
 
@@ -26,7 +28,7 @@ private:
    vector<int> _alpha_status;
    vector<int> _alpha_not_ub;
    vector<int> _alpha_not_lb;
-   vector<int> _alpha_sv;
+   map<int,Tmy_double> _alpha_sv;
 
    void update_alpha_status(int idx);
    void update_alpha_sv(int idx);
@@ -52,7 +54,8 @@ public:
    void mv_lb_ub(int idx,int posisi,int flag1);
    
    Tmy_double get_alpha(int idx);
-   vector<int> get_list_lb_ub(int flag);   
+   vector<int> get_list_lb_ub(int flag);
+   map<int,Tmy_double> get_list_alpha_sv();   
 	
 };
 

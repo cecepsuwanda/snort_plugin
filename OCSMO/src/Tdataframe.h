@@ -28,6 +28,7 @@ private:
   bool is_42 = false;
   //bool _search_uniqe_val_on = true;
   Tconfig* config;
+  vector<string> _list_label;
 
   void calculate_metric(map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
@@ -136,6 +137,7 @@ public:
   void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);  
 
   vector<string> goto_rec(int idx);
+  vector<string> get_list_label();
 
 };
 
