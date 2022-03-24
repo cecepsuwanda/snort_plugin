@@ -26,11 +26,13 @@ private:
 	Tmy_cache *_cache;
 	Tmy_double _gamma;
 	int _jml_data;
+	map<int, Tmy_double> _x_square;
 
 	Tmy_double dot(vector<string> x,vector<string> y);
 	Tmy_double kernel_function(int i,int j);
 
 	static Treturn_data thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,double gamma);
+	static Treturn_data thread_hit_x_square(int idx_map,vector<string> x);
 public:
 	Tmy_kernel(Tdataframe &df,double gamma);
 	~Tmy_kernel();

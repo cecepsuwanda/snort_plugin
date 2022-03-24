@@ -6,7 +6,40 @@ Tmy_kernel::Tmy_kernel(Tdataframe &df,double gamma){
    _gamma = gamma;
    _jml_data = _df->getjmlrow_svm();
 
-   _cache = new Tmy_cache(_jml_data,1000);   
+   _cache = new Tmy_cache(_jml_data,1000);
+   
+   vector<future<Treturn_data>> async_worker;
+   for (int i = 0; i < _jml_data; ++i)
+   {
+       vector<string> x_i = _df->goto_rec(i);
+       async_worker.push_back(async(std::launch::async, &Tmy_kernel::thread_hit_x_square,i,x_i));
+
+       if ((async_worker.size() % 10 )==0)
+       {
+          Treturn_data hsl;
+          for (future<Treturn_data> & th : async_worker)
+          {
+            hsl = th.get();
+            _x_square[hsl.idx_map]=hsl.data;
+          }
+
+          async_worker.clear();
+          async_worker.shrink_to_fit();  
+       }
+   }
+
+   if (async_worker.size() > 0)
+     {
+          Treturn_data hsl;
+          for (future<Treturn_data> & th : async_worker)
+          {
+            hsl = th.get();
+            _x_square[hsl.idx_map]=hsl.data;
+          }
+
+          async_worker.clear();
+          async_worker.shrink_to_fit();  
+     }
 }
 
 Tmy_kernel::~Tmy_kernel(){
@@ -26,11 +59,26 @@ Tmy_double Tmy_kernel::dot(vector<string> x,vector<string> y){
 Tmy_double Tmy_kernel::kernel_function(int i,int j){
   vector<string> x_i = _df->goto_rec(i);
   vector<string> x_j = _df->goto_rec(j);
-  double tmp1 = (dot(x_i,x_i)+dot(x_j,x_j)-2.0*dot(x_i,x_j));
+  double tmp1 = (_x_square[i]+_x_square[j]-2.0*dot(x_i,x_j));
   double tmp2 = (-1.0*_gamma);
   Tmy_double tmp = exp(tmp2*tmp1);
   return tmp;
 }
+
+Treturn_data Tmy_kernel::thread_hit_x_square(int idx_map,vector<string> x)
+{
+   int jml = x.size();
+
+   double sum = 0.0; 
+   for (int i = 0; i < jml; ++i)
+   {
+     sum=sum+(stod(x[i])*stod(x[i]));
+   }
+
+   Tmy_double hasil = sum;
+   return {idx_map,-1,hasil};
+}
+
 
 Treturn_data Tmy_kernel::thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,double gamma)
 {
@@ -108,9 +156,12 @@ vector<Tmy_double> Tmy_kernel::get_Q(int i)
 
 vector<Tmy_double> Tmy_kernel::hit_eta(int i,int j)
 {
-   Tmy_double k11 = kernel_function(i,i);
-   Tmy_double k12 = kernel_function(j,i);
-   Tmy_double k22 = kernel_function(j,j);
+   vector<Tmy_double> Q_i = get_Q(i);
+   vector<Tmy_double> Q_j = get_Q(j);
+
+   Tmy_double k11 = Q_i[i];//kernel_function(i,i);
+   Tmy_double k12 = Q_i[j];//kernel_function(j,i);
+   Tmy_double k22 = Q_j[j];//kernel_function(j,j);
    Tmy_double p_eta = k11+k22-(2.0*k12);
    Tmy_double eta = -1.0;
    if(p_eta!=0.0)
