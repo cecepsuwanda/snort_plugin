@@ -15,6 +15,16 @@ using namespace std;
 
 #define Included_Tmy_svm_H
 
+struct Treturn_train
+{
+   int jml_iterasi;
+   int n_kkt;
+   Tmy_double jml_alpha;
+   int n_all_sv;
+   int n_sv;
+   Tmy_double jml_alpha_n_sv;
+};
+
 class Tmy_svm
 {
 
@@ -28,7 +38,7 @@ private:
 public:
 	Tmy_svm(Tconfig *v_config);
 	~Tmy_svm();
-	void train(Tdataframe &df);
+	Treturn_train train(Tdataframe &df);
 	vector<string> test(Tdataframe &df);
 	bool cari_idx_alpha(vector<int> *idx_alpha);
 	bool cari_idx_a_lain(int idx_b,int *idx_alpha);

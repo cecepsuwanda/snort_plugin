@@ -19,7 +19,67 @@ void Tmy_G::init()
 
 Tmy_double Tmy_G::update_rho(int idx_a,int idx_b)
 {
-  Tmy_double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2.0;  
+  Tmy_list_alpha *list_alpha = _alphas->get_alpha();
+  // vector<bool> hsl = list_alpha->is_alpha_sv(idx_a);
+  // vector<bool> hsl2 = list_alpha->is_alpha_sv(idx_b);  
+  Tmy_double tmp_rho;
+  
+  vector<int> alpha_free = list_alpha->get_list_lb_ub(2);
+  int jml_free = alpha_free.size();
+     
+  if(jml_free>0)
+  {
+    Tmy_double sum_free;
+    for(auto& it : alpha_free)
+    {
+      sum_free = sum_free+_my_list_G->get_G(it);
+    } 
+    tmp_rho = sum_free / (double) jml_free; 
+  }else{
+    vector<int> alpha_not_lb = list_alpha->get_list_lb_ub(0);
+    vector<int> alpha_not_ub = list_alpha->get_list_lb_ub(1);
+    Tmy_double max_ub=-100,min_lb=100;
+    for(auto& it : alpha_not_lb)
+    {
+       if(list_alpha->is_upper_bound(it)==true)
+       {
+         Tmy_double tmp = _my_list_G->get_G(it);
+         if(tmp>max_ub)
+         {
+           max_ub = tmp; 
+         } 
+       }
+    }
+    
+    for(auto& it : alpha_not_ub)
+    {
+       if(list_alpha->is_lower_bound(it)==true)
+       {
+         Tmy_double tmp = _my_list_G->get_G(it);
+         if(tmp<min_lb)
+         {
+           min_lb = tmp; 
+         }
+       }
+    }
+
+    tmp_rho = (max_ub+min_lb)/2.0;
+  }
+
+  // if(hsl[1]==true)
+  // {
+  //   tmp_rho =_my_list_G->get_G(idx_a);
+  // }else{
+  //    if(hsl2[1]==true)
+  //    {
+  //      tmp_rho =_my_list_G->get_G(idx_b);
+  //    }else{
+  //     tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2.0; 
+  //    } 
+  // }
+  
+  //Tmy_double tmp_rho =_my_list_G->get_G(idx_a);
+  //Tmy_double tmp_rho =(_my_list_G->get_G(idx_b)+_my_list_G->get_G(idx_a))/2.0;  
   return tmp_rho;
 }
 

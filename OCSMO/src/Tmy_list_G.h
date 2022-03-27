@@ -19,12 +19,7 @@ private:
 	Tmy_kernel *_kernel;
     Tmy_list_alpha *_alpha;
 
-    vector<Tmy_double> _arr_G;
-
-    bool is_kkt(int idx,Tmy_double rho);
-
-    static void thread_isi_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double alpha,vector<Tmy_double> data);
-    static void thread_update_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double delta_a,Tmy_double delta_b,vector<Tmy_double> data_a,vector<Tmy_double> data_b);
+    vector<Tmy_double> _arr_G;        
 public:
 	Tmy_list_G(int jml_data,Tmy_kernel *kernel,Tmy_list_alpha *alpha);
 	~Tmy_list_G();
@@ -33,6 +28,7 @@ public:
 	Tmy_double get_G(int idx);
 	vector<int> cari_idx(Tmy_double rho,vector<Tmy_double> *gmax_gmin);
 	int cari_idx_lain(int idx_b,Tmy_double rho);
+	bool is_kkt(int idx,Tmy_double rho);
 	
 };
 

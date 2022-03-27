@@ -16,19 +16,9 @@ Tmy_list_G::~Tmy_list_G()
    _arr_G.clear();
 }
 
-void Tmy_list_G::thread_isi_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double alpha,vector<Tmy_double> data)
-{
-   for (int j = awal; j < akhir; ++j)
-   {        
-       _arr_G[j]=_arr_G[j]+(alpha*data[j]);
-   }   
-}
-
-
-
 void Tmy_list_G::init()
 {   
-   cetak("Start init G : \n");
+   //cetak("Start init G : \n");
 
    vector<int> idx_alpha = _alpha->get_list_lb_ub(0);
    
@@ -41,121 +31,28 @@ void Tmy_list_G::init()
 
    for (int i = 0; i < idx_alpha.size(); ++i)
    {   	 
-   	 if((i%100)==0){
-       cetak(".");
-      }
+   	 // if((i%100)==0){
+     //   cetak(".");
+     //  }
      Tmy_double alpha = _alpha->get_alpha(idx_alpha[i]);
    	 vector<Tmy_double> data = _kernel->get_Q(idx_alpha[i]);     
-     
-     vector<thread> worker;
-
-     for (int k = 0; k < jml_thread; ++k)
-     {
-       int awal = 50*k;
-       int akhir = 50*(k+1);
-       if(akhir>_jml_data)
-       {
-         akhir=_jml_data; 
-       }
-       worker.push_back(thread(&Tmy_list_G::thread_isi_G,awal,akhir,ref(_arr_G),alpha, data));
-
-       if((worker.size() % 10)==0)
-       {
-         for (std::thread & th : worker)
-         {      
-            if (th.joinable())
-               th.join();
-         }
-
-         worker.clear();
-         worker.shrink_to_fit();
-       } 
-
-     }
-
-     if(worker.size()>0)
-     {
-        for (std::thread & th : worker)
-        {      
-          if (th.joinable())
-             th.join();
-        }
-
-       worker.clear();
-       worker.shrink_to_fit();
-     }       
-        // for (int j = 0; j < _jml_data; ++j)
-        // {   	    
-   	    //    _arr_G[j]=_arr_G[j]+(alpha*data[j]);
-        // }     
+     for (int j = 0; j < _jml_data; ++j)
+     {   	    
+   	   _arr_G[j]=_arr_G[j]+(alpha*data[j]);
+     }     
    } 
-   cetak("\nEnd init G : \n");
+   //cetak("\nEnd init G : \n");
 
-}
-
-void Tmy_list_G::thread_update_G(int awal,int akhir,vector<Tmy_double> &_arr_G,Tmy_double delta_a,Tmy_double delta_b,vector<Tmy_double> data_a,vector<Tmy_double> data_b)
-{
-  for (int i = awal; i < akhir; ++i)
-  {    
-    _arr_G[i]=_arr_G[i]+((data_b[i]*delta_b)+(data_a[i]*delta_a));            
-  }
 }
 
 void Tmy_list_G::update_G(int idx_b,int idx_a,Tmy_double delta_1,Tmy_double delta_2)
 {  
   vector<Tmy_double> data_a = _kernel->get_Q(idx_a);
-  vector<Tmy_double> data_b = _kernel->get_Q(idx_b);
-  
-   int jml_thread = _jml_data/50;
-   int sisa = _jml_data % 50;
-   if(sisa!=0)
-   {
-     jml_thread=jml_thread+1;
-   }
-
-     vector<thread> worker;
-
-     for (int k = 0; k < jml_thread; ++k)
-     {
-       int awal = 50*k;
-       int akhir = 50*(k+1);
-       if(akhir>_jml_data)
-       {
-         akhir=_jml_data; 
-       }
-       worker.push_back(thread(&Tmy_list_G::thread_update_G,awal,akhir,ref(_arr_G),delta_2,delta_1,data_a,data_b));
-
-       if((worker.size() % 10)==0)
-       {
-         for (std::thread & th : worker)
-         {      
-            if (th.joinable())
-               th.join();
-         }
-
-         worker.clear();
-         worker.shrink_to_fit();
-       } 
-
-     }
-
-     if(worker.size()>0)
-     {
-        for (std::thread & th : worker)
-        {      
-          if (th.joinable())
-             th.join();
-        }
-
-       worker.clear();
-       worker.shrink_to_fit();
-     }  
-
-  // for (int i = 0; i < _jml_data; ++i)
-  // {    
-  //   _arr_G[i]=_arr_G[i]+((data_b[i]*delta_1)+(data_a[i]*delta_2));            
-  // }
-    
+  vector<Tmy_double> data_b = _kernel->get_Q(idx_b);   
+  for (int i = 0; i < _jml_data; ++i)
+  {    
+   _arr_G[i]=_arr_G[i]+((data_b[i]*delta_1)+(data_a[i]*delta_2));            
+  }    
 }
 
 Tmy_double Tmy_list_G::get_G(int idx)
@@ -217,37 +114,36 @@ vector<int> Tmy_list_G::cari_idx(Tmy_double rho,vector<Tmy_double> *gmax_gmin)
    // cout<<endl;
 
    int idx_b = -1,idx_a=-1;
-   Tmy_double gmax = -100,kkt_max=-100,gmin=-100,diff_max=-100;
+   Tmy_double gmax = -100,kkt_max=-100,gmin=-100,diff_max=-100,obj_diff_min=100;
 
    for (int i = 0; i < idx_alpha_not_ub.size(); ++i)
     {
       
          Tmy_double Fb = _arr_G[idx_alpha_not_ub[i]];       
-         Tmy_double diff = Fb;
-         Tmy_double tmp = -1.0*diff;
-         Tmy_double tmp1 = tmp-gmax;
+         Tmy_double diff = Fb-rho;
+         Tmy_double tmp = -1.0*diff;         
          if (tmp>=gmax)
          {
            gmax = tmp;           
            // if ((is_kkt(idx_alpha_not_ub[i],rho)==false))
            // {
-           //idx_b = idx_alpha_not_ub[i];
+           idx_b = idx_alpha_not_ub[i];
            //_alpha->mv_lb_ub(idx_alpha_not_ub[i],idx_alpha_not_ub.size()-1,1);
            // }            
          }          
       
-         if ((is_kkt(idx_alpha_not_ub[i],rho)==false))
-         { 
-           tmp = abs((double)(diff-rho));
-           tmp1 = tmp-kkt_max;           
-           if (tmp>=kkt_max)
-           {
-             kkt_max = tmp;          
-             idx_b = idx_alpha_not_ub[i];
-             _alpha->mv_lb_ub(idx_alpha_not_ub[i],0,1);
+          //if ((is_kkt(idx_alpha_not_ub[i],rho)==false))
+          //{ 
+           // tmp = -1.0*(diff-rho);
+           //tmp = abs((double)(diff));                  
+           // if (tmp>=kkt_max)
+           // {
+           //   kkt_max = tmp;          
+           //   idx_b = idx_alpha_not_ub[i];
+           //   _alpha->mv_lb_ub(idx_alpha_not_ub[i],0,1);
              //cout<<"Fb : "<<idx_alpha_not_ub[i]<<" "<<kkt_max<<endl; 
-          }
-         }       
+          // }
+         //}       
     } 
 
    if(idx_b!=-1)
@@ -256,23 +152,41 @@ vector<int> Tmy_list_G::cari_idx(Tmy_double rho,vector<Tmy_double> *gmax_gmin)
       for (int i = 0; i < idx_alpha_not_lb.size(); ++i)
       {       
           Tmy_double Fa = _arr_G[idx_alpha_not_lb[i]];
-          Tmy_double diff = Fa;
-          Tmy_double tmp = diff-gmin;          
+          Tmy_double diff = Fa-rho;                   
           if (diff>=gmin)
           {
             gmin = diff;
           }
-          diff = (Fb-rho)-(Fa-rho);
-          diff = abs((double) diff);
-          //cout<<"Fa : "<<idx_alpha_not_lb[i]<<" "<<Fa<<" "<<diff<<endl; 
-          tmp = diff-diff_max;          
-          if(diff>=diff_max)
+
+          Tmy_double grad_diff = gmax+(Fa-rho);           
+          if (grad_diff>0.0)
           {
-            diff_max=diff;
-            idx_a = idx_alpha_not_lb[i];
-            _alpha->mv_lb_ub(idx_alpha_not_lb[i],0,0);
-            //cout<<"idx_a "<<idx_a<<" "<<diff_max<<endl;            
-          }        
+             Tmy_double obj_diff;
+             vector<Tmy_double> tmp_hsl = _kernel->hit_eta(i,idx_b);
+             Tmy_double quad_coef = tmp_hsl[0];
+             obj_diff = -1.0*(grad_diff*grad_diff)*quad_coef;
+             if(obj_diff<=obj_diff_min)
+             {
+                obj_diff_min=obj_diff;
+                idx_a = idx_alpha_not_lb[i];
+             }
+            
+          }
+
+          // if((kkt_max-(Fa-rho))>0.0)
+          // { 
+          //    diff = kkt_max-(Fa-rho);
+             //diff = Fb-Fa;
+             //diff = abs((double) diff);
+             //cout<<"Fa : "<<idx_alpha_not_lb[i]<<" "<<Fa<<" "<<diff<<endl;             
+             // if(diff>=diff_max)
+             // {
+             //   diff_max=diff;
+             //   idx_a = idx_alpha_not_lb[i];
+             //   _alpha->mv_lb_ub(idx_alpha_not_lb[i],0,0);
+               //cout<<"idx_a "<<idx_a<<" "<<diff_max<<endl;            
+             // }
+          // }           
      } 
    }
 

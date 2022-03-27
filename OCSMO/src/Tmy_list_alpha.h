@@ -12,6 +12,13 @@ using namespace std;
 
 #define Included_Tmy_list_alpha_H
 
+struct Treturn_alpha_stat
+{
+   Tmy_double jml_alpha;
+   int n_all_sv;
+   int n_sv;
+   Tmy_double jml_alpha_n_sv;
+};
 
 class Tmy_list_alpha
 {
@@ -28,6 +35,7 @@ private:
    vector<int> _alpha_status;
    vector<int> _alpha_not_ub;
    vector<int> _alpha_not_lb;
+   vector<int> _alpha_free;
    map<int,Tmy_double> _alpha_sv;
 
    void update_alpha_status(int idx);
@@ -55,7 +63,9 @@ public:
    
    Tmy_double get_alpha(int idx);
    vector<int> get_list_lb_ub(int flag);
-   map<int,Tmy_double> get_list_alpha_sv();   
+   map<int,Tmy_double> get_list_alpha_sv();
+
+   Treturn_alpha_stat get_stat();   
 	
 };
 

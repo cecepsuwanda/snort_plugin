@@ -23,12 +23,13 @@ Tmy_list_alpha::~Tmy_list_alpha(){
   _alpha_status.clear();
   _alpha_not_ub.clear();
   _alpha_not_lb.clear();
+  _alpha_free.clear();
   _alpha_sv.clear();  
 }
 
 
 void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
-  cetak("init alpha : \n");
+  //cetak("init alpha : \n");
   Tmy_double tmp = V*((double)_jml_data);  
   int jml = (int) tmp;
   
@@ -50,7 +51,6 @@ void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
   for(int idx=jml;idx<_jml_data;idx++){
      update_alpha(idx,0.0);
   }  
-  
 }
 
 void Tmy_list_alpha::update_alpha(int idx,Tmy_double value)
@@ -92,6 +92,7 @@ void Tmy_list_alpha::update_alpha(int idx,Tmy_double value)
   update_alpha_status(idx);
   update_lb_ub(idx);  
 	
+
 }
 
 void Tmy_list_alpha::update_alpha_status(int idx)
@@ -142,6 +143,13 @@ void Tmy_list_alpha::update_lb_ub(int idx)
       break;
     } 
   }
+
+  for(int i=0;i<_alpha_free.size();i++){
+    if(_alpha_free[i]==idx){
+      _alpha_free.erase(_alpha_free.begin()+i);
+      break;
+    } 
+  }
   
   if (is_upper_bound(idx)==false)
   {
@@ -151,6 +159,11 @@ void Tmy_list_alpha::update_lb_ub(int idx)
   if (is_lower_bound(idx)==false)
   {
     _alpha_not_lb.push_back(idx);
+  }
+
+  if (is_free(idx)==true)
+  {
+    _alpha_free.push_back(idx);
   }
 
 
@@ -252,6 +265,7 @@ bool Tmy_list_alpha::is_pass(int i,int j,Tmy_double delta,vector<Tmy_double> *al
        tmp=calculateNewAlpha(i,j,delta,Low,High);
        Tmy_double alpha_a_old=tmp[0],alpha_b_old=tmp[1],alpha_a_new=tmp[2],alpha_b_new=tmp[3];       
        double diff = alpha_a_new-alpha_a_old;      
+       
        if(abs(diff)<10e-5)
        {        
         alpha->push_back(_alpha[i]);
@@ -284,6 +298,10 @@ vector<int> Tmy_list_alpha::get_list_lb_ub(int flag)
   }else{
     if(flag==1){
        return _alpha_not_ub;
+    }else{
+     if(flag==2){
+       return _alpha_free;
+     } 
     }  
   }
 }
@@ -317,5 +335,15 @@ void Tmy_list_alpha::mv_lb_ub(int idx,int posisi,int flag1)
 map<int,Tmy_double> Tmy_list_alpha::get_list_alpha_sv()
 {
   return _alpha_sv;
+}
+
+Treturn_alpha_stat Tmy_list_alpha::get_stat()
+{
+  Treturn_alpha_stat tmp_stat;
+  tmp_stat.jml_alpha = _jml_alpha;
+  tmp_stat.n_all_sv  = _n_all_sv;
+  tmp_stat.n_sv = _n_sv;
+  tmp_stat.jml_alpha_n_sv = _jml_alpha_n_sv;
+  return tmp_stat;
 } 
 

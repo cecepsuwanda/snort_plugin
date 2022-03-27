@@ -74,7 +74,7 @@ bool Tmy_svm::take_step(int idx_b,int idx_a)
 }
 
 
-void Tmy_svm::train(Tdataframe &df){
+Treturn_train Tmy_svm::train(Tdataframe &df){
    _my_kernel = new Tmy_kernel(df,_config->gamma);   
    _my_alpha->init(df.getjmlrow_svm());
    _my_G = new Tmy_G(df.getjmlrow_svm(),_my_kernel,_my_alpha);
@@ -87,9 +87,9 @@ void Tmy_svm::train(Tdataframe &df){
 
    while((is_alpha_changed==true) and (iter<max_iter))
    {
-      if((iter%100)==0){
-       cetak(".");
-      }
+      // if((iter%100)==0){
+      //  cetak(".");
+      // }
 
       iter = iter+1;
       //cetak("iterasi ke - %d \n",iter);
@@ -117,17 +117,35 @@ void Tmy_svm::train(Tdataframe &df){
       }
       
    }
+   // cetak("\n");
 
    Tmy_list_alpha *list_alpha = _my_alpha->get_alpha();
    map<int,Tmy_double> alpha_sv = list_alpha->get_list_alpha_sv();
+   Treturn_alpha_stat alpha_stat = list_alpha->get_stat();
+
+   Treturn_train tmp_train;
+   tmp_train.jml_iterasi = iter;
+   tmp_train.jml_alpha=alpha_stat.jml_alpha;
+   tmp_train.n_all_sv=alpha_stat.n_all_sv;
+   tmp_train.n_sv=alpha_stat.n_sv;
+   tmp_train.jml_alpha_n_sv=alpha_stat.jml_alpha_n_sv;
+
+   Tmy_list_G *list_G = _my_G->get_list_G(); 
+   int n_kkt = 0;
+   
    _model.reserve(alpha_sv.size());
    for (map<int, Tmy_double>::iterator it = alpha_sv.begin(); it != alpha_sv.end(); ++it)
    {
       int idx = it->first;
+      if(list_G->is_kkt(idx,_rho)==true)
+      {
+         n_kkt = n_kkt+1;
+      }
       vector<string> data = df.goto_rec(idx);
       _model.push_back(data);
-   }
-
+   }   
+   tmp_train.n_kkt = n_kkt;
+   return tmp_train;
 }
 
 vector<string> Tmy_svm::test(Tdataframe &df)

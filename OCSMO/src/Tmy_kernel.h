@@ -31,7 +31,7 @@ private:
 	Tmy_double dot(vector<string> x,vector<string> y);
 	Tmy_double kernel_function(int i,int j);
 
-	static Treturn_data thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,double gamma);
+	static Treturn_data thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,Tmy_double _x_square_x,Tmy_double _x_square_y,double gamma);
 	static Treturn_data thread_hit_x_square(int idx_map,vector<string> x);
 public:
 	Tmy_kernel(Tdataframe &df,double gamma);

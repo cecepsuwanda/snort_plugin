@@ -80,21 +80,25 @@ Treturn_data Tmy_kernel::thread_hit_x_square(int idx_map,vector<string> x)
 }
 
 
-Treturn_data Tmy_kernel::thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,double gamma)
+Treturn_data Tmy_kernel::thread_hit_data(int idx_map,int idx_vec,vector<string> x,vector<string> y,Tmy_double _x_square_x,Tmy_double _x_square_y,double gamma)
 {
   int jml = x.size();
    
-   double sum1 = 0.0; 
-   for (int i = 0; i < jml; ++i)
-   {
-     sum1=sum1+(stod(y[i])*stod(y[i]));
-   }
+   Tmy_double sum1 = _x_square_y;
 
-   double sum2 = 0.0; 
-   for (int i = 0; i < jml; ++i)
-   {
-     sum2=sum2+(stod(x[i])*stod(x[i]));
-   }
+   // double sum1 = 0.0; 
+   // for (int i = 0; i < jml; ++i)
+   // {
+   //   sum1=sum1+(stod(y[i])*stod(y[i]));
+   // }
+
+   Tmy_double sum2 = _x_square_x;
+
+   // double sum2 = 0.0; 
+   // for (int i = 0; i < jml; ++i)
+   // {
+   //   sum2=sum2+(stod(x[i])*stod(x[i]));
+   // }
    
    double sum3 = 0.0; 
    for (int i = 0; i < jml; ++i)
@@ -111,14 +115,15 @@ vector<Tmy_double> Tmy_kernel::get_Q(int i)
 {   
    bool is_pass = _cache->is_in_head(i);   
    if(is_pass==false){
-     vector<string> x_j = _df->goto_rec(i);        
+     vector<string> x_j = _df->goto_rec(i);
+
      vector<future<Treturn_data>> async_worker;
      for (int j = 0; j < _jml_data; ++j)
      { 
        //cetak("*");
        vector<string> x_i = _df->goto_rec(j);
 
-       async_worker.push_back(async(std::launch::async, &Tmy_kernel::thread_hit_data,i,j,x_i,x_j,_gamma));
+       async_worker.push_back(async(std::launch::async, &Tmy_kernel::thread_hit_data,i,j,x_i,x_j,_x_square[j],_x_square[i],_gamma));
         
        if ((async_worker.size() % 10 )==0)
        {
@@ -163,7 +168,7 @@ vector<Tmy_double> Tmy_kernel::hit_eta(int i,int j)
    Tmy_double k12 = Q_i[j];//kernel_function(j,i);
    Tmy_double k22 = Q_j[j];//kernel_function(j,j);
    Tmy_double p_eta = k11+k22-(2.0*k12);
-   Tmy_double eta = -1.0;
+   Tmy_double eta = 0.0;
    if(p_eta!=0.0)
    {
      eta = 1.0/p_eta;

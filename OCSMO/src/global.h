@@ -92,12 +92,13 @@ static void cetak ( const char * format, ... )
 
 static double bulat_nol(double val,double tolerance,int digit)
 {
-  const double multiplier = std::pow(10.0, digit);
-  double tmp = ceil(val * multiplier) / multiplier;
-  if(abs(tmp)<tolerance)
-  {
-    tmp=0;
-  }
+  // const double multiplier = std::pow(10.0, digit);
+  // double tmp = ceil(val * multiplier) / multiplier;
+  double tmp = val;
+  // if(abs(tmp)<tolerance)
+  // {
+  //   tmp=0;
+  // }  
   return tmp;
 }
 
