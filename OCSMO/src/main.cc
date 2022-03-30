@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
              cout<<" jml alpha = "<< hsl_train.jml_alpha;
              cout<<" jml sv = "<< hsl_train.n_sv;
              cout<<" jml alpha sv = "<< hsl_train.jml_alpha_n_sv;
+             cout<<" rho = "<< hsl_train.rho;
              
              Tconf_metrix conf_metrix_train;                
              isi_conf_matrix(conf_metrix_train,label_train,hasil_train);

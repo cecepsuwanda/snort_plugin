@@ -27,6 +27,7 @@ private:
 	Tmy_double _gamma;
 	int _jml_data;
 	map<int, Tmy_double> _x_square;
+	map<int, int> _map_swap;
 
 	Tmy_double dot(vector<string> x,vector<string> y);
 	Tmy_double kernel_function(int i,int j);
@@ -37,9 +38,10 @@ public:
 	Tmy_kernel(Tdataframe &df,double gamma);
 	~Tmy_kernel();
 
-	vector<Tmy_double> get_Q(int i);
-	vector<Tmy_double> hit_eta(int i,int j);  
+	vector<Tmy_double> get_Q(int i,int size);
+	vector<Tmy_double> hit_eta(int i,int j,int size);  
 	Tmy_double kernel_function_f(vector<string> x,vector<string> y);
+	void swap_index(int i,int j);
 };
 
 #endif

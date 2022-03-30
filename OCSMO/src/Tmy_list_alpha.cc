@@ -128,42 +128,42 @@ void Tmy_list_alpha::update_alpha_sv(int idx)
   }
 }
 
-void Tmy_list_alpha::update_lb_ub(int idx)
+void Tmy_list_alpha::update_lb_ub(int idx_cari)
 {
   for(int i=0;i<_alpha_not_ub.size();i++){
-    if(_alpha_not_ub[i]==idx){
+    if(_alpha_not_ub[i]==idx_cari){
       _alpha_not_ub.erase(_alpha_not_ub.begin()+i);
       break;
     } 
   }
 
   for(int i=0;i<_alpha_not_lb.size();i++){
-    if(_alpha_not_lb[i]==idx){
+    if(_alpha_not_lb[i]==idx_cari){
       _alpha_not_lb.erase(_alpha_not_lb.begin()+i);
       break;
     } 
   }
 
   for(int i=0;i<_alpha_free.size();i++){
-    if(_alpha_free[i]==idx){
+    if(_alpha_free[i]==idx_cari){
       _alpha_free.erase(_alpha_free.begin()+i);
       break;
     } 
   }
   
-  if (is_upper_bound(idx)==false)
+  if (is_upper_bound(idx_cari)==false)
   {
-    _alpha_not_ub.push_back(idx);
+    _alpha_not_ub.push_back(idx_cari);
   }
 
-  if (is_lower_bound(idx)==false)
+  if (is_lower_bound(idx_cari)==false)
   {
-    _alpha_not_lb.push_back(idx);
+    _alpha_not_lb.push_back(idx_cari);
   }
 
-  if (is_free(idx)==true)
+  if (is_free(idx_cari)==true)
   {
-    _alpha_free.push_back(idx);
+    _alpha_free.push_back(idx_cari);
   }
 
 
@@ -235,52 +235,48 @@ vector<Tmy_double> Tmy_list_alpha::calculateNewAlpha(int i,int j,Tmy_double delt
   vector<Tmy_double> tmp = limit_alpha(alpha_a_new,0,Low,High,0);
   alpha_a_new = tmp[0];
   Tmy_double alpha_b_new = _alpha[j]+(_alpha[i]-alpha_a_new);
-  tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
-  alpha_b_new = tmp[0];
-  alpha_a_new = tmp[1];
+  //tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
+  //alpha_b_new = tmp[0];
+  //alpha_a_new = tmp[1];
   return {_alpha[i],_alpha[j],alpha_a_new,alpha_b_new};
 }
 
-bool Tmy_list_alpha::is_pass(int i,int j,Tmy_double delta,vector<Tmy_double> *alpha)
+Treturn_is_pass Tmy_list_alpha::is_pass(int i,int j,Tmy_double delta)
 {
+  Treturn_is_pass tmp;
+
+  tmp.is_pass = false;
+  tmp.alpha_i = _alpha[i];
+  tmp.alpha_j = _alpha[j];
+  tmp.new_alpha_i = _alpha[i];
+  tmp.new_alpha_j = _alpha[j];
   
   if(i==j)
-  {    
-    alpha->push_back(_alpha[i]);
-    alpha->push_back(_alpha[j]);
-    alpha->push_back(_alpha[i]);
-    alpha->push_back(_alpha[j]);
-    return false;
+  {
+    return tmp;
   }else{
-    vector<Tmy_double> tmp=calculateBoundaries(i,j);
-    Tmy_double Low=tmp[0],High=tmp[1];
+    vector<Tmy_double> hsl=calculateBoundaries(i,j);
+    Tmy_double Low=hsl[0],High=hsl[1];
     //cout <<"Low "<<Low<<" High "<<High<<endl;
-    if(Low==High){
-       alpha->push_back(_alpha[i]);
-       alpha->push_back(_alpha[j]);
-       alpha->push_back(_alpha[i]);
-       alpha->push_back(_alpha[j]);
-       return false;
+    if(Low==High){       
+       return tmp;
     }else{
-       tmp=calculateNewAlpha(i,j,delta,Low,High);
-       Tmy_double alpha_a_old=tmp[0],alpha_b_old=tmp[1],alpha_a_new=tmp[2],alpha_b_new=tmp[3];       
+       vector<Tmy_double> hsl=calculateNewAlpha(i,j,delta,Low,High);
+       Tmy_double alpha_a_old=hsl[0],alpha_b_old=hsl[1],alpha_a_new=hsl[2],alpha_b_new=hsl[3];       
        double diff = alpha_a_new-alpha_a_old;      
-       
-       if(abs(diff)<10e-5)
+       //abs(diff)<10e-5
+       if(false)
        {        
-        alpha->push_back(_alpha[i]);
-        alpha->push_back(_alpha[j]);
-        alpha->push_back(_alpha[i]);
-        alpha->push_back(_alpha[j]);
-        return false;
+        return tmp;
        }else{
-          alpha->push_back(alpha_a_old);
-          alpha->push_back(alpha_b_old);
-          alpha->push_back(alpha_a_new);
-          alpha->push_back(alpha_b_new);
+          tmp.is_pass = true;
+          tmp.alpha_i = alpha_a_old;
+          tmp.alpha_j = alpha_b_old;
+          tmp.new_alpha_i = alpha_a_new;
+          tmp.new_alpha_j = alpha_b_new;
           // cout<<"alpha_a_new : "<<alpha_a_new<<" alpha_a_old : "<<alpha_a_old<<endl;
           // cout<<"alpha_b_new : "<<alpha_b_new<<" alpha_b_old : "<<alpha_b_old<<endl;        
-          return true;
+          return tmp;
        }
     }
   }  
@@ -345,5 +341,26 @@ Treturn_alpha_stat Tmy_list_alpha::get_stat()
   tmp_stat.n_sv = _n_sv;
   tmp_stat.jml_alpha_n_sv = _jml_alpha_n_sv;
   return tmp_stat;
+}
+
+Tmy_double Tmy_list_alpha::get_ub()
+{
+  return _ub;
+}
+
+void Tmy_list_alpha::swap_index(int i, int j)
+{
+  swap(_alpha_status[i],_alpha_status[j]);
+  swap(_alpha[i],_alpha[j]);
+
+  update_alpha_sv(i);
+  update_alpha_status(i);
+  update_lb_ub(i);
+
+  update_alpha_sv(j);
+  update_alpha_status(j);
+  update_lb_ub(j);
+
+
 } 
 

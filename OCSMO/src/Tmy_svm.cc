@@ -13,24 +13,21 @@ Tmy_svm::~Tmy_svm(){
    _model.clear();
 }
 
-bool Tmy_svm::cari_idx_alpha(vector<int> *idx_alpha)
+Treturn_cari_alpha Tmy_svm::cari_idx_alpha()
 {
    Tmy_list_G* _my_list_G = _my_G->get_list_G();
    vector<Tmy_double> gmax_gmin;
-   vector<int> tmp_idx_alpha = _my_list_G->cari_idx(_rho,&gmax_gmin);
+   Treturn_cari_idx tmp_cari_idx = _my_list_G->cari_idx(_rho);
    
-   Tmy_double diff = gmax_gmin[0]+gmax_gmin[1];
-   //cout<<gmax_gmin[0]<<"+"<<gmax_gmin[1]<<"="<<diff<<endl;
+   Tmy_double diff = tmp_cari_idx.gmax+tmp_cari_idx.gmin;
+   //cout<<tmp_cari_idx.gmax<<"+"<<tmp_cari_idx.gmin<<"="<<diff<<endl;
    bool stat = true;
-   if((diff<1e-3) or ((tmp_idx_alpha[0]==-1) or (tmp_idx_alpha[1]==-1)))
+   if((diff<1e-3) or ((tmp_cari_idx.idx_b==-1) or (tmp_cari_idx.idx_a==-1)))
    {  //(diff<1e-3) or
       stat = false;
-   }else{
-     idx_alpha->push_back(tmp_idx_alpha[0]);
-     idx_alpha->push_back(tmp_idx_alpha[1]);
-   }  
+   }
    
-   return stat;
+   return {stat,tmp_cari_idx.idx_b,tmp_cari_idx.idx_a};
 }
 
 bool Tmy_svm::cari_idx_a_lain(int idx_b,int *idx_alpha)
@@ -48,24 +45,26 @@ bool Tmy_svm::take_step(int idx_b,int idx_a)
   }else{
      Tmy_list_G* _my_list_G = _my_G->get_list_G();
      Tmy_list_alpha* _my_list_alpha = _my_alpha->get_alpha();
-     Tmy_double Fb = _my_list_G->get_G(idx_b)-_rho;
-     Tmy_double Fa = _my_list_G->get_G(idx_a)-_rho;
+     
+     Tmy_double Fb = _my_list_G->get_G(idx_b);
+     Tmy_double Fa = _my_list_G->get_G(idx_a);
      //cout <<"Fb "<<Fb<<" "<<"Fa "<<Fa<<endl;
+     int active_size = _my_list_G->get_active_size();
 
-     vector<Tmy_double> hsl_eta = _my_kernel->hit_eta(idx_b,idx_a);
+     vector<Tmy_double> hsl_eta = _my_kernel->hit_eta(idx_b,idx_a,active_size);
      
      Tmy_double delta = (Fa-Fb)*hsl_eta[0];
      //cout<<"delta "<<delta<<endl;
      vector<Tmy_double> alpha;
-     bool is_pass = _my_list_alpha->is_pass(idx_b,idx_a,delta,&alpha);
-     if(is_pass==false)
+     Treturn_is_pass tmp = _my_list_alpha->is_pass(idx_b,idx_a,delta);
+     if(tmp.is_pass==false)
      {
         return false;
      }else{
-        _my_alpha->update_alpha(idx_b,alpha[2],idx_a,alpha[3]);
-        Tmy_double delta_alpha_1 = alpha[2]-alpha[0];
-        Tmy_double delta_alpha_2 = alpha[3]-alpha[1];        
-        _my_list_G->update_G(idx_b,idx_a,delta_alpha_1,delta_alpha_2);
+        //Tmy_double delta_alpha_1 = tmp.new_alpha_i-tmp.alpha_i;
+        //Tmy_double delta_alpha_2 = tmp.new_alpha_j-tmp.alpha_j;        
+        _my_list_G->update_G(idx_b,idx_a,tmp.new_alpha_i,tmp.new_alpha_j);
+        //_my_alpha->update_alpha(idx_b,tmp.new_alpha_i,idx_a,tmp.new_alpha_j);
         _rho = _my_G->update_rho(idx_b,idx_a);
         return true;
      }
@@ -75,49 +74,82 @@ bool Tmy_svm::take_step(int idx_b,int idx_a)
 
 
 Treturn_train Tmy_svm::train(Tdataframe &df){
+   int jml_data = df.getjmlrow_svm();
    _my_kernel = new Tmy_kernel(df,_config->gamma);   
    _my_alpha->init(df.getjmlrow_svm());
    _my_G = new Tmy_G(df.getjmlrow_svm(),_my_kernel,_my_alpha);
    _my_G->init();
+   Tmy_list_G *list_G = _my_G->get_list_G(); 
    _rho = _my_G->update_rho(0,1);
    
-   int max_iter = 10000000; 
    int iter = 0;
+   int max_iter = max(10000000, jml_data>INT_MAX/100 ? INT_MAX : 100*jml_data);
+   int counter = min(jml_data,1000)+1;
+   
    bool is_alpha_changed = true;
+   //(is_alpha_changed==true) and
 
-   while((is_alpha_changed==true) and (iter<max_iter))
+   while((iter<max_iter))
    {
       // if((iter%100)==0){
       //  cetak(".");
       // }
 
-      iter = iter+1;
+      if(--counter == 0)
+      {
+         counter = min(jml_data,1000);
+         list_G->do_shrinking();         
+      }
+
+      
       //cetak("iterasi ke - %d \n",iter);
       
-      vector<int> idx_alpha;
-      bool pass = cari_idx_alpha(&idx_alpha);
-      if(pass==true)
+      Treturn_cari_alpha hasil_cari = cari_idx_alpha();
+      
+      if(hasil_cari.is_pass==false) 
+      {         
+         list_G->reconstruct_gradient();
+         list_G->reset_active_size();
+         hasil_cari = cari_idx_alpha();
+         if(hasil_cari.is_pass==false) 
+         {
+           break; 
+         }else{
+            counter=1;
+         }
+         
+      }
+
+
+      if(hasil_cari.is_pass==true)
       {
-         //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_alpha[1];
-         is_alpha_changed = take_step(idx_alpha[0],idx_alpha[1]);
+         //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<hasil_cari.idx_a;
+         is_alpha_changed = take_step(hasil_cari.idx_b,hasil_cari.idx_a);
          //cout<<" rho sesudah "<<_rho<<endl;
          if(is_alpha_changed==false)
          {
+                        
             int idx_a;
-            pass = cari_idx_a_lain(idx_alpha[0],&idx_a);
+            bool pass = cari_idx_a_lain(hasil_cari.idx_b,&idx_a);
             if(pass==true)
             {
-              //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<idx_alpha[0]<<" idx_a "<<idx_a;   
-              is_alpha_changed = take_step(idx_alpha[0],idx_a);
-              //cout<<" rho sesudah "<<_rho<<endl; 
+               //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<idx_a;   
+               is_alpha_changed = take_step(hasil_cari.idx_b,idx_a);
+               //cout<<" rho sesudah "<<_rho<<endl;               
+               if(is_alpha_changed==false)
+               {
+                 counter=1;
+               } 
             }    
          }         
-      }else{
-         is_alpha_changed = false;
       }
+
+      iter = iter+1;
       
    }
    // cetak("\n");
+
+   list_G->reverse_swap();
 
    Tmy_list_alpha *list_alpha = _my_alpha->get_alpha();
    map<int,Tmy_double> alpha_sv = list_alpha->get_list_alpha_sv();
@@ -129,8 +161,9 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
    tmp_train.n_all_sv=alpha_stat.n_all_sv;
    tmp_train.n_sv=alpha_stat.n_sv;
    tmp_train.jml_alpha_n_sv=alpha_stat.jml_alpha_n_sv;
+   tmp_train.rho = _rho;
 
-   Tmy_list_G *list_G = _my_G->get_list_G(); 
+   
    int n_kkt = 0;
    
    _model.reserve(alpha_sv.size());

@@ -57,8 +57,25 @@ Tmy_double Tmy_kernel::dot(vector<string> x,vector<string> y){
 }
 
 Tmy_double Tmy_kernel::kernel_function(int i,int j){
-  vector<string> x_i = _df->goto_rec(i);
-  vector<string> x_j = _df->goto_rec(j);
+  
+     int idx_df = i;
+     map<int,int>::iterator it;  
+     it = _map_swap.find(idx_df);
+     if (it != _map_swap.end())
+     {  
+        idx_df = _map_swap[idx_df]; 
+     }
+  vector<string> x_i = _df->goto_rec(idx_df);
+  
+     idx_df = j;     
+     it = _map_swap.find(idx_df);
+     if (it != _map_swap.end())
+     {  
+        idx_df = _map_swap[idx_df]; 
+     } 
+
+  vector<string> x_j = _df->goto_rec(idx_df);
+  
   double tmp1 = (_x_square[i]+_x_square[j]-2.0*dot(x_i,x_j));
   double tmp2 = (-1.0*_gamma);
   Tmy_double tmp = exp(tmp2*tmp1);
@@ -111,17 +128,35 @@ Treturn_data Tmy_kernel::thread_hit_data(int idx_map,int idx_vec,vector<string> 
    return {idx_map,idx_vec,hasil};
 }
 
-vector<Tmy_double> Tmy_kernel::get_Q(int i)
+vector<Tmy_double> Tmy_kernel::get_Q(int i,int size)
 {   
-   bool is_pass = _cache->is_in_head(i);   
-   if(is_pass==false){
-     vector<string> x_j = _df->goto_rec(i);
+   Treturn_is_in_head hasil = _cache->is_in_head(i,size);   
+   if(hasil.is_pass==false){
+     
+     int idx_df = i;
+     map<int,int>::iterator it;  
+     it = _map_swap.find(idx_df);
+     if (it != _map_swap.end())
+     {  
+        idx_df = _map_swap[idx_df]; 
+     }
+
+     vector<string> x_j = _df->goto_rec(idx_df);
 
      vector<future<Treturn_data>> async_worker;
-     for (int j = 0; j < _jml_data; ++j)
+     for (int j = hasil.awal; j < size; ++j)
      { 
        //cetak("*");
-       vector<string> x_i = _df->goto_rec(j);
+
+       int idx_df = j;
+       map<int,int>::iterator it;  
+       it = _map_swap.find(idx_df);
+       if (it != _map_swap.end())
+       {  
+          idx_df = _map_swap[idx_df]; 
+       }
+
+       vector<string> x_i = _df->goto_rec(idx_df);
 
        async_worker.push_back(async(std::launch::async, &Tmy_kernel::thread_hit_data,i,j,x_i,x_j,_x_square[j],_x_square[i],_gamma));
         
@@ -159,10 +194,10 @@ vector<Tmy_double> Tmy_kernel::get_Q(int i)
    return data;
 }
 
-vector<Tmy_double> Tmy_kernel::hit_eta(int i,int j)
+vector<Tmy_double> Tmy_kernel::hit_eta(int i,int j,int size)
 {
-   vector<Tmy_double> Q_i = get_Q(i);
-   vector<Tmy_double> Q_j = get_Q(j);
+   vector<Tmy_double> Q_i = get_Q(i,size);
+   vector<Tmy_double> Q_j = get_Q(j,size);
 
    Tmy_double k11 = Q_i[i];//kernel_function(i,i);
    Tmy_double k12 = Q_i[j];//kernel_function(j,i);
@@ -206,4 +241,16 @@ Tmy_double Tmy_kernel::kernel_function_f(vector<string> x,vector<string> y)
    double tmp = -1.0*_gamma * (sum1+sum2-2.0*sum3);
    Tmy_double hasil = exp(tmp);     
    return hasil;
+}
+
+void Tmy_kernel::swap_index(int i,int j)
+{
+  _map_swap[i]=j;
+  _map_swap[j]=i; 
+
+  Tmy_double tmp = _x_square[i];
+  _x_square[i] = _x_square[j];
+  _x_square[j] = tmp;
+
+  _cache->swap_index(i,j);
 }

@@ -23,6 +23,14 @@ struct Treturn_train
    int n_all_sv;
    int n_sv;
    Tmy_double jml_alpha_n_sv;
+   Tmy_double rho;
+};
+
+struct Treturn_cari_alpha
+{
+   bool is_pass;
+   Tmy_double idx_b;
+   Tmy_double idx_a;
 };
 
 class Tmy_svm
@@ -40,7 +48,7 @@ public:
 	~Tmy_svm();
 	Treturn_train train(Tdataframe &df);
 	vector<string> test(Tdataframe &df);
-	bool cari_idx_alpha(vector<int> *idx_alpha);
+	Treturn_cari_alpha cari_idx_alpha();
 	bool cari_idx_a_lain(int idx_b,int *idx_alpha);
 	bool take_step(int idx_b,int idx_a);
 	

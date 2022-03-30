@@ -9,6 +9,12 @@ using namespace std;
 
 #define Included_Tmy_cache_H
 
+struct Treturn_is_in_head
+{
+	bool is_pass;
+	int awal;
+};
+
 class Tmy_cache
 {
 private:
@@ -21,9 +27,11 @@ public:
 	Tmy_cache(int jml_data,int size);
 	~Tmy_cache();
 
-	bool is_in_head(int idx);
+	Treturn_is_in_head is_in_head(int idx,int size);
 	vector<Tmy_double> get_head(int idx);
 	void isi_head(int idx_map,int idx_vec,Tmy_double val);
+
+	void swap_index(int i,int j);
 	
 };
 

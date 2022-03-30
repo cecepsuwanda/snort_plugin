@@ -20,6 +20,15 @@ struct Treturn_alpha_stat
    Tmy_double jml_alpha_n_sv;
 };
 
+struct Treturn_is_pass
+{
+   bool is_pass;
+   Tmy_double alpha_i;
+   Tmy_double alpha_j;
+   Tmy_double new_alpha_i;
+   Tmy_double new_alpha_j;
+};
+
 class Tmy_list_alpha
 {
 private:
@@ -40,7 +49,7 @@ private:
 
    void update_alpha_status(int idx);
    void update_alpha_sv(int idx);
-   void update_lb_ub(int idx);
+   void update_lb_ub(int idx_cari);
 
    
    vector<Tmy_double> calculateBoundaries(int i,int j);
@@ -57,7 +66,7 @@ public:
    bool is_lower_bound(int idx);
    bool is_upper_bound(int idx);
    bool is_free(int idx);
-   bool is_pass(int i,int j,Tmy_double delta,vector<Tmy_double> *alpha);
+   Treturn_is_pass is_pass(int i,int j,Tmy_double delta);
    vector<bool> is_alpha_sv(int idx);
    void mv_lb_ub(int idx,int posisi,int flag1);
    
@@ -65,7 +74,10 @@ public:
    vector<int> get_list_lb_ub(int flag);
    map<int,Tmy_double> get_list_alpha_sv();
 
-   Treturn_alpha_stat get_stat();   
+   Treturn_alpha_stat get_stat();
+   Tmy_double get_ub();
+
+   void swap_index(int i, int j);      
 	
 };
 
