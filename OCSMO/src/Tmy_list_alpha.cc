@@ -29,7 +29,7 @@ Tmy_list_alpha::~Tmy_list_alpha(){
 
 
 void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
-  //cetak("init alpha : \n");
+  cetak("init alpha : \n");
   Tmy_double tmp = V*((double)_jml_data);  
   int jml = (int) tmp;
   

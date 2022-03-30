@@ -65,7 +65,7 @@ bool Tmy_svm::take_step(int idx_b,int idx_a)
         //Tmy_double delta_alpha_2 = tmp.new_alpha_j-tmp.alpha_j;        
         _my_list_G->update_G(idx_b,idx_a,tmp.new_alpha_i,tmp.new_alpha_j);
         //_my_alpha->update_alpha(idx_b,tmp.new_alpha_i,idx_a,tmp.new_alpha_j);
-        _rho = _my_G->update_rho(idx_b,idx_a);
+        //_rho = _my_G->update_rho(idx_b,idx_a);
         return true;
      }
 
@@ -91,9 +91,9 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
 
    while((iter<max_iter))
    {
-      // if((iter%100)==0){
-      //  cetak(".");
-      // }
+      if((iter%100)==0){
+        cetak(".");
+      }
 
       if(--counter == 0)
       {
@@ -147,7 +147,8 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
       iter = iter+1;
       
    }
-   // cetak("\n");
+    cetak("\n");
+   _rho = _my_G->update_rho(0,0);
 
    list_G->reverse_swap();
 

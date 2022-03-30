@@ -24,7 +24,7 @@ Tmy_list_G::~Tmy_list_G()
 
 void Tmy_list_G::init()
 {   
-   //cetak("Start init G : \n");
+   cetak("Start init G : \n");
 
    for (int i = 0; i < _jml_data; ++i)
    {
@@ -32,11 +32,12 @@ void Tmy_list_G::init()
    }
 
    vector<int> idx_alpha = _alpha->get_list_lb_ub(0);
+   int i=0;
    for (auto& idx : idx_alpha)
    {   	 
-   	 // if((i%100)==0){
-     //   cetak(".");
-     //  }
+   	 if((i%100)==0){
+        cetak(".");
+       }
      Tmy_double alpha = _alpha->get_alpha(idx);
    	 vector<Tmy_double> data = _kernel->get_Q(idx,_jml_data);     
      for (int j = 0; j < _jml_data; ++j)
@@ -51,9 +52,11 @@ void Tmy_list_G::init()
           _arr_G_bar[j]=_arr_G_bar[j]+(_alpha->get_ub()*data[j]);       
        }   
      } 
+
+     i=i+1;
           
    } 
-   //cetak("\nEnd init G : \n");
+   cetak("\nEnd init G : \n");
 
 }
 
@@ -133,15 +136,15 @@ bool Tmy_list_G::is_kkt(int idx,Tmy_double rho)
   bool stat = false;
   
 
-  if((hsl[3]==true)and(F>0.0))
+  if((hsl[3]==true)and(F>=1e-3))
   {
      stat = true; 
   }else{
-    if((hsl[1]==true)and(F==0.0))
+    if((hsl[1]==true)and((F>-1e-3) and (F<1e-3)))
     {
        stat = true; 
     }else{
-       if((hsl[2]==true)and(F<0.0))
+       if((hsl[2]==true)and(F<=-1e-3))
        {
          stat = true; 
        }
