@@ -24,6 +24,7 @@ struct Treturn_train
    int n_sv;
    Tmy_double jml_alpha_n_sv;
    Tmy_double rho;
+   bool is_optimum;
 };
 
 struct Treturn_cari_alpha

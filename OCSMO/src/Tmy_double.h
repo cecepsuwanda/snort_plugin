@@ -62,7 +62,7 @@ public:
 	Tmy_double(const double t)
 	{
 		double tmp = t;
-		tmp = bulat_nol(tmp,1e-5,10);
+		tmp = tmp;
 		_val = tmp;		
 	}
 
@@ -76,7 +76,7 @@ public:
 	Tmy_double& operator = (const double t)
 	{
 		double tmp = t;
-		tmp = bulat_nol(tmp,1e-5,10);
+		tmp = tmp;
 		this->_val = tmp;		
 		return *this;
 	}
@@ -127,7 +127,7 @@ public:
 	{
       double tmp  =  rhs._val;
       double tmp1 =  _val;
-      tmp=bulat_nol((tmp1-tmp),1e-5,10); 
+      tmp=tmp1-tmp; 
 		return tmp != 0;
 	}
 	
@@ -135,7 +135,7 @@ public:
 	{
       double tmp  =  rhs;
       double tmp1 =  _val;
-      tmp=bulat_nol((tmp1-tmp),1e-5,10); 
+      tmp=tmp1-tmp; 
 		return tmp != 0;
 	}
 
@@ -164,7 +164,7 @@ public:
 	{
         double tmp  =  rhs._val;
         double tmp1 =  _val;
-        tmp1=bulat_nol((tmp1-tmp),1e-5,10);		
+        tmp1=tmp1-tmp;		
 		return (_val > rhs._val) or (tmp1==0);
 	}
 
@@ -173,7 +173,7 @@ public:
 		
 		double tmp  =  rhs;
       double tmp1 =  _val;
-      tmp=bulat_nol((tmp1-tmp),1e-5,10);
+      tmp=tmp1-tmp;
 		return (_val > rhs) or (tmp==0);
 	}
 
@@ -181,7 +181,7 @@ public:
 	{
         double tmp  =  rhs._val;
         double tmp1 =  _val;
-        tmp=bulat_nol((tmp1-tmp),1e-5,10);		
+        tmp=tmp1-tmp;		
 		  return (_val < rhs._val) or (tmp==0);
 	}
 
@@ -189,7 +189,7 @@ public:
 	{		
 		  double tmp  =  rhs;
         double tmp1 =  _val;
-        tmp=bulat_nol((tmp1-tmp),1e-5,10);
+        tmp=tmp1-tmp;
 		  return (_val < rhs) or (tmp==0);
 	}
 
@@ -197,7 +197,7 @@ public:
 	{
         double tmp  =  rhs._val;
         double tmp1 =  _val;
-        tmp=bulat_nol((tmp1-tmp),1e-5,10);		
+        tmp=tmp1-tmp;		
 		return (tmp==0);
 	}
 
@@ -206,7 +206,7 @@ public:
 	{		
 		  double tmp  =  rhs;
         double tmp1 =  _val;
-        tmp=bulat_nol((tmp1-tmp),1e-5,10);
+        tmp=tmp1-tmp;
 		  return (tmp==0);
 	}
 

@@ -89,65 +89,73 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
    bool is_alpha_changed = true;
    //(is_alpha_changed==true) and
 
+   Treturn_train tmp_train;
+
    while((iter<max_iter))
    {
-      if((iter%100)==0){
-        cetak(".");
-      }
+      // if((iter%100)==0){
+      //   cetak(".");
+      // }
 
       if(--counter == 0)
       {
          counter = min(jml_data,1000);
-         list_G->do_shrinking();         
+         list_G->do_shrinking();                            
       }
 
       
       //cetak("iterasi ke - %d \n",iter);
       
       Treturn_cari_alpha hasil_cari = cari_idx_alpha();
+      tmp_train.is_optimum = !hasil_cari.is_pass;
       
       if(hasil_cari.is_pass==false) 
       {         
          list_G->reconstruct_gradient();
          list_G->reset_active_size();
          hasil_cari = cari_idx_alpha();
+         tmp_train.is_optimum = !hasil_cari.is_pass;
          if(hasil_cari.is_pass==false) 
          {
            break; 
          }else{
             counter=1;
-         }
-         
+         }         
       }
 
 
       if(hasil_cari.is_pass==true)
       {
-         //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<hasil_cari.idx_a;
+         //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<hasil_cari.idx_a;                  
          is_alpha_changed = take_step(hasil_cari.idx_b,hasil_cari.idx_a);
          //cout<<" rho sesudah "<<_rho<<endl;
+         
          if(is_alpha_changed==false)
          {
-                        
-            int idx_a;
-            bool pass = cari_idx_a_lain(hasil_cari.idx_b,&idx_a);
-            if(pass==true)
-            {
-               //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<idx_a;   
-               is_alpha_changed = take_step(hasil_cari.idx_b,idx_a);
-               //cout<<" rho sesudah "<<_rho<<endl;               
-               if(is_alpha_changed==false)
-               {
-                 counter=1;
-               } 
-            }    
-         }         
+         //     counter=1;           
+             int idx_a;
+             bool pass = cari_idx_a_lain(hasil_cari.idx_b,&idx_a);
+             if(pass==true)
+             {
+             //   cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<idx_a;   
+                 is_alpha_changed = take_step(hasil_cari.idx_b,idx_a);
+             //   cout<<" rho sesudah "<<_rho<<endl;               
+             //   if(is_alpha_changed==false)
+             //   {
+             //      counter=1;
+             //   } 
+             }
+             //else{
+             //   counter=1;
+             // }    
+          }         
       }
 
       iter = iter+1;
-      
+
+             
    }
-    cetak("\n");
+    //cetak("\n");
    _rho = _my_G->update_rho(0,0);
 
    list_G->reverse_swap();
@@ -156,7 +164,7 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
    map<int,Tmy_double> alpha_sv = list_alpha->get_list_alpha_sv();
    Treturn_alpha_stat alpha_stat = list_alpha->get_stat();
 
-   Treturn_train tmp_train;
+   
    tmp_train.jml_iterasi = iter;
    tmp_train.jml_alpha=alpha_stat.jml_alpha;
    tmp_train.n_all_sv=alpha_stat.n_all_sv;

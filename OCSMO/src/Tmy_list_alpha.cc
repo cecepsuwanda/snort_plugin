@@ -29,7 +29,7 @@ Tmy_list_alpha::~Tmy_list_alpha(){
 
 
 void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
-  cetak("init alpha : \n");
+  //cetak("init alpha : \n");
   Tmy_double tmp = V*((double)_jml_data);  
   int jml = (int) tmp;
   
@@ -39,12 +39,23 @@ void Tmy_list_alpha::init(Tmy_double V,Tmy_double eps){
   	 update_alpha(idx,_ub);
   }
 
+  // if(jml<_jml_data)
+  // {
+  //   update_alpha(jml,(_ub* (double) _jml_data)*(1.0/(_jml_data-jml)));
+  // } 
+
   if(_jml_alpha<1.0)
   {
     tmp = 1.0-_jml_alpha;       
     update_alpha(jml,tmp);
     jml=jml+1;
   }
+  //else{
+    // Tmy_double tmp = _ub/2.0;
+    // update_alpha(jml-1,tmp);
+    // update_alpha(jml,tmp);
+    // jml=jml+1;
+  // }
 
   _alpha_not_lb.reserve(_jml_data-jml);
 
@@ -235,9 +246,9 @@ vector<Tmy_double> Tmy_list_alpha::calculateNewAlpha(int i,int j,Tmy_double delt
   vector<Tmy_double> tmp = limit_alpha(alpha_a_new,0,Low,High,0);
   alpha_a_new = tmp[0];
   Tmy_double alpha_b_new = _alpha[j]+(_alpha[i]-alpha_a_new);
-  //tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
-  //alpha_b_new = tmp[0];
-  //alpha_a_new = tmp[1];
+  // tmp = limit_alpha(alpha_b_new,alpha_a_new,_lb,_ub,1);
+  // alpha_b_new = tmp[0];
+  // alpha_a_new = tmp[1];
   return {_alpha[i],_alpha[j],alpha_a_new,alpha_b_new};
 }
 
@@ -263,7 +274,7 @@ Treturn_is_pass Tmy_list_alpha::is_pass(int i,int j,Tmy_double delta)
     }else{
        vector<Tmy_double> hsl=calculateNewAlpha(i,j,delta,Low,High);
        Tmy_double alpha_a_old=hsl[0],alpha_b_old=hsl[1],alpha_a_new=hsl[2],alpha_b_new=hsl[3];       
-       double diff = alpha_a_new-alpha_a_old;      
+       double diff = alpha_a_new-alpha_a_old;       
        //abs(diff)<10e-5
        if(false)
        {        

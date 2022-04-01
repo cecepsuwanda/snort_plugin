@@ -24,7 +24,7 @@ Tmy_list_G::~Tmy_list_G()
 
 void Tmy_list_G::init()
 {   
-   cetak("Start init G : \n");
+   //cetak("Start init G : \n");
 
    for (int i = 0; i < _jml_data; ++i)
    {
@@ -35,9 +35,9 @@ void Tmy_list_G::init()
    int i=0;
    for (auto& idx : idx_alpha)
    {   	 
-   	 if((i%100)==0){
-        cetak(".");
-       }
+   	 // if((i%100)==0){
+     //    cetak(".");
+     //   }
      Tmy_double alpha = _alpha->get_alpha(idx);
    	 vector<Tmy_double> data = _kernel->get_Q(idx,_jml_data);     
      for (int j = 0; j < _jml_data; ++j)
@@ -56,7 +56,7 @@ void Tmy_list_G::init()
      i=i+1;
           
    } 
-   cetak("\nEnd init G : \n");
+   //cetak("\nEnd init G : \n");
 
 }
 
@@ -144,7 +144,7 @@ bool Tmy_list_G::is_kkt(int idx,Tmy_double rho)
     {
        stat = true; 
     }else{
-       if((hsl[2]==true)and(F<=-1e-3))
+       if((hsl[2]==true)and(F<=1e-3))
        {
          stat = true; 
        }
@@ -348,6 +348,7 @@ void Tmy_list_G::do_shrinking()
             }
         }
     }
+    cout<< "_active_size " <<_active_size << " _jml_data "<<_jml_data<<endl;
 }
 
 void Tmy_list_G::reconstruct_gradient()

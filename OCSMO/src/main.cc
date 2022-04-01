@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   for (const auto & file : directory_iterator(config.path_model + "/train"))
   {
        string str = file.path().filename();       
-       if(str=="train_model_38.csv")
+       if(str=="train_model_1.csv")
        {  
         
         Tdataframe df_train(&config);
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         vector<string> hasil_train_max;
         vector<string> hasil_test_max;
 
-        for (double i = bb_V; i <= ba_V; i=i+bb_V)
+        for (double i = bb_V; i <= ba_V; i=i+0.01)
         {
              config.gamma = bb_gamma;
              config.V = i;
@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
              cout<<" jml sv = "<< hsl_train.n_sv;
              cout<<" jml alpha sv = "<< hsl_train.jml_alpha_n_sv;
              cout<<" rho = "<< hsl_train.rho;
+             cout<<" is optimum = "<< (hsl_train.is_optimum==true ? "Yes" : "No");
              
              Tconf_metrix conf_metrix_train;                
              isi_conf_matrix(conf_metrix_train,label_train,hasil_train);
