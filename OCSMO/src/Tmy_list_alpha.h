@@ -68,7 +68,7 @@ public:
    bool is_free(int idx);
    Treturn_is_pass is_pass(int i,int j,Tmy_double delta);
    vector<bool> is_alpha_sv(int idx);
-   void mv_lb_ub(int idx,int posisi,int flag1);
+   void mv_lb_ub(int idx,int flag1);
    
    Tmy_double get_alpha(int idx);
    vector<int> get_list_lb_ub(int flag);

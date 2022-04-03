@@ -171,7 +171,8 @@ Treturn_cari_idx Tmy_list_G::cari_idx(Tmy_double rho)
          if (tmp>=gmax)
          {
            gmax = tmp;           
-           idx_b = idx;                      
+           idx_b = idx;
+           _alpha->mv_lb_ub(idx,1);                      
          }
        }            
     } 
@@ -187,11 +188,13 @@ Treturn_cari_idx Tmy_list_G::cari_idx(Tmy_double rho)
           if (diff>=gmin)
           {
             gmin = diff;
+            _alpha->mv_lb_ub(idx,0);
           }
 
           Tmy_double grad_diff = gmax+Fa;           
-          if (grad_diff>0.0)
+          if (grad_diff>1e-3)
           {
+             _alpha->mv_lb_ub(idx,0);
              Tmy_double obj_diff;
              vector<Tmy_double> tmp_hsl = _kernel->hit_eta(idx,idx_b,_active_size);
              Tmy_double quad_coef = tmp_hsl[0];
@@ -200,6 +203,7 @@ Treturn_cari_idx Tmy_list_G::cari_idx(Tmy_double rho)
              {
                 obj_diff_min=obj_diff;
                 idx_a = idx;
+                _alpha->mv_lb_ub(idx,0);
              }            
           }
         }              
@@ -220,18 +224,22 @@ int Tmy_list_G::cari_idx_lain(int idx_b,Tmy_double rho)
      if(idx<_active_size){
        Tmy_double Fb = _arr_G[idx_b];
        Tmy_double Fa = _arr_G[idx];
-     
-       vector<Tmy_double> hsl_eta = _kernel->hit_eta(idx_b,idx,_active_size);
-     
-       Tmy_double delta = (Fa-Fb)*hsl_eta[0];
-     
-       vector<Tmy_double> alpha;
-       Treturn_is_pass tmp = _alpha->is_pass(idx_b,idx,delta);
-       if(tmp.is_pass==true)
-       {
-          idx_a = idx;
-          break;
-       }
+       // Tmy_double gmax = -1.0*Fb;
+       // Tmy_double gmin = Fa;
+       // Tmy_double diff = gmax+gmin;
+       // if(diff>0.0){
+           vector<Tmy_double> hsl_eta = _kernel->hit_eta(idx_b,idx,_active_size);
+         
+           Tmy_double delta = (Fa-Fb)*hsl_eta[0];
+         
+           vector<Tmy_double> alpha;
+           Treturn_is_pass tmp = _alpha->is_pass(idx_b,idx,delta);
+           if(tmp.is_pass==true)
+           {
+              idx_a = idx;
+              break;
+           }
+       //}    
     }
    }
 
@@ -242,18 +250,22 @@ int Tmy_list_G::cari_idx_lain(int idx_b,Tmy_double rho)
         if(idx<_active_size){
           Tmy_double Fb = _arr_G[idx_b];
           Tmy_double Fa = _arr_G[idx];
-     
-          vector<Tmy_double> hsl_eta = _kernel->hit_eta(idx_b,idx,_active_size);
-     
-          Tmy_double delta = (Fa-Fb)*hsl_eta[0];
-     
-          vector<Tmy_double> alpha;
-          Treturn_is_pass tmp = _alpha->is_pass(idx_b,idx,delta);
-          if(tmp.is_pass==true)
-          {
-             idx_a = idx;
-             break;
-          }
+          // Tmy_double gmax = -1.0*Fb;
+          // Tmy_double gmin = Fa;
+          // Tmy_double diff = gmax+gmin;
+          // if(diff>0.0){
+              vector<Tmy_double> hsl_eta = _kernel->hit_eta(idx_b,idx,_active_size);
+         
+              Tmy_double delta = (Fa-Fb)*hsl_eta[0];
+         
+              vector<Tmy_double> alpha;
+              Treturn_is_pass tmp = _alpha->is_pass(idx_b,idx,delta);
+              if(tmp.is_pass==true)
+              {
+                 idx_a = idx;
+                 break;
+              }
+          //}    
         }
      }
    }
@@ -327,6 +339,7 @@ void Tmy_list_G::do_shrinking()
 
    if(_unshrink == false && ((gmax1 + gmax2) <= (1e-3*10)))
     {
+        cout<<"un shrink"<<endl;
         _unshrink = true;
         reconstruct_gradient();
         _active_size = _jml_data;        
@@ -355,6 +368,43 @@ void Tmy_list_G::reconstruct_gradient()
 {
   if(_active_size!=_jml_data){
     cout<<"reconstruct gradient"<<endl;
+
+    int i,j;
+    int nr_free = 0;
+
+    for(j=_active_size;j<_jml_data;j++)
+        _arr_G[j] = _arr_G_bar[j];
+
+    for(j=0;j<_active_size;j++)
+        if(_alpha->is_free(j))
+            nr_free++;
+    
+
+    if (nr_free*_jml_data > 2*_active_size*(_jml_data-_active_size))
+    {
+        for(i=_active_size;i<_jml_data;i++)
+        {
+            vector<Tmy_double> Q_i = _kernel->get_Q(i,_active_size);
+            for(j=0;j<_active_size;j++)
+                if(_alpha->is_free(j)){
+                    Tmy_double alpha_j = _alpha->get_alpha(j);
+                    _arr_G[i] = _arr_G[i] + (alpha_j * Q_i[j]);
+                }
+        }
+    }
+    else
+    {
+        for(i=0;i<_active_size;i++)
+            if(_alpha->is_free(i))
+            {
+                vector<Tmy_double> Q_i = _kernel->get_Q(i,_jml_data);
+                Tmy_double alpha_i = _alpha->get_alpha(i);
+                for(j=_active_size;j<_jml_data;j++)
+                    _arr_G[j] = _arr_G[j] + (alpha_i * Q_i[j]);
+            }
+    }
+
+
   } 
 }
 

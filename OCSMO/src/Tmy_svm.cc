@@ -32,6 +32,7 @@ Treturn_cari_alpha Tmy_svm::cari_idx_alpha()
 
 bool Tmy_svm::cari_idx_a_lain(int idx_b,int *idx_alpha)
 {
+   //cout << "cari_idx_a_lain" << endl;
    Tmy_list_G* _my_list_G = _my_G->get_list_G();
    *idx_alpha = _my_list_G->cari_idx_lain(idx_b,_rho);
 
@@ -100,7 +101,7 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
       if(--counter == 0)
       {
          counter = min(jml_data,1000);
-         list_G->do_shrinking();                            
+         list_G->do_shrinking();                                  
       }
 
       
@@ -124,7 +125,7 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
       }
 
 
-      if(hasil_cari.is_pass==true)
+      if(hasil_cari.idx_a!=-1.0)
       {
          //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<hasil_cari.idx_a;                  
          is_alpha_changed = take_step(hasil_cari.idx_b,hasil_cari.idx_a);
@@ -137,18 +138,19 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
              bool pass = cari_idx_a_lain(hasil_cari.idx_b,&idx_a);
              if(pass==true)
              {
-             //   cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<idx_a;   
-                 is_alpha_changed = take_step(hasil_cari.idx_b,idx_a);
-             //   cout<<" rho sesudah "<<_rho<<endl;               
-             //   if(is_alpha_changed==false)
-             //   {
-             //      counter=1;
-             //   } 
-             }
-             //else{
-             //   counter=1;
-             // }    
-          }         
+                //cout<<"iterasi ke - "<<iter<<" rho sebelum "<<_rho<<" idx_b "<<hasil_cari.idx_b<<" idx_a "<<idx_a;   
+                is_alpha_changed = take_step(hasil_cari.idx_b,idx_a);
+                //cout<<" rho sesudah "<<_rho<<endl;               
+                if(is_alpha_changed==false)
+                {
+                   counter=1;
+                } 
+             }else{
+                break;
+             }    
+         }         
+      }else{
+         break;
       }
 
       iter = iter+1;
@@ -156,8 +158,16 @@ Treturn_train Tmy_svm::train(Tdataframe &df){
              
    }
     //cetak("\n");
-   _rho = _my_G->update_rho(0,0);
 
+   if(iter>=max_iter)
+   {
+      if(list_G->get_active_size()>jml_data)
+      {
+         list_G->reconstruct_gradient(); 
+         list_G->reset_active_size();
+      }
+   }   
+   _rho = _my_G->update_rho(0,0);
    list_G->reverse_swap();
 
    Tmy_list_alpha *list_alpha = _my_alpha->get_alpha();

@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   for (const auto & file : directory_iterator(config.path_model + "/train"))
   {
        string str = file.path().filename();       
-       if(str=="train_model_1.csv")
+       if(str=="train_model_36.csv")
        {  
         
         Tdataframe df_train(&config);
@@ -121,14 +121,17 @@ int main(int argc, char *argv[])
         Twaktu_proses waktu_proses;
         waktu_proses.mulai();
 
-        double v_max; 
+        double v_max = 0.0;
+        double gamma_max = 0.0; 
         float f1_max = -100;  
         vector<string> hasil_train_max;
         vector<string> hasil_test_max;
 
+      for (double j = bb_gamma; j <= ba_gamma; j=j+0.0001)
+      {  
         for (double i = bb_V; i <= ba_V; i=i+0.01)
         {
-             config.gamma = bb_gamma;
+             config.gamma = j;
              config.V = i;
 
              Tmy_svm my_svm(&config);                
@@ -137,7 +140,7 @@ int main(int argc, char *argv[])
 
              cout<<"iterasi = "<< hsl_train.jml_iterasi;
              cout<<" V = "<< i;
-             cout<<" gamma = "<< bb_gamma;
+             cout<<" gamma = "<< j;
              cout<<" jml kkt = "<< hsl_train.n_kkt;            
              cout<<" jml all sv = "<< hsl_train.n_all_sv;
              cout<<" jml alpha = "<< hsl_train.jml_alpha;
@@ -161,11 +164,13 @@ int main(int argc, char *argv[])
              if(tmp_F1>f1_max)
              {
                 v_max=i;
+                gamma_max=j;
                 f1_max=tmp_F1;
                 hasil_train_max = hasil_train;
                 hasil_test_max = hasil_test;    
              }
         }
+      }
         waktu_proses.selesai();
         waktu_proses.cetak();
 
@@ -174,6 +179,7 @@ int main(int argc, char *argv[])
         df_test.clear_memory();
         df_test.close_file();
 
+        cetak("gamma  max = %f \n",gamma_max);
         cetak("V  max = %f \n",v_max);
         cetak("F1 max = %f \n",f1_max);
         Tconf_metrix conf_metrix;                

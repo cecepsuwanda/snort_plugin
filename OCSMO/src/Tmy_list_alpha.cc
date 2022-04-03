@@ -276,7 +276,7 @@ Treturn_is_pass Tmy_list_alpha::is_pass(int i,int j,Tmy_double delta)
        Tmy_double alpha_a_old=hsl[0],alpha_b_old=hsl[1],alpha_a_new=hsl[2],alpha_b_new=hsl[3];       
        double diff = alpha_a_new-alpha_a_old;       
        //abs(diff)<10e-5
-       if(false)
+       if(diff==0)
        {        
         return tmp;
        }else{
@@ -313,7 +313,7 @@ vector<int> Tmy_list_alpha::get_list_lb_ub(int flag)
   }
 }
 
-void Tmy_list_alpha::mv_lb_ub(int idx,int posisi,int flag1)
+void Tmy_list_alpha::mv_lb_ub(int idx,int flag1)
 {
    if(flag1==0)
    {
