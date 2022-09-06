@@ -1,17 +1,5 @@
 #!/bin/bash
 
-cd ~/cpp/my_dt
-cp -rf /mnt/e/snort_plugin/my_dt/makefile .
-cp -rf /mnt/e/snort_plugin/my_dt/Tread_file.* .
-cp -rf /mnt/e/snort_plugin/my_dt/Tdataframe.* .
-cp -rf /mnt/e/snort_plugin/my_dt/Tdec_tree.* .
-cp -rf /mnt/e/snort_plugin/my_dt/Tconf_metrix.* .
-cp -rf /mnt/e/snort_plugin/my_dt/main.cc .
-make
-# wait
-clear
-# wait
-
 # rm data/dc_full_tree_*.csv
 # wait
 

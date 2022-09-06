@@ -15,8 +15,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <bits/stdc++.h>
+#include <mutex>
 
 using namespace std;
+
+#ifndef Included_Tread_file_H
+
+#define Included_Tread_file_H
 
 #define pagesize  4096
 
@@ -24,11 +29,9 @@ class Tread_file {
 private:
 	string _nm_f;
 	const char *_separator;
-	FILE *_file = NULL;
-
 	vector<string> _data;
+	string _data_str;
 
-	bool is_fmap = false;
 	int  _posisi = 0;
 	int  _b_posisi = 0;
 	int _fd = -1;
@@ -38,12 +41,25 @@ private:
 	int _idx_posisi = 0;
 	bool is_index = false;
 	vector<int> _index;
+
 	int *_idx_in_memory = NULL;
 	int _jml_index = 0;
 	int _ukuran_index = 0;
 
 	vector<string> tokenizer(char* str, const char* separator);
 	void clear_data();
+	bool open_file();
+
+	int _idx_col = 0;
+
+	int _jml_row = 0;
+	int _jml_col = 0;
+
+	bool _shared_memory = false;
+
+	mutable std::mutex v_mutex;
+
+	void memory_map_file();
 
 public:
 	Tread_file();
@@ -53,22 +69,59 @@ public:
 	{
 		this->_nm_f = t._nm_f;
 		this->_separator = t._separator;
+
+		this->_shared_memory = t._shared_memory;
+		this->_idx_posisi = 0;
+		this->_posisi = 0;
+
+		this->_fd = t._fd;
+		this->_sb = t._sb;
+
+		if (_shared_memory)
+		{
+			memory_map_file();
+		} else {
+			this->_file_in_memory = t._file_in_memory;
+		}
+
+
+		if (t._jml_index > 0) {
+			clear_index();
+			for (int i = 0; i < t._jml_index; ++i)
+			{
+				this->_index.push_back(t._idx_in_memory[i]);
+			}
+			save_to_memory();
+			clear_index();
+		}
+
 		return *this;
 	}
 
-	void setnm_f(string nm_f);
-	void setseparator(const char* separator);
-	void file_map();
+	void set_shared_memory_on();
+	void set_shared_memory_off();
 
-	bool open_file();
+	void setnm_f(string nm_f, const char* separator);
+	void setseparator(const char* separator);
+	int get_jml_row();
+	int get_jml_col();
+
+
 	bool open_file(string mode);
+	void reset_file();
 	void read_file();
-	void write_file(string row);
 	void close_file();
 
 	bool is_eof();
 	void next_record();
 	vector<string> get_record();
+
+
+	void next_col();
+	bool is_end_col();
+	string get_col_val();
+	string get_col_val(int idx_col);
+	int get_idx_col();
 
 	void clear_index();
 	void index_on();
@@ -78,3 +131,5 @@ public:
 	void clear_memory();
 
 };
+
+#endif

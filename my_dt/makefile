@@ -1,3 +1,12 @@
 
-my_dt : main.cc Tdec_tree.cc Tdataframe.cc Tread_file.cc Tconf_metrix.cc
-	       g++ -o my_dt main.cc Tdec_tree.cc Tdataframe.cc Tread_file.cc Tconf_metrix.cc -g -I.
+CC=g++
+
+SRC_DIRS=./src
+SRCS=$(shell find $(SRC_DIRS) -name *.cpp -or -name *.cc)
+INC_DIRS=$(shell find $(SRC_DIRS) -type d)
+INC_FLAGS=$(addprefix -I,$(INC_DIRS))
+
+CFLAGS=-pthread -g $(INC_FLAGS)
+
+my_dt : $(SRCS)
+	       $(CC) $(CFLAGS) -o my_dt $(SRCS) -std=c++17 -lstdc++fs
