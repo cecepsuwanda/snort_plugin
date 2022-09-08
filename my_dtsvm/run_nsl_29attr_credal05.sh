@@ -1,18 +1,18 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/model_100_100_svm_29attr_credal05_300' 
+PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/model_4_2_svm_29attr_credal05_2' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 TEST1='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test1.txt'
 UNKNOWN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_unknown.txt'
 
-DEPTH=100
-MIN_SAMP=100
+DEPTH=4
+MIN_SAMP=2
 USE_CREDAL=1
 CREDAL_S=0.5
 LIMIT=1
-THRESHOLD=300
+THRESHOLD=2
 F=0
 N=0
 
