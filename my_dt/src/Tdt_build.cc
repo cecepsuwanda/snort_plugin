@@ -152,7 +152,7 @@ void Tdt_build::clear_worker(int limit)
 
 	if (pass)
 	{
-		cetak("{clear worker}");
+		//cetak("{clear worker}");
 		for (std::thread & th : worker)
 		{
 			// If thread Object is Joinable then Join that thread.
@@ -187,12 +187,12 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 	}
 
 	//cout << counter;
-	cetak("[%d %d]", counter, df.getjmlrow());
+	//cetak("[%d %d]", counter, df.getjmlrow());
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
 		string tmp_str = create_leaf(df);
-		cetak("*");
+		//cetak("*");
 
 		if (tmp_str == "normal") {
 
@@ -203,14 +203,14 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			{
 				clear_worker(20);
 
-				cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
+				//cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
 				f_train_svm(df, idx_svm);
-				cetak("}");
+				//cetak("}");
 
 			}
 
 		} else {
-			cetak("{A}");
+			//cetak("{A}");
 		}
 
 		tree[node_index].isLeaf = true;
@@ -220,11 +220,11 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		df.clear_memory();
 		df.clear_col_split();
 
-		cetak("\n");
+		//cetak("\n");
 
 	} else {
 
-		cetak("?");
+		//cetak("?");
 
 		counter++;
 
@@ -247,7 +247,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
 			string tmp_str = create_leaf(df);
 
-			cetak("-");
+			//cetak("-");
 
 			if (tmp_str == "normal") {
 
@@ -259,14 +259,14 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 					clear_worker(20);
 
-					cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
+					//cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
 					f_train_svm(df, idx_svm);
-					cetak("}");
+					//cetak("}");
 
 				}
 
 			} else {
-				cetak("{A}");
+				//cetak("{A}");
 			}
 
 			tree[node_index].isLeaf = true;
@@ -279,13 +279,13 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			df_below.clear_col_split();
 			df_above.clear_col_split();
 
-			cetak("\n");
+			//cetak("\n");
 
 		} else {
 			if (split_value != "-1")
 			{
 
-				cetak("|");
+				//cetak("|");
 
 				tree[node_index].criteriaAttrIndex = split_column;
 
@@ -300,7 +300,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				tree.push_back(nextNode);
 
 				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-				cetak("->");
+				//cetak("->");
 				train(df_below, nextNode.treeIndex, counter);
 
 
@@ -316,11 +316,11 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 				if (counter == 1)
 				{
-					cetak("\n");
+					//cetak("\n");
 				}
 
 
-				cetak("<-");
+				//cetak("<-");
 				train(df_above, nextNode1.treeIndex, counter);
 
 				if (config->prunning) {
@@ -332,7 +332,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 						string tmp_str = tree[treeIndex_yes].label;
 
-						cetak("+");
+						//cetak("+");
 
 						if (tmp_str == "normal") {
 
@@ -344,16 +344,16 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 								clear_worker(20);
 
-								cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
+								//cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
 								f_train_svm(df, idx_svm);
-								cetak("}");
+								//cetak("}");
 
 								del_model_train(tree[treeIndex_yes].idx_svm);
 								del_model_train(tree[treeIndex_no].idx_svm);
 							}
 
 						} else {
-							cetak("{A}");
+							//cetak("{A}");
 						}
 
 						tree[node_index].label = tree[treeIndex_yes].label;
@@ -382,7 +382,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 {
-	cetak(".");
+	//cetak(".");
 
 	int left = tree[node_index].children[0];
 	int right = tree[node_index].children[1];
@@ -411,7 +411,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 		if ((tree[left].isLeaf) and (tree[right].isLeaf))
 		{
 
-			cetak("+");
+			//cetak("+");
 
 			float error_node, error_left, error_right, sum_error;
 
@@ -441,7 +441,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 			if (error_node < sum_error)
 			{
-				cetak("*");
+				//cetak("*");
 				tree[node_index].children[0] = -1;
 				tree[node_index].children[1] = -1;
 				tree[node_index].isLeaf = true;
@@ -457,10 +457,10 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 						clear_worker(0);
 
-						cetak("{v {j %d %d} ", idx_svm, df_train.getjmlrow());
+						//cetak("{v {j %d %d} ", idx_svm, df_train.getjmlrow());
 						f_train_svm(df_train, idx_svm);
 
-						cetak("{d ");
+						//cetak("{d ");
 
 						if (left_label == "normal")
 						{
@@ -474,7 +474,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 							cetak(" %d ", tree[right].idx_svm);
 						}
 
-						cetak("} }");
+						//cetak("} }");
 
 					}
 
@@ -542,26 +542,26 @@ void Tdt_build::build_tree()
 	df_train.read_data(config->f_train);
 	df_train.read_data_type(config->f_datatype);
 	df_train.set_id(0);
-	df_train.info();
+	//df_train.info();
 	df_train.setjmltotalrow();
 
-	cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-	cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
-	cetak("Start Train Decission Tree : \n");
+	//cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
+	//cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
+	//cetak("Start Train Decission Tree : \n");
 
 	{
 		Timer timer;
 		train(df_train, 0, 0);
 	}
 
-	cetak("End Train Decission Tree : \n");
+	//cetak("End Train Decission Tree : \n");
 
 	config->search_uniqe_val = false;
 
 	if (config->prunning) {
-		cetak("Start Prunning Decission Tree : \n");
+		//cetak("Start Prunning Decission Tree : \n");
 		post_pruning(df_train);
-		cetak("\nEnd Prunning Decission Tree : \n");
+		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
 
 	save_tree();

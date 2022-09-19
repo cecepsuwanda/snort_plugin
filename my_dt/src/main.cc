@@ -21,26 +21,34 @@ int main(int argc, char *argv[])
     config.limited = stoi(argv[6]) == 1;
     config.threshold = stoi(argv[7]);
 
-    config.depth = stoi(argv[2]);
-    config.min_sample = stoi(argv[3]);   
-    
-    if (stoi(argv[1]) == 0)
+
+    config.min_sample = stoi(argv[3]);
+
+    for (int i = 2; i < 31; ++i)
     {
+        /* code */
+
+        config.depth = i;
+
+        // if (stoi(argv[1]) == 0)
+        // {
         config.f_train = argv[9];
-        config.prunning = false;
+        config.prunning = true;
         Tdt_build dec_tree_build(&config);
         string tmp_str = config.path_model + "/dtsvm_model.csv";
         remove(tmp_str.c_str());
         dec_tree_build.build_tree();
-    } else {
+        // } else {
 
-        if (stoi(argv[1]) == 1)
-        {
-            config.f_test = argv[9];
-            Tdec_tree dec_tree_test(&config);
-            dec_tree_test.read_tree();
-            dec_tree_test.test();
-        }
+        //     if (stoi(argv[1]) == 1)
+        //     {
+        config.f_test = argv[9];
+        Tdec_tree dec_tree_test(&config);
+        dec_tree_test.read_tree();
+        dec_tree_test.test();
+        //     }
+        // }
+
     }
 
     return 0;

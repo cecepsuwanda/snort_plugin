@@ -19,5 +19,5 @@ void Timer::Stop()
 	auto end = std::chrono::time_point_cast<std::chrono::seconds>(endTimepoint).time_since_epoch().count();
 	auto duration = end - start;
 	//double ms = duration * 0.001;
-	std::cout << "\nLama Proses : " << ((double) duration/60) << " menit\n";
+	//std::cout << "\nLama Proses : " << ((double) duration/60) << " menit\n";
 }
