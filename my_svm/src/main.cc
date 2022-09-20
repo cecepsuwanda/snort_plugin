@@ -31,17 +31,17 @@ int main(int argc, char *argv[])
 
     string str = file.path().filename();
     string tmp = argv[6];
-    if ( tmp == "train")
-    {
-      str.replace(0, 5, "svm");
-    } else {
-      str.replace(0, 4, "svm");
-    }
+    // if ( tmp == "train")
+    // {
+    //   str.replace(0, 5, "svm");
+    // } else {
+    //   str.replace(0, 4, "svm");
+    // }
 
-    path v_path(config.svm_path + "/" + str);
+    // path v_path(config.svm_path + "/" + str);
     
-    if (exists(v_path)) {
-       // if(str=="svm_model_36.csv"){  
+    // if (exists(v_path)) {
+       
         Tdataframe df_train(&config);
         df_train.read_data(file.path());
         df_train.read_data_type(config.f_datatype);
@@ -50,19 +50,16 @@ int main(int argc, char *argv[])
         jml = jml + df_train.getjmlrow_svm();
 
         Tmy_svm my_svm(&config);
-        my_svm.load_model(config.svm_path + "/" + str);
-        //my_svm.train(df_train.get_all_record_svm());
+        //my_svm.load_model(config.svm_path + "/" + str);
+        my_svm.train(df_train.get_all_record_svm());
         my_svm.test(df_train,conf_metrix);
 
         df_train.clear_memory();
         df_train.close_file();
         
-    }else{
-      cout << str << " tidak ada !!!" << endl;
-    }
-    
-
-    
+    // }else{
+    //   cout << str << " tidak ada !!!" << endl;
+    // }    
   }
 
   cout << "jml = " << jml << endl;
