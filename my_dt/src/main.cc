@@ -21,14 +21,18 @@ int main(int argc, char *argv[])
     config.limited = stoi(argv[6]) == 1;
     config.threshold = stoi(argv[7]);
 
-
+    config.depth = stoi(argv[2]);
     config.min_sample = stoi(argv[3]);
 
-    for (int i = 2; i < 31; ++i)
+    for (int i = 4; i < 101; ++i)
     {
-        /* code */
+        
 
         config.depth = i;
+      for (int j = 20; j < 101; j+=2)
+        {
+            
+          config.min_sample = j;         
 
         // if (stoi(argv[1]) == 0)
         // {
@@ -48,7 +52,7 @@ int main(int argc, char *argv[])
         dec_tree_test.test();
         //     }
         // }
-
+       }
     }
 
     return 0;
