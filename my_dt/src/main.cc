@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         
 
         config.depth = i;
-      for (int j = 20; j < 101; j+=2)
+      for (int j = 200; j < 201; j+=2)
         {
             
           config.min_sample = j;         
