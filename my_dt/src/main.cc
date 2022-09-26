@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
     config.depth = stoi(argv[2]);
     config.min_sample = stoi(argv[3]);
 
-    for (int i = 4; i < 101; ++i)
+    for (int i = 4; i < 21; ++i)
     {
         
 
         config.depth = i;
-      for (int j = 200; j < 201; j+=2)
+      for (int j = 10; j < 101; j+=10)
         {
             
           config.min_sample = j;         
