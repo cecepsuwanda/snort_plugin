@@ -6,11 +6,11 @@ TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 
 DEPTH=100
-MIN_SAMP=4
+MIN_SAMP=10
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=2
+THRESHOLD=10
 
 
 mkdir ~/$PATH_MODEL
