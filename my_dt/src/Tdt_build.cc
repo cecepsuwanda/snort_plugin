@@ -562,7 +562,7 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 
 	if (config->prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
-		//post_pruning(df_train);
+		post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
 
