@@ -57,7 +57,7 @@ public:
 
 	string guess(vector<string> &data);
 
-	void test();
+	void test(Tdataframe &df);
 	void read_tree();
 };
 

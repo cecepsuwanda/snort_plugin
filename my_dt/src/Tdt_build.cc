@@ -263,6 +263,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 					f_train_svm(df, idx_svm);
 					//cetak("}");
 
+				}else{
+					//cetak("{v %d %d }", idx_svm, df.getjmlrow_svm());
 				}
 
 			} else {
@@ -534,20 +536,20 @@ void Tdt_build::save_tree()
 	tmp_wf.close_file();
 }
 
-void Tdt_build::build_tree()
+void Tdt_build::build_tree(Tdataframe &df_train)
 {
-	config->search_uniqe_val = true;
+	//config->search_uniqe_val = true;
 
-	Tdataframe df_train(config);
-	df_train.read_data(config->f_train);
-	df_train.read_data_type(config->f_datatype);
+	// Tdataframe df_train(config);
+	// df_train.read_data(config->f_train);
+	// df_train.read_data_type(config->f_datatype);
 	df_train.set_id(0);
 	//df_train.info();
 	df_train.setjmltotalrow();
 
-	//cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-	//cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
-	//cetak("Start Train Decission Tree : \n");
+	// cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
+	// cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
+	// cetak("Start Train Decission Tree : \n");
 
 	{
 		Timer timer;
@@ -566,7 +568,7 @@ void Tdt_build::build_tree()
 
 	save_tree();
 
-	df_train.close_file();
+	//df_train.close_file();
 }
 
 

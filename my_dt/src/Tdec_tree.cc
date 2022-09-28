@@ -354,17 +354,17 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
 
 }
 
-void Tdec_tree::test()
+void Tdec_tree::test(Tdataframe &df)
 {
-  Tdataframe df(config);
-  df.read_data(config->f_test);
-  df.read_data_type(config->f_datatype);
+  // Tdataframe df(config);
+  // df.read_data(config->f_test);
+  // df.read_data_type(config->f_datatype);
   //df.info();
 
 
-  //cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  //cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s , config->f_test.c_str());
-  //cetak("Test Decission Tree : \n");
+  // cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
+  // cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s , config->f_test.c_str());
+  // cetak("Test Decission Tree : \n");
 
   Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
 
@@ -382,7 +382,7 @@ void Tdec_tree::test()
 
   //cetak("End Test Decission Tree : \n");
 
-  df.close_file();
+  //df.close_file();
 
   //cout << " Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
   // cout << "All Metrix : " << endl;

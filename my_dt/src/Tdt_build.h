@@ -40,7 +40,7 @@ public:
 	Tdt_build(Tconfig *v_config);
 	~Tdt_build();
 
-	void build_tree();
+	void build_tree(Tdataframe &df_train);
 
 };
 #endif
