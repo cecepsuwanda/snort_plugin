@@ -39,10 +39,10 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
   
 
-  for (int i = 2; i < 101; ++i)
+  for (int i = 100; i < 201; i+=10) 
   {    
     config.min_sample = i;
-    for (int j = 2; j < 101; j+=1)
+    for (int j = 4; j < 51; ++j)
     {
 
       config.depth = j;  
