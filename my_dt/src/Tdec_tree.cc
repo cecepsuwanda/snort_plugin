@@ -392,7 +392,7 @@ void Tdec_tree::test(Tdataframe &df)
 
   // cout << "Dession Tree Metrix : " << endl;
   dt_conf_metrix.kalkulasi();
-  cetak("Depth : %d Minimum Sample : %d credal : %.4f FP : %d FN : %d \n", config->depth, config->min_sample, config->credal_s,dt_conf_metrix.get_FN("known"),dt_conf_metrix.get_FP("known"));
+  cetak("Depth : %d Minimum Sample : %d credal : %.4f threshold : %d FP : %d FN : %d \n", config->depth, config->min_sample, config->credal_s,config->threshold,dt_conf_metrix.get_FN("known"),dt_conf_metrix.get_FP("known"));
   //cout << dt_conf_metrix << endl << endl;
   // dt_conf_metrix.save(config->path_model + "/dt_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
