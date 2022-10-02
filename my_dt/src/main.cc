@@ -39,10 +39,13 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
   
 
+for(double k=0.1;k<=1.0;k+=0.1)
+{  
+  config.credal_s = k; 
   for (int i = 200; i < 201; i+=10) 
   {    
     config.min_sample = i;
-    for (int j = 4; j < 51; ++j)
+    for (int j = 27; j < 28; ++j)
     {
 
       config.depth = j;  
@@ -71,6 +74,7 @@ int main(int argc, char *argv[])
       df_train.stat_tabel();
     }
   }
+ } 
 
   df_train.close_file();
   df_test.close_file();
