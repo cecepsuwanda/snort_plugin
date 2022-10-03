@@ -42,12 +42,12 @@ private:
 	
 	void clear_worker(int limit);
 	int dfs(vector<string> &data, int treeIndex);	
-	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
+	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix);
 	
 	bool is_pass(int opt, string value1, string value2);
 
-	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
-	void thread_test_svm(int idx_svm, string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix);
+	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);
+	
 
 public:
 	Tdec_tree(Tconfig *v_config);

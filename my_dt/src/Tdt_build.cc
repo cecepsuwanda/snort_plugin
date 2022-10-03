@@ -100,51 +100,6 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 	df.clear_map_col_split();
 }
 
-void Tdt_build::thread_save_train(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
-{
-	Twrite_file tmp_wf;
-	tmp_wf.setnm_f(v_config->path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
-
-
-	for (int i = 0; i < table.size(); ++i)
-	{
-		string tmp_str = "";
-		for (int j = 0; j < (table[i].size() - 1); ++j)
-		{
-			tmp_str = tmp_str + table[i][j] + ",";
-		}
-
-		tmp_str = tmp_str + table[i][table[i].size() - 1];
-		tmp_wf.write_file(tmp_str);
-
-	}
-
-	tmp_wf.close_file();
-
-}
-
-void Tdt_build::thread_train_svm(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
-{
-	Tmy_svm my_svm(v_config);
-	my_svm.train(table);
-	my_svm.save_model(v_config->svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
-}
-
-void Tdt_build::f_train_svm(Tdataframe &df, int v_idx_svm)
-{
-	vector<vector<string>> table = df.get_all_record_svm();
-
-	if (config->save_train) {
-
-		worker.push_back(thread(&Tdt_build::thread_save_train, ref(config), table, v_idx_svm));
-		//thread_save_test(config,table,v_idx_svm);
-
-	}
-
-	worker.push_back(thread(&Tdt_build::thread_train_svm, ref(config), table, v_idx_svm));
-
-}
-
 void Tdt_build::clear_worker(int limit)
 {
 
@@ -195,19 +150,9 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		//cetak("*");
 
 		if (tmp_str == "normal") {
-
 			idx_svm++;
 			tree[node_index].idx_svm = idx_svm;
-
-			if ((config->train_svm))
-			{
-				clear_worker(20);
-
-				//cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
-				f_train_svm(df, idx_svm);
-				//cetak("}");
-
-			}
+			//cetak("{N}");
 
 		} else {
 			//cetak("{A}");
@@ -252,21 +197,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			if (tmp_str == "normal") {
 
 				idx_svm++;
-				tree[node_index].idx_svm = idx_svm;
-
-				if ((config->train_svm))
-				{
-
-					clear_worker(20);
-
-					//cetak("{v %d %d ", idx_svm, df.getjmlrow_svm());
-					f_train_svm(df, idx_svm);
-					//cetak("}");
-
-				}else{
-					//cetak("{v %d %d }", idx_svm, df.getjmlrow_svm());
-				}
-
+				tree[node_index].idx_svm = idx_svm;				
+                //cetak("{N}");
 			} else {
 				//cetak("{A}");
 			}
@@ -340,20 +272,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 							idx_svm++;
 							tree[node_index].idx_svm = idx_svm;
-
-							if ((config->train_svm) )
-							{
-
-								clear_worker(20);
-
-								//cetak("{v {j %d %d} {d %d %d} ", idx_svm, df.getjmlrow_svm(), tree[treeIndex_yes].idx_svm, tree[treeIndex_no].idx_svm);
-								f_train_svm(df, idx_svm);
-								//cetak("}");
-
-								del_model_train(tree[treeIndex_yes].idx_svm);
-								del_model_train(tree[treeIndex_no].idx_svm);
-							}
-
+                            //cetak("{N}"); 							
 						} else {
 							//cetak("{A}");
 						}
@@ -453,33 +372,6 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 				{
 					idx_svm++;
 					tree[node_index].idx_svm = idx_svm;
-
-					if ((config->train_svm) ) //and (df.getjmlrow() < 10000)
-					{
-
-						clear_worker(0);
-
-						//cetak("{v {j %d %d} ", idx_svm, df_train.getjmlrow());
-						f_train_svm(df_train, idx_svm);
-
-						//cetak("{d ");
-
-						if (left_label == "normal")
-						{
-							del_model_train(tree[left].idx_svm);
-							cetak(" %d ", tree[left].idx_svm);
-						}
-
-						if (right_label == "normal")
-						{
-							del_model_train(tree[right].idx_svm );
-							cetak(" %d ", tree[right].idx_svm);
-						}
-
-						//cetak("} }");
-
-					}
-
 				}
 
 				tree[left].idx_svm = -1;

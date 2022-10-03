@@ -168,7 +168,7 @@ string Tdec_tree::guess(vector<string> &data)
   return label;
 }
 
-void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix)
 {
   // std::mutex v_mutex;
 
@@ -176,118 +176,27 @@ void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, T
 
   for (int i = 0; i < table.size(); ++i)
   {
-    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-    conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);    
   }
-
 
 }
 
 
-void Tdec_tree::thread_test_svm(int idx_svm, string label, vector<vector<string>> table, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
-{
-  // std::mutex v_mutex;
-  // std::lock_guard<std::mutex> lock(v_mutex);
 
-  Twrite_file tmp_wf;
-
-  if (config->save_test) {
-    tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(idx_svm) + ".csv");
-  }
-
-  Tmy_svm my_svm(config);
-
-  string nm_model = config->svm_path + "/svm_model_" + to_string(idx_svm) + ".csv";
-  my_svm.load_model(nm_model);
-
-  vector<string> tmp_data;
-  string tmp_str;
-  for (int i = 0; i < table.size(); ++i)
-  {
-    tmp_str = "";
-    for (int j = 0; j < (table[i].size() - 1); ++j)
-    {
-      tmp_data.push_back(table[i][j]);
-      tmp_str = tmp_str + table[i][j] + ",";
-    }
-
-    string tmp_label = label;
-    tmp_label = my_svm.guess(tmp_data);
-
-    //table[i].push_back(tmp_label);
-
-    //v_mutex.lock();
-    svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
-    dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-
-    conf_metrix.add_jml(table[i][table[i].size() - 1], tmp_label, 1);
-    //v_mutex.unlock();
-
-    tmp_str = tmp_str + table[i][table[i].size() - 1] + "," + tmp_label;
-
-    if (config->save_test)
-    {
-      tmp_wf.write_file(tmp_str);
-    }
-
-    tmp_data.clear();
-    tmp_data.shrink_to_fit();
-  }
-
-  my_svm.destroy_model();
-
-  if (config->save_test)
-  {
-    tmp_wf.close_file();
-  }
-
-  //std::lock_guard<std::mutex> lock(v_mutex);
-
-  // for (int i = 0; i < table.size(); ++i)
-  // {
-
-// v_mutex.lock();
-  // svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-  // dt_conf_metrix.add_jml(table[i][table[i].size() - 2], label, 1);
-  // dt_svm_conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-
-  // conf_metrix.add_jml(table[i][table[i].size() - 2], table[i][table[i].size() - 1], 1);
-  // v_mutex.unlock();
-
-  // }
-
-
-
-}
-
-void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &conf_metrix, Tconf_metrix &dt_conf_metrix, Tconf_metrix &svm_conf_metrix, Tconf_metrix &dt_svm_conf_metrix)
+void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix)
 {
   //cetak("%d", node_index);
   if (tree[node_index].isLeaf)
   {
 
     string label = tree[node_index].label;
-
-    if ((config->train_svm) and (label == "normal") and (tree[node_index].idx_svm != -1))
-    {
-      //clear_worker(1);
-      //cetak("+{v { %d %d }", tree[node_index].idx_svm, df_test.getjmlrow_svm());
-      _table_svm = df_test.get_all_record_svm();
-      thread_test_svm(tree[node_index].idx_svm, label, _table_svm, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
-      //worker.push_back(thread(&Tdec_tree::thread_test_svm, tree[node_index].idx_svm, ref(config), label, _table_svm, ref(conf_metrix), ref(dt_conf_metrix), ref(svm_conf_metrix), ref(dt_svm_conf_metrix)));
-      //cetak("}");
-      _table_svm.clear();
-      _table_svm.shrink_to_fit();
-    } else {
       //clear_worker(1);
       //cetak("+{A { %d }}", df_test.getjmlrow());
       _table_attack = df_test.get_all_record();
-      worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(conf_metrix), ref(dt_conf_metrix), ref(dt_svm_conf_metrix)));
+      worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
       _table_attack.clear();
       _table_attack.shrink_to_fit();
-    }
+    
     df_test.clear_memory();
     //cetak("\n");
   } else {
@@ -319,7 +228,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       if (df_left.getjmlrow() > 0) {
         //cetak("->");
         //cetak("[%d %d %s %s]", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
-        test_dfs(left, df_left, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+        test_dfs(left, df_left, dt_conf_metrix);
       } else {
         //cetak("\n");
       }
@@ -336,7 +245,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &con
       if (df_right.getjmlrow() > 0) {
         //cetak("<-");
         //cetak("[%d %d %s %s]", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
-        test_dfs(right, df_right, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conf_metrix);
+        test_dfs(right, df_right, dt_conf_metrix);
       } else {
         //cetak("\n");
       }
@@ -359,55 +268,23 @@ void Tdec_tree::test(Tdataframe &df)
   // Tdataframe df(config);
   // df.read_data(config->f_test);
   // df.read_data_type(config->f_datatype);
-  //df.info();
+  //df.info();  
 
-
-  // cetak("Test : Jumlah Baris : %d Jumlah Kolom : %d \n", df.getjmlrow(), df.getjmlcol());
-  // cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f test : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s , config->f_test.c_str());
-  // cetak("Test Decission Tree : \n");
-
-  Tconf_metrix conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix;
-
-  svm_conf_metrix.add_konversi_asli("known", "normal");
+  Tconf_metrix dt_conf_metrix;  
   dt_conf_metrix.add_konversi_asli("unknown", "known");
-  dt_svm_conv_metrix.add_konversi_asli("unknown", "known");
-  dt_svm_conv_metrix.add_konversi_tebakan("unknown", "known");
-
-
+  
   {
     Timer timer;
-    test_dfs(0, df, conf_metrix, dt_conf_metrix, svm_conf_metrix, dt_svm_conv_metrix);
+    test_dfs(0, df, dt_conf_metrix);
     //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   }
-
-  //cetak("End Test Decission Tree : \n");
-
-  //df.close_file();
-
-  //cout << " Jumlah Data : " << jml_data << " Prediksi Tepat : " << tepat << " Failed : " << failed << " Prosentase : " << ((tepat / (double) jml_data) * 100) << endl;
-  // cout << "All Metrix : " << endl;
-  // conf_metrix.kalkulasi();
-  // cout << conf_metrix << endl << endl;
-  // conf_metrix.save(config->path_model + "/all_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
-
-  // cout << "Dession Tree Metrix : " << endl;
+  
+  //df.close_file();  
+  
   dt_conf_metrix.kalkulasi();
   cetak("Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%d,FP=%d,FN=%d,F1=%.4f \n", config->depth, config->min_sample, config->credal_s,config->threshold,dt_conf_metrix.get_FN("known"),dt_conf_metrix.get_FP("known"),dt_conf_metrix.get_F1());
-  //cout << dt_conf_metrix << endl << endl;
+  
   // dt_conf_metrix.save(config->path_model + "/dt_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
-
-  if (config->train_svm)
-  {
-    cout << "SVM Metrix : " << endl;
-    svm_conf_metrix.kalkulasi();
-    cout << svm_conf_metrix << endl << endl;
-    svm_conf_metrix.save(config->path_model + "/svm_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
-  }
-
-  // cout << "SVM & Dession Tree Metrix : " << endl;
-  // dt_svm_conv_metrix.kalkulasi();
-  // cout << dt_svm_conv_metrix << endl << endl;
-  // dt_svm_conv_metrix.save(config->path_model + "/dtsvm_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
 
 }
