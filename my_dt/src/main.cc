@@ -39,13 +39,14 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
   
 
-for(double k=0.1;k<=1.0;k+=0.1)
+for(double k=0.0;k<=2.0;k+=0.5)
 {  
+  config.use_credal = k != 0.0;
   config.credal_s = k; 
-  for (int i = 200; i < 201; i+=10) 
+  for (int i = 2; i < 201; i+=2) 
   {    
     config.min_sample = i;
-    for (int j = 27; j < 28; ++j)
+    for (int j = 2; j < 50; ++j)
     {
 
       config.depth = j;  
