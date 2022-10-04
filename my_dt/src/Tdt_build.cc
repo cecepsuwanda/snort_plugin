@@ -143,6 +143,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 	//cout << counter;
 	//cetak("[%d %d]", counter, df.getjmlrow());
+	cetak(".");
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
@@ -673,6 +674,7 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 	{
 		train(df_train, 0, 0, 0);
 	}
+	cetak("\n");
 
 	config->search_uniqe_val = false;
 
