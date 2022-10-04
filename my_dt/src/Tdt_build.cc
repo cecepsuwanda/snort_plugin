@@ -183,7 +183,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 		if (counter < prev_tree_depth)
 		{
-		  if(prev_tree[prev_tree_node_index].isLeaf!=true)
+		  if((prev_tree_node_index!=-1) and (prev_tree[prev_tree_node_index].isLeaf!=true))
 		  {
 			split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
 			left = prev_tree[prev_tree_node_index].children[0];
