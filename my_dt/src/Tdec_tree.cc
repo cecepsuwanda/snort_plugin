@@ -293,7 +293,7 @@ void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
   Tdataframe df;
-  df.read_data(config->path_model + "/dtsvm_model.csv");
+  df.read_data(config->path_model + "/dtsvm_model_"+to_string(config->depth)+"_"+to_string(config->min_sample)+"_"+to_string(config->threshold)+".csv");
 
   df.reset_file();
   while (!df.is_eof()) {

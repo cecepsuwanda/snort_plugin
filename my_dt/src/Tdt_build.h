@@ -13,9 +13,11 @@ class Tdt_build
 {
 private:
 	vector<Node> tree;
+	vector<Node> prev_tree;
 
 	int idx_svm;
 	int id_df;
+	int prev_tree_depth;
 
 	Tconfig *config;
 
@@ -32,6 +34,7 @@ private:
 	void pruning_dfs(int node_index , Tdataframe &df_train);
 	void post_pruning(Tdataframe &df_train);
 	void train(Tdataframe &df, int node_index , int counter);
+	void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
 	void save_tree();
 
 public:
@@ -39,6 +42,8 @@ public:
 	~Tdt_build();
 
 	void build_tree(Tdataframe &df_train);
+	void read_tree(string nm_file);
+	void build_from_prev_tree(Tdataframe &df_train,int prev_tree_depth);
 
 };
 #endif

@@ -132,6 +132,197 @@ bool Tdt_build::check_purity(Tdataframe &df)
 	return df.is_single_label();
 }
 
+void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter)
+{
+	if (node_index == 0)
+	{
+		Node root;
+		root.treeIndex = 0;
+		tree.push_back(root);
+	}
+
+	//cout << counter;
+	//cetak("[%d %d]", counter, df.getjmlrow());
+
+	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
+	{
+		string tmp_str = create_leaf(df);
+		//cetak("*");
+
+		if (tmp_str == "normal") {
+			idx_svm++;
+			tree[node_index].idx_svm = idx_svm;
+			//cetak("{N}");
+
+		} else {
+			//cetak("{A}");
+		}
+
+		tree[node_index].isLeaf = true;
+		tree[node_index].label = tmp_str;
+
+
+		df.clear_memory();
+		df.clear_col_split();
+
+		//cetak("\n");
+
+	} else {
+
+		//cetak("?");
+
+		counter++;
+
+		int split_column = -1;
+		string split_value = "-1";
+
+		int left = -1;
+		int right = -1;
+
+		if (counter < prev_tree_depth)
+		{
+		  if(prev_tree[prev_tree_node_index].isLeaf!=true)
+		  {
+			split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
+			left = prev_tree[prev_tree_node_index].children[0];
+			right = prev_tree[prev_tree_node_index].children[1];
+			if (left != -1) {
+				split_value = prev_tree[left].attrValue;
+			} else {
+				if (right != -1) {
+					split_value = prev_tree[right].attrValue;
+				}
+			}
+		  }else{
+		  	determine_best_split(df, split_column, split_value);
+		  }	
+
+		} else {
+			determine_best_split(df, split_column, split_value);
+		}
+
+		Tdataframe df_below, df_above;
+		if (split_value != "-1")
+		{
+			df_below = df;
+			df_below.set_id(id_df++);
+			df_above = df;
+			df_above.set_id(id_df++);
+
+		}
+		df.split_data(split_column, split_value, df_below, df_above);
+
+		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
+			string tmp_str = create_leaf(df);
+
+			//cetak("-");
+
+			if (tmp_str == "normal") {
+
+				idx_svm++;
+				tree[node_index].idx_svm = idx_svm;
+				//cetak("{N}");
+			} else {
+				//cetak("{A}");
+			}
+
+			tree[node_index].isLeaf = true;
+			tree[node_index].label = tmp_str;
+
+
+			df_below.clear_memory();
+			df_above.clear_memory();
+
+			df_below.clear_col_split();
+			df_above.clear_col_split();
+
+			//cetak("\n");
+
+		} else {
+			if (split_value != "-1")
+			{
+
+				//cetak("|");
+
+				tree[node_index].criteriaAttrIndex = split_column;
+
+				int treeIndex_yes, treeIndex_no;
+
+				Node nextNode;
+				nextNode.treeIndex = (int)tree.size();
+				nextNode.attrValue = split_value;
+				nextNode.opt = df.get_opt(split_column, 1);
+				treeIndex_yes = nextNode.treeIndex;
+				tree[node_index].children.push_back(nextNode.treeIndex);
+				tree.push_back(nextNode);
+
+				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
+				//cetak("->");
+
+				train(df_below, left, nextNode.treeIndex, counter);
+
+
+				Node nextNode1;
+				nextNode1.treeIndex = (int)tree.size();
+				nextNode1.attrValue = split_value;
+				nextNode1.opt = df.get_opt(split_column, 0);
+				treeIndex_no = nextNode1.treeIndex;
+				tree[node_index].children.push_back(nextNode1.treeIndex);
+				tree.push_back(nextNode1);
+
+				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
+
+				if (counter == 1)
+				{
+					//cetak("\n");
+				}
+
+
+				//cetak("<-");
+				train(df_above, right, nextNode1.treeIndex, counter);
+
+				if (config->prunning) {
+
+					if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+					{
+
+						tree[node_index].isLeaf = true;
+
+						string tmp_str = tree[treeIndex_yes].label;
+
+						//cetak("+");
+
+						if (tmp_str == "normal") {
+
+							idx_svm++;
+							tree[node_index].idx_svm = idx_svm;
+							//cetak("{N}");
+						} else {
+							//cetak("{A}");
+						}
+
+						tree[node_index].label = tree[treeIndex_yes].label;
+						tree[node_index].children.clear();
+						tree[node_index].children.shrink_to_fit();
+						tree.erase(tree.begin() + treeIndex_no);
+						tree.erase(tree.begin() + treeIndex_yes);
+						tree.shrink_to_fit();
+						//cetak("\n");
+					}
+				}
+			}
+
+		}
+
+	}
+
+	if (node_index == 0)
+	{
+		clear_worker(0);
+	}
+
+}
+
 void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 {
 	if (node_index == 0)
@@ -197,8 +388,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			if (tmp_str == "normal") {
 
 				idx_svm++;
-				tree[node_index].idx_svm = idx_svm;				
-                //cetak("{N}");
+				tree[node_index].idx_svm = idx_svm;
+				//cetak("{N}");
 			} else {
 				//cetak("{A}");
 			}
@@ -272,7 +463,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 							idx_svm++;
 							tree[node_index].idx_svm = idx_svm;
-                            //cetak("{N}"); 							
+							//cetak("{N}");
 						} else {
 							//cetak("{A}");
 						}
@@ -397,7 +588,7 @@ void Tdt_build::post_pruning(Tdataframe & df_train)
 void Tdt_build::save_tree()
 {
 	Twrite_file tmp_wf;
-	tmp_wf.setnm_f(config->path_model + "/dtsvm_model.csv");
+	tmp_wf.setnm_f(config->path_model + "/dtsvm_model_" + to_string(config->depth) + "_" + to_string(config->min_sample) + "_" + to_string(config->threshold) + ".csv");
 
 	string tmp_str = "";
 	vector<string> vec;
@@ -428,6 +619,73 @@ void Tdt_build::save_tree()
 	tmp_wf.close_file();
 }
 
+void Tdt_build::read_tree(string nm_file)
+{
+	vector<string> tmp_data;
+	Tdataframe df;
+	df.read_data(nm_file);
+
+	df.reset_file();
+	while (!df.is_eof()) {
+
+		tmp_data = df.get_record();
+
+		//cout << tmp_data.size() << endl;
+
+		Node newnode;
+		//cout << tmp_data[0] << endl;
+		newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
+		newnode.attrValue = tmp_data[1];
+		newnode.label = tmp_data[2];
+		//cout << tmp_data[2] << endl;
+		newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
+		newnode.isLeaf = tmp_data[4] == "1";
+		//cout << tmp_data[4] << endl;
+		newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
+		//cout << tmp_data[5] << endl;
+		newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
+		//cout << tmp_data[6] << endl;
+		newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
+
+		newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
+
+		// if (idx_svm < newnode.idx_svm)
+		// {
+		// 	idx_svm = newnode.idx_svm;
+		// }
+
+		prev_tree.push_back(newnode);
+
+		df.next_record();
+	}
+
+	df.close_file();
+
+}
+
+void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
+{
+	df_train.set_id(0);
+	df_train.setjmltotalrow();
+
+	this->prev_tree_depth = prev_tree_depth;
+
+	{
+		train(df_train, 0, 0, 0);
+	}
+
+	config->search_uniqe_val = false;
+
+	if (config->prunning) {
+		//cetak("Start Prunning Decission Tree : \n");
+		//post_pruning(df_train);
+		//cetak("\nEnd Prunning Decission Tree : \n");
+	}
+	save_tree();
+	//df_train.close_file();
+
+}
+
 void Tdt_build::build_tree(Tdataframe &df_train)
 {
 	//config->search_uniqe_val = true;
@@ -439,16 +697,9 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 	//df_train.info();
 	df_train.setjmltotalrow();
 
-	// cetak("Train : Jumlah Baris : %d Jumlah Kolom : %d \n", df_train.getjmlrow(), df_train.getjmlcol());
-	// cetak("Depth : %d Minimum Sample : %d gamma : %.4f nu : %.4f credal : %.4f feature_selection :%d normal only : %d  train : %s \n", config->depth, config->min_sample, config->gamma, config->nu, config->credal_s, (config->feature_selection ? 1 : 0), (config->normal_only ? 1 : 0), config->f_train.c_str());
-	// cetak("Start Train Decission Tree : \n");
-
 	{
-		Timer timer;
 		train(df_train, 0, 0);
 	}
-
-	//cetak("End Train Decission Tree : \n");
 
 	config->search_uniqe_val = false;
 
@@ -457,9 +708,7 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 		//post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
-
 	save_tree();
-
 	//df_train.close_file();
 }
 

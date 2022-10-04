@@ -7,6 +7,8 @@
 #include "Tdt_build.h"
 
 using namespace std;
+using std::experimental::filesystem::exists;
+using std::experimental::filesystem::path;
 
 int main(int argc, char *argv[])
 {
@@ -39,14 +41,14 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
   
 
-for(double k=0.0;k<=2.0;k+=0.5)
+for(double k=0.0;k<=0.0;k+=0.5)
 {  
   config.use_credal = k != 0.0;
   config.credal_s = k; 
-  for (int i = 2; i < 201; i+=2) 
+  for (int i = 2; i <= 2; i+=2) 
   {    
     config.min_sample = i;
-    for (int j = 2; j < 50; ++j)
+    for (int j = 2; j <= 50; ++j)
     {
 
       config.depth = j;  
@@ -56,9 +58,25 @@ for(double k=0.0;k<=2.0;k+=0.5)
       // if (stoi(argv[1]) == 0)
       // {            
       Tdt_build dec_tree_build(&config);
-      string tmp_str = config.path_model + "/dtsvm_model.csv";
+      
+      string tmp_str = config.path_model + "/dtsvm_model_"+to_string(config.depth)+"_"+to_string(config.min_sample)+"_"+to_string(config.threshold)+".csv";
       remove(tmp_str.c_str());
-      dec_tree_build.build_tree(df_train);
+
+      if(j>2){
+        tmp_str = config.path_model + "/dtsvm_model_"+to_string(config.depth-1)+"_"+to_string(config.min_sample)+"_"+to_string(config.threshold)+".csv";
+      }
+      
+      path v_path(tmp_str);
+
+      if((j>2) and exists(v_path))
+      {
+        dec_tree_build.read_tree(tmp_str);
+        dec_tree_build.build_from_prev_tree(df_train,j-1);
+      }else{
+        dec_tree_build.build_tree(df_train);  
+      }
+
+      
       // } else {
 
       //     if (stoi(argv[1]) == 1)
