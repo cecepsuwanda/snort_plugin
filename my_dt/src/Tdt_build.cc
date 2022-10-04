@@ -143,12 +143,13 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 	//cout << counter;
 	//cetak("[%d %d]", counter, df.getjmlrow());
-	cetak("%d|%d ",counter,prev_tree_node_index);
+	//cetak("%d|%d ",counter,prev_tree_node_index);
+	//cetak(".");
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
 		string tmp_str = create_leaf(df);
-		cetak("* ");
+		//cetak("* ");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
@@ -171,7 +172,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 	} else {
 
 		//cetak("?");
-		cetak("? ");
+		//cetak("? ");
 
 		counter++;
 
@@ -197,7 +198,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 			}
 		  }else{
 		  	determine_best_split(df, split_column, split_value);
-		    cetak("%d+%d ",split_column,split_value);  	
+		    //cetak("%d+%d ",split_column,split_value);  	
 		  }	
 
 		} else {
@@ -676,7 +677,7 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 	{
 		train(df_train, 0, 0, 0);
 	}
-	cetak("\n");
+	//cetak("\n");
 
 	config->search_uniqe_val = false;
 

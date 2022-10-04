@@ -48,7 +48,7 @@ for(double k=0.0;k<=0.0;k+=0.5)
   for (int i = 2; i <= 2; i+=2) 
   {    
     config.min_sample = i;
-    for (int j = 8; j <= 8; ++j)
+    for (int j = 2; j <= 50; ++j)
     {
 
       config.depth = j;  
