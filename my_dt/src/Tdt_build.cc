@@ -197,12 +197,18 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 				}
 			}
 		  }else{
+		  	config->search_uniqe_val = true;
+		  	df.stat_tabel();
 		  	determine_best_split(df, split_column, split_value);
+		  	config->search_uniqe_val = false;
 		    //cetak("%d+%d ",split_column,split_value);  	
 		  }	
 
 		} else {
+            config->search_uniqe_val = true;
+            df.stat_tabel();
 			determine_best_split(df, split_column, split_value);
+			config->search_uniqe_val = false;
 		}
 
 		Tdataframe df_below, df_above;
@@ -669,6 +675,8 @@ void Tdt_build::read_tree(string nm_file)
 
 void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 {
+	config->search_uniqe_val = false;
+
 	df_train.set_id(0);
 	df_train.setjmltotalrow();
 
@@ -693,7 +701,7 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 
 void Tdt_build::build_tree(Tdataframe &df_train)
 {
-	//config->search_uniqe_val = true;
+	config->search_uniqe_val = true;
 
 	// Tdataframe df_train(config);
 	// df_train.read_data(config->f_train);

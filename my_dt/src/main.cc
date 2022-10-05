@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
       config.min_sample = i;
       for (int j = 2; j <= 50; ++j)
       {
-
         config.depth = j;
         config.search_uniqe_val = true;
         config.prunning = true;
@@ -85,8 +84,8 @@ int main(int argc, char *argv[])
         config.search_uniqe_val = false;
         Tdec_tree dec_tree_test(&config);
         dec_tree_test.read_tree();
-        Tconf_metrix dt_conf_metrix; 
-        dec_tree_test.test(df_test,dt_conf_metrix);
+        Tconf_metrix dt_conf_metrix;
+        dec_tree_test.test(df_test, dt_conf_metrix);
 
         //     }
         // }
