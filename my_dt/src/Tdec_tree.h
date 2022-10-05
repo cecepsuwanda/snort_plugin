@@ -57,7 +57,7 @@ public:
 
 	string guess(vector<string> &data);
 
-	void test(Tdataframe &df);
+	void test(Tdataframe &df,Tconf_metrix &dt_conf_metrix);
 	void read_tree();
 };
 

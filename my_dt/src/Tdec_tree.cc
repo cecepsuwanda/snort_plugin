@@ -263,14 +263,14 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 
 }
 
-void Tdec_tree::test(Tdataframe &df)
+void Tdec_tree::test(Tdataframe &df,Tconf_metrix &dt_conf_metrix)
 {
   // Tdataframe df(config);
   // df.read_data(config->f_test);
   // df.read_data_type(config->f_datatype);
   //df.info();  
 
-  Tconf_metrix dt_conf_metrix;  
+  //Tconf_metrix dt_conf_metrix;  
   dt_conf_metrix.add_konversi_asli("unknown", "known");
   
   {
