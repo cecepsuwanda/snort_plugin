@@ -48,6 +48,10 @@ int main(int argc, char *argv[])
     for (int i = 2; i <= 2; i += 2)
     {
       config.min_sample = i;
+      int prev_jml_FP = 0;
+      int prev_jml_FN = 0;
+      int jml_sama = 0;
+
       for (int j = 2; j <= 50; ++j)
       {
         config.depth = j;
@@ -86,6 +90,22 @@ int main(int argc, char *argv[])
         dec_tree_test.read_tree();
         Tconf_metrix dt_conf_metrix;
         dec_tree_test.test(df_test, dt_conf_metrix);
+
+        int jml_FN = dt_conf_metrix.get_FN("known");
+        int jml_FP = dt_conf_metrix.get_FP("known");
+
+        jml_sama++;
+        if((prev_jml_FN!=jml_FN) or (prev_jml_FP!=jml_FP))
+        {
+          jml_sama=0;
+          prev_jml_FP = jml_FP;
+          prev_jml_FN = jml_FN;  
+        }
+
+        if(jml_sama>=5)
+        {
+          break;
+        }
 
         //     }
         // }

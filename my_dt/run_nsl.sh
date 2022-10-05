@@ -25,7 +25,7 @@ rm -rf ~/$PATH_MODEL/dtsvm_metrik.csv
 START="$(date +"%r")"
 echo "START : $START"
 
-./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_S100_T2.txt
+./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_T2.txt
 wait
 
 END="$(date +"%r")"
