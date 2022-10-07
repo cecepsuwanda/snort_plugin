@@ -40,14 +40,14 @@ int main(int argc, char *argv[])
   df_test.read_data(config.f_test);
   df_test.read_data_type(config.f_datatype);
 
-
-  for (double k = 0.0; k <= 0.0; k += 0.5)
+  for (int i = 20; i <= 20; i += 2)
   {
-    config.use_credal = k != 0.0;
-    config.credal_s = k;
-    for (int i = 2; i <= 2; i += 2)
+    config.min_sample = i;
+    for (double k = 0.0; k <= 1.0; k += 0.5)
     {
-      config.min_sample = i;
+      config.use_credal = k != 0.0;
+      config.credal_s = k;
+
       int prev_jml_FP = 0;
       int prev_jml_FN = 0;
       int jml_sama = 0;
@@ -95,14 +95,14 @@ int main(int argc, char *argv[])
         int jml_FP = dt_conf_metrix.get_FP("known");
 
         jml_sama++;
-        if((prev_jml_FN!=jml_FN) or (prev_jml_FP!=jml_FP))
+        if ((prev_jml_FN != jml_FN) or (prev_jml_FP != jml_FP))
         {
-          jml_sama=0;
+          jml_sama = 0;
           prev_jml_FP = jml_FP;
-          prev_jml_FN = jml_FN;  
+          prev_jml_FN = jml_FN;
         }
 
-        if(jml_sama>=5)
+        if (jml_sama >= 5)
         {
           break;
         }
