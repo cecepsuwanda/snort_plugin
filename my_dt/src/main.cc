@@ -40,10 +40,11 @@ int main(int argc, char *argv[])
   df_test.read_data(config.f_test);
   df_test.read_data_type(config.f_datatype);
 
-  for (int i = 20; i <= 20; i += 2)
+
+  for (int i = 200; i <= 200; i += 2)
   {
     config.min_sample = i;
-    for (double k = 0.0; k <= 1.0; k += 0.5)
+    for (double k = 0.5; k <= 2.0; k += 0.5)
     {
       config.use_credal = k != 0.0;
       config.credal_s = k;
@@ -65,19 +66,19 @@ int main(int argc, char *argv[])
         string tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
         remove(tmp_str.c_str());
 
-        if (j > 2) {
-          tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth - 1) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
-        }
+        // if (j > 2) {
+        //   tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth - 1) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
+        // }
 
-        path v_path(tmp_str);
+        //path v_path(tmp_str);
 
-        if ((j > 2) and exists(v_path))
-        {
-          dec_tree_build.read_tree(tmp_str);
-          dec_tree_build.build_from_prev_tree(df_train, j - 1);
-        } else {
+        // if ((j > 2) and exists(v_path))
+        // {
+        //   dec_tree_build.read_tree(tmp_str);
+        //   dec_tree_build.build_from_prev_tree(df_train, j - 1);
+        // } else {
           dec_tree_build.build_tree(df_train);
-        }
+        // }
 
 
         // } else {
@@ -91,8 +92,11 @@ int main(int argc, char *argv[])
         Tconf_metrix dt_conf_metrix;
         dec_tree_test.test(df_test, dt_conf_metrix);
 
+        config.search_uniqe_val = true;
+        df_train.stat_tabel();
+
         int jml_FN = dt_conf_metrix.get_FN("known");
-        int jml_FP = dt_conf_metrix.get_FP("known");
+        int jml_FP = dt_conf_metrix.get_FP("known");       
 
         jml_sama++;
         if ((prev_jml_FN != jml_FN) or (prev_jml_FP != jml_FP))
@@ -109,10 +113,9 @@ int main(int argc, char *argv[])
 
         //     }
         // }
-
-      }
-      config.search_uniqe_val = true;
-      df_train.stat_tabel();
+        
+      }     
+      
     }
   }
 
