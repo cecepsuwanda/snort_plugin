@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   if (stoi(argv[1]) == 0)
   {
     config.f_train = argv[10];
-    config.prunning = true;
+    config.prunning = false;
 
     Tdt_build dec_tree(&config);
 

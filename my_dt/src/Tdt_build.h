@@ -41,7 +41,7 @@ public:
 	Tdt_build(Tconfig *v_config);
 	~Tdt_build();
 
-	void build_tree(Tdataframe &df_train);
+	void build_tree();
 	void read_tree(string nm_file);
 	void build_from_prev_tree(Tdataframe &df_train,int prev_tree_depth);
 

@@ -5,10 +5,10 @@ NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 
-DEPTH=2
+DEPTH=11
 MIN_SAMP=200
-USE_CREDAL=0
-CREDAL_S=0.0
+USE_CREDAL=1
+CREDAL_S=0.5
 LIMIT=1
 THRESHOLD=100
 
