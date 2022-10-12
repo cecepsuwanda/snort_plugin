@@ -29,36 +29,38 @@ int main(int argc, char *argv[])
   config.f_train = argv[9];
   config.f_test = argv[10];
 
-  // config.search_uniqe_val = true;
-  // Tdataframe df_train(&config);
-  // df_train.read_data(config.f_train);
-  // df_train.read_data_type(config.f_datatype);
+  config.search_uniqe_val = true;
+  Tdataframe df_train(&config);
+  df_train.read_data(config.f_train);
+  df_train.read_data_type(config.f_datatype);
 
 
-  // config.search_uniqe_val = false;
-  // Tdataframe df_test(&config);
-  // df_test.read_data(config.f_test);
-  // df_test.read_data_type(config.f_datatype);
+  config.search_uniqe_val = false;
+  Tdataframe df_test(&config);
+  df_test.read_data(config.f_test);
+  df_test.read_data_type(config.f_datatype);
 
 
-  // for (int i = 200; i <= 200; i += 2)
-  // {
-  //   config.min_sample = i;
-  //   for (double k = 0.5; k <= 0.5; k += 0.5)
-  //   {
-  //     config.use_credal = k != 0.0;
-  //     config.credal_s = k;
+  for (int i = 200; i <= 200; i += 2)
+  {
+    config.min_sample = i;
+    for (double k = 0.5; k <= 2.0; k += 0.5)
+    {
+      config.use_credal = k != 0.0;
+      config.credal_s = k;
 
-  //     int prev_jml_FP = 0;
-  //     int prev_jml_FN = 0;
-  //     int jml_sama = 0;
+      int prev_jml_FP = 0;
+      int prev_jml_FN = 0;
+      int jml_sama = 0;
 
-  //     for (int j = 11; j <= 11; ++j)
-  //     {
-  //       config.depth = j;
-  //       config.search_uniqe_val = true;
+      for (int j = 2; j <= 50; ++j)
+      {
+        config.depth = j;
+        config.search_uniqe_val = true;
         config.prunning = true;
 
+        // if (stoi(argv[1]) == 0)
+        // {
         Tdt_build dec_tree_build(&config);
 
         string tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
@@ -75,39 +77,50 @@ int main(int argc, char *argv[])
         //   dec_tree_build.read_tree(tmp_str);
         //   dec_tree_build.build_from_prev_tree(df_train, j - 1);
         // } else {
-        dec_tree_build.build_tree();
+          dec_tree_build.build_tree(df_train);
         // }
 
-  //       config.search_uniqe_val = false;
-  //       Tdec_tree dec_tree_test(&config);
-  //       dec_tree_test.read_tree();
-  //       Tconf_metrix dt_conf_metrix;
-  //       dec_tree_test.test(df_test, dt_conf_metrix);
 
-  //       int jml_FN = dt_conf_metrix.get_FN("known");
-  //       int jml_FP = dt_conf_metrix.get_FP("known");
+        // } else {
 
-  //       jml_sama++;
-  //       if ((prev_jml_FN != jml_FN) or (prev_jml_FP != jml_FP))
-  //       {
-  //         jml_sama = 0;
-  //         prev_jml_FP = jml_FP;
-  //         prev_jml_FN = jml_FN;
-  //       }
+        //     if (stoi(argv[1]) == 1)
+        //     {
 
-  //       if (jml_sama >= 5)
-  //       {
-  //         break;
-  //       }
+        config.search_uniqe_val = false;
+        Tdec_tree dec_tree_test(&config);
+        dec_tree_test.read_tree();
+        Tconf_metrix dt_conf_metrix;
+        dec_tree_test.test(df_test, dt_conf_metrix);
 
-  //     }
-  //     config.search_uniqe_val = true;
-  //     df_train.stat_tabel();
-  //   }
-  // }
+        config.search_uniqe_val = true;
+        df_train.stat_tabel();
 
-  // df_train.close_file();
-  // df_test.close_file();
+        int jml_FN = dt_conf_metrix.get_FN("known");
+        int jml_FP = dt_conf_metrix.get_FP("known");       
+
+        jml_sama++;
+        if ((prev_jml_FN != jml_FN) or (prev_jml_FP != jml_FP))
+        {
+          jml_sama = 0;
+          prev_jml_FP = jml_FP;
+          prev_jml_FN = jml_FN;
+        }
+
+        if (jml_sama >= 5)
+        {
+          break;
+        }
+
+        //     }
+        // }
+        
+      }     
+      
+    }
+  }
+
+  df_train.close_file();
+  df_test.close_file();
 
   return 0;
 }
