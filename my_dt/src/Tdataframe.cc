@@ -298,7 +298,7 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
 {
   //std::lock_guard<std::mutex> lock(v_mutex);
   ReFilter();
-  if(config->search_uniqe_val){
+  if (config->search_uniqe_val) {
     clear_col_split();
   }
 
@@ -435,7 +435,7 @@ void Tdataframe::get_col_pot_split(int idx)
 }
 
 
-void Tdataframe::calculate_metric(map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
+void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
 {
   float entropy_before_split;
 
@@ -490,14 +490,14 @@ void Tdataframe::calculate_metric(map<Tmy_dttype, Tlabel_stat>* _col_pot_split, 
       if (ba.cek_valid()) {
         float entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
-        gain = (entropy_before_split - entropy_after_split) / split_info;
+        gain = (entropy_before_split - entropy_after_split) / split_info;        
       }
 
     }
 
     itr_next++;
     itr++;
-    i++;
+    i++;    
 
     if ((first_iteration and (gain > 0)) or (gain_max < gain))
     {
@@ -552,8 +552,9 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
       if (ba.cek_valid()) {
         float entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
-        gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
+        gain = (entropy_before_split - entropy_after_split) / split_info;// 0;        
       }
+
       if (gain > 0) {
         current_overall_metric = gain;
         split_value = tmp1.get_string();
@@ -563,7 +564,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
     } else {
       float tmp_best_overall_metric = 0.0;
       string tmp_split_value = "-1";
-      calculate_metric(_col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
+      calculate_metric(idx, _col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
 
       current_overall_metric = tmp_best_overall_metric;
       split_value = tmp_split_value;
@@ -608,10 +609,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     if (ba.cek_valid()) {
       float entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
-      gain = (entropy_before_split - entropy_after_split) / split_info;
+      gain = (entropy_before_split - entropy_after_split) / split_info;      
     }
 
-    itr++;
+    itr++;    
 
     if ((first_iteration and (gain > 0)) or (gain_max < gain))
     {

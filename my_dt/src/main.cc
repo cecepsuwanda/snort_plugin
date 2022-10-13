@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
 
 
-  for (int i = 200; i <= 200; i += 2)
+  for (int i = 2; i <= 2; i += 2)
   {
     config.min_sample = i;
-    for (double k = 0.5; k <= 2.0; k += 0.5)
+    for (double k = 0.0; k <= 1.0; k += 0.5)
     {
       config.use_credal = k != 0.0;
       config.credal_s = k;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
       {
         config.depth = j;
         config.search_uniqe_val = true;
-        config.prunning = true;
+        config.prunning = false;
 
         // if (stoi(argv[1]) == 0)
         // {

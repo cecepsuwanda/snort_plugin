@@ -29,7 +29,7 @@ private:
   //bool _search_uniqe_val_on = true;
   Tconfig* config;
 
-  void calculate_metric(map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
+  void calculate_metric(int idx,map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, string & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);

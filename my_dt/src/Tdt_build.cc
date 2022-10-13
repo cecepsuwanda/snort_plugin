@@ -79,7 +79,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 		async_worker.clear();
 		async_worker.shrink_to_fit();
 
-	}
+	}    
 
 	/*for (int i = 0; i < df.get_jml_valid_attr(); ++i)
 	{
@@ -184,29 +184,29 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 		if (counter < prev_tree_depth)
 		{
-		  if((prev_tree_node_index!=-1) and (prev_tree[prev_tree_node_index].isLeaf!=true))
-		  {
-			split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
-			left = prev_tree[prev_tree_node_index].children[0];
-			right = prev_tree[prev_tree_node_index].children[1];
-			if (left != -1) {
-				split_value = prev_tree[left].attrValue;
-			} else {
-				if (right != -1) {
-					split_value = prev_tree[right].attrValue;
+			if ((prev_tree_node_index != -1) and (prev_tree[prev_tree_node_index].isLeaf != true))
+			{
+				split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
+				left = prev_tree[prev_tree_node_index].children[0];
+				right = prev_tree[prev_tree_node_index].children[1];
+				if (left != -1) {
+					split_value = prev_tree[left].attrValue;
+				} else {
+					if (right != -1) {
+						split_value = prev_tree[right].attrValue;
+					}
 				}
+			} else {
+				config->search_uniqe_val = true;
+				df.stat_tabel();
+				determine_best_split(df, split_column, split_value);
+				config->search_uniqe_val = false;
+				//cetak("%d+%d ",split_column,split_value);
 			}
-		  }else{
-		  	config->search_uniqe_val = true;
-		  	df.stat_tabel();
-		  	determine_best_split(df, split_column, split_value);
-		  	config->search_uniqe_val = false;
-		    //cetak("%d+%d ",split_column,split_value);  	
-		  }	
 
 		} else {
-            config->search_uniqe_val = true;
-            df.stat_tabel();
+			config->search_uniqe_val = true;
+			df.stat_tabel();
 			determine_best_split(df, split_column, split_value);
 			config->search_uniqe_val = false;
 		}
@@ -344,6 +344,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 	//cout << counter;
 	//cetak("[%d %d]", counter, df.getjmlrow());
+	
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
@@ -370,7 +371,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 	} else {
 
-		//cetak("?");
+		//cetak("?");		
 
 		counter++;
 

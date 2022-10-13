@@ -97,7 +97,7 @@ double Tlabel_stat::get_credal_entropy()
 
 	crd.input_frec(freq);
 
-	entropy = crd.get_max_ent();
+	entropy = crd.get_max_ent();	
 
 	return entropy;
 }

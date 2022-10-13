@@ -49,11 +49,10 @@ void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data,
 }
 
 void Tmap_col_split::cek_valid_attr(int jml_row)
-{
+{	
 	_valid_attr.clear();
 	for (auto itr = _pot_split.begin(); itr != _pot_split.end(); ++itr)
 	{
-
 		auto tmp = itr->second.begin();
 		Tmy_dttype tmp_dttype= tmp->first;
 
@@ -62,10 +61,11 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 			if ( itr->second.size() < (0.3 * jml_row) ) {				
 				_valid_attr.push_back(itr->first);
 			}
-		} else {
+		} else {			 
 			_valid_attr.push_back(itr->first);
 		}
 	}
+	
 }
 
 int Tmap_col_split::get_jml_valid_attr()
