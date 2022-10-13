@@ -103,6 +103,9 @@ float Tbelow_above::get_overall_metric()
 
 		credal crd(config->credal_s);
 
+		_below.set_config(config);
+	    _above.set_config(config);
+
 		vector<int> freq;
 		vector<double> ent, max_ent;
 

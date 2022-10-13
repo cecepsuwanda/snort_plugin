@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
       {
         config.depth = j;
         config.search_uniqe_val = true;
-        config.prunning = false;
+        config.prunning = true;
 
 
         Tdt_build dec_tree_build(&config);
