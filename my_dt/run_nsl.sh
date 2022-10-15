@@ -5,12 +5,13 @@ NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 
+
 DEPTH=20
 MIN_SAMP=2
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=2
+THRESHOLD=10
 
 
 mkdir ~/$PATH_MODEL
@@ -25,7 +26,8 @@ rm -rf ~/$PATH_MODEL/dtsvm_metrik.csv
 START="$(date +"%r")"
 echo "START : $START"
 
-./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_D20_S2_T2_prunning.txt
+
+./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_T10_prunning.txt
 wait
 
 END="$(date +"%r")"
