@@ -1,13 +1,13 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/model_18_2_svm_29attr_credal1_2_prunning' 
+PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/model_20_2_svm_29attr_credal1_2_prunning' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 TEST1='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test1.txt'
 UNKNOWN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_unknown.txt'
 
-DEPTH=18
+DEPTH=20
 MIN_SAMP=2
 USE_CREDAL=1
 CREDAL_S=1.0

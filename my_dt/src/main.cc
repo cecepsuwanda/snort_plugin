@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   for (int i = 2; i <= 2; i += 2)
   {
     config.min_sample = i;
-    for (double k = 0.0; k <= 1.0; k += 0.5)
+    for (double k = 0.0; k <= 1.0; k += 0.1)
     {
       config.use_credal = k != 0.0;
       config.credal_s = k;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       int prev_jml_FN = 0;
       int jml_sama = 0;
 
-      for (int j = 2; j <= 50; ++j)
+      for (int j = 20; j <= 20; ++j)
       {
         config.depth = j;
         config.search_uniqe_val = true;
