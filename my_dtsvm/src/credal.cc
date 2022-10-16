@@ -30,7 +30,7 @@ double credal::entropy(std::vector<double> x) const {
 
 	std::transform(x.begin(), x.end(), x.begin(),
 	[](double d) -> double {
-		return ((d > 0.0) ? (d * std::log2(d)) : 0.0);
+		return ((d > 0.0) ? bulat_nol((d * std::log2(d)),1e-5,5) : 0.0);
 	});
 	return -std::accumulate(x.begin(), x.end(), 0.0);
 }
@@ -78,7 +78,7 @@ vector<double> credal::maxEntropyDist(const ProbInterval &probint, const bool /*
 	double nmin, minval, sminval;
 
 	// Due to the nature of IDM the intial free mass is s/(N+s)
-	double assignMass, freeMass = _s / (static_cast<double>(probint.obs) + _s);
+	double assignMass, freeMass = bulat_nol(_s / (static_cast<double>(probint.obs) + _s),1e-5,5);
 
 	bool hasFree = true;
 
@@ -90,18 +90,18 @@ vector<double> credal::maxEntropyDist(const ProbInterval &probint, const bool /*
 		sminval = minvals[1];
 		nmin = minvals[2];
 
-		if (minval == sminval || !((sminval - minval) < (freeMass / nmin))) {
+		if (minval == sminval || !(bulat_nol((sminval - minval),1e-5,5) < bulat_nol((freeMass / nmin),1e-5,5))) {
 			// All values in lower have the same value
 			//   OR
 			// not enough free mass to lift the minimum value(s) to the second minimal value
-			assignMass = (freeMass / nmin);
+			assignMass = bulat_nol((freeMass / nmin),1e-5,5);
 			// We have used up all free mass, so signal end
 			hasFree = false;
 		} else {
 			// assign as much mass to lift the minimum value(s) to the second minimal value
-			assignMass = (sminval - minval);
+			assignMass = bulat_nol((sminval - minval),1e-5,5);
 			// substract the lifts from the free mass
-			freeMass -= (assignMass * nmin);
+			freeMass -= bulat_nol((assignMass * nmin),1e-5,5);
 		}
 		// Update lower
 		for (int i = 0; i < lsize; ++i) {
@@ -128,13 +128,14 @@ vector<double> credal::minEntropyDist(const ProbInterval &probint) {
 	return lower;
 }
 
-double credal::correctionEntropy(const vector<double>& probs, const int n) {
+double credal::correctionEntropy(const vector<double>& probs, const int n) {	
+	double ent = -1;
 	if (_s > 0 && n > 0) {
-		double ent = entropy(probs);
+		ent = entropy(probs);		
 		//ent += (_s * log2(probs.size())) / (n + _s);
-		return ent;
+		//return ent;
 	}
-	return -1;
+	return ent;
 }
 
 
@@ -148,9 +149,9 @@ ProbInterval credal::probabilityInterval(const vector<int>& classtable) {
 	double dobs = static_cast<double>(prob.obs);
 	for (int classObs : classtable) {
 		prob.freq.push_back(classObs);
-		prob.prob.push_back(classObs / dobs);
-		prob.upper.push_back((classObs + _s) / (dobs + _s));
-		prob.lower.push_back(static_cast<double>(classObs) / (dobs + _s));
+		prob.prob.push_back(bulat_nol(classObs / dobs,1e-5,5));
+		prob.upper.push_back(bulat_nol((classObs + _s) / (dobs + _s),1e-5,5));
+		prob.lower.push_back(bulat_nol(static_cast<double>(classObs) / (dobs + _s),1e-5,5));
 	}
 	return prob;
 }
@@ -249,12 +250,12 @@ double credal::get_overall_metric(vector<double> ent,vector<double> max_ent)
   {
   	if(ent[i]<max)
   	{
-       sum+=(_prob_int.lower[i]*max_ent[i]);
+       sum+=bulat_nol((_prob_int.lower[i]*max_ent[i]),1e-5,5);
        //cout << _prob_int.lower[i]<<","<<max_ent[i] << endl;
   	}else{
   		if(ent[i]==max)
   		{
-          sum+=(_prob_int.upper[i]*max_ent[i]);
+          sum+=bulat_nol((_prob_int.upper[i]*max_ent[i]),1e-5,5);
           //cout << _prob_int.upper[i]<<","<<max_ent[i] << endl;
   		}
   	}

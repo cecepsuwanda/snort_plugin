@@ -4,6 +4,7 @@
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include "global.h"
 
 using namespace std;
 

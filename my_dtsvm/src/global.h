@@ -2,6 +2,7 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -87,6 +88,23 @@ static void cetak ( const char * format, ... )
   //perror (buffer);
   va_end (args);
   cetak_stdout(buffer);
+}
+
+static double bulat_nol(double val, double tolerance, int digit)
+{
+  double tmp = val;
+
+  if (abs(val) < tolerance)
+  {
+    tmp = 0.0;
+  }
+  else
+  {
+    const double multiplier = std::pow(10.0, digit);
+    tmp = ceil(val * multiplier) / multiplier;
+  }
+  // double tmp = val;
+  return tmp;
 }
 
 #endif

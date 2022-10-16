@@ -6,12 +6,12 @@ TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 
 
-DEPTH=20
-MIN_SAMP=2
+DEPTH=9
+MIN_SAMP=100
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=10
+THRESHOLD=1
 
 
 mkdir ~/$PATH_MODEL
@@ -27,7 +27,7 @@ START="$(date +"%r")"
 echo "START : $START"
 
 
-./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_T10_prunning.txt
+./my_dt 0 $DEPTH $MIN_SAMP $USE_CREDAL $CREDAL_S $LIMIT $THRESHOLD ~/$NAMES ~/$TRAIN ~/$TEST ~/$PATH_MODEL | tee ~/$PATH_MODEL/coba_D9_S100_T1_prunning.txt
 wait
 
 END="$(date +"%r")"

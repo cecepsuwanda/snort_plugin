@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
   df_test.read_data_type(config.f_datatype);
 
 
-  for (int i = 20; i <= 20; i += 2)
+  for (int i = 100; i <= 100; i += 2)
   {
     config.min_sample = i;
-    for (double k = 0.0; k <= 1.0; k += 0.1)
+    for (double k = 0.5; k <= 0.5; k += 0.5)
     {
       config.use_credal = k != 0.0;
       config.credal_s = k;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       int prev_jml_FN = 0;
       int jml_sama = 0;
 
-      for (int j = 20; j <= 20; ++j)
+      for (int j = 9; j <= 9; ++j)
       {
         config.depth = j;
         config.search_uniqe_val = true;
@@ -65,19 +65,19 @@ int main(int argc, char *argv[])
         string tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
         remove(tmp_str.c_str());
 
-        if (j > 2) {
-          tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth - 1) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
-        }
+        // if (j > 2) {
+        //   tmp_str = config.path_model + "/dtsvm_model_" + to_string(config.depth - 1) + "_" + to_string(config.min_sample) + "_" + to_string(config.threshold) + ".csv";
+        // }
 
-        path v_path(tmp_str);
+        // path v_path(tmp_str);
 
-        if ((j > 2) and exists(v_path))
-        {
-          dec_tree_build.read_tree(tmp_str);
-          dec_tree_build.build_from_prev_tree(df_train, j - 1);
-        } else {
+        // if ((j > 2) and exists(v_path))
+        // {
+        //   dec_tree_build.read_tree(tmp_str);
+        //   dec_tree_build.build_from_prev_tree(df_train, j - 1);
+        // } else {
           dec_tree_build.build_tree(df_train);
-        }
+        // }
 
         config.search_uniqe_val = false;
         Tdec_tree dec_tree_test(&config);
