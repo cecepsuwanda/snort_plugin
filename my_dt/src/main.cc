@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   for (int i = 100; i <= 100; i += 2)
   {
     config.min_sample = i;
-    for (double k = 0.5; k <= 0.5; k += 0.5)
+    for (double k = 0.0; k <= 1.0; k += 0.5)
     {
       config.use_credal = k != 0.0;
       config.credal_s = k;
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
       int prev_jml_FN = 0;
       int jml_sama = 0;
 
-      for (int j = 9; j <= 9; ++j)
+      for (int j = 8; j <= 10; ++j)
       {
         config.depth = j;
         config.search_uniqe_val = true;
@@ -102,10 +102,10 @@ int main(int argc, char *argv[])
           break;
         }
 
-      }
+        config.search_uniqe_val = true;
+        df_train.stat_tabel();
 
-      config.search_uniqe_val = true;
-      df_train.stat_tabel();
+      }      
 
     }
   }
