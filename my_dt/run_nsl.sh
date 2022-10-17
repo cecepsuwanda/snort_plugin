@@ -1,13 +1,13 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/coba' 
+PATH_MODEL='Dataset/NSL/tree_dataset/tmp/coba' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
-TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
-TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
+TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
+TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
 
 
-DEPTH=8
-MIN_SAMP=100
+DEPTH=2
+MIN_SAMP=2
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
