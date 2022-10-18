@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/coba' 
+PATH_MODEL='Dataset/NSL/tree_dataset/tmp/coba' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
