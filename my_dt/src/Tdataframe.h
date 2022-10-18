@@ -135,6 +135,8 @@ public:
   void get_col_pot_split(int idx);
   void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);
 
+  void set_config(Tconfig* v_config);
+
 };
 
 #endif

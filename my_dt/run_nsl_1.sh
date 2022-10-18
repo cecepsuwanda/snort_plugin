@@ -2,15 +2,15 @@
 
 PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/coba' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
-TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
-TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
+TRAIN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_train.txt'
+TEST='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test.txt'
 
-DEPTH_AWAL=5
-DEPTH_AKHIR=10
+DEPTH_AWAL=2
+DEPTH_AKHIR=3
 DEPTH_STEP=1
 
-MIN_SAMP_AWAL=100
-MIN_SAMP_AKHIR=100
+MIN_SAMP_AWAL=10
+MIN_SAMP_AKHIR=10
 MIN_SAMP_STEP=1
 
 CREDAL_S_AWAL=0.0

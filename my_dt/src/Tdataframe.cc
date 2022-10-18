@@ -21,6 +21,11 @@ Tdataframe::~Tdataframe()
   _stat_label.clear();
 }
 
+void Tdataframe::set_config(Tconfig* v_config)
+{
+  config = v_config;
+}
+
 // void Tdataframe::set_search_uniqe_val_off()
 // {
 //   _search_uniqe_val_on = false;
