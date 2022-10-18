@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         int prev_jml_FN = 0;
         int jml_sama = 0;
 
-        for (int j = depth_awal; j <= depth_akhir; j += depth_step)
+       for (int j = depth_awal; j <= depth_akhir; j += depth_step)
         {
           config.depth = j;
           config.search_uniqe_val = true;
