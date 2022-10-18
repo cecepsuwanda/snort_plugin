@@ -5,24 +5,25 @@ NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
 
-DEPTH_AWAL=5
-DEPTH_AKHIR=10
+DEPTH_AWAL=10
+DEPTH_AKHIR=50
 DEPTH_STEP=1
 
-MIN_SAMP_AWAL=100
+MIN_SAMP_AWAL=2
 MIN_SAMP_AKHIR=100
-MIN_SAMP_STEP=1
+MIN_SAMP_STEP=2
 
 CREDAL_S_AWAL=0.0
 CREDAL_S_AKHIR=1.0
 CREDAL_S_STEP=0.5
 
-THRESHOLD_AWAL=10
+THRESHOLD_AWAL=2
 THRESHOLD_AKHIR=10
-THRESHOLD_STEP=1
+THRESHOLD_STEP=2
 
 
 mkdir ~/$PATH_MODEL
+rm ~/$PATH_MODEL/dtsvm_model_*.csv
 
 START="$(date +"%r")"
 echo "START : $START"
@@ -32,3 +33,5 @@ wait
 
 END="$(date +"%r")"
 echo "START : $START END : $END"
+
+rm ~/$PATH_MODEL/dtsvm_model_*.csv
