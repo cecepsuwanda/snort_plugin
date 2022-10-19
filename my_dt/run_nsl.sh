@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/coba' 
+PATH_MODEL='Dataset/NSL/tree_dataset/tmp/coba' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
@@ -10,7 +10,7 @@ DEPTH_AKHIR=50
 DEPTH_STEP=1
 
 MIN_SAMP_AWAL=2
-MIN_SAMP_AKHIR=100
+MIN_SAMP_AKHIR=2
 MIN_SAMP_STEP=2
 
 CREDAL_S_AWAL=0.0
@@ -18,7 +18,7 @@ CREDAL_S_AKHIR=1.0
 CREDAL_S_STEP=0.5
 
 THRESHOLD_AWAL=2
-THRESHOLD_AKHIR=10
+THRESHOLD_AKHIR=2
 THRESHOLD_STEP=2
 
 
