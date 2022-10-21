@@ -147,11 +147,27 @@ void Tconf_metrix::kalkulasi()
 
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
+ 
+    accuracy = 0;
+    if((TP + TN + FP + FN)>0){
+		 accuracy = (TP + TN) / (double)(TP + TN + FP + FN);
+    }
+		
+		precision = 0;
+		if((TP + FP)>0){
+		 precision = TP / (double)(TP + FP);
+		}
+		
+		recall = 0;
+		if((TP + FN)>0){ 
+		 recall = TP / (double)(TP + FN);
+		}
 
-		accuracy = (TP + TN) / (double)(TP + TN + FP + FN);
-		precision = TP / (double)(TP + FP);
-		recall = TP / (double)(TP + FN);
-		f1 = (2*recall*precision)/(double)(recall+precision);
+    f1 = 0;
+    if((recall+precision)>0){
+		   f1 = (2*recall*precision)/(double)(recall+precision);
+    }
+
 	}
 }
 
@@ -238,6 +254,11 @@ int Tconf_metrix::get_FN(string kelas)
 	}
 
 	return total;
+}
+
+float Tconf_metrix::get_F1()
+{
+	return f1;
 }
 
 ostream & operator << (ostream &out, const Tconf_metrix &tc)

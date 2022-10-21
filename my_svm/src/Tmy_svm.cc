@@ -227,19 +227,19 @@ void Tmy_svm::destroy_model()
 	svm_free_and_destroy_model(&model);
 }
 
-void Tmy_svm::test(Tdataframe &df,Tconf_metrix &p_conf_metrix)
+void Tmy_svm::test(Tdataframe &df,Tconf_metrix &conf_metrix)
 {
 	x_space = (struct svm_node *) malloc(df.getjmlcol() * sizeof(struct svm_node));
 
-	Tconf_metrix conf_metrix;
+	// Tconf_metrix conf_metrix;
 	double predict_label;
 	string asli, tebakan;
 	char *endptr;
 
 	asli = "inside";
-	conf_metrix.add_konversi_asli("known","inside");
-	conf_metrix.add_konversi_asli("normal","inside");
-	conf_metrix.add_konversi_asli("unknown","outside");
+	// conf_metrix.add_konversi_asli("known","inside");
+	// conf_metrix.add_konversi_asli("normal","inside");
+	// conf_metrix.add_konversi_asli("unknown","outside");
 
 	df.reset_file();
 
@@ -270,7 +270,7 @@ void Tmy_svm::test(Tdataframe &df,Tconf_metrix &p_conf_metrix)
 		//cout << predict_label << endl;
 
 		conf_metrix.add_jml(asli, tebakan, 1);
-		p_conf_metrix.add_jml(asli, tebakan, 1);
+		//p_conf_metrix.add_jml(asli, tebakan, 1);
 
 		tmp.clear();
 		tmp.shrink_to_fit();
@@ -278,12 +278,12 @@ void Tmy_svm::test(Tdataframe &df,Tconf_metrix &p_conf_metrix)
 		df.next_record();
 
 	}
-	df.close_file();
+	//df.close_file();
 
 	free(x_space);
 
 	conf_metrix.kalkulasi();
-	cout << conf_metrix << endl;
+	//cout << conf_metrix << endl;
 }
 
 string Tmy_svm::guess(vector<string> &data)

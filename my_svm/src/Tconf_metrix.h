@@ -40,6 +40,7 @@ public:
   int get_TN(string kelas);
   int get_FP(string kelas);
   int get_FN(string kelas);
+  float get_F1();
   void save(string nm_file, string param_nm_file, int param_depth, int param_min_sample, double param_gamma, double param_nu, double param_credal_s);
 
   void add_konversi_asli(string dari,string ke);
