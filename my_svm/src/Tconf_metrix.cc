@@ -256,6 +256,11 @@ int Tconf_metrix::get_FN(string kelas)
 	return total;
 }
 
+float Tconf_metrix::get_F1()
+{
+	return f1;
+}
+
 ostream & operator << (ostream &out, const Tconf_metrix &tc)
 {
 	out << "Jumlah Data: " << tc.jml_data;

@@ -300,7 +300,7 @@ vector<string> Tdataframe::get_record_svm()
 vector<vector<string>> Tdataframe::get_all_record_svm()
 {
   //std::lock_guard<std::mutex> lock(v_mutex);
-  ReFilter();
+  //ReFilter();
   if(config->search_uniqe_val){
     clear_col_split();
   }
@@ -323,7 +323,7 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
     _data.next_record();
   }
 
-  clear_memory();
+  //clear_memory();
 
   return Table;
 }
