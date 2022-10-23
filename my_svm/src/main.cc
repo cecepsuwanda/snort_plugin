@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     float gamma_max = 0.0;
     float nu_max = 0.0;
 
-    float F1_Train_max = 0.0;
-    float F1_Test_max = 0.0;
+    float F1_Train_max = -1.0;
+    float F1_Test_max = -1.0;
     
     float F1_Train = 0.0;
     float F1_Test = 0.0;
