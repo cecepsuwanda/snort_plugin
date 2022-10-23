@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
   config.f_datatype = argv[2];
   config.path_model = argv[1];
 
+  config.svm_path = config.path_model + "/" + argv[9];
 
   double gamma_awal  = strtod(argv[3], &endptr);
   double gamma_akhir = strtod(argv[4], &endptr);
@@ -32,6 +33,8 @@ int main(int argc, char *argv[])
     string train_file = file.path().filename();
     string test_file = train_file;
     test_file.replace(0, 5, "test");
+    string svm_model_file = train_file;
+    svm_model_file.replace(0, 5, "svm");
 
     float gamma_max = 0.0;
     float nu_max = 0.0;
@@ -56,7 +59,7 @@ int main(int argc, char *argv[])
       //df_test.info();
     }
 
-    if (df_train.getjmlrow_svm() >= 10)
+    if (df_train.getjmlrow_svm() >= 1)
     {
       for (double i = gamma_awal; i <= gamma_akhir; i += gamma_step)
       {
@@ -76,7 +79,7 @@ int main(int argc, char *argv[])
           conf_metrix_train.add_konversi_asli("known", "inside");
           conf_metrix_train.add_konversi_asli("normal", "inside");
           conf_metrix_train.add_konversi_asli("unknown", "outside");
-
+          
           my_svm.test(df_train, conf_metrix_train);
           F1_Train = conf_metrix_train.get_F1();
 
@@ -86,7 +89,7 @@ int main(int argc, char *argv[])
             conf_metrix_test.add_konversi_asli("known", "inside");
             conf_metrix_test.add_konversi_asli("normal", "inside");
             conf_metrix_test.add_konversi_asli("unknown", "outside");
-
+            
             my_svm.test(df_test, conf_metrix_test);
             F1_Test = conf_metrix_test.get_F1();
           }
@@ -97,6 +100,11 @@ int main(int argc, char *argv[])
             nu_max = j;
             F1_Train_max = F1_Train;
             F1_Test_max = F1_Test;
+
+            string tmp_str = config.svm_path + "/" + svm_model_file;
+            remove(tmp_str.c_str());
+            my_svm.save_model(tmp_str);
+
             if (df_train.getjmlrow_svm() > 1000)
             {
               cout <<"jml_data_train="<<df_train.getjmlrow_svm()<<",gamma=" << gamma_max << ",nu=" << nu_max << ",File_Train=" << train_file << ",F1_Train=" << F1_Train_max << ",File_Test=" << test_file << ",F1_Test=" << F1_Test_max << endl;

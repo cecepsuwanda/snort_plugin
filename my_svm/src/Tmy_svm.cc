@@ -209,7 +209,7 @@ void Tmy_svm::save_model(string nm_file)
 	svm_destroy_param(&param);
 	free(prob.y);
 	free(prob.x);
-	free(x_space);
+	//free(x_space);
 }
 
 void Tmy_svm::load_model(string nm_file)
