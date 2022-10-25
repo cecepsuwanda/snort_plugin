@@ -302,8 +302,8 @@ void ConversationFeatures::print(bool print_extra_features) const
 		//strftime(timestr, sizeof timestr, "%Y-%m-%dT%H:%M:%S", &timeinfo);
 		ss << timestr1;
 	}
-	//ss << ',';
-	//ss << label;
+	ss << ',';
+	ss << label;
 
 	cout << ss.str() << endl;
 

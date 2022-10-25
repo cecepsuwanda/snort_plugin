@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/tmp1/model_50_2_svm_29attr_10_prunning' 
+PATH_MODEL='Dataset/NSL/tree_dataset/tmp/model_10_200_svm_29attr_100_prunning' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_test.txt'
@@ -15,12 +15,12 @@ UNKNOWN='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_unknown.txt'
 # UNKNOWN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_unknown.txt'
 
 
-DEPTH=50
-MIN_SAMP=2
+DEPTH=10
+MIN_SAMP=200
 USE_CREDAL=0
 CREDAL_S=0.0
 LIMIT=1
-THRESHOLD=10
+THRESHOLD=100
 F=0
 N=0
 

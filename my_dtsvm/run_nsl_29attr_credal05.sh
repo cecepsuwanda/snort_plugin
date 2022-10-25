@@ -14,12 +14,12 @@ UNKNOWN='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_unknown.txt'
 # TEST1='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_test1.txt'
 # UNKNOWN='Dataset/NSL/tree_dataset/19052021_0050/NSLTree_29attr_unknown.txt'
 
-DEPTH=50
-MIN_SAMP=2
+DEPTH=10
+MIN_SAMP=200
 USE_CREDAL=1
 CREDAL_S=0.5
 LIMIT=1
-THRESHOLD=10
+THRESHOLD=100
 F=0
 N=0
 
