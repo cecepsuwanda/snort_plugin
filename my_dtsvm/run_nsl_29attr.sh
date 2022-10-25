@@ -1,11 +1,11 @@
 #!/bin/bash
 
-PATH_MODEL='Dataset/NSL/tree_dataset/tmp/model_50_2_svm_29attr_10_prunning' 
+PATH_MODEL='Dataset/NSL/tree_dataset/tmp1/model_50_2_svm_29attr_10_prunning' 
 NAMES='Dataset/NSL/kddcup_29attr.names'
-TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
-TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
-TEST1='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test1.txt'
-UNKNOWN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_unknown.txt'
+TRAIN='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_train.txt'
+TEST='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_test.txt'
+TEST1='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_test1.txt'
+UNKNOWN='Dataset/NSL/tree_dataset/tmp1/NSLTree_29attr_unknown.txt'
 
 # PATH_MODEL='Dataset/NSL/tree_dataset/19052021_0050/model_50_2_svm_29attr_10_prunning' 
 # NAMES='Dataset/NSL/kddcup_29attr.names'
