@@ -5,6 +5,7 @@ Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
 	_max_value = 0;
+	config = NULL;
 }
 
 Tlabel_stat::Tlabel_stat(Tconfig* v_config)

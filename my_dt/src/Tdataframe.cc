@@ -6,6 +6,7 @@
 Tdataframe::Tdataframe()
 {
   _idx_label = -1;
+  config = NULL;
 }
 
 Tdataframe::Tdataframe(Tconfig* v_config)

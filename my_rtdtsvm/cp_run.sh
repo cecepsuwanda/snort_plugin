@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# DIR='Dataset/mit_darpa_98/train'
-DIR='Dataset/mit_darpa_98/test'
-# WEEKS=('1week' '2week' '3week' '4week' '5week' '6week' '7week')
-WEEKS=('1week' '2week')
-# WEEKS_STR=('first_week' 'second_week' 'third_week' 'fourth_week' 'fifth_week' 'sixth_week' 'seventh_week')
-WEEKS_STR=('first_week' 'second_week')
+DIR='Dataset/mit_darpa_98/train'
+#DIR='Dataset/mit_darpa_98/test'
+WEEKS=('1week' '2week' '3week' '4week' '5week' '6week' '7week')
+#WEEKS=('1week' '2week')
+WEEKS_STR=('first_week' 'second_week' 'third_week' 'fourth_week' 'fifth_week' 'sixth_week' 'seventh_week')
+#WEEKS_STR=('first_week' 'second_week')
 DAYS=('monday' 'tuesday' 'wednesday' 'thursday' 'friday')
 
 cd build-files/src
