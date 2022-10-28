@@ -3,7 +3,7 @@
 
 Tmap_col_split::Tmap_col_split()
 {
-
+  config=NULL;
 }
 
 Tmap_col_split::Tmap_col_split(Tconfig* v_config)

@@ -25,6 +25,8 @@ Tmy_svm::Tmy_svm()
 	svm_set_print_string_function(print_func);
 
 	is_read_problem = false;
+
+	config=NULL;
 }
 
 Tmy_svm::Tmy_svm(Tconfig* v_config)

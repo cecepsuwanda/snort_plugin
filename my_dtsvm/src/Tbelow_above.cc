@@ -3,7 +3,7 @@
 
 Tbelow_above::Tbelow_above()
 {
-
+	config = NULL;
 }
 
 Tbelow_above::Tbelow_above(Tconfig* v_config)
@@ -89,6 +89,9 @@ float Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
 
+	_below.set_config(config);
+	_above.set_config(config);
+
 	if (!config->use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
 		float p_dt_below = (float) _below.get_jml_row() / jml;
@@ -102,9 +105,6 @@ float Tbelow_above::get_overall_metric()
 	} else {
 
 		credal crd(config->credal_s);
-
-		_below.set_config(config);
-	    _above.set_config(config);
 
 		vector<int> freq;
 		vector<double> ent, max_ent;
