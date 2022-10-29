@@ -10,7 +10,7 @@ Tmy_svm::Tmy_svm()
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 100; //100
+	param.cache_size = 1024; //100
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
@@ -37,7 +37,7 @@ Tmy_svm::Tmy_svm(Tconfig* v_config)
 	param.gamma = 0.0001;    // 1/num_features
 	param.coef0 = 0;
 	param.nu = 0.01;
-	param.cache_size = 100; //100
+	param.cache_size = 1024; //100
 	param.C = 1;
 	param.eps = 1e-3;
 	param.p = 0.1;
