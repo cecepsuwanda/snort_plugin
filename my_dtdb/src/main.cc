@@ -42,17 +42,7 @@ int main(int argc, const char **argv)
 	config.id_dt_test = 1;
 	config.jns_dt_test = 1;
 
-	config.search_uniqe_val = true;
-	Tdataframe df_train(&config);
-	df_train.read_data("dataset", 1, 1);
-	df_train.read_data_type();
-	//df_train.info();
-
 	config.search_uniqe_val = false;
-	Tdataframe df_test(&config);
-	df_test.read_data("dataset", 1, 1);
-	df_test.read_data_type();
-	//df_test.info();
 
 	for (int l = threshold_awal; l <= threshold_akhir; l += threshold_step)
 	{
@@ -73,7 +63,6 @@ int main(int argc, const char **argv)
 				for (int j = depth_awal; j <= depth_akhir; j += depth_step)
 				{
 					config.depth = j;
-					config.search_uniqe_val = true;
 					config.prunning = true;
 
 					Tdt_build dec_tree_build(&config);
@@ -83,34 +72,33 @@ int main(int argc, const char **argv)
 						Tread_file rf;
 						rf.setnm_f("tree", config.id_dt_train, config.jns_dt_train);
 						string sql = "and depth=" + to_string(config.depth) + " and minsample=" + to_string(config.min_sample) + " and threshold=" + to_string(config.threshold) + " and credal=" + to_string(config.credal_s);
-						rf.filter(sql,false);
+						rf.filter(sql, false);
 						if (rf.get_jml_row() > 0)
 						{
 							rf.delete_data(sql);
 						}
 
 						sql = "and depth=" + to_string(config.depth - 1) + " and minsample=" + to_string(config.min_sample) + " and threshold=" + to_string(config.threshold) + " and credal=" + to_string(config.credal_s);
-						rf.filter(sql,false);
+						rf.filter(sql, false);
 						file_exist = rf.get_jml_row() > 0;
 						rf.close_file();
 					}
 
-					df_train.set_config(&config);
-
 					if ((j > depth_awal) and file_exist)
 					{
 						dec_tree_build.read_tree();
-						dec_tree_build.build_from_prev_tree(df_train, j - 1);
+						dec_tree_build.build_from_prev_tree( j - 1);
 					} else {
-						dec_tree_build.build_tree(df_train);
+						cout<<"Train:"<<endl;
+						dec_tree_build.build_tree();
 					}
 
-					df_test.set_config(&config);
-					config.search_uniqe_val = false;
+
 					Tdec_tree dec_tree_test(&config);
 					dec_tree_test.read_tree();
 					Tconf_metrix dt_conf_metrix;
-					dec_tree_test.test(df_test, dt_conf_metrix);
+					cout<<"Test:"<<endl;
+					dec_tree_test.test(dt_conf_metrix);
 
 
 					int jml_FN = dt_conf_metrix.get_FN("known");
@@ -130,16 +118,9 @@ int main(int argc, const char **argv)
 					}
 				}
 
-				config.search_uniqe_val = true;
-				df_train.set_config(&config);
-				df_train.stat_tabel();
-
 			}
 		}
 	}
-
-	df_train.close_file();
-	df_test.close_file();
 
 
 	return 0;

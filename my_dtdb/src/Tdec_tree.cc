@@ -234,11 +234,11 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 
 }
 
-void Tdec_tree::test(Tdataframe &df, Tconf_metrix &dt_conf_metrix)
+void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 {
-  // Tdataframe df(config);
-  // df.read_data(config->f_test);
-  // df.read_data_type(config->f_datatype);
+  Tdataframe df(config);
+  df.read_data("dataset",config->id_dt_test,config->jns_dt_test);
+  df.read_data_type();
   //df.info();
 
   //Tconf_metrix dt_conf_metrix;
@@ -250,7 +250,7 @@ void Tdec_tree::test(Tdataframe &df, Tconf_metrix &dt_conf_metrix)
     //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   }
 
-  //df.close_file();
+  df.close_file();
 
   dt_conf_metrix.kalkulasi();
   cetak("Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%d,FP=%d,FN=%d,F1=%.4f \n", config->depth, config->min_sample, config->credal_s, config->threshold, dt_conf_metrix.get_FN("known"), dt_conf_metrix.get_FP("known"), dt_conf_metrix.get_F1());

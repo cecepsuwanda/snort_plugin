@@ -89,9 +89,9 @@ void Tdt_build::clear_worker(size_t limit)
 	bool pass = limit == 0  ? true : worker.size() == limit ;
 
 	if (pass)
-	{		
+	{
 		for (std::thread & th : worker)
-		{			
+		{
 			if (th.joinable())
 				th.join();
 		}
@@ -193,11 +193,8 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		Tdataframe df_below, df_above;
 		if (split_value != "-1")
 		{
-			df_below = df;
-			df_below.set_id(id_df++);
+			df_below = df;			
 			df_above = df;
-			df_above.set_id(id_df++);
-
 		}
 		df.split_data(split_column, split_value, df_below, df_above);
 
@@ -351,16 +348,16 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		int split_column = -1;
 		string split_value = "-1";
 
+		config->search_uniqe_val = true;
+		df.stat_tabel();
 		determine_best_split(df, split_column, split_value);
+		config->search_uniqe_val = false;
 
 		Tdataframe df_below, df_above;
 		if (split_value != "-1")
 		{
-			df_below = df;
-			df_below.set_id(id_df++);
+			df_below = df;			
 			df_above = df;
-			df_above.set_id(id_df++);
-
 		}
 		df.split_data(split_column, split_value, df_below, df_above);
 
@@ -404,7 +401,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				treeIndex_yes = nextNode.treeIndex;
 				tree[node_index].children.push_back(nextNode.treeIndex);
 				tree.push_back(nextNode);
-				
+
 				//cetak("->");
 				train(df_below, nextNode.treeIndex, counter);
 
@@ -416,7 +413,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				treeIndex_no = nextNode1.treeIndex;
 				tree[node_index].children.push_back(nextNode1.treeIndex);
 				tree.push_back(nextNode1);
-			
+
 
 				if (counter == 1)
 				{
@@ -599,97 +596,98 @@ void Tdt_build::read_tree()
 	vector<string> tmp_data;
 	Tread_file rf;
 	rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train);
-	string sql = "and depth=" + to_string(config->depth-1) + " and minsample=" + to_string(config->min_sample) + " and threshold=" + to_string(config->threshold) + " and credal=" + to_string(config->credal_s);
-	rf.filter(sql,true);
+	string sql = "and depth=" + to_string(config->depth - 1) + " and minsample=" + to_string(config->min_sample) + " and threshold=" + to_string(config->threshold) + " and credal=" + to_string(config->credal_s);
+	rf.filter(sql, true);
 
 	rf.reset_file();
 	while (!rf.is_eof()) {
 
 		tmp_data = rf.get_record();
 
-			//cout << tmp_data.size() << endl;
+		//cout << tmp_data.size() << endl;
 
-			Node newnode;
-			//cout << tmp_data[0] << endl;
-			newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-			newnode.attrValue = tmp_data[1];
-			newnode.label = tmp_data[2];
-			//cout << tmp_data[2] << endl;
-			newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
-			newnode.isLeaf = tmp_data[4] == "1";
-			//cout << tmp_data[4] << endl;
-			newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
-			//cout << tmp_data[5] << endl;
-			newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
-			//cout << tmp_data[6] << endl;
-			newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
+		Node newnode;
+		//cout << tmp_data[0] << endl;
+		newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
+		newnode.attrValue = tmp_data[1];
+		newnode.label = tmp_data[2];
+		//cout << tmp_data[2] << endl;
+		newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
+		newnode.isLeaf = tmp_data[4] == "1";
+		//cout << tmp_data[4] << endl;
+		newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
+		//cout << tmp_data[5] << endl;
+		newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
+		//cout << tmp_data[6] << endl;
+		newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
 
-			newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
+		newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
 
-			// if (idx_svm < newnode.idx_svm)
-			// {
-			// 	idx_svm = newnode.idx_svm;
-			// }
+		// if (idx_svm < newnode.idx_svm)
+		// {
+		// 	idx_svm = newnode.idx_svm;
+		// }
 
-			prev_tree.push_back(newnode);
+		prev_tree.push_back(newnode);
 
-		 	rf.next_record();
-		}
-
-		rf.close_file();
-
+		rf.next_record();
 	}
 
-	void Tdt_build::build_from_prev_tree(Tdataframe & df_train, int prev_tree_depth)
+	rf.close_file();
+
+}
+
+void Tdt_build::build_from_prev_tree(int prev_tree_depth)
+{
+	config->search_uniqe_val = false;
+
+	Tdataframe df_train(config);
+	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train);
+	df_train.read_data_type();	
+	df_train.setjmltotalrow();
+
+	this->prev_tree_depth = prev_tree_depth;
+
 	{
-		config->search_uniqe_val = false;
-
-		df_train.set_id(0);
-		df_train.setjmltotalrow();
-
-		this->prev_tree_depth = prev_tree_depth;
-
-		{
-			train(df_train, 0, 0, 0);
-		}
-		//cetak("\n");
-
-		config->search_uniqe_val = false;
-
-		if (config->prunning) {
-			//cetak("Start Prunning Decission Tree : \n");
-			post_pruning(df_train);
-			//cetak("\nEnd Prunning Decission Tree : \n");
-		}
-		save_tree();
-		//df_train.close_file();
-
+		train(df_train, 0, 0, 0);
 	}
+	//cetak("\n");
 
-	void Tdt_build::build_tree(Tdataframe & df_train)
+	config->search_uniqe_val = false;
+
+	if (config->prunning) {
+		//cetak("Start Prunning Decission Tree : \n");
+		post_pruning(df_train);
+		//cetak("\nEnd Prunning Decission Tree : \n");
+	}
+	save_tree();
+	df_train.close_file();
+
+}
+
+void Tdt_build::build_tree()
+{
+	//config->search_uniqe_val = false;
+
+	Tdataframe df_train(config);
+	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train);
+	df_train.read_data_type();	
+	//df_train.info();
+	df_train.setjmltotalrow();
+
 	{
-		config->search_uniqe_val = true;
-
-		// Tdataframe df_train(config);
-		// df_train.read_data(config->f_train);
-		// df_train.read_data_type(config->f_datatype);
-		df_train.set_id(0);
-		//df_train.info();
-		df_train.setjmltotalrow();
-
-		{
-			train(df_train, 0, 0);
-		}
-
-		config->search_uniqe_val = false;
-
-		if (config->prunning) {
-			//cetak("Start Prunning Decission Tree : \n");
-			post_pruning(df_train);
-			//cetak("\nEnd Prunning Decission Tree : \n");
-		}
-		save_tree();
-		//df_train.close_file();
+		train(df_train, 0, 0);
 	}
+
+	config->search_uniqe_val = false;
+
+	if (config->prunning) {
+		//cetak("Start Prunning Decission Tree : \n");
+		post_pruning(df_train);
+		//cetak("\nEnd Prunning Decission Tree : \n");
+	}
+	save_tree();
+	df_train.close_file();
+}
 
 

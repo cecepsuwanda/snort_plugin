@@ -16,19 +16,6 @@ Tbase_dataframe::~Tbase_dataframe()
 	_filter.shrink_to_fit();
 }
 
-void Tbase_dataframe::set_id(int id)
-{
-	// cetak("{cid:");
-	// cetak(to_string(id).c_str());
-	// cetak("} ");
-	_id = id;
-}
-
-int Tbase_dataframe::get_id()
-{
-	return _id;
-}
-
 void Tbase_dataframe::read_data(string nm_tb, int id_dt, int jns_dt)
 {
 	//cout << "Tbase_dataframe read_data " << endl;

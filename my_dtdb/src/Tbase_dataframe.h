@@ -32,9 +32,7 @@ protected:
 	
 	int _id_dt;
 	int _jns_dt;
-	string _nm_tb;
-
-	int _id = 0;
+	string _nm_tb;	
 
 	mutable std::mutex v_mutex;
 
@@ -85,8 +83,7 @@ public:
 		return *this;
 	}
 
-	void set_id(int id);
-	int get_id();	
+	
 
 	void read_data(string nm_tb,int id_dt, int jns_dt);
 	void read_data_type();
