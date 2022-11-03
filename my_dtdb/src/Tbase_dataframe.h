@@ -33,6 +33,7 @@ protected:
 	int _id_dt;
 	int _jns_dt;
 	string _nm_tb;	
+	string _partition;
 
 	mutable std::mutex v_mutex;
 
@@ -57,6 +58,7 @@ public:
 		_id_dt = t._id_dt;
 		_jns_dt = t._jns_dt;
 		_nm_tb = t._nm_tb;
+		_partition = t._partition;
 
         //_data.setnm_f(_nm_tb,_id_dt,_jns_dt);
 
@@ -76,6 +78,7 @@ public:
 		this->_id_dt = t._id_dt;
 		this->_jns_dt = t._jns_dt;
 		this->_nm_tb = t._nm_tb;
+		this->_partition = t._partition;
 
 		//this->_data.setnm_f(this->_nm_tb,this->_id_dt,this->_jns_dt);		
 		
@@ -85,7 +88,7 @@ public:
 
 	
 
-	void read_data(string nm_tb,int id_dt, int jns_dt);
+	void read_data(string nm_tb,int id_dt, int jns_dt,string partition);
 	void read_data_type();
 	void save_to(string nm_file);
 	string get_data_type(int idx);    

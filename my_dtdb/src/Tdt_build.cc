@@ -595,7 +595,7 @@ void Tdt_build::read_tree()
 {
 	vector<string> tmp_data;
 	Tread_file rf;
-	rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train);
+	rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train,config->partition_train);
 	string sql = "and depth=" + to_string(config->depth - 1) + " and minsample=" + to_string(config->min_sample) + " and threshold=" + to_string(config->threshold) + " and credal=" + to_string(config->credal_s);
 	rf.filter(sql, true);
 
@@ -642,7 +642,7 @@ void Tdt_build::build_from_prev_tree(int prev_tree_depth)
 	config->search_uniqe_val = false;
 
 	Tdataframe df_train(config);
-	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train);
+	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train,config->partition_train);
 	df_train.read_data_type();	
 	df_train.setjmltotalrow();
 
@@ -670,7 +670,7 @@ void Tdt_build::build_tree()
 	//config->search_uniqe_val = false;
 
 	Tdataframe df_train(config);
-	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train);
+	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train,config->partition_train);
 	df_train.read_data_type();	
 	//df_train.info();
 	df_train.setjmltotalrow();

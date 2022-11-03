@@ -16,13 +16,14 @@ Tbase_dataframe::~Tbase_dataframe()
 	_filter.shrink_to_fit();
 }
 
-void Tbase_dataframe::read_data(string nm_tb, int id_dt, int jns_dt)
+void Tbase_dataframe::read_data(string nm_tb, int id_dt, int jns_dt,string partition)
 {
 	//cout << "Tbase_dataframe read_data " << endl;
 	_id_dt = id_dt;
 	_jns_dt = jns_dt;
 	_nm_tb = nm_tb;
-	_data.setnm_f(_nm_tb, id_dt, jns_dt);
+	_partition = partition;
+	_data.setnm_f(_nm_tb, id_dt, jns_dt,_partition);
 }
 
 

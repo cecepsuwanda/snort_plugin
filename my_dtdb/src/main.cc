@@ -36,11 +36,14 @@ int main(int argc, const char **argv)
 	config.f_train = argv[14];
 	config.f_test = argv[15];
 
-	config.id_dt_train = 1;
+	config.id_dt_train = 2;
 	config.jns_dt_train = 1;
+	config.partition_train = "p21";
 
-	config.id_dt_test = 1;
+
+	config.id_dt_test = 2;
 	config.jns_dt_test = 1;
+	config.partition_test = "p21";
 
 	config.search_uniqe_val = false;
 
@@ -70,7 +73,7 @@ int main(int argc, const char **argv)
 					bool file_exist = false;
 					{
 						Tread_file rf;
-						rf.setnm_f("tree", config.id_dt_train, config.jns_dt_train);
+						rf.setnm_f("tree", config.id_dt_train, config.jns_dt_train,config.partition_train);
 						string sql = "and depth=" + to_string(config.depth) + " and minsample=" + to_string(config.min_sample) + " and threshold=" + to_string(config.threshold) + " and credal=" + to_string(config.credal_s);
 						rf.filter(sql, false);
 						if (rf.get_jml_row() > 0)

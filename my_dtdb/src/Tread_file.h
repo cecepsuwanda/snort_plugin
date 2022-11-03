@@ -24,6 +24,7 @@ private:
     int _id_dt;
     int _jns_dt;
     string _nm_tb;
+    string _partition;
 
 	int _jml_row = 0;
 	int _jml_col = 0;
@@ -51,6 +52,7 @@ public:
 		this->_id_dt = t._id_dt;
 		this->_jns_dt = t._jns_dt;
 		this->_nm_tb = t._nm_tb;
+		this->_partition = t._partition;
 
 		this->_head_where = t._head_where;
 	    this->_default_query = t._default_query;
@@ -61,7 +63,7 @@ public:
 		return *this;
 	}	
 
-	void setnm_f(string nm_tb,int id_dt, int jns_dt);
+	void setnm_f(string nm_tb,int id_dt, int jns_dt,string partition);
 	void filter(string sql,bool is_con);
 	void delete_data(string sql);
     Tlabel_stat hit_label_stat(string nm_kolom);

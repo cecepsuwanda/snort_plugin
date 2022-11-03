@@ -237,7 +237,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 {
   Tdataframe df(config);
-  df.read_data("dataset",config->id_dt_test,config->jns_dt_test);
+  df.read_data("dataset",config->id_dt_test,config->jns_dt_test,config->partition_test);
   df.read_data_type();
   //df.info();
 
@@ -264,7 +264,7 @@ void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
   Tread_file rf;
-  rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train);
+  rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train,config->partition_train);
   string sql = "and depth=" + to_string(config->depth) + " and minsample=" + to_string(config->min_sample) + " and threshold=" + to_string(config->threshold) + " and credal=" + to_string(config->credal_s);
   rf.filter(sql, true);
 

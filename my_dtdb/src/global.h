@@ -17,10 +17,12 @@ struct Tconfig
   string f_test = "";
   
   int jns_dt_train=-1;
-  int id_dt_train=-1;   
+  int id_dt_train=-1;
+  string partition_train;   
 
   int jns_dt_test=-1;
-  int id_dt_test=-1;   
+  int id_dt_test=-1;
+  string partition_test;   
 
   string path_model = "";
   string svm_path = "";

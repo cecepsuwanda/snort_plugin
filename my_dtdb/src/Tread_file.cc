@@ -30,11 +30,12 @@ int Tread_file::get_idx_label()
   return _idx_label;
 }
 
-void Tread_file::setnm_f(string nm_tb, int id_dt, int jns_dt)
+void Tread_file::setnm_f(string nm_tb, int id_dt, int jns_dt, string partition)
 {
   _nm_tb = nm_tb;
   _id_dt = id_dt;
   _jns_dt = jns_dt;
+  _partition = partition;
 
   string tmp = "";
 
@@ -49,19 +50,43 @@ void Tread_file::setnm_f(string nm_tb, int id_dt, int jns_dt)
 
   _head_where = tmp;
   _default_query = "select * from " + _nm_tb + " where " + _head_where + " order by id";
+  if (_nm_tb == "dataset") {
+    _default_query = "select * from " + _nm_tb + " partition(" + _partition + ") where " + _head_where + " order by id";
+  }
+
 
   global_query_builder.open_connection();
-  if (global_query_builder.query(_default_query))
+
+  string tmp_query1 = "select count(*) as jml from " + _nm_tb + " where " + _head_where + " order by id";
+  if (_nm_tb == "dataset") {
+    tmp_query1 = "select count(*) as jml from " + _nm_tb + " partition(" + _partition + ") where " + _head_where + " order by id";
+  }
+
+  if (global_query_builder.query(tmp_query1))
   {
     if (global_query_builder.get_result())
     {
-      _jml_row = global_query_builder.get_jml_row();
+      vector<string> tmp = global_query_builder.fetch_row();
+      _jml_row = stoi(tmp[0]);
+    }
+  }
+
+
+  string tmp_query2 = "select * from " + _nm_tb + " where " + _head_where + " order by id limit 1";
+  if (_nm_tb == "dataset") {
+    tmp_query2 = "select * from " + _nm_tb + " partition(" + _partition + ") where " + _head_where + " order by id limit 1";
+  }
+
+  if (global_query_builder.query(tmp_query2))
+  {
+    if (global_query_builder.get_result())
+    {
       _jml_col = global_query_builder.get_jml_col();
 
       _data_header.clear();
       _data_type.clear();
 
-      if (_nm_tb == "dataset") {        
+      if (_nm_tb == "dataset") {
         vector<string> tmp_header = global_query_builder.get_column_name();
         vector<string> tmp_type = global_query_builder.get_column_type();
         for (int i = 3; i < _jml_col; i++)
@@ -70,8 +95,8 @@ void Tread_file::setnm_f(string nm_tb, int id_dt, int jns_dt)
           _data_type.push_back(tmp_type[i]);
 
           _idx_label = i - 3;
-        }        
-      } 
+        }
+      }
     }
   }
 
@@ -80,28 +105,49 @@ void Tread_file::setnm_f(string nm_tb, int id_dt, int jns_dt)
 
 void Tread_file::filter(string sql, bool is_con)
 {
-  string tmp = "select * from " + _nm_tb + " where (" + _head_where + ")" + sql + " order by id";
-
   global_query_builder.open_connection();
-  if (global_query_builder.query(tmp))
-  {
-    if (global_query_builder.get_result())
-    {
-      _jml_row = global_query_builder.get_jml_row();
-      _jml_col = global_query_builder.get_jml_col();     
+  if (!is_con) {
+    
+    string tmp = "select count(*) as jml from " + _nm_tb + " where (" + _head_where + ")" + sql + " order by id";
+    if (_nm_tb == "dataset") {
+       tmp = "select count(*) as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")" + sql + " order by id";
     }
+    
+    if (global_query_builder.query(tmp))
+    {
+      if (global_query_builder.get_result())
+      {
+        vector<string> tmp = global_query_builder.fetch_row();
+        _jml_row = stoi(tmp[0]);
+      }
+    }
+
+    global_query_builder.close_connection();
+  } else {
+    string tmp = "select * from " + _nm_tb +" where (" + _head_where + ")" + sql + " order by id";
+    if (_nm_tb == "dataset") {
+      tmp = "select * from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")" + sql + " order by id";
+    }
+
+    if (global_query_builder.query(tmp))
+    {
+      if (global_query_builder.get_result())
+      {
+        _jml_row = global_query_builder.get_jml_row();
+        _jml_col = global_query_builder.get_jml_col();
+      }
+    }
+
   }
 
   _is_con = is_con;
-  if (!is_con) {
-    global_query_builder.close_connection();
-  }
-
 }
 
 void Tread_file::delete_data(string sql)
 {
+  
   string tmp  = "delete from " + _nm_tb + " where (" + _head_where + ") " + sql;
+  
   global_query_builder.open_connection();
   global_query_builder.query(tmp);
   global_query_builder.close_connection();
@@ -113,7 +159,7 @@ Tlabel_stat Tread_file::hit_label_stat(string nm_kolom)
 
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " where (" + _head_where + ")  group by " + nm_kolom + " order by " + nm_kolom;
+    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")  group by " + nm_kolom + " order by " + nm_kolom;
 
     global_query_builder.open_connection();
 
@@ -147,7 +193,7 @@ Tlabel_stat Tread_file::hit_label_stat(string nm_kolom, string sql)
   string tmp = "";
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " where (" + _head_where + ") " + sql + " group by " + nm_kolom + " order by " + nm_kolom;
+    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") " + sql + " group by " + nm_kolom + " order by " + nm_kolom;
 
     global_query_builder.open_connection();
 
@@ -181,7 +227,7 @@ map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , stri
 
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " where (" + _head_where + ")  group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
+    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")  group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
 
     global_query_builder.open_connection();
 
@@ -233,7 +279,7 @@ map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , stri
 
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " where (" + _head_where + ") " + sql + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
+    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") " + sql + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
 
     global_query_builder.open_connection();
 
@@ -290,7 +336,7 @@ int Tread_file::get_jml_col()
 
 void Tread_file::close_file()
 {
-  _is_con=false;
+  _is_con = false;
   global_query_builder.close_connection();
 }
 
