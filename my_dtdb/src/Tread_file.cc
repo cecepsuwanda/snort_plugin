@@ -107,12 +107,12 @@ void Tread_file::filter(string sql, bool is_con)
 {
   global_query_builder.open_connection();
   if (!is_con) {
-    
+
     string tmp = "select count(*) as jml from " + _nm_tb + " where (" + _head_where + ")" + sql + " order by id";
     if (_nm_tb == "dataset") {
-       tmp = "select count(*) as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")" + sql + " order by id";
+      tmp = "select count(*) as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")" + sql + " order by id";
     }
-    
+
     if (global_query_builder.query(tmp))
     {
       if (global_query_builder.get_result())
@@ -124,7 +124,7 @@ void Tread_file::filter(string sql, bool is_con)
 
     global_query_builder.close_connection();
   } else {
-    string tmp = "select * from " + _nm_tb +" where (" + _head_where + ")" + sql + " order by id";
+    string tmp = "select * from " + _nm_tb + " where (" + _head_where + ")" + sql + " order by id";
     if (_nm_tb == "dataset") {
       tmp = "select * from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")" + sql + " order by id";
     }
@@ -145,46 +145,12 @@ void Tread_file::filter(string sql, bool is_con)
 
 void Tread_file::delete_data(string sql)
 {
-  
+
   string tmp  = "delete from " + _nm_tb + " where (" + _head_where + ") " + sql;
-  
+
   global_query_builder.open_connection();
   global_query_builder.query(tmp);
   global_query_builder.close_connection();
-}
-
-Tlabel_stat Tread_file::hit_label_stat(string nm_kolom)
-{
-  Tlabel_stat label_stat;
-
-  if (_nm_tb == "dataset") {
-
-    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")  group by " + nm_kolom + " order by " + nm_kolom;
-
-    global_query_builder.open_connection();
-
-    if (global_query_builder.query(tmp))
-    {
-      if (global_query_builder.get_result())
-      {
-        int jml_row = global_query_builder.get_jml_row();
-
-        if (jml_row > 0) {
-
-          while (jml_row > 0)
-          {
-            vector<string> data = global_query_builder.fetch_row();
-            label_stat.add(data[0], stoi(data[1]));
-            jml_row--;
-          }
-        }
-      }
-    }
-    global_query_builder.close_connection();
-
-  }
-
-  return label_stat;
 }
 
 Tlabel_stat Tread_file::hit_label_stat(string nm_kolom, string sql)
@@ -193,7 +159,11 @@ Tlabel_stat Tread_file::hit_label_stat(string nm_kolom, string sql)
   string tmp = "";
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") " + sql + " group by " + nm_kolom + " order by " + nm_kolom;
+    string tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")  group by " + nm_kolom + " order by " + nm_kolom;
+    if (sql != "")
+    {
+      tmp = "select " + nm_kolom + ",count(" + nm_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") " + sql + " group by " + nm_kolom + " order by " + nm_kolom;
+    }
 
     global_query_builder.open_connection();
 
@@ -221,106 +191,94 @@ Tlabel_stat Tread_file::hit_label_stat(string nm_kolom, string sql)
 
 }
 
-map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , string count_kolom)
-{
-  map<Tmy_dttype, Tlabel_stat> col_split;
-
-  if (_nm_tb == "dataset") {
-
-    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ")  group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
-
-    global_query_builder.open_connection();
-
-    if (global_query_builder.query(tmp))
-    {
-      if (global_query_builder.get_result())
-      {
-        int jml_row = global_query_builder.get_jml_row();
-
-        if (jml_row > 0) {
-
-          size_t i = 0;
-          while ((i < _data_header.size()) and (_data_header[i] != group_kolom))
-          {
-            i++;
-          }
-
-          while (jml_row > 0)
-          {
-            vector<string> data = global_query_builder.fetch_row();
-
-            Tmy_dttype tmp_split_value(data[0], _data_type[i] == "continuous.");
-            auto itr = col_split.find(tmp_split_value);
-            if (itr == col_split.end())
-            {
-              Tlabel_stat label_stat;
-              label_stat.add(data[1], stoi(data[2]));
-              col_split.insert(pair<Tmy_dttype, Tlabel_stat>(tmp_split_value, label_stat));
-            } else {
-              itr->second.add(data[1], stoi(data[2]));
-            }
-
-            jml_row--;
-          }
-        }
-      }
-    }
-    global_query_builder.close_connection();
-  }
-
-
-  return col_split;
-}
-
-
 map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , string count_kolom, string sql)
 {
   map<Tmy_dttype, Tlabel_stat> col_split;
 
   if (_nm_tb == "dataset") {
 
-    string tmp = "select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") " + sql + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
-
-    global_query_builder.open_connection();
-
-    if (global_query_builder.query(tmp))
+    size_t i = 0;
+    bool ketemu = false;
+    while ((i < _data_header.size()) and (not ketemu))
     {
-      if (global_query_builder.get_result())
+      if (_data_header[i] == group_kolom)
       {
-        int jml_row = global_query_builder.get_jml_row();
-
-        if (jml_row > 0) {
-
-          size_t i = 0;
-          while ((i < _data_header.size()) and (_data_header[i] != group_kolom))
-          {
-            i++;
-          }
-
-          while (jml_row > 0)
-          {
-            vector<string> data = global_query_builder.fetch_row();
-
-            Tmy_dttype tmp_split_value(data[0], _data_type[i] == "continuous.");
-            auto itr = col_split.find(tmp_split_value);
-            if (itr == col_split.end())
-            {
-              Tlabel_stat label_stat;
-              label_stat.add(data[1], stoi(data[2]));
-              col_split.insert(pair<Tmy_dttype, Tlabel_stat>(tmp_split_value, label_stat));
-            } else {
-              itr->second.add(data[1], stoi(data[2]));
-            }
-
-            jml_row--;
-          }
-        }
+        ketemu = true;
+      } else {
+        i++;
       }
     }
-    global_query_builder.close_connection();
+
+    if (ketemu)
+    {
+      global_query_builder.open_connection();
+
+      string tmp = "truncate attr" + to_string(i);
+
+      global_query_builder.query(tmp);
+
+      if (_data_type[i] == "continuous.")
+      {
+
+        tmp = "select round(" + group_kolom + ",2) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
+        if (sql != "")
+        {
+          tmp = tmp + sql;
+        }
+        
+        tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round," + count_kolom+ ",count(" + count_kolom + ") as jml from (" + tmp + ") tb group by hsl_round," + count_kolom +  " order by hsl_round," + count_kolom;
+
+        global_query_builder.query(tmp);
+
+      } else {
+        tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
+        if (sql != "")
+        {
+          tmp = tmp + sql;
+        }
+        tmp = tmp + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
+        global_query_builder.query(tmp);
+      }
+
+      // tmp = "delete from attr_stat where id=" + to_string(i);
+      // global_query_builder.query(tmp);
+
+      // tmp = "select count(*) as jml from ( select distinct " + group_kolom + " from attr" + to_string(i) + ") tb";
+      // if (global_query_builder.query(tmp))
+      // {
+      //   if (global_query_builder.get_result())
+      //   {
+      //     vector<string> data = global_query_builder.fetch_row();
+      //     tmp = "insert into attr_stat values(" + to_string(i) + ",'" + group_kolom + "'," + (_data_type[i] == "continuous." ? "1" : "0") + "," + data[0] + ")";
+      //     global_query_builder.query(tmp);
+      //   }
+      // }
+
+      global_query_builder.close_connection();
+
+    }
   }
 
   return col_split;
+}
+
+void Tread_file::update_attr_stat(int idx)
+{
+  global_query_builder.open_connection();
+  string tmp = "delete from attr_stat where id=" + to_string(idx);
+  global_query_builder.query(tmp);
+
+  tmp = "select count(*) as jml from ( select distinct " + _data_header[idx] + " from attr" + to_string(idx) + ") tb";
+  if (global_query_builder.query(tmp))
+  {
+    if (global_query_builder.get_result())
+    {
+      vector<string> data = global_query_builder.fetch_row();
+      tmp = "insert into attr_stat values(" + to_string(idx) + ",'" + _data_header[idx] + "'," + (_data_type[idx] == "continuous." ? "1" : "0") + "," + data[0] + ")";
+      global_query_builder.query(tmp);
+    }
+  }
+  global_query_builder.close_connection();
 }
 
 

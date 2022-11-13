@@ -4,6 +4,7 @@
 #include "Tlabel_stat.h"
 #include "Tbelow_above.h"
 #include "Tbase_dataframe.h"
+#include <future>
 #include <thread>
 #include <unordered_map>
 #include <map>
@@ -15,6 +16,13 @@ using namespace std;
 #ifndef Included_Tdataframe_H
 
 #define Included_Tdataframe_H
+
+struct Tpot_split
+{
+  int idx;
+  map<Tmy_dttype, Tlabel_stat> data;
+};
+
 
 class Tdataframe : public Tbase_dataframe
 {
@@ -33,6 +41,8 @@ private:
 
   void handle_continuous(int idx, float & current_overall_metric, string & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);
+
+  static Tpot_split get_pot_split(string nm_tb,int id_dt, int jns_dt,string partition,string sql,int idx);
 
 public:
   Tdataframe();
@@ -119,7 +129,7 @@ public:
   vector<string> get_record_svm();  
   vector<vector<string>> get_all_record_svm();
 
-  map<Tmy_dttype, Tlabel_stat>* get_col_split(int idx);
+  map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();
 
   // void set_config(Tconfig v_config);

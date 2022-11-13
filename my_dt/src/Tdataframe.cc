@@ -112,8 +112,8 @@ void Tdataframe::stat_tabel()
       {
         while (!_data.is_end_col())
         {
-          if (_data.get_idx_col() != _idx_label) {
-            _map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));
+          if (_data.get_idx_col() != _idx_label) {           
+            _map_col_split.add_data(_data.get_idx_col(), _data.get_col_val(), _data_type[_data.get_idx_col()], _data.get_col_val(_idx_label));                   
           }
           _data.next_col();
         }
@@ -496,14 +496,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
       if (ba.cek_valid()) {
         float entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
-        gain = (entropy_before_split - entropy_after_split) / split_info;        
+        gain = (entropy_before_split - entropy_after_split) / split_info;
       }
 
     }
 
     itr_next++;
     itr++;
-    i++;    
+    i++;
 
     if ((first_iteration and (gain > 0)) or (gain_max < gain))
     {
@@ -558,7 +558,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
       if (ba.cek_valid()) {
         float entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
-        gain = (entropy_before_split - entropy_after_split) / split_info;// 0;        
+        gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
       }
 
       if (gain > 0) {
@@ -615,10 +615,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     if (ba.cek_valid()) {
       float entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
-      gain = (entropy_before_split - entropy_after_split) / split_info;      
+      gain = (entropy_before_split - entropy_after_split) / split_info;
     }
 
-    itr++;    
+    itr++;
 
     if ((first_iteration and (gain > 0)) or (gain_max < gain))
     {

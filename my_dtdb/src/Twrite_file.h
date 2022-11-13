@@ -26,6 +26,8 @@ public:
 	void write_file(string nm_kolom,vector<string> &data);
 	void write_file(string nm_kolom,string data);
 
+	void update_file(string nm_kolom,string value,string where);
+
 };
 
 #endif

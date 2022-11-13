@@ -122,7 +122,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		tree.push_back(root);
 	}
 
-	//cout << counter;
+	cout << counter;
 	//cetak("[%d %d]", counter, df.getjmlrow());
 	//cetak("%d|%d ",counter,prev_tree_node_index);
 	//cetak(".");
@@ -130,15 +130,15 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
 		string tmp_str = create_leaf(df);
-		//cetak("* ");
+		cetak("* ");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
 			tree[node_index].idx_svm = idx_svm;
-			//cetak("{N}");
+			cetak("{N}");
 
 		} else {
-			//cetak("{A}");
+			cetak("{A}");
 		}
 
 		tree[node_index].isLeaf = true;
@@ -146,11 +146,11 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 		df.clear_col_split();
 
-		//cetak("\n");
+		cetak("\n");
 
 	} else {
 
-		//cetak("?");
+		cetak("?");
 		//cetak("? ");
 
 		counter++;
@@ -201,15 +201,15 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
 			string tmp_str = create_leaf(df);
 
-			//cetak("-");
+			cetak("-");
 
 			if (tmp_str == "normal") {
 
 				idx_svm++;
 				tree[node_index].idx_svm = idx_svm;
-				//cetak("{N}");
+				cetak("{N}");
 			} else {
-				//cetak("{A}");
+				cetak("{A}");
 			}
 
 			tree[node_index].isLeaf = true;
@@ -224,7 +224,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 			if (split_value != "-1")
 			{
 
-				//cetak("|");
+				cetak("|");
 
 				tree[node_index].criteriaAttrIndex = split_column;
 
@@ -239,7 +239,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 				tree.push_back(nextNode);
 
 				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-				//cetak("->");
+				cetak("->");
 
 				train(df_below, left, nextNode.treeIndex, counter);
 
@@ -256,11 +256,11 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 				if (counter == 1)
 				{
-					//cetak("\n");
+					cetak("\n");
 				}
 
 
-				//cetak("<-");
+				cetak("<-");
 				train(df_above, right, nextNode1.treeIndex, counter);
 
 				if (config->prunning) {
@@ -278,9 +278,9 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 							idx_svm++;
 							tree[node_index].idx_svm = idx_svm;
-							//cetak("{N}");
+							cetak("{N}");
 						} else {
-							//cetak("{A}");
+							cetak("{A}");
 						}
 
 						tree[node_index].label = tree[treeIndex_yes].label;
@@ -314,22 +314,22 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		tree.push_back(root);
 	}
 
-	//cout << counter;
+	cout << counter;
 	//cetak("[%d %d]", counter, df.getjmlrow());
 
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
 		string tmp_str = create_leaf(df);
-		//cetak("*");
+		cetak("*");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
 			tree[node_index].idx_svm = idx_svm;
-			//cetak("{N}");
+			cetak("{N}");
 
 		} else {
-			//cetak("{A}");
+			cetak("{A}");
 		}
 
 		tree[node_index].isLeaf = true;
@@ -337,11 +337,11 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 		df.clear_col_split();
 
-		//cetak("\n");
+		cetak("\n");
 
 	} else {
 
-		//cetak("?");
+		cetak("?");
 
 		counter++;
 
@@ -364,15 +364,15 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
 			string tmp_str = create_leaf(df);
 
-			//cetak("-");
+			cetak("-");
 
 			if (tmp_str == "normal") {
 
 				idx_svm++;
 				tree[node_index].idx_svm = idx_svm;
-				//cetak("{N}");
+				cetak("{N}");
 			} else {
-				//cetak("{A}");
+				cetak("{A}");
 			}
 
 			tree[node_index].isLeaf = true;
@@ -382,13 +382,13 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			df_below.clear_col_split();
 			df_above.clear_col_split();
 
-			//cetak("\n");
+			cetak("\n");
 
 		} else {
 			if (split_value != "-1")
 			{
 
-				//cetak("|");
+				cetak("|");
 
 				tree[node_index].criteriaAttrIndex = split_column;
 
@@ -402,7 +402,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				tree[node_index].children.push_back(nextNode.treeIndex);
 				tree.push_back(nextNode);
 
-				//cetak("->");
+				cetak("->");
 				train(df_below, nextNode.treeIndex, counter);
 
 
@@ -417,11 +417,11 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 				if (counter == 1)
 				{
-					//cetak("\n");
+					cetak("\n");
 				}
 
 
-				//cetak("<-");
+				cetak("<-");
 				train(df_above, nextNode1.treeIndex, counter);
 
 				if (config->prunning) {
@@ -433,15 +433,15 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 						string tmp_str = tree[treeIndex_yes].label;
 
-						//cetak("+");
+						cetak("+");
 
 						if (tmp_str == "normal") {
 
 							idx_svm++;
 							tree[node_index].idx_svm = idx_svm;
-							//cetak("{N}");
+							cetak("{N}");
 						} else {
-							//cetak("{A}");
+							cetak("{A}");
 						}
 
 						tree[node_index].label = tree[treeIndex_yes].label;
@@ -470,7 +470,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 {
-	//cetak(".");
+	cetak(".");
 
 	int left = tree[node_index].children[0];
 	int right = tree[node_index].children[1];
@@ -496,7 +496,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 		if ((tree[left].isLeaf) and (tree[right].isLeaf))
 		{
 
-			//cetak("+");
+			cetak("+");
 
 			float error_node, error_left, error_right, sum_error;
 
@@ -521,7 +521,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 			if (error_node < sum_error)
 			{
-				//cetak("*");
+				cetak("*");
 				tree[node_index].children[0] = -1;
 				tree[node_index].children[1] = -1;
 				tree[node_index].isLeaf = true;

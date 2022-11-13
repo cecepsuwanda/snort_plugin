@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "global.h"
 using namespace std;
 
 
@@ -21,11 +22,14 @@ public:
 	~Tmy_dttype();
 	Tmy_dttype(string value, bool is_continue);
 
+
 	void set_value(string value, bool is_continue);
 	string get_value();
+
 	string get_string();
 
 	bool is_continue();
+
 
 	Tmy_dttype& operator = (const Tmy_dttype &t)
 	{

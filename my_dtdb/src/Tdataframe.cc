@@ -52,50 +52,55 @@ void Tdataframe::read_data_type()
   stat_tabel();
 }
 
+Tpot_split Tdataframe::get_pot_split(string nm_tb, int id_dt, int jns_dt, string partition, string sql, int idx)
+{
+  Tpot_split hsl;
+  Tread_file data;
+  data.setnm_f(nm_tb, id_dt, jns_dt, partition);
+  vector<string> data_header = data.get_data_header();
+  int idx_label = data.get_idx_label();
+  hsl.data = data.hit_col_split(data_header[idx], data_header[idx_label], sql);
+  hsl.idx = idx;
+  return hsl;
+}
+
 void Tdataframe::stat_tabel()
 {
   _stat_label.clear();
-
   _jml_row = _data.get_jml_row();
 
-  if (_filter.size() > 0)
-  {
-    string tmp_sql = filter_to_query();
-    _stat_label = _data.hit_label_stat(_data_header[_idx_label], tmp_sql);
-
-    if (config->search_uniqe_val)
-    {
-      for (size_t i = 0; i < (_data_header.size() - 1); ++i)
-      {
-        map<Tmy_dttype, Tlabel_stat> data = _data.hit_col_split(_data_header[i], _data_header[_idx_label], tmp_sql);
-        if(data.size()>0){
-          _map_col_split.add_data(i, data);
-        }
-
-      }
-    }
-
-  } else {
-    _stat_label = _data.hit_label_stat(_data_header[_idx_label]);
-
-    if (config->search_uniqe_val)
-    {
-      for (size_t i = 0; i < (_data_header.size() - 1); ++i)
-      {
-        map<Tmy_dttype, Tlabel_stat> data = _data.hit_col_split(_data_header[i], _data_header[_idx_label]);
-        if(data.size()>0){
-          _map_col_split.add_data(i, data);
-        }
-      }
-    }
-
-  }  
-
-  _stat_label.set_config(config);  
+  string tmp_sql = filter_to_query();
+  _stat_label = _data.hit_label_stat(_data_header[_idx_label], tmp_sql);
 
   if (config->search_uniqe_val)
   {
-    _map_col_split.cek_valid_attr(_jml_row);    
+    vector<future<Tpot_split>> async_worker;
+
+    for (size_t i = 0; i < (_data_header.size() - 1); ++i)
+    {
+      async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, "dataset", config->id_dt_train, config->jns_dt_train, config->partition_train, tmp_sql, i));
+
+    }
+
+    if (async_worker.size() > 0)
+    {
+
+      Tpot_split hsl;
+      for (future<Tpot_split> & th : async_worker)
+      {
+        hsl = th.get();
+        _data.update_attr_stat(hsl.idx);
+      }
+      async_worker.clear();
+      async_worker.shrink_to_fit();
+    }
+  }
+
+  _stat_label.set_config(config);
+
+  if (config->search_uniqe_val)
+  {
+    _map_col_split.cek_valid_attr(_jml_row);
   }
 
 }
@@ -289,7 +294,7 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
   return Table;
 }
 
-map<Tmy_dttype, Tlabel_stat>* Tdataframe::get_col_split(int idx)
+map<Tmy_dttype, Tlabel_stat> Tdataframe::get_col_split(int idx)
 {
   return _map_col_split.get_pot_split(idx);
 }
@@ -333,7 +338,7 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value)
   }
 
   string sql = filter_to_query();
-  _data.filter(sql,false);
+  _data.filter(sql, false);
 
   stat_tabel();
 }
@@ -342,7 +347,7 @@ void Tdataframe::ReFilter()
 {
   string sql = filter_to_query();
   if (sql != "") {
-    _data.filter(sql,false);
+    _data.filter(sql, false);
   }
 
   stat_tabel();
@@ -365,7 +370,7 @@ void Tdataframe::add_filter(field_filter filter)
   }
 
   string sql = filter_to_query();
-  _data.filter(sql,false);
+  _data.filter(sql, false);
 
   stat_tabel();
 }
@@ -426,8 +431,15 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   bool first_iteration = true;
 
-  Tlabel_stat _stat_label_below;
+  int jml_row = stat_label.get_jml_row();
+  float prosen = 0.0;
 
+  if (_col_pot_split->size()>(0.15*jml_row))
+  {
+    prosen = 0.0;
+  }
+
+  Tlabel_stat _stat_label_below;
 
   auto itr_next = _col_pot_split->begin();
   itr_next++;
@@ -437,48 +449,55 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   size_t i = 1;
   while ((itr != _col_pot_split->end()))
   {
+    (*itr).second.set_config(config);
+    (*itr_next).second.set_config(config);
+
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
-    if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
-    {
-      Tmy_dttype tmp1 = (*itr).first;
-      Tmy_dttype tmp2 = (*itr_next).first;
-      try {
-        mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
+    if (_stat_label_below.get_jml_row()>=(prosen*i*jml_row)) {
+      if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
+      {
+
+        Tmy_dttype tmp1 = (*itr).first;
+        Tmy_dttype tmp2 = (*itr_next).first;
+        try {
+          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
+        }
+        catch (const std::invalid_argument& ia) {
+          cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
+        }
+
+        Tbelow_above ba(config);
+        //ba.set_value(mid_point);
+
+        ba.add_below(_stat_label_below);
+        Tlabel_stat tmp_stat = stat_label - _stat_label_below;
+        tmp_stat.set_config(config);
+        ba.add_above(tmp_stat);
+
+        gain = 0;
+        if (ba.cek_valid()) {
+          float entropy_after_split = ba.get_overall_metric();
+          float split_info = ba.get_split_info();
+          gain = (entropy_before_split - entropy_after_split) / split_info;
+        }
+
       }
-      catch (const std::invalid_argument& ia) {
-        cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
-      }      
 
-      Tbelow_above ba(config);
-      //ba.set_value(mid_point);
-
-      ba.add_below(_stat_label_below);
-      Tlabel_stat tmp_stat = stat_label - _stat_label_below;
-      tmp_stat.set_config(config);
-      ba.add_above(tmp_stat);
-
-      gain = 0;
-      if (ba.cek_valid()) {
-        float entropy_after_split = ba.get_overall_metric();
-        float split_info = ba.get_split_info();
-        gain = (entropy_before_split - entropy_after_split) / split_info;
+      if ((first_iteration and (gain > 0)) or (gain_max < gain))
+      {
+        first_iteration = false;
+        gain_max = gain;
+        tmp_split_value = mid_point;
+        best_overall_metric = gain_max;
       }
-
+      i++;
     }
 
     itr_next++;
     itr++;
-    i++;
 
-    if ((first_iteration and (gain > 0)) or (gain_max < gain))
-    {
-      first_iteration = false;
-      gain_max = gain;
-      tmp_split_value = mid_point;
-      best_overall_metric = gain_max;
-    }
 
   }
 
@@ -488,12 +507,12 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 }
 
 void Tdataframe::handle_continuous(int idx, float & current_overall_metric, string & split_value)
-{  
-  map<Tmy_dttype, Tlabel_stat>* _col_pot_split = _map_col_split.get_pot_split(idx);
+{
+  map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
-  if (_col_pot_split->size() > 0)
+  if (_col_pot_split.size() > 0)
   {
-    if (_col_pot_split->size() == 1)
+    if (_col_pot_split.size() == 1)
     {
       float entropy_before_split;
 
@@ -504,7 +523,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
       }
 
       //cetak("{ ==1 start ");
-      auto itr = _col_pot_split->begin();
+      auto itr = _col_pot_split.begin();
 
 
       Tlabel_stat _stat_label_below = (*itr).second;
@@ -536,7 +555,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
     } else {
       float tmp_best_overall_metric = 0.0;
       string tmp_split_value = "-1";
-      calculate_metric(idx, _col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
+      calculate_metric(idx, &_col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
 
       current_overall_metric = tmp_best_overall_metric;
       split_value = tmp_split_value;
@@ -546,7 +565,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
 }
 
 void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, string & split_value)
-{  
+{
   float entropy_before_split;
 
   if (!config->use_credal) {
@@ -562,10 +581,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
 
   bool first_iteration = true;
 
-  map<Tmy_dttype, Tlabel_stat>* _col_pot_split = _map_col_split.get_pot_split(idx);
+  map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
-  auto itr = _col_pot_split->begin();
-  while (itr != _col_pot_split->end())
+  auto itr = _col_pot_split.begin();
+  while (itr != _col_pot_split.end())
   {
     Tbelow_above ba(config);
 

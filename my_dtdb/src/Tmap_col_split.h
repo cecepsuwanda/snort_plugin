@@ -1,5 +1,5 @@
-
 #include <map>
+#include "Tquery_builder.h"
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "global.h"
@@ -24,7 +24,7 @@ public:
 	~Tmap_col_split();
 	void add_data(int idx_col,string split_value,string tipe_data,string label);
 	void add_data(int idx_col, map<Tmy_dttype, Tlabel_stat> data);
-	map<Tmy_dttype, Tlabel_stat>* get_pot_split(int idx);
+	map<Tmy_dttype, Tlabel_stat> get_pot_split(int idx);
 	void clear();
 
 	void cek_valid_attr(int jml_row);

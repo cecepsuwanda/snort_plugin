@@ -3,12 +3,12 @@
 
 Tmap_col_split::Tmap_col_split()
 {
-   config = NULL;
+	config = NULL;
 }
 
 Tmap_col_split::Tmap_col_split(Tconfig* v_config)
 {
-  config = v_config;
+	config = v_config;
 }
 
 Tmap_col_split::~Tmap_col_split()
@@ -49,23 +49,23 @@ void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data,
 }
 
 void Tmap_col_split::cek_valid_attr(int jml_row)
-{	
+{
 	_valid_attr.clear();
 	for (auto itr = _pot_split.begin(); itr != _pot_split.end(); ++itr)
 	{
 		auto tmp = itr->second.begin();
-		Tmy_dttype tmp_dttype= tmp->first;
+		Tmy_dttype tmp_dttype = tmp->first;
 
 		if (tmp_dttype.is_continue()) {
 			//cout << itr->first << "-" << itr->second.size() << endl;
-			if ( itr->second.size() < (0.3 * jml_row) ) {				
+			if ( (itr->second.size() < (0.3 * jml_row)) and (itr->second.size() > 1)) {
 				_valid_attr.push_back(itr->first);
 			}
-		} else {			 
+		} else {
 			_valid_attr.push_back(itr->first);
 		}
 	}
-	
+
 }
 
 int Tmap_col_split::get_jml_valid_attr()
@@ -81,15 +81,15 @@ int Tmap_col_split::get_valid_attr(int idx)
 bool Tmap_col_split::is_valid_attr(int idx)
 {
 	bool is_valid = false;
-    if(_valid_attr.size()>0)
-    { 
-	    auto itr = _valid_attr.begin();
-	    while((!is_valid) and (itr!=_valid_attr.end()))
-	    {
-	        is_valid = (*itr == idx);        
-	        itr++;
-	    }
-    }
+	if (_valid_attr.size() > 0)
+	{
+		auto itr = _valid_attr.begin();
+		while ((!is_valid) and (itr != _valid_attr.end()))
+		{
+			is_valid = (*itr == idx);
+			itr++;
+		}
+	}
 	return is_valid;
 }
 

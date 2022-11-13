@@ -282,7 +282,7 @@ void Tdec_tree::test(Tdataframe &df,Tconf_metrix &dt_conf_metrix)
   //df.close_file();  
   
   dt_conf_metrix.kalkulasi();
-  cetak("Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%d,FP=%d,FN=%d,F1=%.4f \n", config->depth, config->min_sample, config->credal_s,config->threshold,dt_conf_metrix.get_FN("known"),dt_conf_metrix.get_FP("known"),dt_conf_metrix.get_F1());
+  cetak("Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%d,FP=%d,FN=%d,F1=%.4f \n", config->depth, config->min_sample, config->credal_s,config->threshold,dt_conf_metrix.get_FP("known"),dt_conf_metrix.get_FN("known"),dt_conf_metrix.get_F1());
   
   // dt_conf_metrix.save(config->path_model + "/dt_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
