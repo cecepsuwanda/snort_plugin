@@ -3,7 +3,9 @@
 
 Tbase_dataframe::Tbase_dataframe()
 {
-
+	_data_header = _data.get_data_header();
+	_data_type = _data.get_data_type();
+	_jml_col = _data.get_idx_label() + 1;
 }
 
 Tbase_dataframe::~Tbase_dataframe()
@@ -13,27 +15,36 @@ Tbase_dataframe::~Tbase_dataframe()
 	_data_type.clear();
 	_data_type.shrink_to_fit();
 	_filter.clear();
-	_filter.shrink_to_fit();
+	_filter.shrink_to_fit();	
 }
 
-void Tbase_dataframe::read_data(string nm_tb, int id_dt, int jns_dt,string partition)
+void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
 {
-	//cout << "Tbase_dataframe read_data " << endl;
 	_id_dt = id_dt;
 	_jns_dt = jns_dt;
-	_nm_tb = nm_tb;
 	_partition = partition;
-	_data.setnm_f(_nm_tb, id_dt, jns_dt,_partition);
+	_data.set_dataset(id_dt, jns_dt, _partition);	
 }
 
-
-void Tbase_dataframe::read_data_type()
+void Tbase_dataframe::set_branch(int depth, int branch)
 {
-	_data_header = _data.get_data_header();
-	_data_type = _data.get_data_type();
-	_jml_col = _data.get_idx_label() + 1;
+	_child_depth = depth;
+	_child_branch = branch;	
+	_data.set_child(_child_depth,_child_branch); 	
+}
 
-	stat_tabel();
+void Tbase_dataframe::set_parent(int depth, int branch)
+{
+  _parent_depth = depth;
+  _parent_branch = branch;
+  _data.set_child(_parent_depth,_parent_branch);
+}
+
+void Tbase_dataframe::switch_parent_branch()
+{
+  _parent_depth = _child_depth;
+  _parent_branch = _child_branch;
+  _data.switch_parent_child();
 }
 
 
@@ -57,17 +68,23 @@ string Tbase_dataframe::filter_to_query()
 				tmp1 = tmp1 + _filter[i].value + "<" + _data_header[_filter[i].idx_col] + ")";
 				break;
 			case 2 :
-				tmp1 = tmp1 +"'"+ _filter[i].value +"'=" + _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + "'" + _filter[i].value + "'=" + _data_header[_filter[i].idx_col] + ")";
 				break;
 			case 3 :
-				tmp1 = tmp1 +"'"+ _filter[i].value + "'!=" + _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + "'" + _filter[i].value + "'!=" + _data_header[_filter[i].idx_col] + ")";
 				break;
 			}
 
-            tmp = tmp + " and " + tmp1;            
+			tmp = tmp + tmp1;
+
+			if(i < (_filter.size()-1))
+			{
+         tmp=tmp+" and ";
+			}
+
 			i++;
 		}
-	}    
+	}
 	return tmp;
 }
 
@@ -140,23 +157,7 @@ bool Tbase_dataframe::is_pass()
 	return pass;
 }
 
-void Tbase_dataframe::stat_tabel()
-{
-	int i = 0;
-	_data.reset_file();
-	while (!_data.is_eof())
-	{
 
-		//if (is_pass())
-		//{
-
-			i++;
-		//}
-		_data.next_record();
-	}
-
-	_jml_row = i;
-}
 
 int Tbase_dataframe::getjmlcol()
 {
@@ -237,13 +238,15 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 	//ReFilter();
 
 	string tmp_sql = filter_to_query();
-	_data.filter(tmp_sql,true);
+	_data.filter(tmp_sql);
+
+	_data.read_hsl_filter();
 
 	vector<vector<string>> Table;
 	_data.reset_file();
 	while (!_data.is_eof())
 	{
-		Table.push_back(_data.get_record());		
+		Table.push_back(_data.get_record());
 		_data.next_record();
 	}
 
@@ -255,10 +258,8 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 }
 
 
-
 void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 {
-
 	field_filter f;
 	f.idx_col = idx_col;
 	f.idx_opt = idx_opt;
@@ -266,9 +267,8 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 	_filter.push_back(f);
 
 	string sql = filter_to_query();
-	_data.filter(sql,false);
-
-	stat_tabel();
+	_data.filter(sql);
+	
 }
 
 void Tbase_dataframe::add_filter(field_filter filter)
@@ -277,24 +277,23 @@ void Tbase_dataframe::add_filter(field_filter filter)
 	_filter.push_back(filter);
 
 	string sql = filter_to_query();
-	_data.filter(sql,false);
-
-	stat_tabel();
+	_data.filter(sql);	
 }
 
 void Tbase_dataframe::ReFilter()
 {
 	string sql = filter_to_query();
-	if(sql!=""){
-	_data.filter(sql,false);
-    }
-	stat_tabel();
+	if (sql != "") {
+		_data.filter(sql);
+	}	
 }
 
 vector<field_filter> Tbase_dataframe::get_filter()
 {
 	return _filter;
 }
+
+
 
 void Tbase_dataframe::info()
 {

@@ -32,7 +32,7 @@ private:
 	void clear_worker(size_t limit);
 	string create_leaf(Tdataframe &df);
 	bool check_purity(Tdataframe &df);
-	void pruning_dfs(int node_index , Tdataframe &df_train);
+	void pruning_dfs(int node_index , Tdataframe &df_train, int counter);
 	void post_pruning(Tdataframe &df_train);
 	void train(Tdataframe &df, int node_index , int counter);
 	void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);

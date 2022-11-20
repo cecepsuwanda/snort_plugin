@@ -183,35 +183,46 @@ void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, T
 
 
 
-void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix)
+void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter)
 {
+  
+
   if (tree[node_index].isLeaf)
   {
 
     string label = tree[node_index].label;    
+    cetak("[%s %d]\n", label.c_str(),df_test.getjmlrow());
     //clear_worker(1);
     _table_attack = df_test.get_all_record();    
     worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
     _table_attack.clear();
     _table_attack.shrink_to_fit();
     //cetak("\n");
+    
   } else {
-    //cetak("|?");
+    cetak("%d|?",counter);
+
+    counter++;
 
     int left = tree[node_index].children[0];
     int right = tree[node_index].children[1];    
 
     Tdataframe df_left, df_right;
     df_left = df_test;
+    df_left.switch_parent_branch();
+    df_left.set_branch(counter,1);
     df_right = df_test;
+    df_right.switch_parent_branch();
+    df_right.set_branch(counter,2);
+    
 
     //clear_worker(0);
 
     if (left != -1) {
       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);      
       if (df_left.getjmlrow() > 0) {
-        test_dfs(left, df_left, dt_conf_metrix);
-      }
+        test_dfs(left, df_left, dt_conf_metrix,counter);
+      }      
 
     }
 
@@ -219,8 +230,8 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
     if (right != -1) {
       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);      
       if (df_right.getjmlrow() > 0) {
-        test_dfs(right, df_right, dt_conf_metrix);
-      }
+        test_dfs(right, df_right, dt_conf_metrix,counter);
+      }      
     }
 
     //clear_worker(0);
@@ -237,8 +248,13 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 {
   Tdataframe df(config);
-  df.read_data("dataset",config->id_dt_test,config->jns_dt_test,config->partition_test);
-  df.read_data_type();
+  df.set_dataset(config->id_dt_test,config->jns_dt_test,config->partition_test);
+  df.set_parent(0,0);
+  df.set_branch(0,0);
+  df.clone_dataset();
+  df.hit_label_stat_onoff();
+  df.stat_tabel();
+  
   //df.info();
 
   //Tconf_metrix dt_conf_metrix;
@@ -246,7 +262,7 @@ void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 
   {
     Timer timer;
-    test_dfs(0, df, dt_conf_metrix);
+    test_dfs(0, df, dt_conf_metrix,0);
     //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   }
 

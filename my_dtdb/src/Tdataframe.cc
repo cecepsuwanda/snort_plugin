@@ -7,34 +7,6 @@ Tdataframe::Tdataframe()
 {
   _idx_label = -1;
   config = NULL;
-}
-
-Tdataframe::Tdataframe(Tconfig* v_config)
-{
-  _idx_label = -1;
-  config = v_config;
-  _stat_label.set_config(config);
-  _map_col_split.set_config(config);
-}
-
-Tdataframe::~Tdataframe()
-{
-  _stat_label.clear();
-}
-
-void Tdataframe::set_config(Tconfig* v_config)
-{
-  config = v_config;
-}
-
-// void Tdataframe::set_search_uniqe_val_off()
-// {
-//   _search_uniqe_val_on = false;
-// }
-
-
-void Tdataframe::read_data_type()
-{
 
   _data_header = _data.get_data_header();
   _data_type = _data.get_data_type();
@@ -48,37 +20,95 @@ void Tdataframe::read_data_type()
   {
     is_42 = _jml_col == 42;
   }
-
-  stat_tabel();
 }
 
-Tpot_split Tdataframe::get_pot_split(string nm_tb, int id_dt, int jns_dt, string partition, string sql, int idx)
+Tdataframe::Tdataframe(Tconfig* v_config)
+{
+  _idx_label = -1;
+  config = v_config;
+  _stat_label.set_config(config);
+  _map_col_split.set_config(config);
+}
+
+Tdataframe::~Tdataframe()
+{
+  _stat_label.clear();
+  _data.set_child(_child_depth,_child_branch);
+}
+
+void Tdataframe::set_config(Tconfig* v_config)
+{
+  config = v_config;
+}
+
+
+
+Tpot_split Tdataframe::get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int child_depth, int child_branch, int idx)
 {
   Tpot_split hsl;
-  Tread_file data;
-  data.setnm_f(nm_tb, id_dt, jns_dt, partition);
+  tb_dataset data;
+  data.set_dataset(id_dt, jns_dt, partition);
+  data.set_parent(parent_depth, parent_branch);
+  data.set_child(child_depth, child_branch);
   vector<string> data_header = data.get_data_header();
-  int idx_label = data.get_idx_label();
-  hsl.data = data.hit_col_split(data_header[idx], data_header[idx_label], sql);
+  hsl.data = data.hit_col_split(data_header[idx]);
   hsl.idx = idx;
   return hsl;
+}
+
+void Tdataframe::clone_dataset()
+{
+  _data.child_to_tmp_dataset();
+}
+
+void Tdataframe::reset_depth_branch()
+{
+  _data.reset_depth_branch();
+}
+
+void Tdataframe::hit_label_stat_onoff()
+{
+  _is_hit_label_stat = !_is_hit_label_stat;
+}
+
+void Tdataframe::is_filter_onoff()
+{
+  _is_filter = !_is_filter;
 }
 
 void Tdataframe::stat_tabel()
 {
   _stat_label.clear();
-  _jml_row = _data.get_jml_row();
 
-  string tmp_sql = filter_to_query();
-  _stat_label = _data.hit_label_stat(_data_header[_idx_label], tmp_sql);
+
+  if (_is_filter) {
+    
+     if(!_by_pass){  
+       string tmp_sql = filter_to_query();
+       _data.filter(tmp_sql);       
+     }
+     _by_pass=false; 
+    
+    _jml_row = _data.get_jml_row();
+
+  }
+
+  
+
+  if (_is_hit_label_stat) {
+    _stat_label = _data.hit_label_stat();
+  }
+
 
   if (config->search_uniqe_val)
   {
+
+
     vector<future<Tpot_split>> async_worker;
 
     for (size_t i = 0; i < (_data_header.size() - 1); ++i)
     {
-      async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, "dataset", config->id_dt_train, config->jns_dt_train, config->partition_train, tmp_sql, i));
+      async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, config->id_dt_train, config->jns_dt_train, config->partition_train, _parent_depth, _parent_branch, _child_depth, _child_branch, i));
 
     }
 
@@ -93,8 +123,12 @@ void Tdataframe::stat_tabel()
       }
       async_worker.clear();
       async_worker.shrink_to_fit();
+
+
     }
   }
+
+  
 
   _stat_label.set_config(config);
 
@@ -337,17 +371,20 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value)
     itr->second += 1;
   }
 
-  string sql = filter_to_query();
-  _data.filter(sql, false);
-
-  stat_tabel();
+  if (_is_filter) {
+    string sql = filter_to_query();
+    _data.filter(sql);
+    _by_pass = true;
+    stat_tabel();
+  }
 }
 
 void Tdataframe::ReFilter()
 {
   string sql = filter_to_query();
   if (sql != "") {
-    _data.filter(sql, false);
+    _data.filter(sql);
+    _by_pass = true;
   }
 
   stat_tabel();
@@ -369,10 +406,13 @@ void Tdataframe::add_filter(field_filter filter)
     itr->second += 1;
   }
 
-  string sql = filter_to_query();
-  _data.filter(sql, false);
-
-  stat_tabel();
+  if (_is_filter) {
+    
+    string sql = filter_to_query();
+    _data.filter(sql);
+    _by_pass = true;
+    stat_tabel();
+  }
 }
 
 
@@ -398,20 +438,21 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
       data_above.add_filter(split_column, 3, split_value);
     }
   }
+  
 }
 
-void Tdataframe::get_col_pot_split(int idx)
-{
-  std::lock_guard<std::mutex> lock(v_mutex);
-  _data.reset_file();
-  while (!_data.is_eof())
-  {
-    _map_col_split.add_data(idx, _data.get_col_val(idx), _data_type[idx], _data.get_col_val(_idx_label));
-    _data.next_record();
-  }
+// void Tdataframe::get_col_pot_split(int idx)
+// {
+//   std::lock_guard<std::mutex> lock(v_mutex);
+//   _data.reset_file();
+//   while (!_data.is_eof())
+//   {
+//     _map_col_split.add_data(idx, _data.get_col_val(idx), _data_type[idx], _data.get_col_val(_idx_label));
+//     _data.next_record();
+//   }
 
-  _map_col_split.cek_valid_attr(_jml_row);
-}
+//   _map_col_split.cek_valid_attr(_jml_row);
+// }
 
 
 void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
@@ -434,7 +475,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   int jml_row = stat_label.get_jml_row();
   float prosen = 0.0;
 
-  if (_col_pot_split->size()>(0.15*jml_row))
+  if (_col_pot_split->size() > (0.15 * jml_row))
   {
     prosen = 0.0;
   }
@@ -455,7 +496,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
-    if (_stat_label_below.get_jml_row()>=(prosen*i*jml_row)) {
+    if (_stat_label_below.get_jml_row() >= (prosen * i * jml_row)) {
       if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
       {
 

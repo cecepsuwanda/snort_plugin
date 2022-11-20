@@ -34,15 +34,19 @@ private:
   int _idx_label;
   bool is_non_continuous = false;
   bool is_42 = false;
-  //bool _search_uniqe_val_on = true;
   Tconfig* config;
 
-  void calculate_metric(int idx,map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
+  bool _is_hit_label_stat = true;
+  bool _is_filter = true;
+
+  bool _by_pass = false;
+
+  void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, string & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);
 
-  static Tpot_split get_pot_split(string nm_tb,int id_dt, int jns_dt,string partition,string sql,int idx);
+  static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int child_depth, int child_branch, int idx);
 
 public:
   Tdataframe();
@@ -65,19 +69,26 @@ public:
     _stat_label = t._stat_label;
     _idx_label = t._idx_label;
 
+
     _id_dt = t._id_dt;
     _jns_dt = t._jns_dt;
-    _nm_tb = t._nm_tb;
+    _partition = t._partition;
 
-    //_data.setnm_f(_nm_tb,_id_dt,_jns_dt);
+    _parent_depth = t._parent_depth;
+    _parent_branch = t._parent_branch;
+
+    _child_depth = t._child_depth;
+    _child_branch = t._child_branch;
+
+    _is_hit_label_stat = t._is_hit_label_stat;
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
     _jml_total_row = t._jml_total_row;
     config = t.config;
-     
-     _stat_label.set_config(config);
-     _map_col_split.set_config(config);
+
+    _stat_label.set_config(config);
+    _map_col_split.set_config(config);
 
   }
 
@@ -94,12 +105,18 @@ public:
     this->_jml_row = t._jml_row;
     this->_stat_label = t._stat_label;
     this->_idx_label = t._idx_label;
-    
+
     this->_id_dt = t._id_dt;
     this->_jns_dt = t._jns_dt;
-    this->_nm_tb = t._nm_tb;
+    this->_partition = t._partition;
 
-    //this->_data.setnm_f( this->_nm_tb,this->_id_dt,this->_jns_dt);  
+    _parent_depth = t._parent_depth;
+    _parent_branch = t._parent_branch;
+
+    _child_depth = t._child_depth;
+    _child_branch = t._child_branch;
+
+    _is_hit_label_stat = t._is_hit_label_stat;
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
@@ -112,10 +129,11 @@ public:
     return *this;
   }
 
+  void clone_dataset();
+  void reset_depth_branch();
 
-  //void set_search_uniqe_val_off();
-
-  void read_data_type();
+  void hit_label_stat_onoff();
+  void is_filter_onoff();
 
   void stat_tabel();
   map<string, int> get_stat_label();
@@ -126,7 +144,7 @@ public:
 
   int getjmlcol_svm();
   int getjmlrow_svm();
-  vector<string> get_record_svm();  
+  vector<string> get_record_svm();
   vector<vector<string>> get_all_record_svm();
 
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
@@ -150,10 +168,11 @@ public:
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
-  void get_col_pot_split(int idx);
+  // void get_col_pot_split(int idx);
   void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);
 
   void set_config(Tconfig* v_config);
+  
 
 };
 

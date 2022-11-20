@@ -23,7 +23,7 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	}else{
 		char *endptr;
 		double tmp = strtod(value.c_str(), &endptr);
-		_value=to_string(bulat_nol(tmp,1e-2,2));
+		_value=to_string(bulat_nol(tmp,1e-7,7));
 		_lower_value = value;
 	}
 }
@@ -39,7 +39,7 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	}else{
 		char *endptr;
 		double tmp = strtod(value.c_str(), &endptr);
-		_value=to_string(bulat_nol(tmp,1e-2,2));
+		_value=to_string(bulat_nol(tmp,1e-7,7));
 		_lower_value = value;
 	}
 }

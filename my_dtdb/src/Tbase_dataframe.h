@@ -1,4 +1,5 @@
-#include "Tread_file.h"
+#include <mutex>
+#include "tb_dataset.h"
 #include "Tlabel_stat.h"
 #include "Tmy_dttype.h"
 #include "Tmap_col_split.h"
@@ -22,24 +23,29 @@ class Tbase_dataframe
 {
 protected:
 
-	Tread_file _data;
+	tb_dataset _data;
 	vector<string> _data_header;
 	vector<string> _data_type;
 	vector<field_filter> _filter;
 	int _jml_col = 0;
 	int _jml_row = 0;
 	int _jml_total_row = 0;
-	
+
 	int _id_dt;
 	int _jns_dt;
-	string _nm_tb;	
 	string _partition;
+
+	int _parent_depth;
+	int _parent_branch;
+
+	int _child_depth;
+	int _child_branch;
 
 	mutable std::mutex v_mutex;
 
-    string filter_to_query();
+	string filter_to_query();
 
-private:   
+private:
 
 public:
 	Tbase_dataframe();
@@ -50,17 +56,20 @@ public:
 		_data = t._data;
 		_data_header = t._data_header;
 		_data_type = t._data_type;
-		_filter = t._filter;		
+		_filter = t._filter;
 
 		_jml_col = t._jml_col;
-		_jml_row = t._jml_row;		
+		_jml_row = t._jml_row;
 
 		_id_dt = t._id_dt;
 		_jns_dt = t._jns_dt;
-		_nm_tb = t._nm_tb;
 		_partition = t._partition;
 
-        //_data.setnm_f(_nm_tb,_id_dt,_jns_dt);
+		_parent_depth = t._parent_depth;
+		_parent_branch = t._parent_branch;
+
+		_child_depth = t._child_depth;
+		_child_branch = t._child_branch;
 
 		_jml_total_row = t._jml_total_row;
 	}
@@ -68,36 +77,41 @@ public:
 
 	Tbase_dataframe& operator = (const Tbase_dataframe &t)
 	{
-		//this->_data = t._data;
+		this->_data = t._data;
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;
-		this->_filter = t._filter;		
+		this->_filter = t._filter;
+
 		this->_jml_col = t._jml_col;
 		this->_jml_row = t._jml_row;
 
 		this->_id_dt = t._id_dt;
 		this->_jns_dt = t._jns_dt;
-		this->_nm_tb = t._nm_tb;
 		this->_partition = t._partition;
 
-		//this->_data.setnm_f(this->_nm_tb,this->_id_dt,this->_jns_dt);		
-		
+		_parent_depth = t._parent_depth;
+		_parent_branch = t._parent_branch;
+
+		_child_depth = t._child_depth;
+		_child_branch = t._child_branch;
+
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}
 
-	
 
-	void read_data(string nm_tb,int id_dt, int jns_dt,string partition);
-	void read_data_type();
+
+	void set_dataset(int id_dt, int jns_dt, string partition);
+	void set_branch(int depth, int branch);
+	void set_parent(int depth, int branch);
+    void switch_parent_branch();
+
 	void save_to(string nm_file);
-	string get_data_type(int idx);    
+	string get_data_type(int idx);
 
 	bool is_pass(vector<string> &data);
-	bool is_pass();
+	bool is_pass();	
 
-	void stat_tabel();
-	
 	int getjmlcol();
 	int getjmlrow();
 	void setjmltotalrow();
@@ -120,8 +134,8 @@ public:
 	void add_filter(int idx_col, int idx_opt, string value);
 	void add_filter(field_filter filter);
 	void ReFilter();
-	vector<field_filter> get_filter();	
-
+	vector<field_filter> get_filter();    
+	
 	void info();
 	void head();
 

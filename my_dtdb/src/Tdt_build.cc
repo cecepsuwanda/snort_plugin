@@ -122,8 +122,8 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		tree.push_back(root);
 	}
 
-	cout << counter;
-	//cetak("[%d %d]", counter, df.getjmlrow());
+	//cout << counter;
+	cetak("[%d %d]", counter, df.getjmlrow());
 	//cetak("%d|%d ",counter,prev_tree_node_index);
 	//cetak(".");
 
@@ -143,7 +143,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 
 		tree[node_index].isLeaf = true;
 		tree[node_index].label = tmp_str;
-
+		
 		df.clear_col_split();
 
 		cetak("\n");
@@ -193,8 +193,12 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		Tdataframe df_below, df_above;
 		if (split_value != "-1")
 		{
-			df_below = df;			
+			df_below = df;
+			df_below.switch_parent_branch();
+			df_below.set_branch(counter,1);			
 			df_above = df;
+            df_above.switch_parent_branch();
+			df_above.set_branch(counter,2);
 		}
 		df.split_data(split_column, split_value, df_below, df_above);
 
@@ -213,7 +217,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 			}
 
 			tree[node_index].isLeaf = true;
-			tree[node_index].label = tmp_str;
+			tree[node_index].label = tmp_str;			
 
 			df_below.clear_col_split();
 			df_above.clear_col_split();
@@ -314,8 +318,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		tree.push_back(root);
 	}
 
-	cout << counter;
-	//cetak("[%d %d]", counter, df.getjmlrow());
+	//cout << counter;
+	cetak("[%d %d]", counter, df.getjmlrow());
 
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
@@ -334,7 +338,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 		tree[node_index].isLeaf = true;
 		tree[node_index].label = tmp_str;
-
+		
 		df.clear_col_split();
 
 		cetak("\n");
@@ -356,8 +360,12 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		Tdataframe df_below, df_above;
 		if (split_value != "-1")
 		{
-			df_below = df;			
+			df_below = df;
+			df_below.switch_parent_branch();
+			df_below.set_branch(counter,1);			
 			df_above = df;
+			df_above.switch_parent_branch();
+			df_above.set_branch(counter,2);
 		}
 		df.split_data(split_column, split_value, df_below, df_above);
 
@@ -377,8 +385,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 			tree[node_index].isLeaf = true;
 			tree[node_index].label = tmp_str;
-
-
+            
+			
 			df_below.clear_col_split();
 			df_above.clear_col_split();
 
@@ -468,27 +476,32 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 }
 
-void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
+void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train, int counter)
 {
 	cetak(".");
 
 	int left = tree[node_index].children[0];
 	int right = tree[node_index].children[1];
 
+	counter++;
 
 	if ((left != -1) and (!tree[left].isLeaf)) {
 		Tdataframe df_left;
 		df_left = df_train;
+		df_left.switch_parent_branch();
+		df_left.set_branch(counter,1);
 		df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
 		df_left.clear_col_split();
-		pruning_dfs(left, df_left);
+		pruning_dfs(left, df_left,counter);		
 	}
 	if ((right != -1) and (!tree[right].isLeaf) ) {
 		Tdataframe df_right;
 		df_right = df_train;
+		df_right.switch_parent_branch();
+		df_right.set_branch(counter,2);
 		df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
 		df_right.clear_col_split();
-		pruning_dfs(right, df_right);
+		pruning_dfs(right, df_right,counter);		
 	}
 
 
@@ -497,6 +510,10 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 		{
 
 			cetak("+");
+
+			df_train.is_filter_onoff();
+			df_train.hit_label_stat_onoff();
+			df_train.stat_tabel();
 
 			float error_node, error_left, error_right, sum_error;
 
@@ -508,7 +525,11 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 			Tdataframe df_left, df_right;
 			df_left = df_train;
+			df_left.switch_parent_branch();
+		    df_left.set_branch(counter,1);
 			df_right = df_train;
+			df_right.switch_parent_branch();
+		    df_right.set_branch(counter,2);
 
 			df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
 			error_left = df_left.get_estimate_error();
@@ -518,6 +539,10 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 
 			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
+
+			df_train.hit_label_stat_onoff();
+			df_train.is_filter_onoff();
+
 
 			if (error_node < sum_error)
 			{
@@ -550,7 +575,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 void Tdt_build::post_pruning(Tdataframe & df_train)
 {
-	pruning_dfs(0, df_train);
+	pruning_dfs(0, df_train,0);
 }
 
 void Tdt_build::save_tree()
@@ -642,8 +667,11 @@ void Tdt_build::build_from_prev_tree(int prev_tree_depth)
 	config->search_uniqe_val = false;
 
 	Tdataframe df_train(config);
-	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train,config->partition_train);
-	df_train.read_data_type();	
+	df_train.set_dataset(config->id_dt_train,config->jns_dt_train,config->partition_train);
+	df_train.set_parent(0,0);
+	df_train.set_branch(0,0);
+	df_train.clone_dataset();
+	df_train.stat_tabel();
 	df_train.setjmltotalrow();
 
 	this->prev_tree_depth = prev_tree_depth;
@@ -651,7 +679,13 @@ void Tdt_build::build_from_prev_tree(int prev_tree_depth)
 	{
 		train(df_train, 0, 0, 0);
 	}
-	//cetak("\n");
+	cetak("\n");
+
+	df_train.set_parent(0,0);
+	df_train.set_branch(0,0);
+	df_train.reset_depth_branch();
+	df_train.hit_label_stat_onoff();
+	df_train.is_filter_onoff();
 
 	config->search_uniqe_val = false;
 
@@ -670,14 +704,25 @@ void Tdt_build::build_tree()
 	//config->search_uniqe_val = false;
 
 	Tdataframe df_train(config);
-	df_train.read_data("dataset",config->id_dt_train,config->jns_dt_train,config->partition_train);
-	df_train.read_data_type();	
+	df_train.set_dataset(config->id_dt_train,config->jns_dt_train,config->partition_train);	
+	df_train.set_parent(0,0);
+	df_train.set_branch(0,0);
+	df_train.clone_dataset();
+	df_train.stat_tabel();
 	//df_train.info();
 	df_train.setjmltotalrow();
 
 	{
 		train(df_train, 0, 0);
 	}
+
+	cetak("\n");
+
+	df_train.set_parent(0,0);
+	df_train.set_branch(0,0);
+	df_train.reset_depth_branch();
+	df_train.hit_label_stat_onoff();
+	df_train.is_filter_onoff();
 
 	config->search_uniqe_val = false;
 

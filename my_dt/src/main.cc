@@ -41,11 +41,13 @@ int main(int argc, char *argv[])
   Tdataframe df_train(&config);
   df_train.read_data(config.f_train);
   df_train.read_data_type(config.f_datatype);
+  df_train.info();
 
   config.search_uniqe_val = false;
   Tdataframe df_test(&config);
   df_test.read_data(config.f_test);
   df_test.read_data_type(config.f_datatype);
+  df_test.info();
 
   for (int l = threshold_awal; l <= threshold_akhir; l += threshold_step)
   {
