@@ -98,3 +98,12 @@ create table tmp_dataset (
   KEY `idx_dst_host_srv_rerror_rate_label` (`depth`,`branch`,`dst_host_srv_rerror_rate`,`label`),
   KEY `idx_label` (`depth`,`branch`,`label`)
 );
+
+create table tmp_dataset (
+  id_row int not null,
+  child_depth int,
+  child_branch int,
+  parent_depth int,
+  parent_branch int,  
+  primary key (id_row)  
+);

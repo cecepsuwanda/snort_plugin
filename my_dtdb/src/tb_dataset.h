@@ -34,7 +34,9 @@ private:
 
 	vector<string> _data;
 	vector<string> _data_header;
-	vector<string> _data_type;	
+	vector<string> _data_type;
+
+	void clear_tb_index();	
 
 public:
 	tb_dataset();
@@ -73,7 +75,7 @@ public:
 	Tlabel_stat hit_label_stat();
 	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom);
 	void update_attr_stat(int idx);
-	void clear_tmp_dataset();
+	void clear_tmp_dataset();	
 	void child_to_tmp_dataset();
 	void reset_depth_branch();	
 

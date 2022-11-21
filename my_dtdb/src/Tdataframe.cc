@@ -33,7 +33,7 @@ Tdataframe::Tdataframe(Tconfig* v_config)
 Tdataframe::~Tdataframe()
 {
   _stat_label.clear();
-  _data.set_child(_child_depth,_child_branch);
+  _data.set_child(_child_depth, _child_branch);
 }
 
 void Tdataframe::set_config(Tconfig* v_config)
@@ -82,18 +82,18 @@ void Tdataframe::stat_tabel()
 
 
   if (_is_filter) {
-    
-     if(!_by_pass){  
-       string tmp_sql = filter_to_query();
-       _data.filter(tmp_sql);       
-     }
-     _by_pass=false; 
-    
+
+    if (!_by_pass) {
+      string tmp_sql = filter_to_query();
+      _data.filter(tmp_sql);
+    }
+    _by_pass = false;
+
     _jml_row = _data.get_jml_row();
 
   }
 
-  
+
 
   if (_is_hit_label_stat) {
     _stat_label = _data.hit_label_stat();
@@ -128,7 +128,7 @@ void Tdataframe::stat_tabel()
     }
   }
 
-  
+
 
   _stat_label.set_config(config);
 
@@ -407,7 +407,7 @@ void Tdataframe::add_filter(field_filter filter)
   }
 
   if (_is_filter) {
-    
+
     string sql = filter_to_query();
     _data.filter(sql);
     _by_pass = true;
@@ -438,7 +438,7 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
       data_above.add_filter(split_column, 3, split_value);
     }
   }
-  
+
 }
 
 // void Tdataframe::get_col_pot_split(int idx)

@@ -171,14 +171,23 @@ void tb_dataset::filter(string sql)
 {
 	if (sql != "")
 	{
+		clear_tb_index();
 
-		string query = "delete from tmp_dataset where " + sql;
+		string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch) + " order by id_row)";
 
 		global_query_builder.open_connection();
 		global_query_builder.query(query);
 		global_query_builder.close_connection();
 
-		query = "insert into tmp_dataset(id,depth,branch,duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count,dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,label) (select id," + to_string(_child_depth) + "," + to_string(_child_branch) + ",duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count,dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,label from dataset partition(" + _partition + ") where " + sql + ")";
+		query = "update ((tmp_dataset inner join dataset partition(" + _partition + ") on dataset.id=tmp_dataset.id_row) inner join tb_index on dataset.id=tb_index.idx_row) set child_depth=" + to_string(_child_depth) + ",child_branch=" + to_string(_child_branch) + ",parent_depth=" + to_string(_parent_depth) + ",parent_branch=" + to_string(_parent_branch) + " where " + sql;
+
+		global_query_builder.open_connection();
+		global_query_builder.query(query);
+		global_query_builder.close_connection();
+
+		clear_tb_index();
+
+		query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " order by id_row)";
 
 		global_query_builder.open_connection();
 		global_query_builder.query(query);
@@ -189,7 +198,7 @@ void tb_dataset::filter(string sql)
 
 
 	global_query_builder.open_connection();
-	string query = "select count(*) as jml from tmp_dataset where depth=" + to_string(_child_depth) + " and branch=" + to_string(_child_branch);
+	string query = "select count(*) as jml from tb_index";
 
 	if (global_query_builder.query(query))
 	{
@@ -208,7 +217,7 @@ void tb_dataset::read_hsl_filter()
 {
 	global_query_builder.open_connection();
 
-	string query = "select * from tmp_dataset where depth =" + to_string(_child_depth) + " and branch = " + to_string(_child_branch) + " order by id";
+	string query = "select * from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row order by dataset.id";
 
 	if (global_query_builder.query(query))
 	{
@@ -226,7 +235,7 @@ Tlabel_stat tb_dataset::hit_label_stat()
 
 	global_query_builder.open_connection();
 
-	string query = "select label,count(label) as jml from tmp_dataset where depth =" + to_string(_child_depth) + " and branch = " + to_string(_child_branch) + " group by label order by label";
+	string query = "select label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row group by label order by label";
 
 	if (global_query_builder.query(query))
 	{
@@ -277,7 +286,7 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		if (_data_type[i] == "continuous.")
 		{
-			tmp = "select round(" + group_kolom + ",7) as hsl_round,label from tmp_dataset where depth =" + to_string(_child_depth) + " and branch = " + to_string(_child_branch);
+			tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
 			tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round,label,count(label) as jml from (" + tmp + ") tb group by hsl_round,label order by hsl_round,label";
 
@@ -285,7 +294,7 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		} else {
 
-			tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from tmp_dataset where depth =" + to_string(_child_depth) + " and branch = " + to_string(_child_branch);
+			tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
 			tmp = tmp + " group by " + group_kolom + ",label order by " + group_kolom + ",label";
 
@@ -329,11 +338,26 @@ void tb_dataset::clear_tmp_dataset()
 	global_query_builder.close_connection();
 }
 
+void tb_dataset::clear_tb_index()
+{
+	global_query_builder.open_connection();
+
+	string tmp_sql = "truncate tb_index";
+	global_query_builder.query(tmp_sql);
+	global_query_builder.close_connection();
+}
+
 void tb_dataset::child_to_tmp_dataset()
 {
 	clear_tmp_dataset();
 	global_query_builder.open_connection();
-	string query = "insert into tmp_dataset(id,depth,branch,duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count,dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,label) (select id,0,0,duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count,dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,label from dataset partition(" + _partition + "))";
+	string query = "insert into tmp_dataset (select id,0,0,0,0 from dataset partition(" + _partition + ") order by id)";
+	global_query_builder.query(query);
+	global_query_builder.close_connection();
+
+	clear_tb_index();
+	global_query_builder.open_connection();
+	query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=0 and child_branch=0 order by id_row)";
 	global_query_builder.query(query);
 	global_query_builder.close_connection();
 }
@@ -341,7 +365,13 @@ void tb_dataset::child_to_tmp_dataset()
 void tb_dataset::reset_depth_branch()
 {
 	global_query_builder.open_connection();
-	string query = "update tmp_dataset set depth=0 and branch=0";
+	string query = "update tmp_dataset set child_depth=0,child_branch=0,parent_depth=0,parent_branch=0";
+	global_query_builder.query(query);
+	global_query_builder.close_connection();
+
+	clear_tb_index();
+	global_query_builder.open_connection();
+	query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=0 and child_branch=0 order by id_row)";
 	global_query_builder.query(query);
 	global_query_builder.close_connection();
 }

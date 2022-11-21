@@ -27,3 +27,34 @@ create index idx_dst_host_serror_rate_label on dataset(id_dt,jns_dt,dst_host_ser
 create index idx_dst_host_srv_serror_rate_label on dataset(id_dt,jns_dt,dst_host_srv_serror_rate,label); 
 create index idx_dst_host_rerror_rate_label on dataset(id_dt,jns_dt,dst_host_rerror_rate,label); 
 create index idx_dst_host_srv_rerror_rate_label on dataset(id_dt,jns_dt,dst_host_srv_rerror_rate,label); 
+
+
+
+create index idx_duration on dataset(id_dt,jns_dt,duration); 
+create index idx_protocol_type on dataset(id_dt,jns_dt,protocol_type); 
+create index idx_service on dataset(id_dt,jns_dt,service); 
+create index idx_lag_label on dataset(id_dt,jns_dt,flag ); 
+create index idx_src_bytes  on dataset(id_dt,jns_dt,src_bytes ); 
+create index idx_dst_bytes  on dataset(id_dt,jns_dt,dst_bytes ); 
+create index idx_land  on dataset(id_dt,jns_dt,land ); 
+create index idx_wrong_fragment  on dataset(id_dt,jns_dt,wrong_fragment ); 
+create index idx_urgent  on dataset(id_dt,jns_dt,urgent ); 
+create index idx_count  on dataset(id_dt,jns_dt,count ); 
+create index idx_srv_count  on dataset(id_dt,jns_dt,srv_count ); 
+create index idx_serror_rate  on dataset(id_dt,jns_dt,serror_rate ); 
+create index idx_srv_serror_rate  on dataset(id_dt,jns_dt,srv_serror_rate ); 
+create index idx_rerror_rate  on dataset(id_dt,jns_dt,rerror_rate ); 
+create index idx_srv_rerror_rate  on dataset(id_dt,jns_dt,srv_rerror_rate ); 
+create index idx_same_srv_rate  on dataset(id_dt,jns_dt,same_srv_rate ); 
+create index idx_diff_srv_rate  on dataset(id_dt,jns_dt,diff_srv_rate ); 
+create index idx_srv_diff_host_rate  on dataset(id_dt,jns_dt,srv_diff_host_rate ); 
+create index idx_dst_host_count  on dataset(id_dt,jns_dt,dst_host_count ); 
+create index idx_dst_host_srv_count  on dataset(id_dt,jns_dt,dst_host_srv_count ); 
+create index idx_dst_host_same_srv_rate  on dataset(id_dt,jns_dt,dst_host_same_srv_rate ); 
+create index idx_dst_host_diff_srv_rate  on dataset(id_dt,jns_dt,dst_host_diff_srv_rate ); 
+create index idx_dst_host_same_src_port_rate  on dataset(id_dt,jns_dt,dst_host_same_src_port_rate ); 
+create index idx_dst_host_srv_diff_host_rate  on dataset(id_dt,jns_dt,dst_host_srv_diff_host_rate ); 
+create index idx_dst_host_serror_rate  on dataset(id_dt,jns_dt,dst_host_serror_rate ); 
+create index idx_dst_host_srv_serror_rate  on dataset(id_dt,jns_dt,dst_host_srv_serror_rate ); 
+create index idx_dst_host_rerror_rate  on dataset(id_dt,jns_dt,dst_host_rerror_rate ); 
+create index idx_dst_host_srv_rerror_rate  on dataset(id_dt,jns_dt,dst_host_srv_rerror_rate ); 
