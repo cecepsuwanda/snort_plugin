@@ -4,6 +4,8 @@
 #include "global.h"
 #include "Tdec_tree.h"
 #include "Tdt_build.h"
+#include "tb_experiment.h"
+#include "tb_tree.h"
 #include <ctime>
 
 using namespace std;
@@ -48,17 +50,12 @@ int main(int argc, const char **argv)
 
 	config.search_uniqe_val = false;
 
-	Twrite_file tb_experiment;
-	tb_experiment.setnm_f("experiment");
+	tb_experiment experiment;
+	experiment.insert_experiment(depth_awal, depth_akhir, depth_step, min_sample_awal, min_sample_akhir, min_sample_step, threshold_awal, threshold_akhir, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
 
-	Twrite_file tb_detail_experiment;
-	tb_detail_experiment.setnm_f("detail_experiment");
+	config.id_experiment = experiment.get_id_experiment();
 
-	time_t id_experiment = time(0);
-
-	string data = to_string(id_experiment) + "," + to_string(depth_awal) + "," + to_string(depth_akhir) + "," + to_string(depth_step) + "," + to_string(min_sample_awal) + "," + to_string(min_sample_akhir) + "," + to_string(min_sample_step) + "," + to_string(threshold_awal) + "," + to_string(threshold_akhir) + "," + to_string(threshold_step) + "," + to_string(credal_s_awal) + "," + to_string(credal_s_akhir) + "," + to_string(credal_s_step) + "," + to_string(config.id_dt_train) + "," + to_string(config.jns_dt_train) + "," + "'" + config.partition_train + "'" + "," + to_string(config.id_dt_test) + "," + to_string(config.jns_dt_test) + "," + "'" + config.partition_test + "'" + "," + "now()";
-	string nm_kolom = "id,depth_awal,depth_akhir,depth_step,min_sample_awal,min_sample_akhir,min_sample_step,threshold_awal,threshold_akhir,threshold_step,credal_awal,credal_akhir,credal_step,id_dt_train,jns_dt_train,partition_train,id_dt_test,jns_dt_test,partition_test,mulai";
-	tb_experiment.write_file(nm_kolom, data);
+	tb_tree tree;
 
 	for (int l = threshold_awal; l <= threshold_akhir; l += threshold_step)
 	{
@@ -81,49 +78,39 @@ int main(int argc, const char **argv)
 					config.depth = j;
 					config.prunning = true;
 
-					time_t id_detail_experiment = time(0);
+					experiment.insert_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth, config.min_sample, config.threshold, config.credal_s);
 
-					nm_kolom = "id,id_experiment,id_dt_train,jns_dt_train,id_dt_test,jns_dt_test,depth,minsample,threshold,credal,start_train";
-					data = to_string(id_detail_experiment) + "," + to_string(id_experiment) + "," + to_string(config.id_dt_train) + "," + to_string(config.jns_dt_train) + "," + to_string(config.id_dt_test) + "," + to_string(config.jns_dt_test)  + "," + to_string(config.depth) + "," + to_string(config.min_sample) + "," + to_string(config.threshold) + "," + to_string(config.use_credal) + "," + "now()";
-					tb_detail_experiment.write_file(nm_kolom, data);
+					config.id_detail_experiment = experiment.get_id_detail_experiment();
 
 					Tdt_build dec_tree_build(&config);
 
 					bool file_exist = false;
-					{
-						Tread_file rf;
-						rf.setnm_f("tree", config.id_dt_train, config.jns_dt_train, config.partition_train);
-						string sql = "and depth=" + to_string(config.depth) + " and minsample=" + to_string(config.min_sample) + " and threshold=" + to_string(config.threshold) + " and credal=" + to_string(config.credal_s);
-						rf.filter(sql, false);
-						if (rf.get_jml_row() > 0)
-						{
-							rf.delete_data(sql);
-						}
 
-						sql = "and depth=" + to_string(config.depth - 1) + " and minsample=" + to_string(config.min_sample) + " and threshold=" + to_string(config.threshold) + " and credal=" + to_string(config.credal_s);
-						rf.filter(sql, false);
-						file_exist = rf.get_jml_row() > 0;
-						rf.close_file();
+					time_t tmp_id_detail_experiment;
+					file_exist = experiment.cari_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth - 1, config.min_sample, config.threshold, config.credal_s, tmp_id_detail_experiment);
+
+					if (file_exist)
+					{
+						file_exist = tree.cari_tree(tmp_id_detail_experiment);
 					}
 
+
 					if (file_exist) //(j > depth_awal) and
-					{
-						dec_tree_build.read_tree();
+					{						
+						dec_tree_build.read_tree(tmp_id_detail_experiment);
 						dec_tree_build.build_from_prev_tree( j - 1);
 					} else {
 						dec_tree_build.build_tree();
 					}
 
-					tb_detail_experiment.update_file("end_train", "now()", "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-					tb_detail_experiment.update_file("start_test", "now()", "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
+					experiment.end_train_start_test();
 
 					Tdec_tree dec_tree_test(&config);
 					dec_tree_test.read_tree();
 					Tconf_metrix dt_conf_metrix;
 					dec_tree_test.test(dt_conf_metrix);
 
-					tb_detail_experiment.update_file("end_test", "now()", "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-
+					experiment.end_test();
 
 					int jml_FN = dt_conf_metrix.get_FN("known");
 					int jml_FP = dt_conf_metrix.get_FP("known");
@@ -131,11 +118,7 @@ int main(int argc, const char **argv)
 					int jml_TP = dt_conf_metrix.get_TP("known");
 					float f1 = dt_conf_metrix.get_F1();
 
-					tb_detail_experiment.update_file("FN", to_string(jml_FN), "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-					tb_detail_experiment.update_file("FP", to_string(jml_FP), "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-					tb_detail_experiment.update_file("TN", to_string(jml_TN), "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-					tb_detail_experiment.update_file("TP", to_string(jml_TP), "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
-					tb_detail_experiment.update_file("f1", to_string(f1), "id=" + to_string(id_detail_experiment) + " and id_experiment=" + to_string(id_experiment));
+					experiment.hsl(jml_FP, jml_FN, jml_TP, jml_TN, f1);
 
 					jml_sama++;
 					if ((prev_jml_FN != jml_FN) or (prev_jml_FP != jml_FP))
@@ -155,7 +138,7 @@ int main(int argc, const char **argv)
 		}
 	}
 
-	tb_experiment.update_file("akhir", "now()", "id=" + to_string(id_experiment));
+	experiment.end_experiment();
 
 
 	return 0;

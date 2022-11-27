@@ -15,7 +15,7 @@ Tbase_dataframe::~Tbase_dataframe()
 	_data_type.clear();
 	_data_type.shrink_to_fit();
 	_filter.clear();
-	_filter.shrink_to_fit();	
+	_filter.shrink_to_fit();
 }
 
 void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
@@ -23,28 +23,30 @@ void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
 	_id_dt = id_dt;
 	_jns_dt = jns_dt;
 	_partition = partition;
-	_data.set_dataset(id_dt, jns_dt, _partition);	
+	_data.set_dataset(id_dt, jns_dt, _partition);
 }
 
 void Tbase_dataframe::set_branch(int depth, int branch)
 {
 	_child_depth = depth;
-	_child_branch = branch;	
-	_data.set_child(_child_depth,_child_branch); 	
+	_child_branch = branch;
+	_data.delete_child(depth, branch);
+	_data.set_child(_child_depth, _child_branch);
+
 }
 
 void Tbase_dataframe::set_parent(int depth, int branch)
 {
-  _parent_depth = depth;
-  _parent_branch = branch;
-  _data.set_child(_parent_depth,_parent_branch);
+	_parent_depth = depth;
+	_parent_branch = branch;
+	_data.set_child(_parent_depth, _parent_branch);
 }
 
 void Tbase_dataframe::switch_parent_branch()
 {
-  _parent_depth = _child_depth;
-  _parent_branch = _child_branch;
-  _data.switch_parent_child();
+	_parent_depth = _child_depth;
+	_parent_branch = _child_branch;
+	_data.switch_parent_child();
 }
 
 
@@ -62,25 +64,25 @@ string Tbase_dataframe::filter_to_query()
 			switch (_filter[i].idx_opt)
 			{
 			case 0 :
-				tmp1 = tmp1 + _data_header[_filter[i].idx_col] + "<=" + _filter[i].value + ")" ;
+				tmp1 = tmp1 +" dataset."+_data_header[_filter[i].idx_col] + "<=" + _filter[i].value + ")" ;
 				break;
 			case 1 :
-				tmp1 = tmp1 + _filter[i].value + "<" + _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + _filter[i].value + "<" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
 				break;
 			case 2 :
-				tmp1 = tmp1 + "'" + _filter[i].value + "'=" + _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + "'" + _filter[i].value + "'=" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
 				break;
 			case 3 :
-				tmp1 = tmp1 + "'" + _filter[i].value + "'!=" + _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + "'" + _filter[i].value + "'!=" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
 				break;
 			}
 
-			tmp = tmp + tmp1;
+			tmp = tmp1; //tmp + 
 
-			if(i < (_filter.size()-1))
-			{
-         tmp=tmp+" and ";
-			}
+			// if (i < (_filter.size() - 1))
+			// {
+			// 	tmp = tmp + " and ";
+			// }
 
 			i++;
 		}
@@ -268,7 +270,7 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 
 	string sql = filter_to_query();
 	_data.filter(sql);
-	
+
 }
 
 void Tbase_dataframe::add_filter(field_filter filter)
@@ -277,7 +279,7 @@ void Tbase_dataframe::add_filter(field_filter filter)
 	_filter.push_back(filter);
 
 	string sql = filter_to_query();
-	_data.filter(sql);	
+	_data.filter(sql);
 }
 
 void Tbase_dataframe::ReFilter()
@@ -285,7 +287,7 @@ void Tbase_dataframe::ReFilter()
 	string sql = filter_to_query();
 	if (sql != "") {
 		_data.filter(sql);
-	}	
+	}
 }
 
 vector<field_filter> Tbase_dataframe::get_filter()
@@ -293,7 +295,10 @@ vector<field_filter> Tbase_dataframe::get_filter()
 	return _filter;
 }
 
-
+void Tbase_dataframe::clear_memory()
+{
+	_data.clear_child_parent();
+}
 
 void Tbase_dataframe::info()
 {

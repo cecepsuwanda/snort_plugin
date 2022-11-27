@@ -11,6 +11,7 @@
 #include "Tmy_svm.h"
 #include "Twrite_file.h"
 #include "credal.h"
+#include "tb_tree.h"
 
 #include "Timer.h"
 #include <experimental/filesystem>

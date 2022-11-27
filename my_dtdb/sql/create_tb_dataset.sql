@@ -107,3 +107,5 @@ create table tmp_dataset (
   parent_branch int,  
   primary key (id_row)  
 );
+
+insert into tb_index1(idx_row) (select dataset.id from dataset partition(p21) inner join tb_index on dataset.id = idx_row  where ((dataset.dst_host_count > 92.500000)))

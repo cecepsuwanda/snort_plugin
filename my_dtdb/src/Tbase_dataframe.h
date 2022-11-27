@@ -134,7 +134,9 @@ public:
 	void add_filter(int idx_col, int idx_opt, string value);
 	void add_filter(field_filter filter);
 	void ReFilter();
-	vector<field_filter> get_filter();    
+	vector<field_filter> get_filter();
+
+	void clear_memory();    
 	
 	void info();
 	void head();

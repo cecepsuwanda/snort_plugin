@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <vector>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ struct Tconfig
   bool prunning = false;
 
   bool train_svm = false;
-  bool feature_selection = false;
+  
   bool normal_only = false;
 
 
@@ -48,7 +49,8 @@ struct Tconfig
 
   bool search_uniqe_val = false;
 
-  
+  time_t id_experiment;
+  time_t id_detail_experiment;
 
 };
 

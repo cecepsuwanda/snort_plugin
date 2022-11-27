@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "Twrite_file.h"
 #include "Tmy_svm.h"
+#include "tb_tree.h"
 
 #ifndef Included_Tdt_build_H
 
@@ -43,7 +44,7 @@ public:
 	~Tdt_build();
 
 	void build_tree();
-	void read_tree();
+	void read_tree(time_t id_detail_experiment);
 	void build_from_prev_tree(int prev_tree_depth);
 
 };

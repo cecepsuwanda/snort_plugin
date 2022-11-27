@@ -5,8 +5,8 @@ NAMES='Dataset/NSL/kddcup_29attr.names'
 TRAIN='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_train.txt'
 TEST='Dataset/NSL/tree_dataset/tmp/NSLTree_29attr_test.txt'
 
-DEPTH_AWAL=20
-DEPTH_AKHIR=20
+DEPTH_AWAL=39
+DEPTH_AKHIR=40
 DEPTH_STEP=1
 
 MIN_SAMP_AWAL=2

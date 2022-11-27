@@ -36,7 +36,10 @@ private:
 	vector<string> _data_header;
 	vector<string> _data_type;
 
-	void clear_tb_index();	
+	void clear_tb_index();
+	void clear_tb_index1();
+	bool is_child_parent_exist();
+	
 
 public:
 	tb_dataset();
@@ -77,7 +80,9 @@ public:
 	void update_attr_stat(int idx);
 	void clear_tmp_dataset();	
 	void child_to_tmp_dataset();
-	void reset_depth_branch();	
+	void reset_depth_branch();
+	void clear_child_parent();
+	void delete_child(int child_depth,int child_branch);	
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{

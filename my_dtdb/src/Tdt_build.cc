@@ -144,6 +144,7 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 		tree[node_index].isLeaf = true;
 		tree[node_index].label = tmp_str;
 		
+		df.clear_memory();			
 		df.clear_col_split();
 
 		cetak("\n");
@@ -217,7 +218,10 @@ void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index ,
 			}
 
 			tree[node_index].isLeaf = true;
-			tree[node_index].label = tmp_str;			
+			tree[node_index].label = tmp_str;
+
+			df_below.clear_memory();
+			df_above.clear_memory();			
 
 			df_below.clear_col_split();
 			df_above.clear_col_split();
@@ -339,6 +343,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		tree[node_index].isLeaf = true;
 		tree[node_index].label = tmp_str;
 		
+		df.clear_memory();
 		df.clear_col_split();
 
 		cetak("\n");
@@ -386,6 +391,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			tree[node_index].isLeaf = true;
 			tree[node_index].label = tmp_str;
             
+            df_below.clear_memory();
+			df_above.clear_memory();
 			
 			df_below.clear_col_split();
 			df_above.clear_col_split();
@@ -492,7 +499,8 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train, int counter)
 		df_left.set_branch(counter,1);
 		df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
 		df_left.clear_col_split();
-		pruning_dfs(left, df_left,counter);		
+		pruning_dfs(left, df_left,counter);
+		df_left.clear_memory();		
 	}
 	if ((right != -1) and (!tree[right].isLeaf) ) {
 		Tdataframe df_right;
@@ -502,6 +510,7 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train, int counter)
 		df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
 		df_right.clear_col_split();
 		pruning_dfs(right, df_right,counter);		
+		df_right.clear_memory();
 	}
 
 
@@ -540,9 +549,12 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train, int counter)
 
 			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
 
-			df_train.hit_label_stat_onoff();
-			df_train.is_filter_onoff();
+			df_left.clear_memory();
+			df_right.clear_memory();
+			df_train.clear_memory();
 
+			df_train.hit_label_stat_onoff();
+			df_train.is_filter_onoff();			
 
 			if (error_node < sum_error)
 			{
@@ -580,13 +592,13 @@ void Tdt_build::post_pruning(Tdataframe & df_train)
 
 void Tdt_build::save_tree()
 {
-	Twrite_file tmp_wf;
-	tmp_wf.setnm_f("tree");
+	
+    tb_tree dbtree;
 
 	string tmp_str = "";
 	vector<string> vec;
 
-	string head = to_string(config->id_dt_train) + "," + to_string(config->jns_dt_train) + "," + to_string(config->depth) + "," + to_string(config->min_sample) + "," + to_string(config->threshold) + "," + to_string(config->credal_s) + ",";
+	string head = to_string(config->id_detail_experiment) + "," + to_string(config->id_experiment) + "," ;
 
 
 	for (size_t i = 0; i < tree.size(); ++i)
@@ -611,23 +623,21 @@ void Tdt_build::save_tree()
 		vec.push_back(head + tmp_str);
 	}
 
-	string nm_kolom = "id_dt,jns_dt,depth,minsample,threshold,credal,attrindex,attrvalue,label,treeindex,isleaf,opt,child1,child2,idx_svm";
-	tmp_wf.write_file(nm_kolom, vec);
-	tmp_wf.close_file();
+	
+	dbtree.write_tree(vec);
+	dbtree.close_file();
 }
 
-void Tdt_build::read_tree()
+void Tdt_build::read_tree(time_t id_detail_experiment)
 {
 	vector<string> tmp_data;
-	Tread_file rf;
-	rf.setnm_f("tree", config->id_dt_train, config->jns_dt_train,config->partition_train);
-	string sql = "and depth=" + to_string(config->depth - 1) + " and minsample=" + to_string(config->min_sample) + " and threshold=" + to_string(config->threshold) + " and credal=" + to_string(config->credal_s);
-	rf.filter(sql, true);
+	tb_tree tree;
+    tree.baca_tree(id_detail_experiment);
+	
+	tree.reset_file();
+	while (!tree.is_eof()) {
 
-	rf.reset_file();
-	while (!rf.is_eof()) {
-
-		tmp_data = rf.get_record();
+		tmp_data = tree.get_record();
 
 		//cout << tmp_data.size() << endl;
 
@@ -655,10 +665,10 @@ void Tdt_build::read_tree()
 
 		prev_tree.push_back(newnode);
 
-		rf.next_record();
+		tree.next_record();
 	}
 
-	rf.close_file();
+	tree.close_file();
 
 }
 

@@ -80,30 +80,19 @@ void Tdataframe::stat_tabel()
 {
   _stat_label.clear();
 
-
   if (_is_filter) {
-
-    if (!_by_pass) {
-      string tmp_sql = filter_to_query();
-      _data.filter(tmp_sql);
-    }
-    _by_pass = false;
-
+    string tmp_sql = filter_to_query();
+    _data.filter(tmp_sql);
     _jml_row = _data.get_jml_row();
 
   }
-
-
 
   if (_is_hit_label_stat) {
     _stat_label = _data.hit_label_stat();
   }
 
-
   if (config->search_uniqe_val)
   {
-
-
     vector<future<Tpot_split>> async_worker;
 
     for (size_t i = 0; i < (_data_header.size() - 1); ++i)
@@ -127,8 +116,6 @@ void Tdataframe::stat_tabel()
 
     }
   }
-
-
 
   _stat_label.set_config(config);
 
@@ -168,38 +155,9 @@ int Tdataframe::getjmlcol_svm()
 {
   if (is_non_continuous)
   {
-    if (config->feature_selection)
-    {
-      int jml = 0;
-      for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
-      {
-        switch (itr->first) {
-        case 1:
-          jml = jml + 3;
-          break;
-        case 2:
-          jml = jml + 2;
-          break;
-        case 3:
-          jml = jml + 2;
-          break;
-        default:
-          jml = jml + 1;
-          break;
-        }
-      }
-      return jml + 1;
-
-    } else {
-      return  (is_42 ? 46 : 33);
-    }
+    return  (is_42 ? 46 : 33);
   } else {
-    if (config->feature_selection)
-    {
-      return _unique_attr.size() + 1;
-    } else {
-      return _jml_col;
-    }
+    return _jml_col;
   }
 }
 
@@ -217,85 +175,41 @@ vector<string> Tdataframe::get_record_svm()
 {
   if (!is_non_continuous)
   {
-    if (config->feature_selection) {
-
-      vector<string> vec;
-      for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
-      {
-        vec.push_back(_data.get_col_val(itr->first));
-      }
-
-      vec.push_back(_data.get_col_val(_idx_label));
-
-      return vec;
-
-    } else {
-      return _data.get_record();
-    }
+    return _data.get_record();
 
   } else {
 
-    if (config->feature_selection) {
+    vector<string> vec;//, tmp_data = _data.get_record();
 
-      vector<string> vec;
-      for (auto itr = _unique_attr.begin(); itr != _unique_attr.end(); ++itr)
-      {
-        switch (itr->first) {
-        case 1:
-          vec.push_back((_data.get_col_val(itr->first) == "tcp" ? "1" : "0" ));
-          vec.push_back((_data.get_col_val(itr->first) == "udp" ? "1" : "0" ));
-          vec.push_back((_data.get_col_val(itr->first) == "icmp" ? "1" : "0" ));
-          break;
-        case 2:
-          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "ecr_i") or (_data.get_col_val(itr->first) == "http")) ? "0" : "1");
-          vec.push_back(((_data.get_col_val(itr->first) == "private") or (_data.get_col_val(itr->first) == "ecri") or (_data.get_col_val(itr->first) == "ecr_i") or (_data.get_col_val(itr->first) == "http")) ? "1" : "0");
-          break;
-        case 3:
-          vec.push_back((_data.get_col_val(itr->first) == "SF") ? "0" : "1");
-          vec.push_back((_data.get_col_val(itr->first) == "SF") ? "1" : "0");
-          break;
-        default:
-          vec.push_back(_data.get_col_val(itr->first));
-          break;
-        }
+    for (int i = 0; i < _jml_col; ++i)
+    {
+
+      switch (i) {
+      case 1:
+        vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
+        break;
+      case 2:
+        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
+        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
+        break;
+      case 3:
+        vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
+        vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
+        break;
+      default:
+        vec.push_back(_data.get_col_val(i));
+        break;
       }
 
-      vec.push_back(_data.get_col_val(_idx_label));
-
-      return vec;
-    } else {
-
-      vector<string> vec;//, tmp_data = _data.get_record();
-
-      for (int i = 0; i < _jml_col; ++i)
-      {
-
-        switch (i) {
-        case 1:
-          vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
-          vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
-          vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
-          break;
-        case 2:
-          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
-          vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
-          break;
-        case 3:
-          vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
-          vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
-          break;
-        default:
-          vec.push_back(_data.get_col_val(i));
-          break;
-        }
-
-      }
-
-      //tmp_data.clear();
-      //tmp_data.shrink_to_fit();
-
-      return vec;
     }
+
+    //tmp_data.clear();
+    //tmp_data.shrink_to_fit();
+
+    return vec;
+
   }
 }
 
@@ -374,7 +288,6 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value)
   if (_is_filter) {
     string sql = filter_to_query();
     _data.filter(sql);
-    _by_pass = true;
     stat_tabel();
   }
 }
@@ -384,7 +297,6 @@ void Tdataframe::ReFilter()
   string sql = filter_to_query();
   if (sql != "") {
     _data.filter(sql);
-    _by_pass = true;
   }
 
   stat_tabel();
@@ -407,10 +319,8 @@ void Tdataframe::add_filter(field_filter filter)
   }
 
   if (_is_filter) {
-
     string sql = filter_to_query();
     _data.filter(sql);
-    _by_pass = true;
     stat_tabel();
   }
 }

@@ -167,35 +167,59 @@ void tb_dataset::switch_parent_child()
 	_parent_branch = _child_branch;
 }
 
+bool tb_dataset::is_child_parent_exist()
+{
+	bool hsl = false;
+
+	global_query_builder.open_connection();
+	string query = "select count(*) as jml from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and  parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch);
+
+	if (global_query_builder.query(query))
+	{
+		if (global_query_builder.get_result())
+		{
+			vector<string> tmp = global_query_builder.fetch_row();
+			hsl = stoi(tmp[0]) > 0;
+		}
+	}
+
+	global_query_builder.close_connection();
+
+	return hsl;
+}
+
 void tb_dataset::filter(string sql)
 {
 	if (sql != "")
 	{
+		if (!is_child_parent_exist())
+		{
+			clear_tb_index();
+			clear_tb_index1();
+			
+            global_query_builder.open_connection();
+			string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch) + " order by id_row)";
+			global_query_builder.query(query);
+
+			query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition("+_partition+") inner join tb_index on dataset.id = idx_row  where (" + sql+"))";
+            global_query_builder.query(query);
+			
+			query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch) + " where (tmp_dataset.child_depth=" + to_string(_parent_depth) + " and tmp_dataset.child_branch=" + to_string(_parent_branch)+")";
+			global_query_builder.query(query);
+			global_query_builder.close_connection();
+
+			clear_tb_index1();
+		}
+
 		clear_tb_index();
 
-		string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch) + " order by id_row)";
-
-		global_query_builder.open_connection();
-		global_query_builder.query(query);
-		global_query_builder.close_connection();
-
-		query = "update ((tmp_dataset inner join dataset partition(" + _partition + ") on dataset.id=tmp_dataset.id_row) inner join tb_index on dataset.id=tb_index.idx_row) set child_depth=" + to_string(_child_depth) + ",child_branch=" + to_string(_child_branch) + ",parent_depth=" + to_string(_parent_depth) + ",parent_branch=" + to_string(_parent_branch) + " where " + sql;
-
-		global_query_builder.open_connection();
-		global_query_builder.query(query);
-		global_query_builder.close_connection();
-
-		clear_tb_index();
-
-		query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " order by id_row)";
+		string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch) + " order by id_row)";
 
 		global_query_builder.open_connection();
 		global_query_builder.query(query);
 		global_query_builder.close_connection();
 
 	}
-
-
 
 	global_query_builder.open_connection();
 	string query = "select count(*) as jml from tb_index";
@@ -347,11 +371,19 @@ void tb_dataset::clear_tb_index()
 	global_query_builder.close_connection();
 }
 
+void tb_dataset::clear_tb_index1()
+{
+	global_query_builder.open_connection();
+	string tmp_sql = "truncate tb_index1";
+	global_query_builder.query(tmp_sql);
+	global_query_builder.close_connection();
+}
+
 void tb_dataset::child_to_tmp_dataset()
 {
 	clear_tmp_dataset();
 	global_query_builder.open_connection();
-	string query = "insert into tmp_dataset (select id,0,0,0,0 from dataset partition(" + _partition + ") order by id)";
+	string query = "insert into tmp_dataset (select id,0,0,0,0 from dataset partition(" + _partition + ") order by label,id)";
 	global_query_builder.query(query);
 	global_query_builder.close_connection();
 
@@ -372,6 +404,48 @@ void tb_dataset::reset_depth_branch()
 	clear_tb_index();
 	global_query_builder.open_connection();
 	query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=0 and child_branch=0 order by id_row)";
+	global_query_builder.query(query);
+	global_query_builder.close_connection();
+}
+
+void tb_dataset::clear_child_parent()
+{
+	int new_child_depth = 0, new_child_branch = 0, new_parent_depth = 0, new_parent_branch = 0;
+
+	//if ((_child_depth > 0) and (_parent_depth > 0))
+	//{
+	// if (_parent_depth == 1)
+	// {
+	// 	new_parent_depth = 0;
+	// 	new_parent_branch = 0;
+	// } else {
+	// 	new_parent_depth = _parent_depth - 1;
+	// 	new_parent_branch = _parent_branch;
+	// }
+
+	// if (_child_depth == 1)
+	// {
+	// 	new_child_depth = 0;
+	// 	new_child_branch = 0;
+	// } else {
+	// 	new_child_depth = _child_depth - 1;
+	// 	new_child_branch = _child_branch;
+	// }
+
+	global_query_builder.open_connection();
+	string query = "update tmp_dataset set child_depth=" + to_string(new_child_depth) + ",child_branch=" + to_string(new_child_branch) + ",parent_depth=" + to_string(new_parent_depth) + ",parent_branch=" + to_string(new_parent_branch) + " where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch);
+	global_query_builder.query(query);
+	global_query_builder.close_connection();
+
+	clear_tb_index();
+	//}
+}
+
+void tb_dataset::delete_child(int child_depth, int child_branch)
+{
+	int new_child_depth = 0, new_child_branch = 0, new_parent_depth = 0, new_parent_branch = 0;
+	global_query_builder.open_connection();
+	string query = "update tmp_dataset set child_depth=" + to_string(new_child_depth) + ",child_branch=" + to_string(new_child_branch) +",parent_depth=" + to_string(new_parent_depth) + ",parent_branch=" + to_string(new_parent_branch) + " where child_depth=" + to_string(child_depth) + " and child_branch=" + to_string(child_branch); 
 	global_query_builder.query(query);
 	global_query_builder.close_connection();
 }
