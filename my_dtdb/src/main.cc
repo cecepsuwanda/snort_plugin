@@ -39,14 +39,25 @@ int main(int argc, const char **argv)
 	config.f_train = argv[14];
 	config.f_test = argv[15];
 
-	config.id_dt_train = 2;
+	// config.id_dt_train = 2;
+	// config.jns_dt_train = 1;
+	// config.partition_train = "p21";
+
+
+	// config.id_dt_test = 2;
+	// config.jns_dt_test = 1;
+	// config.partition_test = "p21";
+
+	config.id_dt_train = 1;
 	config.jns_dt_train = 1;
-	config.partition_train = "p21";
+	config.partition_train = "p11";
 
 
-	config.id_dt_test = 2;
+	config.id_dt_test = 1;
 	config.jns_dt_test = 1;
-	config.partition_test = "p21";
+	config.partition_test = "p11";
+
+
 
 	config.search_uniqe_val = false;
 
