@@ -39,6 +39,11 @@ public:
 	vector<string> get_column_type();
 	vector<string> fetch_row();
 	void go_to_no_record(int no_rec);
+
+	Tquery_builder& operator = (const Tquery_builder &t)
+	{
+         this->_con =t._con;
+	}
 };
 
 

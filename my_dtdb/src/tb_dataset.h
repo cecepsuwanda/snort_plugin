@@ -67,6 +67,8 @@ public:
 	int get_idx_col();
 
 
+	void read_header_type();
+
 	void set_dataset(int id_dt, int jns_dt, string partition);
 	void set_parent(int depth, int branch);
 	void set_child(int depth, int branch);	
@@ -86,6 +88,8 @@ public:
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{
+		this->global_query_builder = t.global_query_builder;
+
 		this->_id_dt = t._id_dt;
 		this->_jns_dt = t._jns_dt;
 		this->_partition = t._partition;
@@ -94,6 +98,11 @@ public:
 		this->_parent_branch = t._parent_branch;
 		this->_child_depth = t._child_depth;
 		this->_child_branch = t._child_branch;
+
+		this->_data_header = t._data_header;
+		this->_data_type = t._data_type;
+
+		this->_jml_col = t._jml_col;
 
 		return *this;
 	}

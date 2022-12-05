@@ -14,8 +14,10 @@
 class Tdt_build
 {
 private:
-	vector<Node> tree;
+	vector<Node> tree;	
 	vector<Node> prev_tree;
+
+	tree_node* dec_tree; 
 
 	int idx_svm;
 	int id_df;
@@ -33,10 +35,22 @@ private:
 	void clear_worker(size_t limit);
 	string create_leaf(Tdataframe &df);
 	bool check_purity(Tdataframe &df);
-	void pruning_dfs(int node_index , Tdataframe &df_train, int counter);
+	
+
+	void pruning_dfs(tree_node* parent_node, Tdataframe &df_train, int counter);
+
+	void pruning_dfs(int node_index , Tdataframe &df_train, int counter);	
 	void post_pruning(Tdataframe &df_train);
+
+    tree_node* train(Tdataframe &df, int counter);	
 	void train(Tdataframe &df, int node_index , int counter);
+	
+	void train(Tdataframe &df, tree_node* parent_node, int counter);
 	void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
+	
+    void dec_tree_to_vec_tree(tree_node* parent_node, int node_index);
+    tree_node* vec_tree_to_dec_tree(int node_index);    
+
 	void save_tree();
 
 public:

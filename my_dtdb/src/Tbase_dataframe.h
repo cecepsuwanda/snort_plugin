@@ -100,7 +100,8 @@ public:
 	}
 
 
-
+    void read_header_type();
+	
 	void set_dataset(int id_dt, int jns_dt, string partition);
 	void set_branch(int depth, int branch);
 	void set_parent(int depth, int branch);

@@ -16,14 +16,14 @@ struct Tconfig
   string f_datatype = "";
   string f_train = "";
   string f_test = "";
-  
-  int jns_dt_train=-1;
-  int id_dt_train=-1;
-  string partition_train;   
 
-  int jns_dt_test=-1;
-  int id_dt_test=-1;
-  string partition_test;   
+  int jns_dt_train = -1;
+  int id_dt_train = -1;
+  string partition_train;
+
+  int jns_dt_test = -1;
+  int id_dt_test = -1;
+  string partition_test;
 
   string path_model = "";
   string svm_path = "";
@@ -36,7 +36,7 @@ struct Tconfig
   bool prunning = false;
 
   bool train_svm = false;
-  
+
   bool normal_only = false;
 
 
@@ -47,7 +47,7 @@ struct Tconfig
   int min_sample = 0;
   int threshold = 0;
 
-  bool search_uniqe_val = false;
+  //bool search_uniqe_val = false;
 
   time_t id_experiment;
   time_t id_detail_experiment;
@@ -84,6 +84,37 @@ public:
     opt = -1;
     idx_svm = -1;
   }
+};
+
+struct tree_node
+{
+  int criteriaAttrIndex;
+  string attrValue;
+  string label;
+
+  int treeIndex;
+  bool isLeaf;
+  int opt;
+  int idx_svm;
+
+  tree_node *left;
+  tree_node *right;
+
+  tree_node()
+  {
+    criteriaAttrIndex = -1;
+    attrValue = "-1";
+    label = "-1";
+    treeIndex = -1;
+    isLeaf = false;
+    opt = -1;
+    idx_svm = -1;
+
+    left = NULL;
+    right = NULL;
+
+  }
+
 };
 
 static void cetak_stdout(const char *s)

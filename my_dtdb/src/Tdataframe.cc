@@ -8,18 +8,7 @@ Tdataframe::Tdataframe()
   _idx_label = -1;
   config = NULL;
 
-  _data_header = _data.get_data_header();
-  _data_type = _data.get_data_type();
-  _idx_label = _data.get_idx_label();
-
-  is_non_continuous = true;
-  _jml_col = _idx_label + 1;
-
-
-  if (is_non_continuous)
-  {
-    is_42 = _jml_col == 42;
-  }
+  
 }
 
 Tdataframe::Tdataframe(Tconfig* v_config)
@@ -36,6 +25,24 @@ Tdataframe::~Tdataframe()
   _data.set_child(_child_depth, _child_branch);
 }
 
+
+void Tdataframe::read_header_type()
+{
+  _data.read_header_type();
+  _data_header = _data.get_data_header();
+  _data_type = _data.get_data_type();
+  _idx_label = _data.get_idx_label();
+
+  is_non_continuous = true;
+  _jml_col = _idx_label + 1;
+
+
+  if (is_non_continuous)
+  {
+    is_42 = _jml_col == 42;
+  }
+}
+
 void Tdataframe::set_config(Tconfig* v_config)
 {
   config = v_config;
@@ -48,11 +55,13 @@ Tpot_split Tdataframe::get_pot_split(int id_dt, int jns_dt, string partition, in
   Tpot_split hsl;
   tb_dataset data;
   data.set_dataset(id_dt, jns_dt, partition);
+  data.read_header_type();
   data.set_parent(parent_depth, parent_branch);
   data.set_child(child_depth, child_branch);
   vector<string> data_header = data.get_data_header();
   hsl.data = data.hit_col_split(data_header[idx]);
   hsl.idx = idx;
+  data.close_file();
   return hsl;
 }
 
@@ -78,53 +87,48 @@ void Tdataframe::is_filter_onoff()
 
 void Tdataframe::stat_tabel()
 {
-  _stat_label.clear();
-
   if (_is_filter) {
     string tmp_sql = filter_to_query();
     _data.filter(tmp_sql);
     _jml_row = _data.get_jml_row();
-
   }
 
   if (_is_hit_label_stat) {
+    _stat_label.clear();
     _stat_label = _data.hit_label_stat();
+    _stat_label.set_config(config);
   }
-
-  if (config->search_uniqe_val)
-  {
-    vector<future<Tpot_split>> async_worker;
-
-    for (size_t i = 0; i < (_data_header.size() - 1); ++i)
-    {
-      async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, config->id_dt_train, config->jns_dt_train, config->partition_train, _parent_depth, _parent_branch, _child_depth, _child_branch, i));
-
-    }
-
-    if (async_worker.size() > 0)
-    {
-
-      Tpot_split hsl;
-      for (future<Tpot_split> & th : async_worker)
-      {
-        hsl = th.get();
-        _data.update_attr_stat(hsl.idx);
-      }
-      async_worker.clear();
-      async_worker.shrink_to_fit();
-
-
-    }
-  }
-
-  _stat_label.set_config(config);
-
-  if (config->search_uniqe_val)
-  {
-    _map_col_split.cek_valid_attr(_jml_row);
-  }
-
 }
+
+void Tdataframe::search_col_split()
+{
+  vector<future<Tpot_split>> async_worker;
+
+  for (size_t i = 0; i < (_data_header.size() - 1); ++i)
+  {
+    async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, config->id_dt_train, config->jns_dt_train, config->partition_train, _parent_depth, _parent_branch, _child_depth, _child_branch, i));
+
+  }
+
+  if (async_worker.size() > 0)
+  {
+
+    Tpot_split hsl;
+    for (future<Tpot_split> & th : async_worker)
+    {
+      hsl = th.get();
+      _data.update_attr_stat(hsl.idx);
+    }
+    async_worker.clear();
+    async_worker.shrink_to_fit();
+
+
+  }
+
+  _map_col_split.cek_valid_attr(_jml_row);
+}
+
+
 
 map<string, int> Tdataframe::get_stat_label()
 {
@@ -216,10 +220,7 @@ vector<string> Tdataframe::get_record_svm()
 vector<vector<string>> Tdataframe::get_all_record_svm()
 {
   //std::lock_guard<std::mutex> lock(v_mutex);
-  ReFilter();
-  if (config->search_uniqe_val) {
-    clear_col_split();
-  }
+  ReFilter();  
 
   vector<vector<string>> Table;
 
@@ -350,19 +351,6 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
   }
 
 }
-
-// void Tdataframe::get_col_pot_split(int idx)
-// {
-//   std::lock_guard<std::mutex> lock(v_mutex);
-//   _data.reset_file();
-//   while (!_data.is_eof())
-//   {
-//     _map_col_split.add_data(idx, _data.get_col_val(idx), _data_type[idx], _data.get_col_val(_idx_label));
-//     _data.next_record();
-//   }
-
-//   _map_col_split.cek_valid_attr(_jml_row);
-// }
 
 
 void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)

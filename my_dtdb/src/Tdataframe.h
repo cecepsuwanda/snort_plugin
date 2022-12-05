@@ -79,6 +79,7 @@ public:
     _child_branch = t._child_branch;
 
     _is_hit_label_stat = t._is_hit_label_stat;
+    _is_filter = t._is_filter;
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
@@ -108,13 +109,14 @@ public:
     this->_jns_dt = t._jns_dt;
     this->_partition = t._partition;
 
-    _parent_depth = t._parent_depth;
-    _parent_branch = t._parent_branch;
+    this->_parent_depth = t._parent_depth;
+    this->_parent_branch = t._parent_branch;
 
-    _child_depth = t._child_depth;
-    _child_branch = t._child_branch;
+    this->_child_depth = t._child_depth;
+    this->_child_branch = t._child_branch;
 
-    _is_hit_label_stat = t._is_hit_label_stat;
+    this->_is_hit_label_stat = t._is_hit_label_stat;
+    this->_is_filter = t._is_filter;
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
@@ -127,6 +129,8 @@ public:
     return *this;
   }
 
+  void read_header_type();
+
   void clone_dataset();
   void reset_depth_branch();
 
@@ -134,6 +138,8 @@ public:
   void is_filter_onoff();
 
   void stat_tabel();
+  void search_col_split();
+  
   map<string, int> get_stat_label();
   float get_estimate_error();
   string get_max_label();
@@ -166,7 +172,7 @@ public:
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
-  // void get_col_pot_split(int idx);
+  
   void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);
 
   void set_config(Tconfig* v_config);

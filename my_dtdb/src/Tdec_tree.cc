@@ -238,6 +238,7 @@ void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 
   Tdataframe df(config);
   df.set_dataset(config->id_dt_test, config->jns_dt_test, config->partition_test);
+  df.read_header_type();
   df.set_parent(0, 0);
   df.set_branch(0, 0);
   df.clone_dataset();

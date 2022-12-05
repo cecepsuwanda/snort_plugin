@@ -3,9 +3,7 @@
 
 Tbase_dataframe::Tbase_dataframe()
 {
-	_data_header = _data.get_data_header();
-	_data_type = _data.get_data_type();
-	_jml_col = _data.get_idx_label() + 1;
+	
 }
 
 Tbase_dataframe::~Tbase_dataframe()
@@ -17,6 +15,16 @@ Tbase_dataframe::~Tbase_dataframe()
 	_filter.clear();
 	_filter.shrink_to_fit();
 }
+
+
+void Tbase_dataframe::read_header_type()
+{
+    _data.read_header_type();
+	_data_header = _data.get_data_header();
+	_data_type = _data.get_data_type();
+	_jml_col = _data.get_idx_label() + 1;
+}
+
 
 void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
 {
@@ -252,7 +260,7 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 		_data.next_record();
 	}
 
-	_data.close_file();
+	//_data.close_file();
 
 	//clear_memory();
 

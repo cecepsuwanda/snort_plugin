@@ -15,7 +15,7 @@ Tquery_builder::Tquery_builder()
 
 Tquery_builder::~Tquery_builder()
 {
-	close_connection();
+	//close_connection();
 }
 
 void Tquery_builder::finish_with_error()

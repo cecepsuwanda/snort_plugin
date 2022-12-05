@@ -35,7 +35,7 @@ void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth
 	global_query_builder.close_connection();
 }
 
-void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, int credal)
+void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal)
 {
 	_id_detail_experiment = time(0);
 
@@ -48,7 +48,7 @@ void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train ,
 	global_query_builder.close_connection();
 }
 
-bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, int credal, time_t &id_detail_experiment)
+bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal, time_t &id_detail_experiment)
 {
 	bool is_exist = false;
 
