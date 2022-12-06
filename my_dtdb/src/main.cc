@@ -56,7 +56,7 @@ int main(int argc, const char **argv)
 	config.id_dt_test = 1;
 	config.jns_dt_test = 1;
 	config.partition_test = "p11";
-	
+
 
 	tb_experiment experiment;
 	experiment.insert_experiment(depth_awal, depth_akhir, depth_step, min_sample_awal, min_sample_akhir, min_sample_step, threshold_awal, threshold_akhir, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
@@ -84,7 +84,7 @@ int main(int argc, const char **argv)
 				for (int j = depth_awal; j <= depth_akhir; j += depth_step)
 				{
 					config.depth = j;
-					config.prunning = true;					
+					config.prunning = true;
 
 					experiment.insert_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth, config.min_sample, config.threshold, config.credal_s);
 
@@ -104,7 +104,7 @@ int main(int argc, const char **argv)
 
 
 					if (file_exist) //(j > depth_awal) and
-					{						
+					{
 						dec_tree_build.read_tree(tmp_id_detail_experiment);
 						dec_tree_build.build_from_prev_tree( j - 1);
 					} else {

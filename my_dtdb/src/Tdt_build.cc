@@ -119,43 +119,62 @@ bool Tdt_build::check_purity(Tdataframe &df)
 
 
 void Tdt_build::train(Tdataframe &df, tree_node* parent_node, int counter)
-{
-	cetak("[%d %d]", counter, df.getjmlrow());
-	if (parent_node->isLeaf)
+{	
+
+	counter++;
+
+	if (parent_node->left != NULL)
 	{
-		tree_node* tmp_node = train(df, counter);
-		tmp_node->opt = parent_node->opt;
-		tmp_node->attrValue = parent_node->attrValue;
-
-		parent_node = tmp_node;
-	} else {
-		cetak("?|");
-
-		counter++;
-
-		Tdataframe df_below, df_above;
+		Tdataframe df_below;
 
 		df_below = df;
 		df_below.switch_parent_branch();
 		df_below.set_branch(counter, 1);
 		df_below.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue);
-		
-        df_above = df;
+        
+		if (parent_node->left->isLeaf)
+		{
+			tree_node* tmp_node = train(df_below, counter);
+			tmp_node->opt = parent_node->left->opt;
+			tmp_node->attrValue = parent_node->left->attrValue;
+
+			delete parent_node->left;
+			parent_node->left = tmp_node;
+
+		} else {
+			cetak("[%d %d]", counter-1, df.getjmlrow());
+			cetak("?|->");
+			train(df_below, parent_node->left, counter);
+			df_below.clear_memory();
+		}
+	}
+
+
+	if (parent_node->right != NULL)
+	{
+		Tdataframe df_above;
+
+		df_above = df;
 		df_above.switch_parent_branch();
 		df_above.set_branch(counter, 2);
 		df_above.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue);
-
-		cetak("->");
-		train(df_below, parent_node->left, counter);
-		
-		if (counter == 1)
+        
+		if (parent_node->right->isLeaf)
 		{
-			cetak("\n");
-		}
+			tree_node* tmp_node = train(df_above, counter);
+			tmp_node->opt = parent_node->right->opt;
+			tmp_node->attrValue = parent_node->right->attrValue;
 
-		cetak("<-");
-		train(df_above, parent_node->right, counter);
-	}
+			delete parent_node->right;
+			parent_node->right = tmp_node;
+
+		} else {
+			cetak("[%d %d]", counter-1, df.getjmlrow());
+			cetak("?|<-"); 
+			train(df_above, parent_node->right, counter);
+			df_above.clear_memory();
+		}
+	}	
 }
 
 
@@ -772,8 +791,8 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 
 			cetak("+");
 
-			df_train.is_filter_onoff();
-			df_train.hit_label_stat_onoff();
+			//df_train.is_filter_onoff();
+			//df_train.hit_label_stat_onoff();
 			df_train.stat_tabel();
 
 			float error_node, error_left, error_right, sum_error;
@@ -805,8 +824,8 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 			df_right.clear_memory();
 			df_train.clear_memory();
 
-			df_train.hit_label_stat_onoff();
-			df_train.is_filter_onoff();
+			//df_train.hit_label_stat_onoff();
+			//df_train.is_filter_onoff();
 
 			if (error_node < sum_error)
 			{
@@ -1029,9 +1048,8 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index)
 	if (prev_tree[node_index].isLeaf)
 	{
 		parent_node->isLeaf = prev_tree[node_index].isLeaf;
-		parent_node->label = tree[node_index].label;
-		parent_node->idx_svm = tree[node_index].idx_svm;
-
+		parent_node->label = prev_tree[node_index].label;
+		parent_node->idx_svm = prev_tree[node_index].idx_svm;
 	} else {
 
 		parent_node->criteriaAttrIndex = prev_tree[node_index].criteriaAttrIndex;
@@ -1059,6 +1077,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index)
 
 void Tdt_build::read_tree(time_t id_detail_experiment)
 {
+
 	vector<string> tmp_data;
 	tb_tree tree;
 	tree.baca_tree(id_detail_experiment);
@@ -1098,7 +1117,6 @@ void Tdt_build::read_tree(time_t id_detail_experiment)
 	}
 
 	tree.close_file();
-
 	dec_tree = vec_tree_to_dec_tree(0);
 
 }
@@ -1125,8 +1143,8 @@ void Tdt_build::build_from_prev_tree(int prev_tree_depth)
 	df_train.set_parent(0, 0);
 	df_train.set_branch(0, 0);
 	df_train.reset_depth_branch();
-	df_train.hit_label_stat_onoff();
-	df_train.is_filter_onoff();
+	//df_train.hit_label_stat_onoff();
+	//df_train.is_filter_onoff();
 
 	if (config->prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
@@ -1160,8 +1178,8 @@ void Tdt_build::build_tree()
 	df_train.set_parent(0, 0);
 	df_train.set_branch(0, 0);
 	df_train.reset_depth_branch();
-	df_train.hit_label_stat_onoff();
-	df_train.is_filter_onoff();
+	//df_train.hit_label_stat_onoff();
+	//df_train.is_filter_onoff();
 
 	if (config->prunning) {
 		//cetak("Start Prunning Decission Tree : \n");

@@ -307,6 +307,9 @@ void Tdec_tree::read_tree()
   }  
 
   dbtree.close_file();
+
+
+  
 }
 
 void Tdec_tree::clear_worker(size_t limit)
