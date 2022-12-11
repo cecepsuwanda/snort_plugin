@@ -103,13 +103,13 @@ int main(int argc, const char **argv)
 					}
 
 
-					if (file_exist) //(j > depth_awal) and
-					{
-						dec_tree_build.read_tree(tmp_id_detail_experiment);
-						dec_tree_build.build_from_prev_tree( j - 1);
-					} else {
+					// if (file_exist) //(j > depth_awal) and
+					// {
+					// 	dec_tree_build.read_tree(tmp_id_detail_experiment);
+					// 	dec_tree_build.build_from_prev_tree( j - 1);
+					// } else {
 						dec_tree_build.build_tree();
-					}
+					// }
 
 					experiment.end_train_start_test();
 

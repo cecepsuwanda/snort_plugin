@@ -39,6 +39,7 @@ private:
 	void clear_tb_index();
 	void clear_tb_index1();
 	bool is_child_parent_exist();
+	bool is_parent_exist();
 	
 
 public:
@@ -74,7 +75,7 @@ public:
 	void set_child(int depth, int branch);	
 	void switch_parent_child();
 
-	void filter(string sql);
+	void filter(string sql, bool is_all);
 	void read_hsl_filter();
 
 	Tlabel_stat hit_label_stat();

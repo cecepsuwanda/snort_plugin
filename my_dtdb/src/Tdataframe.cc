@@ -8,7 +8,7 @@ Tdataframe::Tdataframe()
   _idx_label = -1;
   config = NULL;
 
-  
+
 }
 
 Tdataframe::Tdataframe(Tconfig* v_config)
@@ -75,29 +75,24 @@ void Tdataframe::reset_depth_branch()
   _data.reset_depth_branch();
 }
 
-void Tdataframe::hit_label_stat_onoff()
-{
-  _is_hit_label_stat = !_is_hit_label_stat;
-}
 
-void Tdataframe::is_filter_onoff()
+void Tdataframe::stat_tabel(bool is_filter, bool is_last, bool is_stat_label)
 {
-  _is_filter = !_is_filter;
-}
 
-void Tdataframe::stat_tabel()
-{
-  if (_is_filter) {
-    string tmp_sql = filter_to_query();
-    _data.filter(tmp_sql);
-    _jml_row = _data.get_jml_row();
+  if (is_filter) {
+    string tmp_sql = unique_filter_to_query(is_last);
+    _data.filter(tmp_sql,!is_last);
   }
 
-  if (_is_hit_label_stat) {
+  _jml_row = _data.get_jml_row();
+
+
+  if (is_stat_label) {
     _stat_label.clear();
     _stat_label = _data.hit_label_stat();
     _stat_label.set_config(config);
   }
+
 }
 
 void Tdataframe::search_col_split()
@@ -150,9 +145,9 @@ bool Tdataframe::is_single_label()
   return _stat_label.is_single_label();
 }
 
-map<int, int> Tdataframe::get_unique_attr()
+map<int, map<int, string>> Tdataframe::get_unique_filter()
 {
-  return _unique_attr;
+  return _unique_filter;
 }
 
 int Tdataframe::getjmlcol_svm()
@@ -220,25 +215,25 @@ vector<string> Tdataframe::get_record_svm()
 vector<vector<string>> Tdataframe::get_all_record_svm()
 {
   //std::lock_guard<std::mutex> lock(v_mutex);
-  ReFilter();  
+  // ReFilter();
 
   vector<vector<string>> Table;
 
-  vector<string> tmp_data;
+  // vector<string> tmp_data;
 
-  _data.reset_file();
-  while (!_data.is_eof())
-  {
-    //cout << " get_all_record_svm get_record_svm " << endl;
-    tmp_data = get_record_svm();
+  // _data.reset_file();
+  // while (!_data.is_eof())
+  //{
+  //cout << " get_all_record_svm get_record_svm " << endl;
+  //tmp_data = get_record_svm();
 
-    bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
-    if (is_pass) {
-      Table.push_back(tmp_data);
-    }
-    //cout << " get_all_record_svm next_record " << endl;
-    _data.next_record();
-  }
+  //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
+  //if (is_pass) {
+  //Table.push_back(tmp_data);
+  //}
+  //cout << " get_all_record_svm next_record " << endl;
+  //_data.next_record();
+  //}
 
   return Table;
 }
@@ -271,7 +266,76 @@ int Tdataframe::get_valid_attr(int idx)
   return _map_col_split.get_valid_attr(idx);
 }
 
-void Tdataframe::add_filter(int idx_col, int idx_opt, string value)
+
+string Tdataframe::unique_filter_to_query(bool is_last)
+{
+  string tmp = "";
+
+  if (_unique_filter.size() > 0)
+  {
+
+    if (is_last)
+    {
+      string tmp1 = "(";
+
+      switch (_filter[_filter.size() - 1].idx_opt)
+      {
+      case 0 :
+        tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "<=" + _filter[_filter.size() - 1].value + ")" ;
+        break;
+      case 1 :
+        tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] +  ">" + _filter[_filter.size() - 1].value + ")";
+        break;
+      case 2 :
+        tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "='" + _filter[_filter.size() - 1].value + "')";
+        break;
+      case 3 :
+        tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "!='" + _filter[_filter.size() - 1].value + "')";;
+        break;
+      }
+
+      tmp = tmp1;
+
+    } else {
+      for (auto itr = _unique_filter.begin(); itr != _unique_filter.end(); ++itr) {
+
+        for (auto itr1 = itr->second.begin(); itr1 != itr->second.end(); ++itr1) {
+
+          string tmp1 = "(";
+
+          if (tmp != "")
+          {
+            tmp1 = " and (";
+          }
+
+          switch (itr1->first)
+          {
+          case 0 :
+            tmp1 = tmp1 + " dataset." + _data_header[itr->first] + "<=" + itr1->second + ")" ;
+            break;
+          case 1 :
+            tmp1 = tmp1 + " dataset." + _data_header[itr->first]  + ">" +  itr1->second + ")";
+            break;
+          case 2 :
+            tmp1 = tmp1  + " dataset." + _data_header[itr->first] + "='" + itr1->second + "')";
+            break;
+          case 3 :
+            tmp1 = tmp1  + " dataset." + _data_header[itr->first] + "!='" + itr1->second + "')";
+            break;
+          }
+          tmp = tmp + tmp1;
+        }
+
+      }
+
+    }
+
+  }
+  return tmp;
+}
+
+
+void Tdataframe::add_filter(int idx_col, int idx_opt, string value, bool is_filter, bool is_last)
 {
   field_filter f;
   f.idx_col = idx_col;
@@ -279,28 +343,34 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value)
   f.value = value;
   _filter.push_back(f);
 
-  auto itr = _unique_attr.find(idx_col);
-  if (itr == _unique_attr.end()) {
-    _unique_attr.insert(pair<int, int>(idx_col, 1));
+  auto itr = _unique_filter.find(idx_col);
+  if (itr == _unique_filter.end()) {
+    _unique_filter.insert(make_pair(idx_col, map<int, string> {make_pair(idx_opt, value)}));
   } else {
-    itr->second += 1;
+    auto itr1 = itr->second.find(idx_opt);
+    if (itr1 == itr->second.end()) {
+      _unique_filter[idx_col].insert(make_pair(idx_opt, value));
+    } else {
+      _unique_filter[idx_col][idx_opt] = value;
+    }
   }
 
-  if (_is_filter) {
-    string sql = filter_to_query();
-    _data.filter(sql);
-    stat_tabel();
+  if (is_filter) {
+    string sql = filter_to_query(is_last);
+    _data.filter(sql,!is_last);
+    stat_tabel(false, is_last, true);
   }
+
 }
 
-void Tdataframe::ReFilter()
+void Tdataframe::ReFilter(bool is_last)
 {
-  string sql = filter_to_query();
+  string sql = filter_to_query(is_last);
   if (sql != "") {
-    _data.filter(sql);
+    _data.filter(sql,!is_last);
   }
 
-  stat_tabel();
+  stat_tabel(false, is_last, true);
 }
 
 void Tdataframe::clear_map_col_split()
@@ -308,22 +378,28 @@ void Tdataframe::clear_map_col_split()
   _map_col_split.clear();
 }
 
-void Tdataframe::add_filter(field_filter filter)
+void Tdataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
 {
   _filter.push_back(filter);
 
-  auto itr = _unique_attr.find(filter.idx_col);
-  if (itr == _unique_attr.end()) {
-    _unique_attr.insert(pair<int, int>(filter.idx_col, 1));
+  auto itr = _unique_filter.find(filter.idx_col);
+  if (itr == _unique_filter.end()) {
+    _unique_filter.insert(make_pair(filter.idx_col, map<int, string> {make_pair(filter.idx_opt, filter.value)}));
   } else {
-    itr->second += 1;
+    auto itr1 = itr->second.find(filter.idx_opt);
+    if (itr1 == itr->second.end()) {
+      _unique_filter[filter.idx_col].insert(make_pair(filter.idx_opt, filter.value));
+    } else {
+      _unique_filter[filter.idx_col][filter.idx_opt] = filter.value;
+    }
   }
 
-  if (_is_filter) {
-    string sql = filter_to_query();
-    _data.filter(sql);
-    stat_tabel();
+  if (is_filter) {
+    string sql = filter_to_query(is_last);
+    _data.filter(sql,!is_last);
+    stat_tabel(false, is_last, true);
   }
+
 }
 
 
@@ -341,12 +417,12 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
   if (split_value != "-1") {
     if (_data_type[split_column] == "continuous.")
     {
-      data_below.add_filter(split_column, 0, split_value);
-      data_above.add_filter(split_column, 1, split_value);
+      data_below.add_filter(split_column, 0, split_value, true, true);
+      data_above.add_filter(split_column, 1, split_value, true, true);
 
     } else {
-      data_below.add_filter(split_column, 2, split_value);
-      data_above.add_filter(split_column, 3, split_value);
+      data_below.add_filter(split_column, 2, split_value, true, true);
+      data_above.add_filter(split_column, 3, split_value, true, true);
     }
   }
 

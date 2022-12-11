@@ -39,19 +39,20 @@ private:
 
 	void pruning_dfs(tree_node* parent_node, Tdataframe &df_train, int counter);
 
-	void pruning_dfs(int node_index , Tdataframe &df_train, int counter);	
+	//void pruning_dfs(int node_index , Tdataframe &df_train, int counter);	
 	void post_pruning(Tdataframe &df_train);
 
     tree_node* train(Tdataframe &df, int counter);	
-	void train(Tdataframe &df, int node_index , int counter);
+	//void train(Tdataframe &df, int node_index , int counter);
 	
 	void train(Tdataframe &df, tree_node* parent_node, int counter);
-	void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
+	//void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
 	
     void dec_tree_to_vec_tree(tree_node* parent_node, int node_index);
     tree_node* vec_tree_to_dec_tree(int node_index);    
 
 	void save_tree();
+	void del_dec_tree(tree_node* parent_node);
 
 public:
 	Tdt_build(Tconfig *v_config);

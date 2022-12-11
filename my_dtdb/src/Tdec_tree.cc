@@ -11,6 +11,41 @@ Tdec_tree::Tdec_tree(Tconfig *v_config)
 
 Tdec_tree::~Tdec_tree()
 {
+  tree.clear();
+  del_dec_tree(dec_tree);
+}
+
+
+void Tdec_tree::del_dec_tree(tree_node* parent_node)
+{
+  if (parent_node->left != NULL)
+  {
+    if (parent_node->left->isLeaf)
+    {
+      delete parent_node->left;
+      parent_node->left = NULL;
+    } else {
+      del_dec_tree(parent_node->left);
+    }
+
+  }
+
+  if (parent_node->right != NULL)
+  {
+    if (parent_node->right->isLeaf)
+    {
+      delete parent_node->right;
+      parent_node->right = NULL;
+    } else {
+      del_dec_tree(parent_node->right);
+    }
+  }
+
+  if ( (parent_node->left == NULL) and (parent_node->right == NULL) )
+  {
+    delete parent_node;
+    parent_node = NULL;
+  }
 
 }
 
@@ -170,22 +205,97 @@ void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, T
 
 }
 
+void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter)
+{
+  counter++;
 
+  if (parent_node->left != NULL) {
+
+    Tdataframe df_left;
+    df_left = df_test;
+    df_left.switch_parent_branch();
+    df_left.set_branch(counter, 1);
+    df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
+
+    if (parent_node->left->isLeaf)
+    {
+      df_left.ReFilter(false);
+      if (df_left.getjmlrow() > 0) {
+        string label = parent_node->left->label;
+        cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
+        _table_attack = df_left.get_all_record();
+        worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        _table_attack.clear();
+        _table_attack.shrink_to_fit();
+      }
+
+      df_left.clear_memory();
+    } else {
+      cetak("%d", counter - 1);
+      cetak("?|->");
+      test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
+      df_left.clear_memory();
+    }
+
+  }
+
+  if(counter==1)
+  {
+    clear_worker(0);
+  }
+
+  if (parent_node->right != NULL) {
+
+    Tdataframe df_right;
+    df_right = df_test;
+    df_right.switch_parent_branch();
+    df_right.set_branch(counter, 2);
+    df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
+
+    if (parent_node->right->isLeaf)
+    {
+      df_right.ReFilter(false);
+      if (df_right.getjmlrow() > 0) {
+        string label = parent_node->right->label;
+        cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
+        _table_attack = df_right.get_all_record();
+        worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        _table_attack.clear();
+        _table_attack.shrink_to_fit();
+      }
+      df_right.clear_memory();
+    } else {
+      cetak("%d", counter - 1);
+      cetak("?|<-");
+      test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
+      df_right.clear_memory();
+    }
+
+
+  }
+
+  if(counter==1)
+  {
+    clear_worker(0);
+  }
+}
 
 void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter)
 {
   if (tree[node_index].isLeaf)
   {
-
-    string label = tree[node_index].label;
-    cetak("[%s %d]\n", label.c_str(), df_test.getjmlrow());
-    //clear_worker(1);
-    _table_attack = df_test.get_all_record();
-    worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
-    _table_attack.clear();
-    _table_attack.shrink_to_fit();
-    //cetak("\n");
-    df_test.clear_memory();
+    df_test.ReFilter(false);
+    if (df_test.getjmlrow() > 0) {
+      string label = tree[node_index].label;
+      cetak("[%s %d]\n", label.c_str(), df_test.getjmlrow());
+      //clear_worker(1);
+      _table_attack = df_test.get_all_record();
+      worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+      _table_attack.clear();
+      _table_attack.shrink_to_fit();
+      //cetak("\n");
+      df_test.clear_memory();
+    }
   } else {
     cetak("%d|?", counter);
 
@@ -206,19 +316,19 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
     //clear_worker(0);
 
     if (left != -1) {
-      df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-      if (df_left.getjmlrow() > 0) {
-        test_dfs(left, df_left, dt_conf_metrix, counter);
-      }
+      df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue, false, false);
+      //if (df_left.getjmlrow() > 0) {
+      test_dfs(left, df_left, dt_conf_metrix, counter);
+      //}
       df_left.clear_memory();
     }
 
     //clear_worker(0);
     if (right != -1) {
-      df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-      if (df_right.getjmlrow() > 0) {
-        test_dfs(right, df_right, dt_conf_metrix, counter);
-      }
+      df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue, false, false);
+      //if (df_right.getjmlrow() > 0) {
+      test_dfs(right, df_right, dt_conf_metrix, counter);
+      //}
       df_right.clear_memory();
     }
 
@@ -242,8 +352,7 @@ void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
   df.set_parent(0, 0);
   df.set_branch(0, 0);
   df.clone_dataset();
-  df.hit_label_stat_onoff();
-  df.stat_tabel();
+  df.stat_tabel(false, false, false);
 
   //df.info();
 
@@ -251,8 +360,9 @@ void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
   dt_conf_metrix.add_konversi_asli("unknown", "known");
 
   {
-    Timer timer;
-    test_dfs(0, df, dt_conf_metrix, 0);
+    //Timer timer;
+    test_dfs(dec_tree, df, dt_conf_metrix, 0);
+    //test_dfs(0, df, dt_conf_metrix, 0);
     //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   }
 
@@ -266,11 +376,45 @@ void Tdec_tree::test(Tconf_metrix &dt_conf_metrix)
 
 }
 
+tree_node* Tdec_tree::vec_tree_to_dec_tree(int node_index)
+{
+  tree_node* parent_node = new tree_node;
+
+  if (tree[node_index].isLeaf)
+  {
+    parent_node->isLeaf = tree[node_index].isLeaf;
+    parent_node->label = tree[node_index].label;
+    parent_node->idx_svm = tree[node_index].idx_svm;
+  } else {
+
+    parent_node->criteriaAttrIndex = tree[node_index].criteriaAttrIndex;
+
+    int left = tree[node_index].children[0];
+    int right = tree[node_index].children[1];
+
+    if (left != -1) {
+      tree_node* left_node = vec_tree_to_dec_tree(left);
+      left_node->attrValue = tree[left].attrValue;
+      left_node->opt = tree[left].opt;
+      parent_node->left = left_node;
+    }
+
+    if (right != -1) {
+      tree_node* right_node = vec_tree_to_dec_tree(right);
+      right_node->attrValue = tree[right].attrValue;
+      right_node->opt = tree[right].opt;
+      parent_node->right = right_node;
+    }
+  }
+
+  return parent_node;
+}
+
 void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
   tb_tree dbtree;
-  dbtree.baca_tree(config->id_experiment,config->id_detail_experiment);
+  dbtree.baca_tree(config->id_experiment, config->id_detail_experiment);
 
   dbtree.reset_file();
   while (!dbtree.is_eof()) {
@@ -304,12 +448,12 @@ void Tdec_tree::read_tree()
     tree.push_back(newnode);
 
     dbtree.next_record();
-  }  
+  }
 
   dbtree.close_file();
 
+  dec_tree = vec_tree_to_dec_tree(0);
 
-  
 }
 
 void Tdec_tree::clear_worker(size_t limit)

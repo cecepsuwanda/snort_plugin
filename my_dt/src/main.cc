@@ -85,13 +85,13 @@ int main(int argc, char *argv[])
 
           df_train.set_config(&config);
 
-          if ((j > depth_awal) and exists(v_path))
-          {
-            dec_tree_build.read_tree(tmp_str);
-            dec_tree_build.build_from_prev_tree(df_train, j - 1);
-          } else {
+          // if ((j > depth_awal) and exists(v_path))
+          // {
+          //   dec_tree_build.read_tree(tmp_str);
+          //   dec_tree_build.build_from_prev_tree(df_train, j - 1);
+          // } else {
             dec_tree_build.build_tree(df_train);
-          }
+          // }
 
           df_test.set_config(&config);
           config.search_uniqe_val = false;

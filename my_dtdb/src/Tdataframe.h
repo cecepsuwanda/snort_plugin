@@ -28,23 +28,25 @@ class Tdataframe : public Tbase_dataframe
 {
 private:
 
-  map<int, int> _unique_attr;
+  map<int, map<int, string>> _unique_filter;
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
   bool is_non_continuous = false;
   bool is_42 = false;
   Tconfig* config;
-
-  bool _is_hit_label_stat = true;
-  bool _is_filter = true;
+  
 
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, string & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);
 
+  string unique_filter_to_query(bool is_last);
+
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int child_depth, int child_branch, int idx);
+
+
 
 public:
   Tdataframe();
@@ -59,7 +61,7 @@ public:
     _data_type = t._data_type;
     _filter = t._filter;
 
-    _unique_attr = t._unique_attr;
+    _unique_filter = t._unique_filter;
 
     _jml_col = t._jml_col;
     _jml_row = t._jml_row;
@@ -76,10 +78,7 @@ public:
     _parent_branch = t._parent_branch;
 
     _child_depth = t._child_depth;
-    _child_branch = t._child_branch;
-
-    _is_hit_label_stat = t._is_hit_label_stat;
-    _is_filter = t._is_filter;
+    _child_branch = t._child_branch;    
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
@@ -99,7 +98,7 @@ public:
     this->_data_header = t._data_header;
     this->_data_type = t._data_type;
     this->_filter = t._filter;
-    this->_unique_attr = t._unique_attr;
+    this->_unique_filter = t._unique_filter;
     this->_jml_col = t._jml_col;
     this->_jml_row = t._jml_row;
     this->_stat_label = t._stat_label;
@@ -113,10 +112,7 @@ public:
     this->_parent_branch = t._parent_branch;
 
     this->_child_depth = t._child_depth;
-    this->_child_branch = t._child_branch;
-
-    this->_is_hit_label_stat = t._is_hit_label_stat;
-    this->_is_filter = t._is_filter;
+    this->_child_branch = t._child_branch;    
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
@@ -132,19 +128,16 @@ public:
   void read_header_type();
 
   void clone_dataset();
-  void reset_depth_branch();
+  void reset_depth_branch();  
 
-  void hit_label_stat_onoff();
-  void is_filter_onoff();
-
-  void stat_tabel();
+  void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);
   void search_col_split();
   
   map<string, int> get_stat_label();
   float get_estimate_error();
   string get_max_label();
   bool is_single_label();
-  map<int, int> get_unique_attr();
+  map<int, map<int, string>> get_unique_filter();
 
   int getjmlcol_svm();
   int getjmlrow_svm();
@@ -161,9 +154,9 @@ public:
 
   void info();
 
-  void add_filter(int idx_col, int idx_opt, string value);
-  void add_filter(field_filter filter);
-  void ReFilter();
+  void add_filter(int idx_col, int idx_opt, string value,bool is_filter,bool is_last);
+  void add_filter(field_filter filter,bool is_filter,bool is_last);
+  void ReFilter(bool is_last);
 
   void clear_map_col_split();
 

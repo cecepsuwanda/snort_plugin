@@ -3,7 +3,7 @@
 
 Tbase_dataframe::Tbase_dataframe()
 {
-	
+
 }
 
 Tbase_dataframe::~Tbase_dataframe()
@@ -19,7 +19,7 @@ Tbase_dataframe::~Tbase_dataframe()
 
 void Tbase_dataframe::read_header_type()
 {
-    _data.read_header_type();
+	_data.read_header_type();
 	_data_header = _data.get_data_header();
 	_data_type = _data.get_data_type();
 	_jml_col = _data.get_idx_label() + 1;
@@ -58,114 +58,137 @@ void Tbase_dataframe::switch_parent_branch()
 }
 
 
-string Tbase_dataframe::filter_to_query()
+string Tbase_dataframe::filter_to_query(bool is_last)
 {
 	string tmp = "";
 
 	if (_filter.size() > 0)
 	{
-		size_t i = 0;
-		while ((i < _filter.size()))
+
+		if (is_last)
 		{
 			string tmp1 = "(";
 
-			switch (_filter[i].idx_opt)
+			switch (_filter[_filter.size() - 1].idx_opt)
 			{
 			case 0 :
-				tmp1 = tmp1 +" dataset."+_data_header[_filter[i].idx_col] + "<=" + _filter[i].value + ")" ;
+				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + ",7)<=" + _filter[_filter.size() - 1].value + ")" ;
 				break;
 			case 1 :
-				tmp1 = tmp1 + _filter[i].value + "<" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] +  ",7)>" + _filter[_filter.size() - 1].value + ")";
 				break;
 			case 2 :
-				tmp1 = tmp1 + "'" + _filter[i].value + "'=" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "='" + _filter[_filter.size() - 1].value + "')";
 				break;
 			case 3 :
-				tmp1 = tmp1 + "'" + _filter[i].value + "'!=" +" dataset."+ _data_header[_filter[i].idx_col] + ")";
+				tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "!='" + _filter[_filter.size() - 1].value + "')";;
 				break;
 			}
 
-			tmp = tmp1; //tmp + 
+			tmp = tmp1;
+		} else {
+			size_t i = 0;
+			while ((i < _filter.size()))
+			{
+				string tmp1 = "(";
+				if (tmp != "")
+				{
+					tmp1 = " and (";
+				}
 
-			// if (i < (_filter.size() - 1))
-			// {
-			// 	tmp = tmp + " and ";
-			// }
+				switch (_filter[i].idx_opt)
+				{
+				case 0 :
+					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col] + ",7)<=" + _filter[i].value + ")" ;
+					break;
+				case 1 :
+					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col]  + ",7)>" + _filter[i].value + ")";
+					break;
+				case 2 :
+					tmp1 = tmp1 + " dataset." + _data_header[_filter[i].idx_col] + "='" + _filter[i].value  + "')";
+					break;
+				case 3 :
+					tmp1 = tmp1 + " dataset." + _data_header[_filter[i].idx_col] + "!='" + _filter[i].value  + "')";
+					break;
+				}
 
-			i++;
+				tmp = tmp + tmp1;
+				i++;
+			}
+
 		}
 	}
 	return tmp;
 }
 
 
-bool Tbase_dataframe::is_pass(vector<string> &data)
-{
+// bool Tbase_dataframe::is_pass(vector<string> &data)
+// {
 
-	bool pass = true;
-	if (_filter.size() > 0)
-	{
-		size_t i = 0;
-		while ((i < _filter.size()) and pass)
-		{
-			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
-			Tmy_dttype tmp2(data[_filter[i].idx_col], _data_type[_filter[i].idx_col] == "continuous.");
+// 	bool pass = true;
+// 	if (_filter.size() > 0)
+// 	{
+// 		size_t i = 0;
+// 		while ((i < _filter.size()) and pass)
+// 		{
+// 			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+// 			Tmy_dttype tmp2(data[_filter[i].idx_col], _data_type[_filter[i].idx_col] == "continuous.");
 
-			switch (_filter[i].idx_opt)
-			{
-			case 0 :
-				pass = tmp2 <= tmp1 ;
-				break;
-			case 1 :
-				pass = tmp1  < tmp2;
-				break;
-			case 2 :
-				pass = tmp1 == tmp2;
-				break;
-			case 3 :
-				pass = tmp1 != tmp2;
-				break;
-			}
-			i++;
-		}
-	}
+// 			switch (_filter[i].idx_opt)
+// 			{
+// 			case 0 :
+// 				pass = tmp2 <= tmp1 ;
+// 				break;
+// 			case 1 :
+// 				pass = tmp1  < tmp2;
+// 				break;
+// 			case 2 :
+// 				pass = tmp1 == tmp2;
+// 				break;
+// 			case 3 :
+// 				pass = tmp1 != tmp2;
+// 				break;
+// 			}
+// 			i++;
+// 		}
+// 	}
 
-	return pass;
-}
+// 	return pass;
+// }
 
-bool Tbase_dataframe::is_pass()
-{
+// bool Tbase_dataframe::is_pass()
+// {
 
-	bool pass = true;
-	if (_filter.size() > 0)
-	{
-		size_t i = 0;
-		while ((i < _filter.size()) and pass)
-		{
-			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
-			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
+// 	bool pass = true;
+// 	if (_filter.size() > 0)
+// 	{
+// 		size_t i = 0;
+// 		while ((i < _filter.size()) and pass)
+// 		{
+// 			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+// 			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
 
-			switch (_filter[i].idx_opt)
-			{
-			case 0 :
-				pass = tmp2 <= tmp1 ;
-				break;
-			case 1 :
-				pass = tmp1  < tmp2;
-				break;
-			case 2 :
-				pass = tmp1 == tmp2;
-				break;
-			case 3 :
-				pass = tmp1 != tmp2;
-				break;
-			}
-			i++;
-		}
-	}
+// 			switch (_filter[i].idx_opt)
+// 			{
+// 			case 0 :
+// 				pass = tmp2 <= tmp1 ;
+// 				break;
+// 			case 1 :
+// 				pass = tmp1  < tmp2;
+// 				break;
+// 			case 2 :
+// 				pass = tmp1 == tmp2;
+// 				break;
+// 			case 3 :
+// 				pass = tmp1 != tmp2;
+// 				break;
+// 			}
+// 			i++;
+// 		}
+// 	}
 
-	return pass;
-}
+// 	return pass;
+// }
 
 
 
@@ -247,8 +270,8 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 	//std::lock_guard<std::mutex> lock(v_mutex);
 	//ReFilter();
 
-	string tmp_sql = filter_to_query();
-	_data.filter(tmp_sql);
+	// string tmp_sql = filter_to_query(false);
+	// _data.filter(tmp_sql,false);
 
 	_data.read_hsl_filter();
 
@@ -276,8 +299,8 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 	f.value = value;
 	_filter.push_back(f);
 
-	string sql = filter_to_query();
-	_data.filter(sql);
+	string sql = filter_to_query(false);
+	_data.filter(sql,false);
 
 }
 
@@ -286,15 +309,15 @@ void Tbase_dataframe::add_filter(field_filter filter)
 
 	_filter.push_back(filter);
 
-	string sql = filter_to_query();
-	_data.filter(sql);
+	string sql = filter_to_query(false);
+	_data.filter(sql,false);
 }
 
 void Tbase_dataframe::ReFilter()
 {
-	string sql = filter_to_query();
+	string sql = filter_to_query(false);
 	if (sql != "") {
-		_data.filter(sql);
+		_data.filter(sql,false);
 	}
 }
 

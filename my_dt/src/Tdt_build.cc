@@ -343,8 +343,8 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 	}
 
 	//cout << counter;
-	//cetak("[%d %d]", counter, df.getjmlrow());
-	cetak(".");
+	cetak("[%d %d]", counter, df.getjmlrow());
+	//cetak(".");
 
 	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
 	{
@@ -371,7 +371,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 	} else {
 
-		//cetak("?");		
+		cetak("?");		
 
 		counter++;
 
@@ -394,7 +394,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
 			string tmp_str = create_leaf(df);
 
-			//cetak("-");
+			cetak("-");
 
 			if (tmp_str == "normal") {
 
@@ -421,7 +421,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			if (split_value != "-1")
 			{
 
-				//cetak("|");
+				cetak("|");
 
 				tree[node_index].criteriaAttrIndex = split_column;
 
@@ -436,7 +436,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				tree.push_back(nextNode);
 
 				//cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-				//cetak("->");
+				cetak("->");
 				train(df_below, nextNode.treeIndex, counter);
 
 
@@ -456,7 +456,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				}
 
                 //cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
-				//cetak("<-");
+				cetak("<-");
 				train(df_above, nextNode1.treeIndex, counter);
 
 				if (config->prunning) {
@@ -468,7 +468,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 						string tmp_str = tree[treeIndex_yes].label;
 
-						//cetak("+");
+						cetak("+");
 
 						if (tmp_str == "normal") {
 
@@ -554,13 +554,13 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 			df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
 			error_right = df_right.get_estimate_error();
 
-
 			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
 
 			df_left.clear_memory();
 			df_right.clear_memory();
 			df_train.clear_memory();
 
+            cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",tree[node_index].criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error); 
 
 			if (error_node < sum_error)
 			{
@@ -719,7 +719,7 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 
 	if (config->prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
-		post_pruning(df_train);
+		//post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
 	save_tree();

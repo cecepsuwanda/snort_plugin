@@ -59,7 +59,7 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 
 		if (tmp_dttype.is_continue()) {
 			//cout << itr->first << "-" << itr->second.size() << endl;
-			if ( itr->second.size() < (0.3 * jml_row) ) {				
+			if ( (itr->second.size() < (0.3 * jml_row)) and (itr->second.size() > 1)) {				
 				_valid_attr.push_back(itr->first);
 			}
 		} else {

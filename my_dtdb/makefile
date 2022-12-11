@@ -9,4 +9,4 @@ INC_FLAGS=$(addprefix -I,$(INC_DIRS))
 CFLAGS=-pthread -g $(INC_FLAGS)
 
 my_dtdb : $(SRCS)
-	       $(CC) -Wall -I/usr/include/mysql $(CFLAGS) -o my_dtdb $(SRCS)  -std=c++17 -lstdc++fs -L/usr/lib -lmysqlclient
+	       $(CC) -I/usr/include/mysql $(CFLAGS) -o my_dtdb $(SRCS)  -std=c++17 -lstdc++fs -L/usr/lib -lmysqlclient

@@ -43,7 +43,7 @@ protected:
 
 	mutable std::mutex v_mutex;
 
-	string filter_to_query();
+	string filter_to_query(bool is_last);
 
 private:
 
@@ -110,8 +110,8 @@ public:
 	void save_to(string nm_file);
 	string get_data_type(int idx);
 
-	bool is_pass(vector<string> &data);
-	bool is_pass();	
+	//bool is_pass(vector<string> &data);
+	//bool is_pass();	
 
 	int getjmlcol();
 	int getjmlrow();

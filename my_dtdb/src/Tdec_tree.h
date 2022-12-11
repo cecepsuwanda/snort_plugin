@@ -28,6 +28,7 @@ class Tdec_tree
 
 private:
 	vector<Node> tree;
+	tree_node* dec_tree; 
 
 	int idx_svm;
 	int id_df;
@@ -43,12 +44,16 @@ private:
 	
 	void clear_worker(size_t limit);
 	int dfs(vector<string> &data, int treeIndex);	
+	
+    void test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
 	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
 	
 	bool is_pass(int opt, string value1, string value2);
 
 	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);
 	
+    tree_node* vec_tree_to_dec_tree(int node_index); 
+	void del_dec_tree(tree_node* parent_node);
 
 public:
 	Tdec_tree(Tconfig *v_config);

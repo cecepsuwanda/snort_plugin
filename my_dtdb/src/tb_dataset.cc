@@ -195,7 +195,28 @@ bool tb_dataset::is_child_parent_exist()
 	return hsl;
 }
 
-void tb_dataset::filter(string sql)
+bool tb_dataset::is_parent_exist()
+{
+	bool hsl = false;
+
+	//global_query_builder.open_connection();
+	string query = "select count(*) as jml from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch);
+
+	if (global_query_builder.query(query))
+	{
+		if (global_query_builder.get_result())
+		{
+			vector<string> tmp = global_query_builder.fetch_row();
+			hsl = stoi(tmp[0]) > 0;
+		}
+	}
+
+	//global_query_builder.close_connection();
+
+	return hsl;
+}
+
+void tb_dataset::filter(string sql, bool is_all)
 {
 	if (sql != "")
 	{
@@ -203,17 +224,34 @@ void tb_dataset::filter(string sql)
 		{
 			clear_tb_index();
 			clear_tb_index1();
-
+			string query = "";
 			//global_query_builder.open_connection();
-			string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch) + " order by id_row)";
-			global_query_builder.query(query);
+			if (is_parent_exist()) {
+				query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch) + " order by id_row)";
+				global_query_builder.query(query);
+			}
 
-			query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") inner join tb_index on dataset.id = idx_row  where (" + sql + "))";
-			global_query_builder.query(query);
+			if (is_parent_exist()) {
+				query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") inner join tb_index on dataset.id = idx_row  where (" + sql + "))";
+				global_query_builder.query(query);
+			} else {
+				if (is_all) {
+					query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") where (" + sql + "))";
+					global_query_builder.query(query);
+				}
 
-			query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch) + " where (tmp_dataset.child_depth=" + to_string(_parent_depth) + " and tmp_dataset.child_branch=" + to_string(_parent_branch) + ")";
-			global_query_builder.query(query);
-			//global_query_builder.close_connection();
+			}
+
+			if (is_parent_exist()) {
+				query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch) + " where (tmp_dataset.child_depth=" + to_string(_parent_depth) + " and tmp_dataset.child_branch=" + to_string(_parent_branch) + ")";
+				global_query_builder.query(query);
+				//global_query_builder.close_connection();
+			} else {
+				if (is_all) {
+					query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch);
+					global_query_builder.query(query);
+				}
+			}
 
 			clear_tb_index1();
 		}
@@ -230,6 +268,8 @@ void tb_dataset::filter(string sql)
 
 	//global_query_builder.open_connection();
 	string query = "select count(*) as jml from tb_index";
+    
+    _jml_row = 0;
 
 	if (global_query_builder.query(query))
 	{
@@ -249,6 +289,8 @@ void tb_dataset::read_hsl_filter()
 	//global_query_builder.open_connection();
 
 	string query = "select * from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row order by dataset.id";
+
+	_jml_row = 0;
 
 	if (global_query_builder.query(query))
 	{
