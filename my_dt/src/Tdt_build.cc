@@ -79,7 +79,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 		async_worker.clear();
 		async_worker.shrink_to_fit();
 
-	}    
+	}
 
 	/*for (int i = 0; i < df.get_jml_valid_attr(); ++i)
 	{
@@ -371,7 +371,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 	} else {
 
-		cetak("?");		
+		cetak("?");
 
 		counter++;
 
@@ -448,14 +448,14 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 				tree[node_index].children.push_back(nextNode1.treeIndex);
 				tree.push_back(nextNode1);
 
-				
+
 
 				if (counter == 1)
 				{
 					cetak("\n");
 				}
 
-                //cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
+				//cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
 				cetak("<-");
 				train(df_above, nextNode1.treeIndex, counter);
 
@@ -479,6 +479,7 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 							cetak("{A}");
 						}
 
+						tree[node_index].criteriaAttrIndex = -1;
 						tree[node_index].label = tree[treeIndex_yes].label;
 						tree[node_index].children.clear();
 						tree[node_index].children.shrink_to_fit();
@@ -510,21 +511,27 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 	int left = tree[node_index].children[0];
 	int right = tree[node_index].children[1];
 
+	Tdataframe df_left;
+	df_left = df_train;
 
-	if ((left != -1) and (!tree[left].isLeaf)) {
-		Tdataframe df_left;
-		df_left = df_train;
+	Tdataframe df_right;
+	df_right = df_train;
+
+
+	if (left != -1) {
 		df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
 		df_left.clear_col_split();
-		pruning_dfs(left, df_left);
+		if (!tree[left].isLeaf) {
+			pruning_dfs(left, df_left);
+		}
 		df_left.clear_memory();
 	}
-	if ((right != -1) and (!tree[right].isLeaf) ) {
-		Tdataframe df_right;
-		df_right = df_train;
+	if (right != -1) {
 		df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
 		df_right.clear_col_split();
-		pruning_dfs(right, df_right);
+		if (!tree[right].isLeaf) {
+			pruning_dfs(right, df_right);
+		}
 		df_right.clear_memory();
 
 	}
@@ -544,14 +551,14 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 			error_node = df_train.get_estimate_error();
 			string node_label = df_train.get_max_label();
 
-			Tdataframe df_left, df_right;
-			df_left = df_train;
-			df_right = df_train;
+			// Tdataframe df_left, df_right;
+			// df_left = df_train;
+			// df_right = df_train;
 
-			df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+			// df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
 			error_left = df_left.get_estimate_error();
 
-			df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+			// df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
 			error_right = df_right.get_estimate_error();
 
 			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
@@ -560,11 +567,12 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 			df_right.clear_memory();
 			df_train.clear_memory();
 
-            cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",tree[node_index].criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error); 
+			cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n", tree[node_index].criteriaAttrIndex, df_train.getjmlrow(), df_left.getjmlrow(), df_right.getjmlrow(), error_node, sum_error);
 
 			if (error_node < sum_error)
 			{
 				cetak("*");
+				tree[node_index].criteriaAttrIndex = -1;
 				tree[node_index].children[0] = -1;
 				tree[node_index].children[1] = -1;
 				tree[node_index].isLeaf = true;
@@ -719,7 +727,7 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 
 	if (config->prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
-		//post_pruning(df_train);
+		post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
 	save_tree();

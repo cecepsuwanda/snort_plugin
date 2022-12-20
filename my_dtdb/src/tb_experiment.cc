@@ -76,6 +76,7 @@ void tb_experiment::end_train_start_test()
 {
 	global_query_builder.open_connection();
 	string sql = "update detail_experiment set end_train=now(),start_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	//string sql = "update detail_experiment set start_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }

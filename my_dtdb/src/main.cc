@@ -39,23 +39,23 @@ int main(int argc, const char **argv)
 	config.f_train = argv[14];
 	config.f_test = argv[15];
 
-	// config.id_dt_train = 2;
-	// config.jns_dt_train = 1;
-	// config.partition_train = "p21";
-
-
-	// config.id_dt_test = 2;
-	// config.jns_dt_test = 1;
-	// config.partition_test = "p21";
-
-	config.id_dt_train = 1;
+	config.id_dt_train = 2;
 	config.jns_dt_train = 1;
-	config.partition_train = "p11";
+	config.partition_train = "p21";
 
 
-	config.id_dt_test = 1;
+	config.id_dt_test = 2;
 	config.jns_dt_test = 1;
-	config.partition_test = "p11";
+	config.partition_test = "p21";
+
+	// config.id_dt_train = 1;
+	// config.jns_dt_train = 1;
+	// config.partition_train = "p11";
+
+
+	// config.id_dt_test = 1;
+	// config.jns_dt_test = 1;
+	// config.partition_test = "p11";
 
 
 	tb_experiment experiment;
@@ -103,13 +103,13 @@ int main(int argc, const char **argv)
 					}
 
 
-					// if (file_exist) //(j > depth_awal) and
-					// {
-					// 	dec_tree_build.read_tree(tmp_id_detail_experiment);
-					// 	dec_tree_build.build_from_prev_tree( j - 1);
-					// } else {
+					if (file_exist) //(j > depth_awal) and
+					{
+						dec_tree_build.read_tree(tmp_id_detail_experiment);
+						dec_tree_build.build_from_prev_tree( j - 1);
+					} else {
 						dec_tree_build.build_tree();
-					// }
+					}
 
 					experiment.end_train_start_test();
 

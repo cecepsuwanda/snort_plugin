@@ -494,7 +494,6 @@ tree_node* Tdt_build::train(Tdataframe &df, int counter)
 				cetak("-");
 
 				if (tmp_str == "normal") {
-
 					idx_svm++;
 					parent_node->idx_svm = idx_svm;
 					cetak("{N}");
@@ -558,6 +557,7 @@ tree_node* Tdt_build::train(Tdataframe &df, int counter)
 							cetak("{A}");
 						}
 
+						parent_node->criteriaAttrIndex = -1;
 						parent_node->label = yes_node->label;
 						delete yes_node;
 						delete no_node;
@@ -795,7 +795,6 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 
 	counter++;
 
-
 	Tdataframe df_left;
 	df_left = df_train;
 	df_left.switch_parent_branch();
@@ -804,25 +803,20 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 	Tdataframe df_right;
 	df_right = df_train;
 	df_right.switch_parent_branch();
-	df_right.set_branch(counter, 2);
-
-	bool is_left_filter = false;
-	bool is_right_filter = false;
+	df_right.set_branch(counter, 2);	
 
 	if (parent_node->left != NULL) {
-		if (!parent_node->left->isLeaf) {
-			df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
-			is_left_filter = true;
+        df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
+		if (!parent_node->left->isLeaf) {			
 			pruning_dfs(parent_node->left, df_left, counter);
 			df_left.clear_memory();
 		}
 	}
 
 	if (parent_node->right != NULL) {
-		if (!parent_node->right->isLeaf) {
-			df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
-			pruning_dfs(parent_node->right, df_right, counter);
-			is_right_filter = true;
+		df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
+		if (!parent_node->right->isLeaf) {			
+			pruning_dfs(parent_node->right, df_right, counter);			
 			df_right.clear_memory();
 		}
 	}
@@ -831,10 +825,9 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 	if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
 		if ((parent_node->left->isLeaf) and (parent_node->right->isLeaf))
 		{
-
 			cetak("+");
 
-			df_train.stat_tabel(true, false, true);
+			df_train.ReFilter(false);
 
 			float error_node, error_left, error_right, sum_error;
 
@@ -844,15 +837,10 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 			error_node = df_train.get_estimate_error();
 			string node_label = df_train.get_max_label();
 
-			if (!is_left_filter) {
-				df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, true, true);
-			}
-
+			df_left.ReFilter(false);
 			error_left = df_left.get_estimate_error();
-
-			if (!is_right_filter) {
-				df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, true, true);
-			}
+			
+			df_right.ReFilter(false);			
 			error_right = df_right.get_estimate_error();
 
 
@@ -862,7 +850,7 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 			df_right.clear_memory();
 			df_train.clear_memory();
 
-			cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",parent_node->criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error); 
+			// cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",parent_node->criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error); 
 
 			if (error_node < sum_error)
 			{
@@ -874,6 +862,7 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, int c
 				parent_node->left = NULL;
 				parent_node->right = NULL;
 
+				parent_node->criteriaAttrIndex = -1;
 				parent_node->isLeaf = true;
 				parent_node->label = node_label;
 

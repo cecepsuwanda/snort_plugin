@@ -5,8 +5,8 @@ NAMES='Dataset/mit_darpa_98/kddcup_29attr.names'
 TRAIN='Dataset/mit_darpa_98/tree_dataset/28052021_1548/darpa98_test.csv'
 TEST='Dataset/mit_darpa_98/tree_dataset/28052021_1548/darpa98_train.csv'
 
-DEPTH_AWAL=42
-DEPTH_AKHIR=43
+DEPTH_AWAL=16
+DEPTH_AKHIR=16
 DEPTH_STEP=1
 
 MIN_SAMP_AWAL=2

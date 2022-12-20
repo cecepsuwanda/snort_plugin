@@ -46,7 +46,6 @@ void Tdec_tree::del_dec_tree(tree_node* parent_node)
     delete parent_node;
     parent_node = NULL;
   }
-
 }
 
 // void Tdec_tree::set_config(Tconfig v_config)
@@ -222,7 +221,8 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       df_left.ReFilter(false);
       if (df_left.getjmlrow() > 0) {
         string label = parent_node->left->label;
-        cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
+        cetak("+");
+        //cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
         _table_attack = df_left.get_all_record();
         worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
         _table_attack.clear();
@@ -231,8 +231,9 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
 
       df_left.clear_memory();
     } else {
-      cetak("%d", counter - 1);
-      cetak("?|->");
+      cetak(".");
+      //cetak("%d", counter - 1);
+      //cetak("?|->");
       test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
       df_left.clear_memory();
     }
@@ -257,7 +258,8 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       df_right.ReFilter(false);
       if (df_right.getjmlrow() > 0) {
         string label = parent_node->right->label;
-        cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
+        cetak("+");
+        //cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
         _table_attack = df_right.get_all_record();
         worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
         _table_attack.clear();
@@ -265,8 +267,9 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       }
       df_right.clear_memory();
     } else {
-      cetak("%d", counter - 1);
-      cetak("?|<-");
+      cetak(".");
+      //cetak("%d", counter - 1);
+      //cetak("?|<-");
       test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
       df_right.clear_memory();
     }
