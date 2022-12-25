@@ -35,11 +35,13 @@ protected:
 	int _jns_dt;
 	string _partition;
 
-	int _parent_depth;
-	int _parent_branch;
+	int _parent_depth=-1;
+	int _parent_branch=-1;
+	int _parent_branch_number=-1;
 
-	int _child_depth;
-	int _child_branch;
+	int _child_depth=-1;
+	int _child_branch=-1;
+	int _child_branch_number=-1;
 
 	mutable std::mutex v_mutex;
 
@@ -67,9 +69,11 @@ public:
 
 		_parent_depth = t._parent_depth;
 		_parent_branch = t._parent_branch;
+		_parent_branch_number = t._parent_branch_number;
 
 		_child_depth = t._child_depth;
 		_child_branch = t._child_branch;
+		_child_branch_number = t._child_branch_number;
 
 		_jml_total_row = t._jml_total_row;
 	}
@@ -89,22 +93,26 @@ public:
 		this->_jns_dt = t._jns_dt;
 		this->_partition = t._partition;
 
-		_parent_depth = t._parent_depth;
-		_parent_branch = t._parent_branch;
+		this->_parent_depth = t._parent_depth;
+		this->_parent_branch = t._parent_branch;
+		this->_parent_branch_number = t._parent_branch_number;
 
-		_child_depth = t._child_depth;
-		_child_branch = t._child_branch;
+		this->_child_depth = t._child_depth;
+		this->_child_branch = t._child_branch;
+		this->_child_branch_number = t._child_branch_number;
 
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}
 
 
+    void switch_to_test();
+
     void read_header_type();
 	
 	void set_dataset(int id_dt, int jns_dt, string partition);
-	void set_branch(int depth, int branch);
-	void set_parent(int depth, int branch);
+	void set_branch(int depth, int branch, int branch_number);
+	void set_parent(int depth, int branch, int branch_number);
     void switch_parent_branch();
 
 	void save_to(string nm_file);
@@ -137,10 +145,14 @@ public:
 	void ReFilter();
 	vector<field_filter> get_filter();
 
-	void clear_memory();    
+	void clear_memory(int idx);    
 	
 	void info();
 	void head();
+
+	void train_to_test();
+
+	posisi_cabang get_posisi();
 
 };
 

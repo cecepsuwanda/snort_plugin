@@ -17,6 +17,11 @@ Tbase_dataframe::~Tbase_dataframe()
 }
 
 
+void Tbase_dataframe::switch_to_test()
+{
+	_data.switch_to_test();
+}
+
 void Tbase_dataframe::read_header_type()
 {
 	_data.read_header_type();
@@ -34,26 +39,29 @@ void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
 	_data.set_dataset(id_dt, jns_dt, _partition);
 }
 
-void Tbase_dataframe::set_branch(int depth, int branch)
+void Tbase_dataframe::set_branch(int depth, int branch, int branch_number)
 {
 	_child_depth = depth;
 	_child_branch = branch;
-	_data.delete_child(depth, branch);
-	_data.set_child(_child_depth, _child_branch);
+	_child_branch_number = branch_number;
+	_data.delete_child(depth, branch, branch_number);
+	_data.set_child(_child_depth, _child_branch, _child_branch_number);
 
 }
 
-void Tbase_dataframe::set_parent(int depth, int branch)
+void Tbase_dataframe::set_parent(int depth, int branch, int branch_number)
 {
 	_parent_depth = depth;
 	_parent_branch = branch;
-	_data.set_child(_parent_depth, _parent_branch);
+	_parent_branch = branch_number;
+	_data.set_child(_parent_depth, _parent_branch, _parent_branch_number);
 }
 
 void Tbase_dataframe::switch_parent_branch()
 {
 	_parent_depth = _child_depth;
 	_parent_branch = _child_branch;
+	_parent_branch_number = _child_branch_number;
 	_data.switch_parent_child();
 }
 
@@ -300,7 +308,7 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 	_filter.push_back(f);
 
 	string sql = filter_to_query(false);
-	_data.filter(sql,false);
+	_data.filter(sql, false);
 
 }
 
@@ -310,14 +318,14 @@ void Tbase_dataframe::add_filter(field_filter filter)
 	_filter.push_back(filter);
 
 	string sql = filter_to_query(false);
-	_data.filter(sql,false);
+	_data.filter(sql, false);
 }
 
 void Tbase_dataframe::ReFilter()
 {
 	string sql = filter_to_query(false);
 	if (sql != "") {
-		_data.filter(sql,false);
+		_data.filter(sql, false);
 	}
 }
 
@@ -326,9 +334,14 @@ vector<field_filter> Tbase_dataframe::get_filter()
 	return _filter;
 }
 
-void Tbase_dataframe::clear_memory()
+void Tbase_dataframe::clear_memory(int idx)
 {
-	_data.clear_child_parent();
+	if (idx == 0) {
+		_data.clear_child_parent();
+	} else {
+		_data.set_child_parent();
+	}
+
 }
 
 void Tbase_dataframe::info()
@@ -399,6 +412,27 @@ void Tbase_dataframe::head()
 		}
 
 	}
+}
+
+void Tbase_dataframe::train_to_test()
+{
+	_data.train_to_test();
+}
+
+posisi_cabang Tbase_dataframe::get_posisi()
+{
+	posisi_cabang tmp;
+
+	tmp.parent_depth  = _parent_depth;
+	tmp.parent_branch = _parent_branch;
+	tmp.parent_branch_number = _parent_branch_number;
+
+	tmp.child_depth  = _child_depth;
+	tmp.child_branch = _child_branch;
+	tmp.child_branch_number = _child_branch_number;
+
+
+	return tmp;
 }
 
 

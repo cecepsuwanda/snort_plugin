@@ -3,18 +3,22 @@
 
 tb_dataset::tb_dataset()
 {
-
+	_tmp_dataset_tb = "tmp_dataset_train";
 }
 
 tb_dataset::~tb_dataset()
 {
-	//global_query_builder.close_connection();
 	_data.clear();
 	_data.shrink_to_fit();
 	_data_header.clear();
 	_data_header.shrink_to_fit();
 	_data_type.clear();
 	_data_type.shrink_to_fit();
+}
+
+void tb_dataset::switch_to_test()
+{
+	_tmp_dataset_tb = "tmp_dataset_test";
 }
 
 
@@ -46,7 +50,7 @@ void tb_dataset::read_header_type()
 		}
 	}
 
-	//global_query_builder.close_connection();
+
 }
 
 
@@ -156,30 +160,40 @@ void tb_dataset::set_dataset(int id_dt, int jns_dt, string partition)
 	_partition = partition;
 }
 
-void tb_dataset::set_parent(int depth, int branch)
+void tb_dataset::set_parent(int depth, int branch, int branch_number)
 {
 	_parent_depth = depth;
 	_parent_branch = branch;
+	_parent_branch_number = branch_number;
 }
 
-void tb_dataset::set_child(int depth, int branch)
+void tb_dataset::set_child(int depth, int branch, int branch_number)
 {
 	_child_depth = depth;
 	_child_branch = branch;
+	_child_branch_number = branch_number;
 }
 
 void tb_dataset::switch_parent_child()
 {
 	_parent_depth = _child_depth;
 	_parent_branch = _child_branch;
+	_parent_branch_number = _child_branch_number;
 }
 
 bool tb_dataset::is_child_parent_exist()
 {
 	bool hsl = false;
 
-	//global_query_builder.open_connection();
-	string query = "select count(*) as jml from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and  parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch);
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+
+	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
 
 	if (global_query_builder.query(query))
 	{
@@ -189,18 +203,25 @@ bool tb_dataset::is_child_parent_exist()
 			hsl = stoi(tmp[0]) > 0;
 		}
 	}
-
-	//global_query_builder.close_connection();
 
 	return hsl;
 }
 
-bool tb_dataset::is_parent_exist()
+bool tb_dataset::is_parent_exist(int idx)
 {
 	bool hsl = false;
 
-	//global_query_builder.open_connection();
-	string query = "select count(*) as jml from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch);
+	string where_str  = "";
+
+	where_str  = "child_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "child_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_parent_branch_number);
+	if (idx == 1) {
+		where_str  = "parent_depth=" + to_string(_child_depth) + " and ";
+		where_str += "parent_branch=" + to_string(_child_branch) + " and ";
+		where_str += "parent_branch_number=" + to_string(_child_branch_number);
+	}
+	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
 
 	if (global_query_builder.query(query))
 	{
@@ -210,8 +231,6 @@ bool tb_dataset::is_parent_exist()
 			hsl = stoi(tmp[0]) > 0;
 		}
 	}
-
-	//global_query_builder.close_connection();
 
 	return hsl;
 }
@@ -219,36 +238,51 @@ bool tb_dataset::is_parent_exist()
 void tb_dataset::filter(string sql, bool is_all)
 {
 	if (sql != "")
-	{
+	{		
+
 		if (!is_child_parent_exist())
 		{
 			clear_tb_index();
 			clear_tb_index1();
 			string query = "";
-			//global_query_builder.open_connection();
-			if (is_parent_exist()) {
-				query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_parent_depth) + " and child_branch=" + to_string(_parent_branch) + " order by id_row)";
+
+			if (is_parent_exist(0)) {
+				string where_str  = "";
+				where_str  = "child_depth=" + to_string(_parent_depth) + " and ";
+				where_str += "child_branch=" + to_string(_parent_branch) + " and ";
+				where_str += "child_branch_number=" + to_string(_parent_branch_number);
+				query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
 				global_query_builder.query(query);
 			}
 
-			if (is_parent_exist()) {
+			if (is_parent_exist(0)) {
 				query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") inner join tb_index on dataset.id = idx_row  where (" + sql + "))";
 				global_query_builder.query(query);
 			} else {
-				if (is_all) {
+				if (is_all){
 					query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") where (" + sql + "))";
-					global_query_builder.query(query);
+					global_query_builder.query(query);					
 				}
-
 			}
 
-			if (is_parent_exist()) {
-				query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch) + " where (tmp_dataset.child_depth=" + to_string(_parent_depth) + " and tmp_dataset.child_branch=" + to_string(_parent_branch) + ")";
+			string set_str = "";
+			set_str  = _tmp_dataset_tb + ".child_depth=" + to_string(_child_depth) + ",";
+			set_str += _tmp_dataset_tb + ".child_branch=" + to_string(_child_branch) + ",";
+			set_str += _tmp_dataset_tb + ".child_branch_number=" + to_string(_child_branch_number) + ",";
+			set_str += _tmp_dataset_tb + ".parent_depth=" + to_string(_parent_depth) + ",";
+			set_str += _tmp_dataset_tb + ".parent_branch=" + to_string(_parent_branch) + ",";
+			set_str += _tmp_dataset_tb + ".parent_branch_number=" + to_string(_parent_branch_number);
+
+			if (is_parent_exist(0)) {
+				string where_str  = "";
+				where_str  = _tmp_dataset_tb + ".child_depth=" + to_string(_parent_depth) + " and ";
+				where_str += _tmp_dataset_tb + ".child_branch=" + to_string(_parent_branch) + " and ";
+				where_str += _tmp_dataset_tb + ".child_branch_number=" + to_string(_parent_branch_number);
+				query = "update (" + _tmp_dataset_tb + " inner join tb_index1 on id_row=idx_row) set " + set_str + " where (" + where_str + ")";
 				global_query_builder.query(query);
-				//global_query_builder.close_connection();
 			} else {
-				if (is_all) {
-					query = "update (tmp_dataset inner join tb_index1 on id_row=idx_row) set tmp_dataset.child_depth=" + to_string(_child_depth) + ",tmp_dataset.child_branch=" + to_string(_child_branch) + ",tmp_dataset.parent_depth=" + to_string(_parent_depth) + ",tmp_dataset.parent_branch=" + to_string(_parent_branch);
+				if (is_all) { 
+					query = "update (" + _tmp_dataset_tb + " inner join tb_index1 on id_row=idx_row) set " + set_str;
 					global_query_builder.query(query);
 				}
 			}
@@ -258,18 +292,22 @@ void tb_dataset::filter(string sql, bool is_all)
 
 		clear_tb_index();
 
-		string query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch) + " order by id_row)";
+		string where_str  = "";		
+		where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+		where_str += "child_branch=" + to_string(_child_branch) + " and ";
+		where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+		where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+		where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+		where_str += "parent_branch_number=" + to_string(_parent_branch_number);		
 
-		//global_query_builder.open_connection();
+		string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
 		global_query_builder.query(query);
-		//global_query_builder.close_connection();
 
 	}
 
-	//global_query_builder.open_connection();
 	string query = "select count(*) as jml from tb_index";
-    
-    _jml_row = 0;
+
+	_jml_row = 0;
 
 	if (global_query_builder.query(query))
 	{
@@ -280,13 +318,11 @@ void tb_dataset::filter(string sql, bool is_all)
 		}
 	}
 
-	//global_query_builder.close_connection();
 }
 
 
 void tb_dataset::read_hsl_filter()
 {
-	//global_query_builder.open_connection();
 
 	string query = "select * from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row order by dataset.id";
 
@@ -305,8 +341,6 @@ void tb_dataset::read_hsl_filter()
 Tlabel_stat tb_dataset::hit_label_stat()
 {
 	Tlabel_stat label_stat;
-
-	//global_query_builder.open_connection();
 
 	string query = "select label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row group by label order by label";
 
@@ -327,8 +361,6 @@ Tlabel_stat tb_dataset::hit_label_stat()
 			}
 		}
 	}
-
-	//global_query_builder.close_connection();
 
 	return label_stat;
 
@@ -352,8 +384,6 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 	if (ketemu)
 	{
-		//global_query_builder.open_connection();
-
 		string tmp = "truncate attr" + to_string(i);
 		global_query_builder.query(tmp);
 
@@ -375,7 +405,6 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		}
 
-		//global_query_builder.close_connection();
 	}
 
 
@@ -385,7 +414,6 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 void tb_dataset::update_attr_stat(int idx)
 {
-	//global_query_builder.open_connection();
 	string tmp = "delete from attr_stat where id=" + to_string(idx);
 	global_query_builder.query(tmp);
 
@@ -399,103 +427,120 @@ void tb_dataset::update_attr_stat(int idx)
 			global_query_builder.query(tmp);
 		}
 	}
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::clear_tmp_dataset()
 {
-	//global_query_builder.open_connection();
-
-	string tmp_sql = "truncate tmp_dataset";
+	string tmp_sql = "truncate " + _tmp_dataset_tb + "";
 	global_query_builder.query(tmp_sql);
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::clear_tb_index()
 {
-	//global_query_builder.open_connection();
-
 	string tmp_sql = "truncate tb_index";
 	global_query_builder.query(tmp_sql);
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::clear_tb_index1()
 {
-	//global_query_builder.open_connection();
 	string tmp_sql = "truncate tb_index1";
 	global_query_builder.query(tmp_sql);
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::child_to_tmp_dataset()
 {
 	clear_tmp_dataset();
-	//global_query_builder.open_connection();
-	string query = "insert into tmp_dataset (select id,0,0,0,0 from dataset partition(" + _partition + ") order by label,id)";
+
+	string query = "insert into " + _tmp_dataset_tb + " (select id,0,0,0,0,0,0 from dataset partition(" + _partition + ") order by label,id)";
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
 
 	clear_tb_index();
-	//global_query_builder.open_connection();
-	query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=0 and child_branch=0 order by id_row)";
+
+	query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where child_depth=0 and child_branch=0 and child_branch_number=0 order by id_row)";
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::reset_depth_branch()
 {
-	//global_query_builder.open_connection();
-	string query = "update tmp_dataset set child_depth=0,child_branch=0,parent_depth=0,parent_branch=0";
+	string query = "update " + _tmp_dataset_tb + " set child_depth=0,child_branch=0,child_branch_number=0,parent_depth=0,parent_branch=0,parent_branch_number=0";
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
 
 	clear_tb_index();
-	//global_query_builder.open_connection();
-	query = "insert into tb_index(idx_row) (select id_row from tmp_dataset where child_depth=0 and child_branch=0 order by id_row)";
+
+	query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where child_depth=0 and child_branch=0 and child_branch_number=0 order by id_row)";
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
 }
 
 void tb_dataset::clear_child_parent()
 {
-	int new_child_depth = 0, new_child_branch = 0, new_parent_depth = 0, new_parent_branch = 0;
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
 
-	//if ((_child_depth > 0) and (_parent_depth > 0))
-	//{
-	// if (_parent_depth == 1)
-	// {
-	// 	new_parent_depth = 0;
-	// 	new_parent_branch = 0;
-	// } else {
-	// 	new_parent_depth = _parent_depth - 1;
-	// 	new_parent_branch = _parent_branch;
-	// }
+	string set_str  = "";
+	set_str  = "child_depth = " + to_string(_parent_depth) + ",";
+	set_str += "child_branch = " + to_string(_parent_branch) + ",";
+	set_str += "child_branch_number = " + to_string(_parent_branch_number) + ",";
+	set_str += "parent_depth = " + to_string(_parent_depth) + ",";
+	set_str += "parent_branch = " + to_string(_parent_branch) + ",";
+	set_str += "parent_branch_number = " + to_string(_parent_branch_number);
 
-	// if (_child_depth == 1)
-	// {
-	// 	new_child_depth = 0;
-	// 	new_child_branch = 0;
-	// } else {
-	// 	new_child_depth = _child_depth - 1;
-	// 	new_child_branch = _child_branch;
-	// }
-
-	//global_query_builder.open_connection();
-	string query = "update tmp_dataset set child_depth=" + to_string(new_child_depth) + ",child_branch=" + to_string(new_child_branch) + ",parent_depth=" + to_string(new_parent_depth) + ",parent_branch=" + to_string(new_parent_branch) + " where child_depth=" + to_string(_child_depth) + " and child_branch=" + to_string(_child_branch) + " and parent_depth=" + to_string(_parent_depth) + " and parent_branch=" + to_string(_parent_branch);
+	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
-
 	clear_tb_index();
-	//}
 }
 
-void tb_dataset::delete_child(int child_depth, int child_branch)
+void tb_dataset::set_child_parent()
 {
-	int new_child_depth = 0, new_child_branch = 0, new_parent_depth = 0, new_parent_branch = 0;
-	//global_query_builder.open_connection();
-	string query = "update tmp_dataset set child_depth=" + to_string(new_child_depth) + ",child_branch=" + to_string(new_child_branch) + ",parent_depth=" + to_string(new_parent_depth) + ",parent_branch=" + to_string(new_parent_branch) + " where child_depth=" + to_string(child_depth) + " and child_branch=" + to_string(child_branch);
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_child_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_child_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_child_branch_number);
+
+	string set_str  = "";
+	set_str = "parent_depth = " + to_string(_parent_depth) + ",";
+	set_str += "parent_branch = " + to_string(_parent_branch) + ",";
+	set_str += "parent_branch_number = " + to_string(_parent_branch_number);
+
+	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
 	global_query_builder.query(query);
-	//global_query_builder.close_connection();
+	clear_tb_index();
+}
+
+void tb_dataset::delete_child(int child_depth, int child_branch, int child_branch_number)
+{
+
+	string set_str  = "";
+	set_str  = "child_depth = 0,";
+	set_str += "child_branch = 0,";
+	set_str += "child_branch_number = 0,";
+	set_str += "parent_depth = 0,";
+	set_str += "parent_branch = 0,";
+	set_str += "parent_branch_number = 0";
+
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(child_depth) + " and ";
+	where_str += "child_branch=" + to_string(child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(child_branch_number);
+
+	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
+	global_query_builder.query(query);
+}
+
+void tb_dataset::train_to_test()
+{
+	string tmp_sql = "truncate tmp_dataset_test";
+	global_query_builder.query(tmp_sql);
+
+	tmp_sql = "insert into tmp_dataset_test (select * from tmp_dataset_train)";
+	global_query_builder.query(tmp_sql);
+
 }
 

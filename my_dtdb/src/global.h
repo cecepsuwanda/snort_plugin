@@ -117,6 +117,16 @@ struct tree_node
 
 };
 
+struct posisi_cabang
+{
+  int child_depth = -1 ;
+  int child_branch = -1 ;
+  int child_branch_number = -1 ;
+  int parent_depth = -1 ;
+  int parent_branch = -1 ;
+  int parent_branch_number = -1 ;
+};
+
 static void cetak_stdout(const char *s)
 {
   fputs(s, stdout);

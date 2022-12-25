@@ -52,7 +52,7 @@ bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , i
 {
 	bool is_exist = false;
 
-	string sql = "select id from detail_experiment where id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and id_dt_test=" + to_string(id_dt_test) + " and jns_dt_test=" + to_string(jns_dt_test) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal);
+	string sql = "select id from detail_experiment where id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and id_dt_test=" + to_string(id_dt_test) + " and jns_dt_test=" + to_string(jns_dt_test) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal)+" order by start_train limit 1";
 	global_query_builder.open_connection();
 	if (global_query_builder.query(sql))
 	{

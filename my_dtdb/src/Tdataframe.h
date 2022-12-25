@@ -27,8 +27,7 @@ struct Tpot_split
 class Tdataframe : public Tbase_dataframe
 {
 private:
-
-  map<int, map<int, string>> _unique_filter;
+  
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
@@ -40,11 +39,9 @@ private:
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, string & split_value);
-  void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);
+  void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);  
 
-  string unique_filter_to_query(bool is_last);
-
-  static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int child_depth, int child_branch, int idx);
+  static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int parent_branch_number, int child_depth, int child_branch, int child_branch_number, int idx);
 
 
 
@@ -60,8 +57,7 @@ public:
     _data_header = t._data_header;
     _data_type = t._data_type;
     _filter = t._filter;
-
-    _unique_filter = t._unique_filter;
+    
 
     _jml_col = t._jml_col;
     _jml_row = t._jml_row;
@@ -76,9 +72,11 @@ public:
 
     _parent_depth = t._parent_depth;
     _parent_branch = t._parent_branch;
+    _parent_branch_number = t._parent_branch_number;
 
     _child_depth = t._child_depth;
-    _child_branch = t._child_branch;    
+    _child_branch = t._child_branch;
+    _child_branch_number = t._child_branch_number;
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
@@ -98,7 +96,7 @@ public:
     this->_data_header = t._data_header;
     this->_data_type = t._data_type;
     this->_filter = t._filter;
-    this->_unique_filter = t._unique_filter;
+    
     this->_jml_col = t._jml_col;
     this->_jml_row = t._jml_row;
     this->_stat_label = t._stat_label;
@@ -110,9 +108,11 @@ public:
 
     this->_parent_depth = t._parent_depth;
     this->_parent_branch = t._parent_branch;
+    this->_parent_branch_number = t._parent_branch_number;
 
     this->_child_depth = t._child_depth;
-    this->_child_branch = t._child_branch;    
+    this->_child_branch = t._child_branch;
+    this->_child_branch_number = t._child_branch_number;
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
@@ -137,8 +137,7 @@ public:
   float get_estimate_error();
   string get_max_label();
   bool is_single_label();
-  map<int, map<int, string>> get_unique_filter();
-
+  
   int getjmlcol_svm();
   int getjmlrow_svm();
   vector<string> get_record_svm();

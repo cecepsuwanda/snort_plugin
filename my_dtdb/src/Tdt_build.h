@@ -1,6 +1,7 @@
 #include "global.h"
 #include <future>
 #include <thread>
+#include "tb_missing_branch.h"
 #include "Tdataframe.h"
 #include "Timer.h"
 #include "Twrite_file.h"
@@ -17,10 +18,11 @@ private:
 	vector<Node> tree;	
 	vector<Node> prev_tree;
 
+	map<int, int> branch_number;
+
 	tree_node* dec_tree; 
 
 	int idx_svm;
-	int id_df;
 	int prev_tree_depth;
 
 	Tconfig *config;
@@ -37,15 +39,15 @@ private:
 	bool check_purity(Tdataframe &df);
 	
 
-	void pruning_dfs(tree_node* parent_node, Tdataframe &df_train, int counter);
+	void pruning_dfs(tree_node* parent_node, Tdataframe &df_train,tb_missing_branch &missing_branch, int counter);
 
 	//void pruning_dfs(int node_index , Tdataframe &df_train, int counter);	
-	void post_pruning(Tdataframe &df_train);
+	void post_pruning(Tdataframe &df_train,tb_missing_branch &missing_branch);
 
-    tree_node* train(Tdataframe &df, int counter);	
+    tree_node* train(Tdataframe &df,tb_missing_branch &missing_branch, int counter);	
 	//void train(Tdataframe &df, int node_index , int counter);
 	
-	void train(Tdataframe &df, tree_node* parent_node, int counter);
+	void train(Tdataframe &df,tb_missing_branch &missing_branch, tree_node* parent_node, int counter);
 	//void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
 	
     void dec_tree_to_vec_tree(tree_node* parent_node, int node_index);
@@ -58,9 +60,9 @@ public:
 	Tdt_build(Tconfig *v_config);
 	~Tdt_build();
 
-	void build_tree();
+	void build_tree(Tdataframe &df_train,tb_missing_branch &missing_branch);
 	void read_tree(time_t id_detail_experiment);
-	void build_from_prev_tree(int prev_tree_depth);
+	void build_from_prev_tree(Tdataframe &df_train,tb_missing_branch &missing_branch,int prev_tree_depth);
 
 };
 #endif

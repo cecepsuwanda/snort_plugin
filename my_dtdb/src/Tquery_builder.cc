@@ -5,8 +5,8 @@
 Tquery_builder::Tquery_builder()
 {
 	_url = "localhost";
-	//_user = "root";
-	_user = "cecepsuwanda";
+	_user = "root";
+	//_user = "cecepsuwanda";
 	_pass = "198202";
 	_database = "nsl";
 

@@ -103,9 +103,32 @@ create table tmp_dataset (
   id_row int not null,
   child_depth int,
   child_branch int,
+  child_branch_number int,
   parent_depth int,
-  parent_branch int,  
+  parent_branch int,
+  parent_branch_number int,  
   primary key (id_row)  
 );
 
-insert into tb_index1(idx_row) (select dataset.id from dataset partition(p21) inner join tb_index on dataset.id = idx_row  where ((dataset.dst_host_count > 92.500000)))
+drop table tmp_dataset;
+create table tmp_dataset_train (
+  id_row int not null,
+  child_depth int,
+  child_branch int,
+  child_branch_number int,
+  parent_depth int,
+  parent_branch int,
+  parent_branch_number int,  
+  primary key (id_row)  
+);
+
+create table tmp_dataset_test (
+  id_row int not null,
+  child_depth int,
+  child_branch int,
+  child_branch_number int,
+  parent_depth int,
+  parent_branch int,
+  parent_branch_number int,  
+  primary key (id_row)  
+);

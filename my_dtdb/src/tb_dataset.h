@@ -22,9 +22,13 @@ private:
 
 	int _parent_depth = 0;
 	int _parent_branch = 0;
+	int _parent_branch_number = 0;
 
 	int _child_depth = 0;
 	int _child_branch = 0;
+	int _child_branch_number = 0;
+
+	string _tmp_dataset_tb="";
 
 	int _jml_row = 0;
 	int _jml_col = 0;
@@ -39,7 +43,7 @@ private:
 	void clear_tb_index();
 	void clear_tb_index1();
 	bool is_child_parent_exist();
-	bool is_parent_exist();
+	bool is_parent_exist(int idx);
 	
 
 public:
@@ -67,12 +71,11 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-
 	void read_header_type();
 
 	void set_dataset(int id_dt, int jns_dt, string partition);
-	void set_parent(int depth, int branch);
-	void set_child(int depth, int branch);	
+	void set_parent(int depth, int branch, int branch_number);
+	void set_child(int depth, int branch,int branch_number);	
 	void switch_parent_child();
 
 	void filter(string sql, bool is_all);
@@ -85,7 +88,12 @@ public:
 	void child_to_tmp_dataset();
 	void reset_depth_branch();
 	void clear_child_parent();
-	void delete_child(int child_depth,int child_branch);	
+	void set_child_parent();
+	void delete_child(int child_depth,int child_branch, int child_branch_number);
+
+	void switch_to_test();
+
+	void train_to_test();	
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{
@@ -97,8 +105,13 @@ public:
 
 		this->_parent_depth = t._parent_depth;
 		this->_parent_branch = t._parent_branch;
+		this->_parent_branch_number = t._parent_branch_number;
+		
 		this->_child_depth = t._child_depth;
 		this->_child_branch = t._child_branch;
+		this->_child_branch_number = t._child_branch_number;
+
+		this->_tmp_dataset_tb = t._tmp_dataset_tb;
 
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;

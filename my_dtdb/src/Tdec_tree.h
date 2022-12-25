@@ -28,7 +28,9 @@ class Tdec_tree
 
 private:
 	vector<Node> tree;
-	tree_node* dec_tree; 
+	tree_node* dec_tree;
+
+	map<int, int> branch_number;
 
 	int idx_svm;
 	int id_df;
@@ -46,7 +48,7 @@ private:
 	int dfs(vector<string> &data, int treeIndex);	
 	
     void test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
-	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
+	//void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
 	
 	bool is_pass(int opt, string value1, string value2);
 
@@ -63,7 +65,7 @@ public:
 
 	string guess(vector<string> &data);
 
-	void test(Tconf_metrix &dt_conf_metrix);
+	void test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix);
 	void read_tree();
 };
 

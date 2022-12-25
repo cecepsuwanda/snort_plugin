@@ -5,6 +5,7 @@
 #include "Tdec_tree.h"
 #include "Tdt_build.h"
 #include "tb_experiment.h"
+#include "tb_missing_branch.h"
 #include "tb_tree.h"
 #include <ctime>
 
@@ -39,23 +40,44 @@ int main(int argc, const char **argv)
 	config.f_train = argv[14];
 	config.f_test = argv[15];
 
-	config.id_dt_train = 2;
-	config.jns_dt_train = 1;
-	config.partition_train = "p21";
-
-
-	config.id_dt_test = 2;
-	config.jns_dt_test = 1;
-	config.partition_test = "p21";
-
-	// config.id_dt_train = 1;
+	// config.id_dt_train = 2;
 	// config.jns_dt_train = 1;
-	// config.partition_train = "p11";
+	// config.partition_train = "p21";
 
 
-	// config.id_dt_test = 1;
+	// config.id_dt_test = 2;
 	// config.jns_dt_test = 1;
-	// config.partition_test = "p11";
+	// config.partition_test = "p21";
+
+	config.id_dt_train = 1;
+	config.jns_dt_train = 1;
+	config.partition_train = "p11";
+
+
+	config.id_dt_test = 1;
+	config.jns_dt_test = 1;
+	config.partition_test = "p11";
+
+
+	Tdataframe df_train(&config);
+	df_train.set_dataset(config.id_dt_train, config.jns_dt_train, config.partition_train);
+	df_train.read_header_type();
+	df_train.set_parent(0, 0, 0);
+	df_train.set_branch(0, 0, 0);
+	df_train.clone_dataset();
+	df_train.stat_tabel(true, true, true);
+	df_train.setjmltotalrow();
+
+	Tdataframe df_test(&config);
+	df_test.set_dataset(config.id_dt_test, config.jns_dt_test, config.partition_test);
+	df_test.read_header_type();
+	df_test.set_parent(0, 0, 0);
+	df_test.set_branch(0, 0, 0);
+	df_test.switch_to_test();
+	df_test.clone_dataset();
+	df_test.stat_tabel(false, false, false);
+
+	tb_missing_branch missing_branch;
 
 
 	tb_experiment experiment;
@@ -81,6 +103,11 @@ int main(int argc, const char **argv)
 				int prev_jml_FN = 0;
 				int jml_sama = 0;
 
+				df_train.reset_depth_branch();
+				df_test.reset_depth_branch();
+				missing_branch.clear_table();
+
+
 				for (int j = depth_awal; j <= depth_akhir; j += depth_step)
 				{
 					config.depth = j;
@@ -105,18 +132,28 @@ int main(int argc, const char **argv)
 
 					if (file_exist) //(j > depth_awal) and
 					{
+						//df_train.reset_depth_branch();
 						dec_tree_build.read_tree(tmp_id_detail_experiment);
-						dec_tree_build.build_from_prev_tree( j - 1);
+						dec_tree_build.build_from_prev_tree(df_train,missing_branch, j - 1);
 					} else {
-						dec_tree_build.build_tree();
+						df_train.reset_depth_branch();
+						missing_branch.clear_table();
+						dec_tree_build.build_tree(df_train, missing_branch);
 					}
 
 					experiment.end_train_start_test();
 
+					if ((file_exist) and (config.id_dt_train == config.id_dt_test) and (config.jns_dt_train == config.jns_dt_test) and (config.partition_train == config.partition_test))
+					{
+						df_train.train_to_test();
+					} else {
+						df_test.reset_depth_branch();
+					}
+
 					Tdec_tree dec_tree_test(&config);
 					dec_tree_test.read_tree();
 					Tconf_metrix dt_conf_metrix;
-					dec_tree_test.test(dt_conf_metrix);
+					dec_tree_test.test(df_test, dt_conf_metrix);
 
 					experiment.end_test();
 
@@ -147,7 +184,8 @@ int main(int argc, const char **argv)
 	}
 
 	experiment.end_experiment();
-
+	df_train.close_file();
+	df_test.close_file();
 
 	return 0;
 }
