@@ -238,7 +238,7 @@ bool tb_dataset::is_parent_exist(int idx)
 void tb_dataset::filter(string sql, bool is_all)
 {
 	if (sql != "")
-	{		
+	{
 
 		if (!is_child_parent_exist())
 		{
@@ -259,9 +259,19 @@ void tb_dataset::filter(string sql, bool is_all)
 				query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") inner join tb_index on dataset.id = idx_row  where (" + sql + "))";
 				global_query_builder.query(query);
 			} else {
-				if (is_all){
+				if (is_all) {
+					// if (is_parent_exist(1))
+					// {
+					// 	string where_str  = "";
+					// 	where_str  = "parent_depth=" + to_string(_child_depth) + " and ";
+					// 	where_str += "parent_branch=" + to_string(_child_branch) + " and ";
+					// 	where_str += "parent_branch_number=" + to_string(_child_branch_number);
+					// 	query = "insert into tb_index1(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
+					// 	global_query_builder.query(query);
+					// } else {
 					query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") where (" + sql + "))";
-					global_query_builder.query(query);					
+					global_query_builder.query(query);
+					// }
 				}
 			}
 
@@ -281,7 +291,7 @@ void tb_dataset::filter(string sql, bool is_all)
 				query = "update (" + _tmp_dataset_tb + " inner join tb_index1 on id_row=idx_row) set " + set_str + " where (" + where_str + ")";
 				global_query_builder.query(query);
 			} else {
-				if (is_all) { 
+				if (is_all) {
 					query = "update (" + _tmp_dataset_tb + " inner join tb_index1 on id_row=idx_row) set " + set_str;
 					global_query_builder.query(query);
 				}
@@ -292,13 +302,13 @@ void tb_dataset::filter(string sql, bool is_all)
 
 		clear_tb_index();
 
-		string where_str  = "";		
+		string where_str  = "";
 		where_str  = "child_depth=" + to_string(_child_depth) + " and ";
 		where_str += "child_branch=" + to_string(_child_branch) + " and ";
 		where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
 		where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
 		where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(_parent_branch_number);		
+		where_str += "parent_branch_number=" + to_string(_parent_branch_number);
 
 		string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
 		global_query_builder.query(query);

@@ -41,8 +41,10 @@ child_branch_number int,
 parent_depth int,
 parent_branch int,
 parent_branch_number int,
-attrindex int,
-attrvalue varchar(255),
+attrindex int default -1,
+attrvalue varchar(255) default "-1",
+label varchar(255) default "-1",
+opt int default -1,
 is_pure int default -1,
 is_min_sample int default -1,
 is_depth_limit int default -1,
@@ -51,3 +53,4 @@ is_pruning int default -1,
 is_not_split int default -1,
 primary key (child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number)
 );
+

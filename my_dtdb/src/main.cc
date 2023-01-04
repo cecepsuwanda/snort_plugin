@@ -18,8 +18,8 @@ int main(int argc, const char **argv)
 	char *endptr;
 	Tconfig config;
 
-	config.f_datatype = argv[13];
-	config.path_model = argv[16];
+	//config.f_datatype = argv[13];
+	config.path_model = argv[13];
 
 	double credal_s_awal  = strtod(argv[7], &endptr);
 	double credal_s_akhir = strtod(argv[8], &endptr);
@@ -37,26 +37,17 @@ int main(int argc, const char **argv)
 	int threshold_akhir = stoi(argv[11]);
 	int threshold_step  = stoi(argv[12]);
 
-	config.f_train = argv[14];
-	config.f_test = argv[15];
+	//config.f_train = argv[14];
+	//config.f_test = argv[15];	
 
-	// config.id_dt_train = 2;
-	// config.jns_dt_train = 1;
-	// config.partition_train = "p21";
-
-
-	// config.id_dt_test = 2;
-	// config.jns_dt_test = 1;
-	// config.partition_test = "p21";
-
-	config.id_dt_train = 1;
-	config.jns_dt_train = 1;
-	config.partition_train = "p11";
+	config.id_dt_train = stoi(argv[14]);;
+	config.jns_dt_train = stoi(argv[15]);;
+	config.partition_train = argv[16];
 
 
-	config.id_dt_test = 1;
-	config.jns_dt_test = 1;
-	config.partition_test = "p11";
+	config.id_dt_test = stoi(argv[17]);
+	config.jns_dt_test = stoi(argv[18]);
+	config.partition_test = argv[19];
 
 
 	Tdataframe df_train(&config);
@@ -133,7 +124,7 @@ int main(int argc, const char **argv)
 					if (file_exist) //(j > depth_awal) and
 					{
 						//df_train.reset_depth_branch();
-						dec_tree_build.read_tree(tmp_id_detail_experiment);
+						dec_tree_build.read_tree(tmp_id_detail_experiment,missing_branch);
 						dec_tree_build.build_from_prev_tree(df_train,missing_branch, j - 1);
 					} else {
 						df_train.reset_depth_branch();

@@ -97,6 +97,17 @@ struct tree_node
   int opt;
   int idx_svm;
 
+  int depth;
+  int branch;
+  int branch_number;
+
+  bool is_pure;
+  bool is_min_sample;
+  bool is_depth_limit;
+  bool is_same_label;
+  bool is_pruning;
+  bool is_not_split;
+
   tree_node *left;
   tree_node *right;
 
@@ -105,10 +116,22 @@ struct tree_node
     criteriaAttrIndex = -1;
     attrValue = "-1";
     label = "-1";
+
     treeIndex = -1;
     isLeaf = false;
     opt = -1;
     idx_svm = -1;
+
+    depth = 0;
+    branch = 0;
+    branch_number = 0;
+
+    is_pure = false;
+    is_min_sample = false;
+    is_depth_limit = false;
+    is_same_label = false;
+    is_pruning = false;
+    is_not_split = false;
 
     left = NULL;
     right = NULL;
@@ -125,6 +148,30 @@ struct posisi_cabang
   int parent_depth = -1 ;
   int parent_branch = -1 ;
   int parent_branch_number = -1 ;
+
+  void reset()
+  {
+    child_depth = 0 ;
+    child_branch = 0 ;
+    child_branch_number = 0 ;
+    parent_depth = 0 ;
+    parent_branch = 0 ;
+    parent_branch_number = 0 ;
+  }
+
+  void set_child(int depth, int branch, int branch_number)
+  {
+    child_depth = depth ;
+    child_branch = branch ;
+    child_branch_number = branch_number ;
+  }
+
+  void switch_parent_branch()
+  {
+    parent_depth = child_depth;
+    parent_branch = child_branch;
+    parent_branch_number = child_branch_number;
+  }
 };
 
 static void cetak_stdout(const char *s)
