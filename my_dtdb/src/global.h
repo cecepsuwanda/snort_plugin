@@ -107,6 +107,7 @@ struct tree_node
   bool is_same_label;
   bool is_pruning;
   bool is_not_split;
+  bool is_lanjut;
 
   tree_node *left;
   tree_node *right;
@@ -132,6 +133,7 @@ struct tree_node
     is_same_label = false;
     is_pruning = false;
     is_not_split = false;
+    is_lanjut = true;
 
     left = NULL;
     right = NULL;

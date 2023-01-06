@@ -54,7 +54,9 @@ private:
 	//void train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter);
 	
     void dec_tree_to_vec_tree(tree_node* parent_node, int node_index);
-    tree_node* vec_tree_to_dec_tree(int node_index,int counter,posisi_cabang posisi,tb_missing_branch &missing_branch);    
+    tree_node* vec_tree_to_dec_tree(int node_index,int counter,posisi_cabang posisi,tb_missing_branch &missing_branch);
+    void trim_dec_tree(tree_node* parent_node); 
+
 
 	void save_tree();
 	void del_dec_tree(tree_node* parent_node);

@@ -11,6 +11,7 @@ tb_missing_branch::tb_missing_branch()
 	_is_same_label = false;
 	_is_pruning = false;
 	_is_not_split = false;
+	_is_lanjut = true;
 	_label = "-1";
 }
 
@@ -60,14 +61,14 @@ void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt,
 		set_str += "is_pruning=0,";
 		set_str += "is_same_label=0,";
 		set_str += "label='-1',";
-		set_str += "attrindex="+to_string(attrindex)+",";
-		set_str += "attrvalue='"+attrvalue+"'";
+		set_str += "attrindex=" + to_string(attrindex) + ",";
+		set_str += "attrvalue='" + attrvalue + "'";
 
-		if(opt!=-1)
+		if (opt != -1)
 		{
-            set_str += ",opt="+to_string(opt);
+			set_str += ",opt=" + to_string(opt);
 		}
-		
+
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
 		global_query_builder.query(query);
@@ -103,7 +104,7 @@ bool tb_missing_branch::cabang_exixst(posisi_cabang posisi)
 }
 
 
-void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label)
+void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -117,6 +118,7 @@ void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label)
 
 		string set_str = "";
 		set_str = "is_not_split=1,";
+		set_str += "is_lanjut=" + to_string(is_lanjut) + ",";
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
@@ -125,7 +127,7 @@ void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label)
 	}
 }
 
-void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label)
+void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label,int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -139,6 +141,7 @@ void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label)
 
 		string set_str = "";
 		set_str = "is_same_label=1,";
+		set_str += "is_lanjut=" + to_string(is_lanjut) + ",";
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
@@ -147,7 +150,7 @@ void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label)
 	}
 }
 
-void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int is_pure, int is_min_sample, int is_depth_limit)
+void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int is_pure, int is_min_sample, int is_depth_limit, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -163,6 +166,7 @@ void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int i
 		set_str = "is_pure=" + to_string(is_pure) + ",";
 		set_str += "is_min_sample=" + to_string(is_min_sample) + ",";
 		set_str += "is_depth_limit=" + to_string(is_depth_limit) + ",";
+		set_str += "is_lanjut=" + to_string(is_lanjut) + ",";
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
@@ -172,7 +176,7 @@ void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int i
 }
 
 
-void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label)
+void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label,int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -186,6 +190,7 @@ void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label)
 
 		string set_str = "";
 		set_str = "is_pruning=1,";
+		set_str += "is_lanjut=" + to_string(is_lanjut) + ",";
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
@@ -234,6 +239,15 @@ bool tb_missing_branch::parent_exixst(posisi_cabang posisi)
 
 	string where_str  = "";
 	where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
+
+	if (posisi.child_branch != -1) {
+		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
+	}
+
+	if (posisi.child_branch_number != -1) {
+		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
+	}
+
 	where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
 	where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
 	where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
@@ -261,6 +275,7 @@ void tb_missing_branch::get_stat(posisi_cabang posisi)
 	_is_same_label = false;
 	_is_pruning = false;
 	_is_not_split = false;
+	_is_lanjut = true;
 	_label = "-1";
 
 	if (cabang_exixst(posisi))
@@ -289,6 +304,7 @@ void tb_missing_branch::get_stat(posisi_cabang posisi)
 					_is_same_label = data[13] == "1";
 					_is_pruning = data[14] == "1";
 					_is_not_split = data[15] == "1";
+					_is_lanjut = data[16] == "1";
 					_label = data[8];
 				}
 			}
@@ -325,6 +341,11 @@ bool tb_missing_branch::get_is_pruning()
 bool tb_missing_branch::get_is_not_split()
 {
 	return _is_not_split;
+}
+
+bool tb_missing_branch::get_is_lanjut()
+{
+    return _is_lanjut;	
 }
 
 string tb_missing_branch::get_label()

@@ -51,6 +51,7 @@ is_depth_limit int default -1,
 is_same_label int default -1,
 is_pruning int default -1,
 is_not_split int default -1,
+is_lanjut int default 1,
 primary key (child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number)
 );
 
