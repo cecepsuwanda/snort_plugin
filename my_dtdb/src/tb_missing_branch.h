@@ -28,6 +28,7 @@ private:
 
     bool cabang_exixst(posisi_cabang posisi);
 
+
 public:
     tb_missing_branch();
     ~tb_missing_branch();
@@ -42,6 +43,7 @@ public:
     void get_split(posisi_cabang posisi, int &attrindex, int &opt, string &attrvalue);
 
     bool parent_exixst(posisi_cabang posisi);
+    
 
     void get_stat(posisi_cabang posisi);
 

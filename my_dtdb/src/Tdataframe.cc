@@ -322,12 +322,11 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
   if (split_value != "-1") {
     if (_data_type[split_column] == "continuous.")
     {
-      data_below.add_filter(split_column, 0, split_value, true, true);
+      data_below.add_filter(split_column, 0, split_value, true, true);      
       data_above.add_filter(split_column, 1, split_value, true, true);
-
     } else {
-      data_below.add_filter(split_column, 2, split_value, true, true);
-      data_above.add_filter(split_column, 3, split_value, true, true);
+      data_below.add_filter(split_column, 2, split_value, true, true);      
+      data_above.add_filter(split_column, 3, split_value, true, true);      
     }
   }
 

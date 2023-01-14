@@ -58,3 +58,66 @@ create index idx_dst_host_serror_rate  on dataset(id_dt,jns_dt,dst_host_serror_r
 create index idx_dst_host_srv_serror_rate  on dataset(id_dt,jns_dt,dst_host_srv_serror_rate ); 
 create index idx_dst_host_rerror_rate  on dataset(id_dt,jns_dt,dst_host_rerror_rate ); 
 create index idx_dst_host_srv_rerror_rate  on dataset(id_dt,jns_dt,dst_host_srv_rerror_rate ); 
+
+
+
+
+alter table dataset drop index idx_label;
+alter table dataset drop index idx_duration_label; 
+alter table dataset drop index idx_protocol_type_label; 
+alter table dataset drop index idx_service_label; 
+alter table dataset drop index idx_lag_label; 
+alter table dataset drop index idx_src_bytes_label; 
+alter table dataset drop index idx_dst_bytes_label; 
+alter table dataset drop index idx_land_label; 
+alter table dataset drop index idx_wrong_fragment_label; 
+alter table dataset drop index idx_urgent_label; 
+alter table dataset drop index idx_count_label; 
+alter table dataset drop index idx_srv_count_label; 
+alter table dataset drop index idx_serror_rate_label; 
+alter table dataset drop index idx_srv_serror_rate_label; 
+alter table dataset drop index idx_rerror_rate_label; 
+alter table dataset drop index idx_srv_rerror_rate_label; 
+alter table dataset drop index idx_same_srv_rate_label; 
+alter table dataset drop index idx_diff_srv_rate_label; 
+alter table dataset drop index idx_srv_diff_host_rate_label; 
+alter table dataset drop index idx_dst_host_count_label; 
+alter table dataset drop index idx_dst_host_srv_count_label; 
+alter table dataset drop index idx_dst_host_same_srv_rate_label; 
+alter table dataset drop index idx_dst_host_diff_srv_rate_label; 
+alter table dataset drop index idx_dst_host_same_src_port_rate_label; 
+alter table dataset drop index idx_dst_host_srv_diff_host_rate_label; 
+alter table dataset drop index idx_dst_host_serror_rate_label; 
+alter table dataset drop index idx_dst_host_srv_serror_rate_label; 
+alter table dataset drop index idx_dst_host_rerror_rate_label; 
+alter table dataset drop index idx_dst_host_srv_rerror_rate_label;
+
+
+alter table dataset drop index idx_duration ; 
+alter table dataset drop index idx_protocol_type ; 
+alter table dataset drop index idx_service ; 
+alter table dataset drop index idx_lag ; 
+alter table dataset drop index idx_src_bytes ; 
+alter table dataset drop index idx_dst_bytes ; 
+alter table dataset drop index idx_land ; 
+alter table dataset drop index idx_wrong_fragment ; 
+alter table dataset drop index idx_urgent ; 
+alter table dataset drop index idx_count ; 
+alter table dataset drop index idx_srv_count ; 
+alter table dataset drop index idx_serror_rate ; 
+alter table dataset drop index idx_srv_serror_rate ; 
+alter table dataset drop index idx_rerror_rate ; 
+alter table dataset drop index idx_srv_rerror_rate ; 
+alter table dataset drop index idx_same_srv_rate ; 
+alter table dataset drop index idx_diff_srv_rate ; 
+alter table dataset drop index idx_srv_diff_host_rate ; 
+alter table dataset drop index idx_dst_host_count ; 
+alter table dataset drop index idx_dst_host_srv_count ; 
+alter table dataset drop index idx_dst_host_same_srv_rate ; 
+alter table dataset drop index idx_dst_host_diff_srv_rate ; 
+alter table dataset drop index idx_dst_host_same_src_port_rate ; 
+alter table dataset drop index idx_dst_host_srv_diff_host_rate ; 
+alter table dataset drop index idx_dst_host_serror_rate ; 
+alter table dataset drop index idx_dst_host_srv_serror_rate ; 
+alter table dataset drop index idx_dst_host_rerror_rate ; 
+alter table dataset drop index idx_dst_host_srv_rerror_rate ; 	 	

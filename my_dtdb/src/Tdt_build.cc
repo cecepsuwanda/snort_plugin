@@ -163,7 +163,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			tree_node* tmp_node = train_prev_tree(df, missing_branch, parent_node->depth, parent_node);
 			parent_node = tmp_node;
 		} else {
-			posisi_cabang tmp_posisi = df.get_posisi();
+			posisi_cabang tmp_posisi = df.get_posisi();			
 
 			string tmp_str = parent_node->label;
 			cetak("*");
@@ -525,7 +525,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 		}
 
 		parent_node->isLeaf = true;
-		parent_node->label = tmp_str;
+		parent_node->label = tmp_str;		
 
 		//df.clear_memory();
 		df.clear_col_split();
@@ -759,7 +759,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 		parent_node->is_lanjut = !(is_pure or is_min_sample);
 
 		parent_node->isLeaf = true;
-		parent_node->label = tmp_str;
+		parent_node->label = tmp_str;		
 
 		//df.clear_memory();
 		df.clear_col_split();

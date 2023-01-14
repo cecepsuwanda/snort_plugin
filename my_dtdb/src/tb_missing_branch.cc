@@ -25,6 +25,10 @@ void tb_missing_branch::clear_table()
 {
 	string tmp_sql = "truncate missing_branch";
 	global_query_builder.query(tmp_sql);
+
+	tmp_sql = "truncate detail_missing_branch";
+	global_query_builder.query(tmp_sql);
+
 }
 
 void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt, string attrvalue)
@@ -104,6 +108,7 @@ bool tb_missing_branch::cabang_exixst(posisi_cabang posisi)
 }
 
 
+
 void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
@@ -127,7 +132,7 @@ void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label, int
 	}
 }
 
-void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label,int is_lanjut)
+void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -176,7 +181,7 @@ void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int i
 }
 
 
-void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label,int is_lanjut)
+void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -345,7 +350,7 @@ bool tb_missing_branch::get_is_not_split()
 
 bool tb_missing_branch::get_is_lanjut()
 {
-    return _is_lanjut;	
+	return _is_lanjut;
 }
 
 string tb_missing_branch::get_label()
@@ -382,8 +387,37 @@ void tb_missing_branch::delete_non_missing()
 	where_str += "is_pruning=0 and ";
 	where_str += "is_not_split=0";
 
-	string query = "delete from missing_branch where " + where_str;
+	// string query = "select * from missing_branch where " + where_str;
+	// if (global_query_builder.query(query))
+	// {
+	// 	if (global_query_builder.get_result())
+	// 	{
+	// 		bool baca = true;
+	// 		while (baca) {
+	// 			vector<string> data = global_query_builder.fetch_row();
 
+	// 			if (data.size() > 0) {
+	// 				string where_str1  = "";
+	// 				where_str1  = "child_depth=" + data[0] + " and ";
+	// 				where_str1 += "child_branch=" + data[1] + " and ";
+	// 				where_str1 += "child_branch_number=" + data[2] + " and ";
+	// 				where_str1 += "parent_depth=" + data[3] + " and ";
+	// 				where_str1 += "parent_branch=" + data[4] + " and ";
+	// 				where_str1 += "parent_branch_number=" + data[5];
+
+	// 				query = "delete from detail_missing_branch where " + where_str1;
+	// 				global_query_builder.query(query);
+	// 			} else {
+	// 				baca = false;
+	// 			}
+
+
+	// 		}
+	// 	}
+	// }
+
+
+	string query = "delete from missing_branch where " + where_str;
 	global_query_builder.query(query);
 }
 

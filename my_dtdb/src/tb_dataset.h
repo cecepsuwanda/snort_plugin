@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <thread>
 
 #include "Tquery_builder.h"
 #include "Tlabel_stat.h"
@@ -39,12 +40,13 @@ private:
 	vector<string> _data;
 	vector<string> _data_header;
 	vector<string> _data_type;
-
+	
 	void clear_tb_index();
 	void clear_tb_index1();
 	bool is_child_parent_exist();
 	bool is_parent_exist(int idx);
 	
+	bool exist_in_detil(int idx);
 
 public:
 	tb_dataset();
@@ -78,6 +80,9 @@ public:
 	void set_child(int depth, int branch,int branch_number);	
 	void switch_parent_child();
 
+	posisi_cabang get_posisi_parent();
+
+	
 	void filter(string sql, bool is_all);
 	void read_hsl_filter();
 

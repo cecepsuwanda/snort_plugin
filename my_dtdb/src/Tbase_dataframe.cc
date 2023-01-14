@@ -16,7 +16,6 @@ Tbase_dataframe::~Tbase_dataframe()
 	_filter.shrink_to_fit();
 }
 
-
 void Tbase_dataframe::switch_to_test()
 {
 	_data.switch_to_test();

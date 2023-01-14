@@ -105,7 +105,6 @@ public:
 		return *this;
 	}
 
-
     void switch_to_test();
 
     void read_header_type();

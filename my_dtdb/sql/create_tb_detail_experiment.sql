@@ -21,3 +21,6 @@ start_test datetime,
 end_test datetime,
 primary key (id)
 );
+
+select depth,FP,FN,timediff(if(end_train is null,now(),end_train),start_train) as lama_train from detail_experiment 
+where id_dt_train = 2 order by depth desc,start_train desc;

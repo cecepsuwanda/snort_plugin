@@ -55,3 +55,23 @@ is_lanjut int default 1,
 primary key (child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number)
 );
 
+drop table detail_missing_branch;
+create table detail_missing_branch (  
+  id_row int,
+  child_depth int,
+  child_branch int,
+  child_branch_number int,
+  parent_depth int,
+  parent_branch int,
+  parent_branch_number int,  
+  primary key (id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number)  
+);
+
+
+drop trigger after_missing_branch_delete;
+create trigger after_missing_branch_delete
+      after delete on missing_branch
+      for each row
+      begin
+         delete from detail_missing_branch where child_depth = old.child_depth and child_branch = old.child_branch and child_branch_number = old.child_branch_number and parent_depth = old.parent_depth and parent_branch = old.parent_branch and parent_branch_number old.parent_branch_number;           
+      end; 

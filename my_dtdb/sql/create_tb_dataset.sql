@@ -122,6 +122,13 @@ create table tmp_dataset_train (
   primary key (id_row)  
 );
 
+create index posisi_child_train on tmp_dataset_train(child_depth,child_branch_number,child_branch);
+create index posisi_parent_train on tmp_dataset_train(parent_depth,parent_branch_number,parent_branch); 
+
+create index posisi_child_test on tmp_dataset_test(child_depth,child_branch_number,child_branch);
+create index posisi_parent_test on tmp_dataset_test(parent_depth,parent_branch_number,parent_branch);  
+
+
 create table tmp_dataset_test (
   id_row int not null,
   child_depth int,
@@ -132,3 +139,90 @@ create table tmp_dataset_test (
   parent_branch_number int,  
   primary key (id_row)  
 );
+
+
+drop trigger after_tmp_dataset_test_update;
+drop trigger after_tmp_dataset_train_update;
+create trigger after_tmp_dataset_train_update
+      after update on tmp_dataset_train
+      for each row
+      begin         
+            if (new.child_depth>new.parent_depth) then
+              replace into detail_missing_branch(id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number) values(new.id_row,new.child_depth,new.child_branch,new.child_branch_number,new.parent_depth,new.parent_branch,new.parent_branch_number);
+            end if;      
+      end; 
+
+
+
+create procedure sp_child_to_tmp_dataset(in nm_table text,in partisi text)
+begin 
+  set @sql := CONCAT('truncate ',nm_table,';');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;
+  set @sql := CONCAT('insert into ',nm_table,' (select id,0,0,0,0,0,0 from dataset partition( ',partisi,' ) order by label,id);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;
+  truncate tb_index;
+  set @sql := CONCAT('insert into tb_index(idx_row) (select id_row from ',nm_table,' where child_depth=0 and child_branch=0 and child_branch_number=0 order by id_row);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;
+end;
+
+
+create procedure sp_filter(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in query text,in nm_table text,in partisi text)
+begin
+  set @sql := CONCAT('insert into tb_index(idx_row) (select id_row from ',nm_table,' where child_depth=',parent_depth,' and child_branch=',parent_branch,' and child_branch_number=',parent_branch_number,' order by id_row);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+
+  set @sql := CONCAT('insert into tb_index1(idx_row) (select dataset.id from dataset partition(',partisi,') inner join tb_index on dataset.id = idx_row  where (',query,' ));');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+
+  set @sql := CONCAT('update (',nm_table,' inner join tb_index1 on id_row=idx_row) set ',nm_table,'.child_depth=',child_depth,', ',nm_table,'.child_branch=',child_branch,', ',nm_table,'.child_branch_number=',child_branch_number,', ',nm_table,'.parent_depth=',parent_depth,', ',nm_table,'.parent_branch=',parent_branch,', ',nm_table,'.parent_branch_number=',parent_branch_number,' where (',nm_table,'.child_depth=',parent_depth,' and ',nm_table,'.child_branch=',parent_branch,' and ',nm_table,'.child_branch_number=',parent_branch_number,');');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt; 
+end;
+
+create procedure sp_filter1(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in nm_table text)
+begin  
+
+  set @sql := CONCAT('insert into tb_index1(idx_row) (select id_row from detail_missing_branch  where (child_depth=',child_depth,' and child_branch=',child_branch,' and child_branch_number=',child_branch_number,' and parent_depth=',parent_depth,' and parent_branch=',parent_branch,' and parent_branch_number=',parent_branch_number,'));');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+
+  set @sql := CONCAT('update (',nm_table,' inner join tb_index1 on id_row=idx_row) set ',nm_table,'.child_depth=',child_depth,', ',nm_table,'.child_branch=',child_branch,', ',nm_table,'.child_branch_number=',child_branch_number,', ',nm_table,'.parent_depth=',parent_depth,', ',nm_table,'.parent_branch=',parent_branch,', ',nm_table,'.parent_branch_number=',parent_branch_number,';');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt; 
+end;
+
+
+create procedure sp_filter2(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in query text,in nm_table text,in partisi text)
+begin  
+  set @sql := CONCAT('insert into tb_index1(idx_row) (select dataset.id from dataset partition(',partisi,') where (',query,' ));');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+
+  set @sql := CONCAT('update (',nm_table,' inner join tb_index1 on id_row=idx_row) set ',nm_table,'.child_depth=',child_depth,', ',nm_table,'.child_branch=',child_branch,', ',nm_table,'.child_branch_number=',child_branch_number,', ',nm_table,'.parent_depth=',parent_depth,', ',nm_table,'.parent_branch=',parent_branch,', ',nm_table,'.parent_branch_number=',parent_branch_number,';');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt; 
+end;
+
+
+create procedure sp_filter3(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in nm_table text)
+begin
+  set @sql := CONCAT('insert into tb_index(idx_row) (select id_row from ',nm_table,'  where child_depth=',child_depth,' and child_branch=',child_branch,' and child_branch_number=',child_branch_number,' and parent_depth=',parent_depth,' and parent_branch=',parent_branch,' and parent_branch_number=',parent_branch_number,' order by id_row);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+end;
