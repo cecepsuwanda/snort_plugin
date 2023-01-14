@@ -142,17 +142,27 @@ create table tmp_dataset_test (
 
 
 drop trigger after_tmp_dataset_test_update;
+
 drop trigger after_tmp_dataset_train_update;
-create trigger after_tmp_dataset_train_update
-      after update on tmp_dataset_train
-      for each row
-      begin         
-            if (new.child_depth>new.parent_depth) then
-              replace into detail_missing_branch(id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number) values(new.id_row,new.child_depth,new.child_branch,new.child_branch_number,new.parent_depth,new.parent_branch,new.parent_branch_number);
-            end if;      
-      end; 
+
+-- create trigger after_tmp_dataset_train_update
+--       after update on tmp_dataset_train
+--       for each row
+--       begin         
+--             if (new.child_depth>new.parent_depth) then
+--               replace into detail_missing_branch(id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number) values(new.id_row,new.child_depth,new.child_branch,new.child_branch_number,new.parent_depth,new.parent_branch,new.parent_branch_number);
+--             end if;      
+--       end; 
 
 
+create trigger after_missing_branch_insert
+    after insert on missing_branch
+    for each row
+    begin 
+        if not exists(select * from tmp_dataset_train where child_depth=new.child_depth and child_branch=new.child_branch and child_branch_number=new.child_branch_number and parent_depth=new.parent_depth and parent_branch=new.parent_branch and parent_branch_number=new.parent_branch_number) then
+           insert into detail_missing_branch (select * from tmp_dataset_train where child_depth=new.child_depth and child_branch=new.child_branch and child_branch_number=new.child_branch_number and parent_depth=new.parent_depth and parent_branch=new.parent_branch and parent_branch_number=new.parent_branch_number);
+        end if;
+    end;
 
 create procedure sp_child_to_tmp_dataset(in nm_table text,in partisi text)
 begin 
