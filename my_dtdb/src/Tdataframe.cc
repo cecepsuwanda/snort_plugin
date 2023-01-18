@@ -352,11 +352,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   int jml_row = stat_label.get_jml_row();
   float prosen = 0.0;
-
-  if (_col_pot_split->size() > (0.15 * jml_row))
-  {
-    prosen = 0.0;
-  }
+  
 
   Tlabel_stat _stat_label_below;
 
@@ -374,7 +370,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
-    if (_stat_label_below.get_jml_row() >= (prosen * i * jml_row)) {
+    
       if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
       {
 
@@ -396,6 +392,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         ba.add_above(tmp_stat);
 
         gain = 0;
+        
         if (ba.cek_valid()) {
           float entropy_after_split = ba.get_overall_metric();
           float split_info = ba.get_split_info();
@@ -411,8 +408,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         tmp_split_value = mid_point;
         best_overall_metric = gain_max;
       }
-      i++;
-    }
+      
 
     itr_next++;
     itr++;

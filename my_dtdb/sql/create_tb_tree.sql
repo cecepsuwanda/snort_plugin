@@ -75,3 +75,15 @@ create trigger after_missing_branch_delete
       begin
          delete from detail_missing_branch where child_depth = old.child_depth and child_branch = old.child_branch and child_branch_number = old.child_branch_number and parent_depth = old.parent_depth and parent_branch = old.parent_branch and parent_branch_number old.parent_branch_number;           
       end; 
+
+
+<-11?|->12?| kacau !!! 
+ child_depth = 12 child_branch = 1 child_branch_number = 9 parent_depth = 11 parent_branch = 2 parent_branch_number = 8 
+<-12?| kacau !!! 
+ child_depth = 12 child_branch = 2 child_branch_number = 10 parent_depth = 11 parent_branch = 2 parent_branch_number = 8 
+<-10?|->11 tidak *{A}
+<-11?|->12?| kacau !!! 
+ child_depth = 12 child_branch = 1 child_branch_number = 11 parent_depth = 11 parent_branch = 2 parent_branch_number = 10 
+<-12?| kacau !!! 
+ child_depth = 12 child_branch = 2 child_branch_number = 12 parent_depth = 11 parent_branch = 2 parent_branch_number = 10 
+      

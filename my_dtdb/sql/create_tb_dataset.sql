@@ -122,10 +122,14 @@ create table tmp_dataset_train (
   primary key (id_row)  
 );
 
+drop index posisi_child_train on tmp_dataset_train;
 create index posisi_child_train on tmp_dataset_train(child_depth,child_branch_number,child_branch);
+drop index posisi_parent_train on tmp_dataset_train;
 create index posisi_parent_train on tmp_dataset_train(parent_depth,parent_branch_number,parent_branch); 
 
+drop index posisi_child_test on tmp_dataset_test;
 create index posisi_child_test on tmp_dataset_test(child_depth,child_branch_number,child_branch);
+drop index posisi_parent_test on tmp_dataset_test;
 create index posisi_parent_test on tmp_dataset_test(parent_depth,parent_branch_number,parent_branch);  
 
 
@@ -182,6 +186,8 @@ begin
 end;
 
 
+-- ' where (',nm_table,'.child_depth=',parent_depth,' and ',nm_table,'.child_branch=',parent_branch,' and ',nm_table,'.child_branch_number=',parent_branch_number,');'
+
 create procedure sp_filter(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in query text,in nm_table text,in partisi text)
 begin
   set @sql := CONCAT('insert into tb_index(idx_row) (select id_row from ',nm_table,' where child_depth=',parent_depth,' and child_branch=',parent_branch,' and child_branch_number=',parent_branch_number,' order by id_row);');
@@ -194,7 +200,7 @@ begin
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt;  
 
-  set @sql := CONCAT('update (',nm_table,' inner join tb_index1 on id_row=idx_row) set ',nm_table,'.child_depth=',child_depth,', ',nm_table,'.child_branch=',child_branch,', ',nm_table,'.child_branch_number=',child_branch_number,', ',nm_table,'.parent_depth=',parent_depth,', ',nm_table,'.parent_branch=',parent_branch,', ',nm_table,'.parent_branch_number=',parent_branch_number,' where (',nm_table,'.child_depth=',parent_depth,' and ',nm_table,'.child_branch=',parent_branch,' and ',nm_table,'.child_branch_number=',parent_branch_number,');');
+  set @sql := CONCAT('update (',nm_table,' inner join tb_index1 on id_row=idx_row) set ',nm_table,'.child_depth=',child_depth,', ',nm_table,'.child_branch=',child_branch,', ',nm_table,'.child_branch_number=',child_branch_number,', ',nm_table,'.parent_depth=',parent_depth,', ',nm_table,'.parent_branch=',parent_branch,', ',nm_table,'.parent_branch_number=',parent_branch_number,';');
   PREPARE stmt FROM @sql;
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt; 
@@ -232,6 +238,25 @@ end;
 create procedure sp_filter3(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in nm_table text)
 begin
   set @sql := CONCAT('insert into tb_index(idx_row) (select id_row from ',nm_table,'  where child_depth=',child_depth,' and child_branch=',child_branch,' and child_branch_number=',child_branch_number,' and parent_depth=',parent_depth,' and parent_branch=',parent_branch,' and parent_branch_number=',parent_branch_number,' order by id_row);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+end;
+
+
+
+create procedure sp_hit_stat(in nm_table text,in partisi text,in nm_kolom text)
+begin  
+  set @sql := CONCAT('insert into ',nm_table,'(',nm_kolom,',label,jml) (select hsl_round,label,count(label) as jml from (select round(',nm_kolom,',7) as hsl_round,label from dataset partition(',partisi,') inner join tb_index on dataset.id=idx_row) tb group by hsl_round,label order by hsl_round,label);');
+  PREPARE stmt FROM @sql;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;  
+end;
+
+
+create procedure sp_hit_stat1(in nm_table text,in partisi text,in nm_kolom text)
+begin 
+  set @sql := CONCAT('insert into ',nm_table,'(',nm_kolom,',label,jml) (select ',nm_kolom,',label,count(label) as jml from dataset partition(',partisi,') inner join tb_index on dataset.id=idx_row  group by ',nm_kolom,',label order by ',nm_kolom,',label);');
   PREPARE stmt FROM @sql;
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt;  

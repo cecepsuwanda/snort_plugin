@@ -96,7 +96,7 @@ int main(int argc, const char **argv)
 
 				df_train.reset_depth_branch();
 				df_test.reset_depth_branch();
-				missing_branch.clear_table();
+				//missing_branch.clear_table();
 
 
 				for (int j = depth_awal; j <= depth_akhir; j += depth_step)

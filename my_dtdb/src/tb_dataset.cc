@@ -536,17 +536,22 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		if (_data_type[i] == "continuous.")
 		{
-			tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
+			
+            tmp = "call sp_hit_stat('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
 
-			tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round,label,count(label) as jml from (" + tmp + ") tb group by hsl_round,label order by hsl_round,label";
+			// tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
+
+			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round,label,count(label) as jml from (" + tmp + ") tb group by hsl_round,label order by hsl_round,label";
 
 			global_query_builder.query(tmp);
 
 		} else {
 
-			tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
+			tmp = "call sp_hit_stat1('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
 
-			tmp = tmp + " group by " + group_kolom + ",label order by " + group_kolom + ",label";
+			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
+
+			// tmp = tmp + " group by " + group_kolom + ",label order by " + group_kolom + ",label";
 
 			global_query_builder.query(tmp);
 
