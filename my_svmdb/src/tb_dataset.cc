@@ -181,6 +181,21 @@ void tb_dataset::switch_parent_child()
 	_parent_branch_number = _child_branch_number;
 }
 
+void tb_dataset::set_label_idx_svm(int idx_svm, string label)
+{
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+
+	string query = "update " + _tmp_dataset_tb + " set no_svm =" + to_string(idx_svm) + " , label='" + label + "' where " + where_str;
+	global_query_builder.query(query);
+
+}
+
 bool tb_dataset::is_child_parent_exist()
 {
 	bool hsl = false;
@@ -471,7 +486,7 @@ void tb_dataset::filter(string sql, bool is_all)
 void tb_dataset::read_hsl_filter()
 {
 
-	string query = "select * from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row order by dataset.id";
+	string query = "select dataset.* from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row order by dataset.id";
 
 	_jml_row = 0;
 
@@ -483,6 +498,30 @@ void tb_dataset::read_hsl_filter()
 		}
 	}
 
+}
+
+void tb_dataset::filter_by_idx_svm(int idx_svm)
+{
+    clear_tb_index();
+
+    string where_str  = "";
+	where_str  = "no_svm =" + to_string(idx_svm) + " ";
+
+    string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
+	global_query_builder.query(query);
+
+	query = "select count(*) as jml from tb_index";
+
+	_jml_row = 0;
+
+	if (global_query_builder.query(query))
+	{
+		if (global_query_builder.get_result())
+		{
+			vector<string> tmp = global_query_builder.fetch_row();
+			_jml_row = stoi(tmp[0]);
+		}
+	}
 }
 
 Tlabel_stat tb_dataset::hit_label_stat()
@@ -536,8 +575,8 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		if (_data_type[i] == "continuous.")
 		{
-			
-            tmp = "call sp_hit_stat('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
+
+			tmp = "call sp_hit_stat('attr" + to_string(i) + "','" + _partition + "','" + group_kolom + "')";
 
 			// tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
@@ -547,7 +586,7 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		} else {
 
-			tmp = "call sp_hit_stat1('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
+			tmp = "call sp_hit_stat1('attr" + to_string(i) + "','" + _partition + "','" + group_kolom + "')";
 
 			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
@@ -698,5 +737,32 @@ void tb_dataset::train_to_test()
 	tmp_sql = "insert into tmp_dataset_test (select * from tmp_dataset_train)";
 	global_query_builder.query(tmp_sql);
 
+}
+
+
+vector<int> tb_dataset::get_idx_svm()
+{
+	vector<int> tmp_idx;
+
+	string tmp_sql = "select no_svm from " + _tmp_dataset_tb + " where no_svm > -1 group by no_svm order by no_svm";
+	if (global_query_builder.query(tmp_sql))
+	{
+		if (global_query_builder.get_result())
+		{
+			int jml_row = global_query_builder.get_jml_row();
+
+			if (jml_row > 0) {
+
+				while (jml_row > 0)
+				{
+					vector<string> data = global_query_builder.fetch_row();
+					tmp_idx.push_back(stoi(data[0]));
+					jml_row--;
+				}
+			}
+		}
+	}
+
+	return tmp_idx;
 }
 

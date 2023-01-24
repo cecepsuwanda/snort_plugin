@@ -72,6 +72,7 @@ public:
 	string get_col_val();
 	string get_col_val(int idx_col);
 	int get_idx_col();
+	vector<int> get_idx_svm();
 
 	void read_header_type();
 
@@ -79,12 +80,14 @@ public:
 	void set_parent(int depth, int branch, int branch_number);
 	void set_child(int depth, int branch,int branch_number);	
 	void switch_parent_child();
+	void set_label_idx_svm(int idx_svm,string label);
 
 	posisi_cabang get_posisi_parent();
 
 	
 	void filter(string sql, bool is_all);
 	void read_hsl_filter();
+	void filter_by_idx_svm(int idx_svm);
 
 	Tlabel_stat hit_label_stat();
 	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom);
@@ -97,8 +100,8 @@ public:
 	void delete_child(int child_depth,int child_branch, int child_branch_number);
 
 	void switch_to_test();
+	void train_to_test();
 
-	void train_to_test();	
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{

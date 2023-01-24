@@ -2,7 +2,6 @@
 #include "Tread_file.h"
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
-#include "Tbelow_above.h"
 #include "Tbase_dataframe.h"
 #include <future>
 #include <thread>
@@ -122,7 +121,7 @@ public:
   void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);  
   
   map<string, int> get_stat_label();
-  float get_estimate_error();
+  
   string get_max_label();
   bool is_single_label();
   
@@ -139,10 +138,6 @@ public:
   void add_filter(field_filter filter,bool is_filter,bool is_last);
   void ReFilter(bool is_last);
   
-
-  void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
-  float get_entropy();
-
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
  

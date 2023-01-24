@@ -5,7 +5,6 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
-#include "credal.h"
 #include "global.h"
 
 using namespace std;
@@ -35,10 +34,7 @@ public:
 	void clear();
     int get_jml_row();
 
-    double get_entropy();
-    double get_credal_entropy();
     
-    float get_estimate_error();
     map<string, int> get_map();
     int get_value(string key);
 

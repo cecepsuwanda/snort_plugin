@@ -1530,7 +1530,7 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 
 	} else {
 
-		if ( parent_node->is_same_label  or parent_node->is_pruning)
+		if ( parent_node->is_same_label or parent_node->is_pruning)
 		{
 			parent_node->isLeaf = true;
 
@@ -1541,9 +1541,7 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 			posisi_tmp.switch_parent_branch();
 			posisi_tmp.set_child(counter, -1, -1);
 
-			if (missing_branch.parent_exixst(posisi_tmp)) {
-
-				parent_node->isLeaf = false;
+			if (missing_branch.parent_exixst(posisi_tmp)) {				
 
 				tree_node* left_node = NULL;
 				tree_node* right_node = NULL;
@@ -1562,11 +1560,11 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 					max_branch_number = branch_number[counter];
 				}
 
-				max_branch_number += 1;
+				int tmp_max_branch_number = max_branch_number + 1;
 
 				posisi_cabang posisi_left = posisi;
 				posisi_left.switch_parent_branch();
-				posisi_left.set_child(counter, 1, max_branch_number);
+				posisi_left.set_child(counter, 1, tmp_max_branch_number);
 
 				if (missing_branch.parent_exixst(posisi_left)) {
 					int attrindex_left = -1;
@@ -1583,20 +1581,20 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 
 						left_node->depth = counter;
 						left_node->branch = 1;
-						left_node->branch_number = max_branch_number;
+						left_node->branch_number = tmp_max_branch_number;
 					} else {
-						max_branch_number -= 1;
+						tmp_max_branch_number -= 1;
 					}
 				} else {
 					//cetak(" Masalah 1 %d %d %d %d %d %d ", posisi_left.child_depth, posisi_left.child_branch, posisi_left.child_branch_number, posisi_left.parent_depth, posisi_left.parent_branch, posisi_left.parent_branch_number);
-					max_branch_number -= 1;
+					tmp_max_branch_number -= 1;
 				}
 
-				max_branch_number += 1;
+				tmp_max_branch_number += 1;
 
 				posisi_cabang posisi_right = posisi;
 				posisi_right.switch_parent_branch();
-				posisi_right.set_child(counter, 2, max_branch_number);
+				posisi_right.set_child(counter, 2, tmp_max_branch_number);
 
 				if (missing_branch.parent_exixst(posisi_right)) {
 
@@ -1614,29 +1612,31 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 
 						right_node->depth = counter;
 						right_node->branch = 2;
-						right_node->branch_number = max_branch_number;
+						right_node->branch_number = tmp_max_branch_number;
 					} else {
-						max_branch_number -= 1;
+						tmp_max_branch_number -= 1;
 					}
 				} else {
 					//cetak(" Masalah 2 %d %d %d %d %d %d", posisi_right.child_depth, posisi_right.child_branch, posisi_right.child_branch_number, posisi_right.parent_depth, posisi_right.parent_branch, posisi_right.parent_branch_number);
-					max_branch_number -= 1;
+					tmp_max_branch_number -= 1;
 				}
 
 				parent_node->right = right_node;
 				parent_node->left = left_node;
 
-				if (max_branch_number > 0) {
+				if (tmp_max_branch_number > max_branch_number) {
 					auto itr = branch_number.find(counter);
 					if (itr == branch_number.end()) {
-						branch_number.insert({counter, max_branch_number});
+						branch_number.insert({counter, tmp_max_branch_number});
 					} else {
-						branch_number[counter] = max_branch_number;
+						branch_number[counter] = tmp_max_branch_number;
 					}
+
+					parent_node->isLeaf = false;										
 				}
 
 
-			} else {
+			} else {				
 				parent_node = NULL;
 			}
 
@@ -1688,12 +1688,13 @@ void Tdt_build::trim_dec_tree(tree_node* parent_node)
 
 				//cetak("\n");
 			}
-		} else {
-			if (!parent_node->is_lanjut)
-			{				
-				parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;			
-			}
-		}
+		} 
+		// else {
+		// 	if (!parent_node->is_lanjut)
+		// 	{				
+		// 		parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;			
+		// 	}
+		// }
 	} 
 
 }

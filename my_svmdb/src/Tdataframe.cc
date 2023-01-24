@@ -14,7 +14,7 @@ Tdataframe::Tdataframe(Tconfig* v_config)
   _idx_label = -1;
   config = v_config;
   _stat_label.set_config(config);
-  
+
 }
 
 Tdataframe::~Tdataframe()
@@ -81,10 +81,7 @@ map<string, int> Tdataframe::get_stat_label()
   return _stat_label.get_map();
 }
 
-float Tdataframe::get_estimate_error()
-{
-  return _stat_label.get_estimate_error();
-}
+
 
 string Tdataframe::get_max_label()
 {
@@ -128,8 +125,7 @@ vector<string> Tdataframe::get_record_svm()
     vector<string> vec;//, tmp_data = _data.get_record();
 
     for (int i = 0; i < _jml_col; ++i)
-    {
-
+    {      
       switch (i) {
       case 1:
         vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
@@ -164,23 +160,25 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
   //std::lock_guard<std::mutex> lock(v_mutex);
   // ReFilter();
 
+  _data.read_hsl_filter();
+
   vector<vector<string>> Table;
 
-  // vector<string> tmp_data;
+  vector<string> tmp_data;
 
-  // _data.reset_file();
-  // while (!_data.is_eof())
-  //{
-  //cout << " get_all_record_svm get_record_svm " << endl;
-  //tmp_data = get_record_svm();
+  _data.reset_file();
+  while (!_data.is_eof())
+  {
+    //cout << " get_all_record_svm get_record_svm " << endl;
+    tmp_data = get_record_svm();
 
-  //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
-  //if (is_pass) {
-  //Table.push_back(tmp_data);
-  //}
-  //cout << " get_all_record_svm next_record " << endl;
-  //_data.next_record();
-  //}
+    //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
+    //if (is_pass) {
+    Table.push_back(tmp_data);
+    //}
+    //cout << " get_all_record_svm next_record " << endl;
+    _data.next_record();
+  }
 
   return Table;
 }
@@ -243,20 +241,7 @@ void Tdataframe::info()
   cout << _stat_label << endl ;
 }
 
-void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
-{
-  if (split_value != "-1") {
-    if (_data_type[split_column] == "continuous.")
-    {
-      data_below.add_filter(split_column, 0, split_value, true, true);      
-      data_above.add_filter(split_column, 1, split_value, true, true);
-    } else {
-      data_below.add_filter(split_column, 2, split_value, true, true);      
-      data_above.add_filter(split_column, 3, split_value, true, true);      
-    }
-  }
 
-}
 
 
 string Tdataframe::get_nm_header(int idx_col)
@@ -276,7 +261,3 @@ int Tdataframe::get_opt(int idx_col, int is_below)
 }
 
 
-float Tdataframe::get_entropy()
-{
-  return _stat_label.get_entropy();
-}

@@ -40,7 +40,8 @@ public:
 
 	void clear();
 
-	bool cek_valid();
+	bool cek_valid_cont();
+	bool cek_valid_non_cont();
 	
 	
 };

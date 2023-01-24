@@ -15,13 +15,15 @@ struct Tconfig
 {
   string f_datatype = "";
   string f_train = "";
-  string f_test = "";
-
-  time_t id_dt_experiment;
-  time_t id_dt_detail_experiment;
+  string f_test = "";  
 
   string path_model = "";
   string svm_path = "";
+
+  
+  time_t id_experiment_dt;
+  time_t id_detail_experiment_dt;
+
 
   bool save_train = false;
   bool save_test = false;

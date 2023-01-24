@@ -45,7 +45,7 @@ struct Tconfig
 
   int depth = 0;
   int min_sample = 0;
-  int threshold = 0;
+  double threshold = 0;
 
   //bool search_uniqe_val = false;
 

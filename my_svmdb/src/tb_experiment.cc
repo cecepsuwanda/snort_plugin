@@ -22,30 +22,49 @@ time_t tb_experiment::get_id_detail_experiment()
 	return _id_detail_experiment;
 }
 
-void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, int threshold_awal, int threshold_akhir, int threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test)
+time_t tb_experiment::get_id_more_detail_experiment()
+{
+	return _id_more_detail_experiment;
+}
+
+void tb_experiment::insert_experiment(time_t id_experiment_dt, time_t id_detail_experiment_dt, double gamma_awal, double gamma_akhir, double gamma_step, double nu_awal, double nu_akhir, double nu_step)
 {
 	_id_experiment = time(0);
 
-	string data = to_string(_id_experiment) + "," + to_string(depth_awal) + "," + to_string(depth_akhir) + "," + to_string(depth_step) + "," + to_string(min_sample_awal) + "," + to_string(min_sample_akhir) + "," + to_string(min_sample_step) + "," + to_string(threshold_awal) + "," + to_string(threshold_akhir) + "," + to_string(threshold_step) + "," + to_string(credal_s_awal) + "," + to_string(credal_s_akhir) + "," + to_string(credal_s_step) + "," + to_string(id_dt_train) + "," + to_string(jns_dt_train) + "," + "'" + partition_train + "'" + "," + to_string(id_dt_test) + "," + to_string(jns_dt_test) + "," + "'" + partition_test + "'" + "," + "now()";
-	string nm_kolom = "id,depth_awal,depth_akhir,depth_step,min_sample_awal,min_sample_akhir,min_sample_step,threshold_awal,threshold_akhir,threshold_step,credal_awal,credal_akhir,credal_step,id_dt_train,jns_dt_train,partition_train,id_dt_test,jns_dt_test,partition_test,mulai";
+	string data = to_string(_id_experiment) + "," + to_string(id_experiment_dt) + "," + to_string(id_detail_experiment_dt) + "," + to_string(gamma_awal) + "," + to_string(gamma_akhir) + "," + to_string(gamma_step) + "," + to_string(nu_awal) + "," + to_string(nu_akhir) + "," + to_string(nu_step) + "," + "now()";
+	string nm_kolom = "id,id_experiment_dt,id_detail_experiment_dt,gamma_awal,gamma_akhir,gamma_step,nu_awal,nu_akhir,nu_step,mulai";
 
 	global_query_builder.open_connection();
-	string sql = "insert into experiment(" + nm_kolom + ") values(" + data + ")";
+	string sql = "insert into experiment_svm(" + nm_kolom + ") values(" + data + ")";
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }
 
-void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal)
+void tb_experiment::insert_detail_experiment(time_t id_experiment_dt, time_t id_detail_experiment_dt, double gamma, double nu)
 {
 	_id_detail_experiment = time(0);
 
-	string nm_kolom = "id,id_experiment,id_dt_train,jns_dt_train,id_dt_test,jns_dt_test,depth,minsample,threshold,credal,start_train";
-	string data = to_string(_id_detail_experiment) + "," + to_string(_id_experiment) + "," + to_string(id_dt_train) + "," + to_string(jns_dt_train) + "," + to_string(id_dt_test) + "," + to_string(jns_dt_test)  + "," + to_string(depth) + "," + to_string(min_sample) + "," + to_string(threshold) + "," + to_string(credal) + "," + "now()";
+	string nm_kolom = "id,id_experiment,id_experiment_dt,id_detail_experiment_dt,gamma,nu,start_train";
+	string data = to_string(_id_detail_experiment) + "," + to_string(_id_experiment) + "," + to_string(id_experiment_dt) + "," + to_string(id_detail_experiment_dt) + "," + to_string(gamma) + "," + to_string(nu) + "," + "now()";
 
 	global_query_builder.open_connection();
-	string sql = "insert into detail_experiment(" + nm_kolom + ") values(" + data + ")";
+	string sql = "insert into detail_experiment_svm(" + nm_kolom + ") values(" + data + ")";
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
+}
+
+void tb_experiment::insert_more_detail_experiment(time_t id_experiment_dt, time_t id_detail_experiment_dt, int no_svm, double gamma, double nu)
+{
+	_id_more_detail_experiment = time(0);
+
+	string nm_kolom = "id,id_detail_experiment,id_experiment,id_experiment_dt,id_detail_experiment_dt,idx_svm,gamma,nu,start_train";
+	string data = to_string(_id_more_detail_experiment) + "," + to_string(_id_detail_experiment) + "," + to_string(_id_experiment) + "," + to_string(id_experiment_dt) + "," + to_string(id_detail_experiment_dt) + "," + to_string(no_svm) + "," + to_string(gamma) + "," + to_string(nu) + "," + "now()";
+
+	global_query_builder.open_connection();
+	string sql = "insert into more_detail_experiment_svm(" + nm_kolom + ") values(" + data + ")";
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+
 }
 
 bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal, time_t &id_detail_experiment)
@@ -75,8 +94,7 @@ bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , i
 void tb_experiment::end_train_start_test()
 {
 	global_query_builder.open_connection();
-	string sql = "update detail_experiment set end_train=now(),start_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
-	//string sql = "update detail_experiment set start_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	string sql = "update detail_experiment_svm set end_train=now(),start_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }
@@ -84,7 +102,31 @@ void tb_experiment::end_train_start_test()
 void tb_experiment::end_test()
 {
 	global_query_builder.open_connection();
-	string sql = "update detail_experiment set end_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	string sql = "update detail_experiment_svm set end_test=now() where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+}
+
+void tb_experiment::end_train_more_detail(time_t id_more_detail_experiment, int no_svm)
+{
+	global_query_builder.open_connection();
+	string sql = "update more_detail_experiment_svm set end_train=now() where id=" + to_string(id_more_detail_experiment) + " and idx_svm=" + to_string(no_svm);
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+}
+
+void tb_experiment::start_test_more_detail(int no_svm)
+{
+	global_query_builder.open_connection();
+	string sql = "update more_detail_experiment_svm set start_test=now() where id_detail_experiment=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment) + " and idx_svm=" + to_string(no_svm);
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+}
+
+void tb_experiment::end_test_more_detail(int no_svm)
+{
+	global_query_builder.open_connection();
+	string sql = "update more_detail_experiment_svm set end_test=now() where id_detail_experiment=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment) + " and idx_svm=" + to_string(no_svm);
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }
@@ -92,7 +134,15 @@ void tb_experiment::end_test()
 void tb_experiment::hsl(int FP, int FN, int TP, int TN, float f1)
 {
 	global_query_builder.open_connection();
-	string sql = "update detail_experiment set FP=" + to_string(FP) + ",FN=" + to_string(FN) + ",TP=" + to_string(TP) + ",TN=" + to_string(TN) + ",f1=" + to_string(f1) + " where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	string sql = "update detail_experiment_svm set FP=" + to_string(FP) + ",FN=" + to_string(FN) + ",TP=" + to_string(TP) + ",TN=" + to_string(TN) + ",f1=" + to_string(f1) + " where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+}
+
+void tb_experiment::hsl_more_detail(int FP, int FN, int TP, int TN, float f1,int no_svm)
+{
+	global_query_builder.open_connection();
+	string sql = "update more_detail_experiment_svm set FP=" + to_string(FP) + ",FN=" + to_string(FN) + ",TP=" + to_string(TP) + ",TN=" + to_string(TN) + ",f1=" + to_string(f1) + " where id_detail_experiment=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment) + " and idx_svm=" + to_string(no_svm);
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }
@@ -100,7 +150,7 @@ void tb_experiment::hsl(int FP, int FN, int TP, int TN, float f1)
 void tb_experiment::end_experiment()
 {
 	global_query_builder.open_connection();
-	string sql = "update experiment set akhir=now() where id=" + to_string(_id_experiment);
+	string sql = "update experiment_svm set akhir=now() where id=" + to_string(_id_experiment);
 	global_query_builder.query(sql);
 	global_query_builder.close_connection();
 }

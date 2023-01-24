@@ -64,6 +64,11 @@ void Tbase_dataframe::switch_parent_branch()
 	_data.switch_parent_child();
 }
 
+void Tbase_dataframe::set_label_idx_svm(int idx_svm,string label)
+{
+	_data.set_label_idx_svm(idx_svm,label);
+}
+
 
 string Tbase_dataframe::filter_to_query(bool is_last)
 {
@@ -333,6 +338,11 @@ vector<field_filter> Tbase_dataframe::get_filter()
 	return _filter;
 }
 
+void Tbase_dataframe::filter_by_idx_svm(int idx_svm)
+{
+	_data.filter_by_idx_svm(idx_svm);
+}
+
 void Tbase_dataframe::clear_memory(int idx)
 {
 	if (idx == 0) {
@@ -432,6 +442,11 @@ posisi_cabang Tbase_dataframe::get_posisi()
 
 
 	return tmp;
+}
+
+vector<int> Tbase_dataframe::get_idx_svm()
+{
+  return _data.get_idx_svm(); 
 }
 
 

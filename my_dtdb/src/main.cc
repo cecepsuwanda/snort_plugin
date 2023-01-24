@@ -33,9 +33,9 @@ int main(int argc, const char **argv)
 	int min_sample_akhir = stoi(argv[5]);
 	int min_sample_step  = stoi(argv[6]);
 
-	int threshold_awal  = stoi(argv[10]);
-	int threshold_akhir = stoi(argv[11]);
-	int threshold_step  = stoi(argv[12]);
+	double threshold_awal  = strtod(argv[10],&endptr);
+	double threshold_akhir = strtod(argv[11],&endptr);
+	double threshold_step  = strtod(argv[12],&endptr);
 
 	//config.f_train = argv[14];
 	//config.f_test = argv[15];	
@@ -78,7 +78,7 @@ int main(int argc, const char **argv)
 
 	tb_tree tree;
 
-	for (int l = threshold_awal; l <= threshold_akhir; l += threshold_step)
+	for (double l = threshold_awal; l <= threshold_akhir; l += threshold_step)
 	{
 		config.limited = l != 0;
 		config.threshold = l;
@@ -96,7 +96,7 @@ int main(int argc, const char **argv)
 
 				df_train.reset_depth_branch();
 				df_test.reset_depth_branch();
-				//missing_branch.clear_table();
+				missing_branch.clear_table();
 
 
 				for (int j = depth_awal; j <= depth_akhir; j += depth_step)
@@ -123,9 +123,9 @@ int main(int argc, const char **argv)
 
 					if (file_exist) //(j > depth_awal) and
 					{
-						//df_train.reset_depth_branch();
-						dec_tree_build.read_tree(tmp_id_detail_experiment,missing_branch);
-						dec_tree_build.build_from_prev_tree(df_train,missing_branch, j - 1);
+					 	//df_train.reset_depth_branch();
+					 	dec_tree_build.read_tree(tmp_id_detail_experiment,missing_branch);
+					 	dec_tree_build.build_from_prev_tree(df_train,missing_branch, j - 1);
 					} else {
 						df_train.reset_depth_branch();
 						missing_branch.clear_table();

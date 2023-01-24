@@ -393,7 +393,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
         gain = 0;
         
-        if (ba.cek_valid()) {
+        if (ba.cek_valid_cont()) {
           float entropy_after_split = ba.get_overall_metric();
           float split_info = ba.get_split_info();
           gain = (entropy_before_split - entropy_after_split) / split_info;
@@ -455,7 +455,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
       ba.add_above(tmp_stat);
 
       float gain = 0;
-      if (ba.cek_valid()) {
+      if (ba.cek_valid_cont()) {
         float entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
         gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
@@ -512,7 +512,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     ba.add_above(tmp_stat);
 
     gain = 0;
-    if (ba.cek_valid()) {
+    if (ba.cek_valid_non_cont()) {
       float entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
       gain = (entropy_before_split - entropy_after_split) / split_info;

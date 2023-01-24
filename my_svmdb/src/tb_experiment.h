@@ -27,23 +27,33 @@ private:
     Tquery_builder global_query_builder;
     time_t _id_experiment;
     time_t _id_detail_experiment;
+    time_t _id_more_detail_experiment;
 
 
 public:
     tb_experiment();
     ~tb_experiment();
 
-    void insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, int threshold_awal, int threshold_akhir, int threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test);
-    void insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal);
+    void insert_experiment(time_t id_experiment_dt,time_t id_detail_experiment_dt, double gamma_awal, double gamma_akhir, double gamma_step, double nu_awal, double nu_akhir, double nu_step);
+    void insert_detail_experiment(time_t id_experiment_dt,time_t id_detail_experiment_dt, double gamma,double nu);
+    void insert_more_detail_experiment(time_t id_experiment_dt,time_t id_detail_experiment_dt,int no_svm, double gamma,double nu);
+    
     bool cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal, time_t &id_detail_experiment);
 
     void end_train_start_test();
     void end_test();
+    void end_train_more_detail(time_t id_more_detail_experiment,int no_svm);
+    void start_test_more_detail(int no_svm);
+    void end_test_more_detail(int no_svm);
+
+ 
     void hsl(int FP, int FN, int TP, int TN, float f1);
+    void hsl_more_detail(int FP, int FN, int TP, int TN, float f1,int no_svm);
     void end_experiment();
 
     time_t get_id_experiment();
     time_t get_id_detail_experiment();
+    time_t get_id_more_detail_experiment();
 
     train_test_data get_train_test_data(time_t id_experiment);
 };

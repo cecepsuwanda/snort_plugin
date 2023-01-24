@@ -22,7 +22,7 @@ time_t tb_experiment::get_id_detail_experiment()
 	return _id_detail_experiment;
 }
 
-void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, int threshold_awal, int threshold_akhir, int threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test)
+void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, double threshold_awal, double threshold_akhir, double threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test)
 {
 	_id_experiment = time(0);
 
@@ -35,7 +35,7 @@ void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth
 	global_query_builder.close_connection();
 }
 
-void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal)
+void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, double threshold, double credal)
 {
 	_id_detail_experiment = time(0);
 
@@ -48,7 +48,7 @@ void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train ,
 	global_query_builder.close_connection();
 }
 
-bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal, time_t &id_detail_experiment)
+bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, double threshold, double credal, time_t &id_detail_experiment)
 {
 	bool is_exist = false;
 

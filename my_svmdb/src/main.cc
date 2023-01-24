@@ -1,7 +1,9 @@
 #include <iostream>
 #include <experimental/filesystem>
+#include "Tdec_tree.h"
 #include "Tconf_metrix.h"
 #include "tb_experiment.h"
+#include "Tdt_learn_svm.h"
 #include "Tmy_svm.h"
 
 using namespace std;
@@ -26,10 +28,11 @@ int main(int argc, char *argv[])
   double nu_akhir = strtod(argv[7], &endptr);
   double nu_step = strtod(argv[8], &endptr);
 
-  config.id_dt_experiment = 1670839327;
+  config.id_experiment_dt = 1674264280;
+  config.id_detail_experiment_dt = 1674264984;
 
   tb_experiment experiment;
-  train_test_data train_test = experiment.get_train_test_data(config.id_dt_experiment);
+  train_test_data train_test = experiment.get_train_test_data(config.id_experiment_dt);
 
 
   Tdataframe df_train(&config);
@@ -50,6 +53,60 @@ int main(int argc, char *argv[])
   df_test.clone_dataset();
   df_test.stat_tabel(false, false, false);
 
+  Tdt_learn_svm learn_svm(&config);
+  learn_svm.read_tree();
+
+  learn_svm.set_svm_dataset(df_train);
+  learn_svm.set_svm_dataset(df_test);
+
+  Tdec_tree dec_tree(&config);
+
+  experiment.insert_experiment(config.id_experiment_dt, config.id_detail_experiment_dt, gamma_awal, gamma_akhir, gamma_step, nu_awal, nu_akhir, nu_step);
+  config.id_experiment = experiment.get_id_experiment();
+
+  string str_id_experiment_dt = to_string(config.id_experiment_dt);
+  string str_id_detail_experiment_dt = to_string(config.id_detail_experiment_dt);
+  string str_id_experiment = to_string(config.id_experiment);
+  
+  string tmp_str = "hsl/"+str_id_experiment_dt;
+  mkdir(tmp_str.c_str(), 0777);
+  tmp_str = tmp_str+"/"+str_id_detail_experiment_dt;
+  mkdir(tmp_str.c_str(), 0777);
+  tmp_str = tmp_str+"/"+str_id_experiment;
+  mkdir(tmp_str.c_str(), 0777);  
+
+  for (double i = gamma_awal; i <= gamma_akhir; i += gamma_step)
+  {
+
+    config.gamma = i;
+    for (double j = nu_awal; j <= nu_akhir; j += nu_step)
+    {
+      config.nu = j;
+
+      experiment.insert_detail_experiment(config.id_experiment_dt, config.id_detail_experiment_dt, config.gamma, config.nu);
+      config.id_detail_experiment = experiment.get_id_detail_experiment();
+
+      string tmp_str1 = tmp_str + "/"+to_string(config.id_detail_experiment);
+      mkdir(tmp_str1.c_str(), 0777);   
+
+      config.svm_path = tmp_str1;
+
+      learn_svm.learn_svm(df_train, experiment);
+
+      experiment.end_train_start_test();
+
+      dec_tree.test(df_test,experiment);
+
+      experiment.end_test();
+
+    }
+  }
+
+  experiment.end_experiment();
+  df_train.close_file();
+  df_test.close_file();
+
+
   //int jml = 0;
 
   // for (const auto & file : directory_iterator(config.path_model + "/train"))
@@ -66,7 +123,7 @@ int main(int argc, char *argv[])
 
   //   float F1_Train_max = -1.0;
   //   float F1_Test_max = -1.0;
-    
+
   //   float F1_Train = 0.0;
   //   float F1_Test = 0.0;
 
@@ -104,7 +161,7 @@ int main(int argc, char *argv[])
   //         conf_metrix_train.add_konversi_asli("known", "inside");
   //         conf_metrix_train.add_konversi_asli("normal", "inside");
   //         conf_metrix_train.add_konversi_asli("unknown", "outside");
-          
+
   //         my_svm.test(df_train, conf_metrix_train);
   //         F1_Train = conf_metrix_train.get_F1();
 
@@ -114,7 +171,7 @@ int main(int argc, char *argv[])
   //           conf_metrix_test.add_konversi_asli("known", "inside");
   //           conf_metrix_test.add_konversi_asli("normal", "inside");
   //           conf_metrix_test.add_konversi_asli("unknown", "outside");
-            
+
   //           my_svm.test(df_test, conf_metrix_test);
   //           F1_Test = conf_metrix_test.get_F1();
   //         }
