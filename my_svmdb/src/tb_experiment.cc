@@ -131,6 +131,14 @@ void tb_experiment::end_test_more_detail(int no_svm)
 	global_query_builder.close_connection();
 }
 
+void tb_experiment::hsl_svm(int FP, int FN, int TP, int TN, float f1)
+{
+	global_query_builder.open_connection();
+	string sql = "update detail_experiment_svm set FP_svm=" + to_string(FP) + ",FN_svm=" + to_string(FN) + ",TP_svm=" + to_string(TP) + ",TN_svm=" + to_string(TN) + ",f1_svm=" + to_string(f1) + " where id=" + to_string(_id_detail_experiment) + " and id_experiment=" + to_string(_id_experiment);
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
+}
+
 void tb_experiment::hsl(int FP, int FN, int TP, int TN, float f1)
 {
 	global_query_builder.open_connection();

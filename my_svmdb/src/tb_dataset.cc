@@ -69,6 +69,11 @@ int tb_dataset::get_idx_label()
 	return _idx_label;
 }
 
+string tb_dataset::get_id_row()
+{
+	return _id_row;
+}
+
 int tb_dataset::get_jml_row()
 {
 	return _jml_row;
@@ -142,6 +147,7 @@ void tb_dataset::read_file()
 	vector<string> data = global_query_builder.fetch_row();
 
 	if (data.size() > 0) {
+		_id_row = data[0];
 
 		for (int i = 3; i < _jml_col; i++)
 		{
@@ -194,6 +200,12 @@ void tb_dataset::set_label_idx_svm(int idx_svm, string label)
 	string query = "update " + _tmp_dataset_tb + " set no_svm =" + to_string(idx_svm) + " , label='" + label + "' where " + where_str;
 	global_query_builder.query(query);
 
+}
+
+void tb_dataset::set_label_svm(string id_row, string label)
+{
+	string query = "update " + _tmp_dataset_tb + " set label='" + label + "' where  id_row='" + id_row + "'";
+	global_query_builder.query(query);
 }
 
 bool tb_dataset::is_child_parent_exist()
@@ -502,12 +514,12 @@ void tb_dataset::read_hsl_filter()
 
 void tb_dataset::filter_by_idx_svm(int idx_svm)
 {
-    clear_tb_index();
+	clear_tb_index();
 
-    string where_str  = "";
+	string where_str  = "";
 	where_str  = "no_svm =" + to_string(idx_svm) + " ";
 
-    string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
+	string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
 	global_query_builder.query(query);
 
 	query = "select count(*) as jml from tb_index";
@@ -523,6 +535,8 @@ void tb_dataset::filter_by_idx_svm(int idx_svm)
 		}
 	}
 }
+
+
 
 Tlabel_stat tb_dataset::hit_label_stat()
 {
@@ -549,8 +563,9 @@ Tlabel_stat tb_dataset::hit_label_stat()
 	}
 
 	return label_stat;
-
 }
+
+
 
 map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 {
@@ -764,5 +779,45 @@ vector<int> tb_dataset::get_idx_svm()
 	}
 
 	return tmp_idx;
+}
+
+
+void tb_dataset::dtsvm_stat(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt)
+{
+	string tmp_sql = "insert into dtsvm_stat(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt,label_org,label_pred,jml) (select " + to_string(id_experiment) + "," + to_string(id_detail_experiment) + "," + to_string(id_experiment_dt) + "," + to_string(id_detail_experiment_dt) + ",dataset.label as label_org," + _tmp_dataset_tb + ".label as label_pred,count(*) as jml from dataset partition(" + _partition + ") inner join " + _tmp_dataset_tb + " on id_row=id group by dataset.label," + _tmp_dataset_tb + ".label)";
+	global_query_builder.query(tmp_sql);
+}
+
+void tb_dataset::dtsvm_conf_metrix(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix)
+{
+	string where_str  = "";
+	where_str  = "id_experiment=" + to_string(id_experiment) + " and ";
+	where_str += "id_detail_experiment=" + to_string(id_detail_experiment) + " and ";
+	where_str += "id_experiment_dt=" + to_string(id_experiment_dt)+ " and ";
+	where_str += "id_detail_experiment_dt=" + to_string(id_detail_experiment_dt);
+
+	string query = "select label_org,label_pred,jml from dtsvm_stat where " + where_str;
+
+	if (global_query_builder.query(query))
+	{
+		if (global_query_builder.get_result())
+		{
+			int jml_row = global_query_builder.get_jml_row();
+
+			if (jml_row > 0) {
+
+				while (jml_row > 0)
+				{
+					vector<string> data = global_query_builder.fetch_row();
+				    tmp_conf_metrix.add_jml(data[0], data[1], stoi(data[2]));               
+					jml_row--;
+				}
+			}
+		}
+	}
+
+	tmp_conf_metrix.kalkulasi();
+
+	
 }
 

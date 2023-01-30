@@ -47,6 +47,7 @@ public:
     void end_test_more_detail(int no_svm);
 
  
+    void hsl_svm(int FP, int FN, int TP, int TN, float f1);
     void hsl(int FP, int FN, int TP, int TN, float f1);
     void hsl_more_detail(int FP, int FN, int TP, int TN, float f1,int no_svm);
     void end_experiment();

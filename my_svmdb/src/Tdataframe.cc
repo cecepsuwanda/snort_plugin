@@ -125,7 +125,7 @@ vector<string> Tdataframe::get_record_svm()
     vector<string> vec;//, tmp_data = _data.get_record();
 
     for (int i = 0; i < _jml_col; ++i)
-    {      
+    {
       switch (i) {
       case 1:
         vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
@@ -182,6 +182,44 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
 
   return Table;
 }
+
+
+
+map<string, vector<string>> Tdataframe::get_all_record_svm_map()
+{
+  //std::lock_guard<std::mutex> lock(v_mutex);
+  // ReFilter();
+
+  _data.read_hsl_filter();
+
+  map<string, vector<string>> Table;
+
+  _data.reset_file();
+  while (!_data.is_eof())
+  {
+    //cout << " get_all_record_svm get_record_svm " << endl;
+    string record_id = _data.get_id_row();
+    vector<string> tmp_data = get_record_svm();
+
+    auto itr = Table.find(record_id);
+    if (itr == Table.end()) {
+      Table.insert({record_id, tmp_data});
+    } else {
+      cetak(" record ganda !!! \n ");
+    }
+
+    //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
+    //if (is_pass) {
+    //Table.push_back(tmp_data);
+    //}
+    //cout << " get_all_record_svm next_record " << endl;
+    _data.next_record();
+  }
+
+  return Table;
+}
+
+
 
 // void Tdataframe::set_config(Tconfig v_config)
 // {
@@ -258,6 +296,16 @@ int Tdataframe::get_opt(int idx_col, int is_below)
   } else {
     return (is_below == 1) ? 2 : 3;
   }
+}
+
+void Tdataframe::dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt)
+{
+  _data.dtsvm_stat(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt);
+}
+
+void Tdataframe::dtsvm_conf_metrix(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix)
+{
+  _data.dtsvm_conf_metrix(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt,tmp_conf_metrix); 
 }
 
 

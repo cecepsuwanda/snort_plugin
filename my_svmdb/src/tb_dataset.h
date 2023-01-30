@@ -5,6 +5,7 @@
 #include "Tquery_builder.h"
 #include "Tlabel_stat.h"
 #include "Tmy_dttype.h"
+#include "Tconf_metrix.h"
 
 using namespace std;
 
@@ -34,6 +35,8 @@ private:
 	int _jml_row = 0;
 	int _jml_col = 0;
 
+	string _id_row = "-1";
+
 	int _idx_label = 0;
 	size_t _idx_col = 0;
 
@@ -56,6 +59,7 @@ public:
 	vector<string> get_data_type();
 	int get_idx_label();
 
+	string get_id_row();
 	int get_jml_row();
 	int get_jml_col();
 
@@ -81,10 +85,10 @@ public:
 	void set_child(int depth, int branch,int branch_number);	
 	void switch_parent_child();
 	void set_label_idx_svm(int idx_svm,string label);
+	void set_label_svm(string id_row,string label);
 
 	posisi_cabang get_posisi_parent();
 
-	
 	void filter(string sql, bool is_all);
 	void read_hsl_filter();
 	void filter_by_idx_svm(int idx_svm);
@@ -99,9 +103,11 @@ public:
 	void set_child_parent();
 	void delete_child(int child_depth,int child_branch, int child_branch_number);
 
+	void dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt);
+    void dtsvm_conf_metrix(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix);
+	
 	void switch_to_test();
 	void train_to_test();
-
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{

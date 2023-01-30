@@ -207,11 +207,11 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			if (parent_node->right != NULL) {
 				missing_branch.add_branch(tmp_posisi, parent_node->criteriaAttrIndex, -1, parent_node->right->attrValue);
 			} else {
-			  if (!parent_node->isLeaf)
-	          {	
-				cetak(" kacau !!! ");
-				cetak("\n child_depth = %d child_branch = %d child_branch_number = %d parent_depth = %d parent_branch = %d parent_branch_number = %d \n", tmp_posisi.child_depth, tmp_posisi.child_branch, tmp_posisi.child_branch_number, tmp_posisi.parent_depth, tmp_posisi.parent_branch, tmp_posisi.parent_branch_number);
-			  }	
+				if (!parent_node->isLeaf)
+				{
+					cetak(" kacau !!! ");
+					cetak("\n child_depth = %d child_branch = %d child_branch_number = %d parent_depth = %d parent_branch = %d parent_branch_number = %d \n", tmp_posisi.child_depth, tmp_posisi.child_branch, tmp_posisi.child_branch_number, tmp_posisi.parent_depth, tmp_posisi.parent_branch, tmp_posisi.parent_branch_number);
+				}
 			}
 		}
 
@@ -260,7 +260,6 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 					cetak("+");
 
 					if (tmp_str == "normal") {
-
 						idx_svm++;
 						parent_node->idx_svm = idx_svm;
 						cetak("{N}");
@@ -1433,7 +1432,13 @@ void Tdt_build::dec_tree_to_vec_tree(tree_node* parent_node, int node_index)
 	{
 		if (parent_node->label == "normal")
 		{
+			idx_svm++;
 			tree[node_index].idx_svm = parent_node->idx_svm;
+			if (idx_svm != parent_node->idx_svm)
+			{
+				tree[node_index].idx_svm = idx_svm;
+			}
+
 		}
 
 		tree[node_index].isLeaf = parent_node->isLeaf;
@@ -1468,6 +1473,8 @@ void Tdt_build::dec_tree_to_vec_tree(tree_node* parent_node, int node_index)
 
 void Tdt_build::save_tree()
 {
+	idx_svm = 0;
+
 	dec_tree_to_vec_tree(dec_tree, 0);
 
 	tb_tree dbtree;
@@ -1541,7 +1548,7 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 			posisi_tmp.switch_parent_branch();
 			posisi_tmp.set_child(counter, -1, -1);
 
-			if (missing_branch.parent_exixst(posisi_tmp)) {				
+			if (missing_branch.parent_exixst(posisi_tmp)) {
 
 				tree_node* left_node = NULL;
 				tree_node* right_node = NULL;
@@ -1632,11 +1639,11 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 						branch_number[counter] = tmp_max_branch_number;
 					}
 
-					parent_node->isLeaf = false;										
+					parent_node->isLeaf = false;
 				}
 
 
-			} else {				
+			} else {
 				parent_node = NULL;
 			}
 
@@ -1677,7 +1684,7 @@ void Tdt_build::trim_dec_tree(tree_node* parent_node)
 			if (!parent_node->is_lanjut)
 			{
 				//cetak(" %d tdk lanjut !!!", parent_node->depth);
-				
+
 				parent_node->isLeaf = true;
 
 				delete parent_node->left;
@@ -1688,14 +1695,14 @@ void Tdt_build::trim_dec_tree(tree_node* parent_node)
 
 				//cetak("\n");
 			}
-		} 
+		}
 		// else {
 		// 	if (!parent_node->is_lanjut)
-		// 	{				
-		// 		parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;			
+		// 	{
+		// 		parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
 		// 	}
 		// }
-	} 
+	}
 
 }
 
@@ -1791,7 +1798,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, posisi_c
 
 void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missing_branch)
 {
-
+	idx_svm = 0;
 	vector<string> tmp_data;
 	tb_tree tree;
 	tree.baca_tree(id_detail_experiment);
@@ -1818,12 +1825,19 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 		//cout << tmp_data[6] << endl;
 		newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
 
+		idx_svm = tmp_data[8] == "-1" ? idx_svm : idx_svm++;
+
 		newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
 
-		if (idx_svm < newnode.idx_svm)
+		if (idx_svm != newnode.idx_svm)
 		{
-			idx_svm = newnode.idx_svm;
+          newnode.idx_svm = idx_svm;
 		}
+
+		// if (idx_svm < newnode.idx_svm)
+		// {
+		//  	idx_svm = newnode.idx_svm;
+		// }
 
 		prev_tree.push_back(newnode);
 
@@ -1834,6 +1848,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 
 	posisi_cabang posisi_root;
 	posisi_root.reset();
+
 	dec_tree = vec_tree_to_dec_tree(0, 0, posisi_root, missing_branch);
 	trim_dec_tree(dec_tree);
 

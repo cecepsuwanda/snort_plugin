@@ -28,7 +28,7 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
   for (auto i = idx_svm.begin(); i != idx_svm.end(); ++i)
   {
     df_test.filter_by_idx_svm(*i);
-    vector<vector<string>> _table_svm = df_test.get_all_record_svm();
+    map<string,vector<string>> _table_svm = df_test.get_all_record_svm_map();
 
     Tmy_svm my_svm(config);
     Tconf_metrix svm_conf_metrix;
@@ -38,12 +38,13 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
 
     experiment.start_test_more_detail(*i);
 
-    for (int j = 0; j < _table_svm.size(); ++j)
+    for (auto j = _table_svm.begin(); j != _table_svm.end(); ++j)
     {      
-      vector<string> vec_str = _table_svm[j];      
+      vector<string> vec_str = j->second;      
       string tmp_label_org = vec_str[vec_str.size()-1];     
       
-      string tmp_label_svm = my_svm.guess(_table_svm[j]);      
+      string tmp_label_svm = my_svm.guess(vec_str);
+      df_test.set_label_svm(j->first,tmp_label_svm);      
       
       svm_conf_metrix.add_jml("normal", tmp_label_svm, 1);
       total_svm_conf_metrix.add_jml("normal", tmp_label_svm, 1);
@@ -54,9 +55,11 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
     int jml_FP = svm_conf_metrix.get_FP("normal");
     int jml_TN = svm_conf_metrix.get_TN("normal");
     int jml_TP = svm_conf_metrix.get_TP("normal");
-    float f1 = svm_conf_metrix.get_F1();
+    float f1 = svm_conf_metrix.get_F1("normal");
 
     experiment.hsl_more_detail(jml_FP, jml_FN, jml_TP, jml_TN, f1, *i);
+
+
 
     experiment.end_test_more_detail(*i);
 
@@ -67,9 +70,22 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
   int jml_FP = total_svm_conf_metrix.get_FP("normal");
   int jml_TN = total_svm_conf_metrix.get_TN("normal");
   int jml_TP = total_svm_conf_metrix.get_TP("normal");
-  float f1 = total_svm_conf_metrix.get_F1();
+  float f1 = total_svm_conf_metrix.get_F1("normal");
 
-  experiment.hsl(jml_FP, jml_FN, jml_TP, jml_TN, f1); 
+  experiment.hsl_svm(jml_FP, jml_FN, jml_TP, jml_TN, f1); 
+
+  df_test.dtsvm_stat(config->id_experiment,config->id_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt);
+  
+  Tconf_metrix tmp_conf_metrix; 
+  df_test.dtsvm_conf_metrix(config->id_experiment,config->id_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt,tmp_conf_metrix);
+
+  jml_FN = tmp_conf_metrix.get_FN("normal");
+  jml_FP = tmp_conf_metrix.get_FP("normal");
+  jml_TN = tmp_conf_metrix.get_TN("normal");
+  jml_TP = tmp_conf_metrix.get_TP("normal");
+  f1 = tmp_conf_metrix.get_F1("normal");
+
+  experiment.hsl(jml_FP, jml_FN, jml_TP, jml_TN, f1);
 
 }
 

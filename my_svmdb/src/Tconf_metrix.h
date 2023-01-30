@@ -22,7 +22,7 @@ class Tconf_metrix
 private:
   map<string, map<string, int>> matrik;
   map<string, Tdata> matrik1;
-  float accuracy, precision, recall,f1;
+  float accuracy_total, precision_total, recall_total,f1_total;
   int failed, tepat, tdk_tepat, jml_data;
   map<string, int> label;
   map<string, string> konversi_asli;
@@ -40,7 +40,9 @@ public:
   int get_TN(string kelas);
   int get_FP(string kelas);
   int get_FN(string kelas);
+  float get_F1(string kelas);
   float get_F1();
+  
   void save(string nm_file, string param_nm_file, int param_depth, int param_min_sample, double param_gamma, double param_nu, double param_credal_s);
 
   void add_konversi_asli(string dari,string ke);

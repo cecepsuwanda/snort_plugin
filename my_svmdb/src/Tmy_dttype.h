@@ -26,9 +26,7 @@ public:
 	string get_value();
 
 	string get_string();
-
 	bool is_continue();
-
 
 	Tmy_dttype& operator = (const Tmy_dttype &t)
 	{
@@ -85,10 +83,8 @@ public:
 	bool operator <=(const string& rhs) const
 	{
 		if (_is_continue)
-		{
-			
+		{			
 			return  (stof(_value) <= stof(rhs));
-
 		} else {
 			if (!_is_continue)
 			{

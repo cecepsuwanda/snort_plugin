@@ -69,6 +69,11 @@ void Tbase_dataframe::set_label_idx_svm(int idx_svm,string label)
 	_data.set_label_idx_svm(idx_svm,label);
 }
 
+void Tbase_dataframe::set_label_svm(string id_row,string label)
+{
+	_data.set_label_svm(id_row,label);
+}
+
 
 string Tbase_dataframe::filter_to_query(bool is_last)
 {

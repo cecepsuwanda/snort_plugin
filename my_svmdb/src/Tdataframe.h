@@ -1,8 +1,11 @@
 #include <mutex>
+
+#include "Tconf_metrix.h"
 #include "Tread_file.h"
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "Tbase_dataframe.h"
+
 #include <future>
 #include <thread>
 #include <unordered_map>
@@ -118,8 +121,10 @@ public:
   void clone_dataset();
   void reset_depth_branch();  
 
-  void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);  
-  
+  void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);
+  void dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt);   
+  void dtsvm_conf_metrix(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix);
+
   map<string, int> get_stat_label();
   
   string get_max_label();
@@ -129,6 +134,8 @@ public:
   int getjmlrow_svm();
   vector<string> get_record_svm();
   vector<vector<string>> get_all_record_svm();
+  map<string,vector<string>> get_all_record_svm_map();
+  
 
   // void set_config(Tconfig v_config);  
 

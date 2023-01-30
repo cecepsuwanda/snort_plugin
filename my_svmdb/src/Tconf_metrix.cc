@@ -148,28 +148,28 @@ void Tconf_metrix::kalkulasi()
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
 
-		accuracy = 0.00;
+		accuracy_total = 0.00;
 
 		if ((TP + TN + FP + FN) > 0)
 		{
-			accuracy = (TP + TN) / (double)(TP + TN + FP + FN);
+			accuracy_total = (TP + TN) / (double)(TP + TN + FP + FN);
 		}
 
-		precision = 0.00;
+		precision_total = 0.00;
 		if ((TP + FP) > 0) {
-			precision = TP / (double)(TP + FP);
+			precision_total = TP / (double)(TP + FP);
 		}
 
-		recall = 0.00;
+		recall_total = 0.00;
 		if ((TP + FN) > 0)
 		{
-			recall = TP / (double)(TP + FN);
+			recall_total = TP / (double)(TP + FN);
 		}
 
-		f1 = 0.00;
-		if ((recall + precision) > 0)
+		f1_total = 0.00;
+		if ((recall_total + precision_total) > 0)
 		{
-			f1 = (2 * recall * precision) / (double)(recall + precision);
+			f1_total = (2 * recall_total * precision_total) / (double)(recall_total + precision_total);
 		}
 	}
 }
@@ -259,9 +259,15 @@ int Tconf_metrix::get_FN(string kelas)
 	return total;
 }
 
+
+float Tconf_metrix::get_F1(string kelas)
+{
+	return matrik1[kelas].f1;
+}
+
 float Tconf_metrix::get_F1()
 {
-	return f1;
+	return f1_total;
 }
 
 ostream & operator << (ostream &out, const Tconf_metrix &tc)
@@ -271,10 +277,10 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	out << " Prediksi Tidak Tepat: " << tc.tdk_tepat;
 	out << " Prediksi Failed: " << tc.failed;
 	//out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100);
-	out << " Akurasi: " << tc.accuracy ;
-	out << " Precision: " << tc.precision ;
-	out << " Recall: " << tc.recall ;
-	out << " F1 : " << tc.f1 << endl;
+	out << " Akurasi: " << tc.accuracy_total ;
+	out << " Precision: " << tc.precision_total ;
+	out << " Recall: " << tc.recall_total ;
+	out << " F1 : " << tc.f1_total << endl;
 
 	if (tc.matrik1.size() > 0) {
 		out << "   Confusion Metrik     : " << endl;
