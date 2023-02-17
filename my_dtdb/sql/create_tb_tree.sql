@@ -77,13 +77,40 @@ create trigger after_missing_branch_delete
       end; 
 
 
-<-11?|->12?| kacau !!! 
- child_depth = 12 child_branch = 1 child_branch_number = 9 parent_depth = 11 parent_branch = 2 parent_branch_number = 8 
-<-12?| kacau !!! 
- child_depth = 12 child_branch = 2 child_branch_number = 10 parent_depth = 11 parent_branch = 2 parent_branch_number = 8 
-<-10?|->11 tidak *{A}
-<-11?|->12?| kacau !!! 
- child_depth = 12 child_branch = 1 child_branch_number = 11 parent_depth = 11 parent_branch = 2 parent_branch_number = 10 
-<-12?| kacau !!! 
- child_depth = 12 child_branch = 2 child_branch_number = 12 parent_depth = 11 parent_branch = 2 parent_branch_number = 10 
-      
+
+
+CREATE TABLE `tree_nsl` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `attrindex` int(11) DEFAULT NULL,
+  `attrvalue` varchar(255) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `treeindex` int(11) DEFAULT NULL,
+  `isleaf` int(11) DEFAULT NULL,
+  `opt` int(11) DEFAULT NULL,
+  `child1` int(11) DEFAULT NULL,
+  `child2` int(11) DEFAULT NULL,
+  `idx_svm` int(11) DEFAULT NULL,
+  `id_detail` varchar(255) DEFAULT NULL,
+  `id_experiment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_tree` (`id_detail`),
+  CONSTRAINT `fk_tree_nsl` FOREIGN KEY (`id_detail`) REFERENCES `detail_experiment_nsl` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `tree_darpa` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `attrindex` int(11) DEFAULT NULL,
+  `attrvalue` varchar(255) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `treeindex` int(11) DEFAULT NULL,
+  `isleaf` int(11) DEFAULT NULL,
+  `opt` int(11) DEFAULT NULL,
+  `child1` int(11) DEFAULT NULL,
+  `child2` int(11) DEFAULT NULL,
+  `idx_svm` int(11) DEFAULT NULL,
+  `id_detail` varchar(255) DEFAULT NULL,
+  `id_experiment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_tree` (`id_detail`),
+  CONSTRAINT `fk_tree_darpa` FOREIGN KEY (`id_detail`) REFERENCES `detail_experiment_darpa` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

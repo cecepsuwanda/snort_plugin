@@ -788,6 +788,14 @@ void tb_dataset::dtsvm_stat(time_t id_experiment, time_t id_detail_experiment, t
 	global_query_builder.query(tmp_sql);
 }
 
+void tb_dataset::detail_dtsvm_stat(time_t id_experiment, time_t id_detail_experiment, time_t id_more_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt,int no_svm)
+{
+	string tmp_sql = "insert into detail_dtsvm_stat(id_experiment,id_detail_experiment,id_more_detail_experiment,id_experiment_dt,id_detail_experiment_dt,idx_svm,label_org,label_pred,jml) (select " + to_string(id_experiment) + "," + to_string(id_detail_experiment)+ "," + to_string(id_more_detail_experiment) + "," + to_string(id_experiment_dt) + "," + to_string(id_detail_experiment_dt)+ "," + to_string(no_svm) + ",dataset.label as label_org," + _tmp_dataset_tb + ".label as label_pred,count(*) as jml from dataset partition(" + _partition + ") inner join " + _tmp_dataset_tb + " on id_row=id where no_svm="+to_string(no_svm)+" group by dataset.label," + _tmp_dataset_tb + ".label)";
+	global_query_builder.query(tmp_sql);
+}
+
+
+
 void tb_dataset::dtsvm_conf_metrix(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix)
 {
 	string where_str  = "";

@@ -303,6 +303,11 @@ void Tdataframe::dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,tim
   _data.dtsvm_stat(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt);
 }
 
+void Tdataframe::detail_dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_more_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,int no_svm)
+{
+  _data.detail_dtsvm_stat(id_experiment,id_detail_experiment,id_more_detail_experiment,id_experiment_dt,id_detail_experiment_dt,no_svm);
+}
+
 void Tdataframe::dtsvm_conf_metrix(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix)
 {
   _data.dtsvm_conf_metrix(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt,tmp_conf_metrix); 

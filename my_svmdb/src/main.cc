@@ -1,5 +1,4 @@
 #include <iostream>
-#include <experimental/filesystem>
 #include "Tdec_tree.h"
 #include "Tconf_metrix.h"
 #include "tb_experiment.h"
@@ -7,18 +6,15 @@
 #include "Tmy_svm.h"
 
 using namespace std;
-using std::experimental::filesystem::exists;
-using std::experimental::filesystem::path;
-using std::experimental::filesystem::directory_iterator;
 
 int main(int argc, char *argv[])
 {
   char *endptr;
   Tconfig config;
-  config.f_datatype = argv[2];
-  config.path_model = argv[1];
+  // config.f_datatype = argv[2];
+  // config.path_model = argv[1];
 
-  config.svm_path = config.path_model + "/" + argv[9];
+  // config.svm_path = config.path_model + "/" + argv[9];
 
   double gamma_awal  = strtod(argv[3], &endptr);
   double gamma_akhir = strtod(argv[4], &endptr);
@@ -28,12 +24,13 @@ int main(int argc, char *argv[])
   double nu_akhir = strtod(argv[7], &endptr);
   double nu_step = strtod(argv[8], &endptr);
 
-  config.id_experiment_dt = 1674635983;
-  config.id_detail_experiment_dt = 1674637223;
+  config.id_experiment_dt = (time_t) atoll(argv[1]);
+  config.id_detail_experiment_dt = (time_t) atoll(argv[2]);
 
   tb_experiment experiment;
   train_test_data train_test = experiment.get_train_test_data(config.id_experiment_dt);
 
+  cetak("Menyiapkan Data Latih :\n");
 
   Tdataframe df_train(&config);
   df_train.set_dataset(train_test.id_dt_train, train_test.jns_dt_train, train_test.partition_train);
@@ -44,6 +41,8 @@ int main(int argc, char *argv[])
   df_train.stat_tabel(true, true, true);
   df_train.setjmltotalrow();
 
+  cetak("Menyiapkan Data Test :\n"); 
+  
   Tdataframe df_test(&config);
   df_test.set_dataset(train_test.id_dt_test, train_test.jns_dt_test, train_test.partition_test);
   df_test.read_header_type();
@@ -53,9 +52,13 @@ int main(int argc, char *argv[])
   df_test.clone_dataset();
   df_test.stat_tabel(false, false, false);
 
+  cetak("Baca Tree :\n"); 
+
   Tdt_learn_svm learn_svm(&config);
   learn_svm.read_tree();
 
+  cetak("Memberi nomor svm :\n");
+  
   learn_svm.set_svm_dataset(df_train);
   learn_svm.set_svm_dataset(df_test);
 
@@ -82,6 +85,8 @@ int main(int argc, char *argv[])
     for (double j = nu_awal; j <= nu_akhir; j += nu_step)
     {
       config.nu = j;
+
+      cetak("gamma = %f nu = %f \n",i,j);
 
       experiment.insert_detail_experiment(config.id_experiment_dt, config.id_detail_experiment_dt, config.gamma, config.nu);
       config.id_detail_experiment = experiment.get_id_detail_experiment();

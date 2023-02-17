@@ -122,7 +122,8 @@ public:
   void reset_depth_branch();  
 
   void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);
-  void dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt);   
+  void dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt);
+  void detail_dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_more_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,int no_svm);      
   void dtsvm_conf_metrix(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix);
 
   map<string, int> get_stat_label();

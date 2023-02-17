@@ -27,6 +27,7 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
   vector<int> idx_svm = df_test.get_idx_svm();
   for (auto i = idx_svm.begin(); i != idx_svm.end(); ++i)
   {
+    cetak("---- Test no svm %d \n",*i);
     df_test.filter_by_idx_svm(*i);
     map<string,vector<string>> _table_svm = df_test.get_all_record_svm_map();
 
@@ -37,6 +38,7 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
     my_svm.load_model(nm_model);
 
     experiment.start_test_more_detail(*i);
+    time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
 
     for (auto j = _table_svm.begin(); j != _table_svm.end(); ++j)
     {      
@@ -58,8 +60,7 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
     float f1 = svm_conf_metrix.get_F1("normal");
 
     experiment.hsl_more_detail(jml_FP, jml_FN, jml_TP, jml_TN, f1, *i);
-
-
+    df_test.detail_dtsvm_stat(config->id_experiment,config->id_detail_experiment,id_more_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt,*i);
 
     experiment.end_test_more_detail(*i);
 

@@ -27,7 +27,7 @@ private:
     Tquery_builder global_query_builder;
     time_t _id_experiment;
     time_t _id_detail_experiment;
-    time_t _id_more_detail_experiment;
+    
 
 
 public:
@@ -38,7 +38,7 @@ public:
     void insert_detail_experiment(time_t id_experiment_dt,time_t id_detail_experiment_dt, double gamma,double nu);
     void insert_more_detail_experiment(time_t id_experiment_dt,time_t id_detail_experiment_dt,int no_svm, double gamma,double nu);
     
-    bool cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, int threshold, double credal, time_t &id_detail_experiment);
+    bool cari_detail_experiment(double gamma,double nu, time_t &id_detail_experiment, time_t &id_experiment, time_t &id_detail_experiment_dt, time_t &id_experiment_dt);
 
     void end_train_start_test();
     void end_test();
@@ -54,7 +54,7 @@ public:
 
     time_t get_id_experiment();
     time_t get_id_detail_experiment();
-    time_t get_id_more_detail_experiment();
+    time_t get_id_more_detail_experiment(int no_svm);
 
     train_test_data get_train_test_data(time_t id_experiment);
 };

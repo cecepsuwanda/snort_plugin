@@ -50,3 +50,54 @@ select depth,FP,FN,timediff(if(end_train is null,now(),end_train),start_train) a
 where id_dt_train = 2 order by depth desc,start_train desc;
 
 alter table detail_experiment modify column threshold double;
+
+select depth,threshold,credal,TP,TN,FP,FN
+from detail_experiment where id_dt_train=1 and minsample=200 and threshold=10
+order by depth desc,threshold desc,credal desc
+
+CREATE TABLE `detail_experiment_nsl` (
+  `id` varchar(255) NOT NULL,
+  `id_experiment` varchar(255) NOT NULL,
+  `id_dt_train` int(11) DEFAULT NULL,
+  `jns_dt_train` int(11) DEFAULT NULL,
+  `id_dt_test` int(11) DEFAULT NULL,
+  `jns_dt_test` int(11) DEFAULT NULL,
+  `depth` int(11) DEFAULT NULL,
+  `minsample` int(11) DEFAULT NULL,
+  `threshold` double DEFAULT NULL,
+  `credal` double DEFAULT NULL,
+  `TP` int(11) DEFAULT NULL,
+  `TN` int(11) DEFAULT NULL,
+  `FP` int(11) DEFAULT NULL,
+  `FN` int(11) DEFAULT NULL,
+  `f1` double DEFAULT NULL,
+  `start_train` datetime DEFAULT NULL,
+  `end_train` datetime DEFAULT NULL,
+  `start_test` datetime DEFAULT NULL,
+  `end_test` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`,`id_experiment`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+CREATE TABLE `detail_experiment_darpa` (
+  `id` varchar(255) NOT NULL,
+  `id_experiment` varchar(255) NOT NULL,
+  `id_dt_train` int(11) DEFAULT NULL,
+  `jns_dt_train` int(11) DEFAULT NULL,
+  `id_dt_test` int(11) DEFAULT NULL,
+  `jns_dt_test` int(11) DEFAULT NULL,
+  `depth` int(11) DEFAULT NULL,
+  `minsample` int(11) DEFAULT NULL,
+  `threshold` double DEFAULT NULL,
+  `credal` double DEFAULT NULL,
+  `TP` int(11) DEFAULT NULL,
+  `TN` int(11) DEFAULT NULL,
+  `FP` int(11) DEFAULT NULL,
+  `FN` int(11) DEFAULT NULL,
+  `f1` double DEFAULT NULL,
+  `start_train` datetime DEFAULT NULL,
+  `end_train` datetime DEFAULT NULL,
+  `start_test` datetime DEFAULT NULL,
+  `end_test` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`,`id_experiment`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

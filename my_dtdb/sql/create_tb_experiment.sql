@@ -49,3 +49,53 @@ primary key (id)
 );
 
 alter table experiment modify column threshold_awal double, modify column threshold_akhir double, modify column threshold_step double;
+
+CREATE TABLE `experiment_nsl` (
+  `id` varchar(255) NOT NULL,
+  `depth_awal` int(11) DEFAULT NULL,
+  `depth_akhir` int(11) DEFAULT NULL,
+  `depth_step` int(11) DEFAULT NULL,
+  `min_sample_awal` int(11) DEFAULT NULL,
+  `min_sample_akhir` int(11) DEFAULT NULL,
+  `min_sample_step` int(11) DEFAULT NULL,
+  `threshold_awal` double DEFAULT NULL,
+  `threshold_akhir` double DEFAULT NULL,
+  `threshold_step` double DEFAULT NULL,
+  `credal_awal` double DEFAULT NULL,
+  `credal_akhir` double DEFAULT NULL,
+  `credal_step` double DEFAULT NULL,
+  `id_dt_train` int(11) DEFAULT NULL,
+  `jns_dt_train` int(11) DEFAULT NULL,
+  `partition_train` varchar(255) DEFAULT NULL,
+  `id_dt_test` int(11) DEFAULT NULL,
+  `jns_dt_test` int(11) DEFAULT NULL,
+  `partition_test` varchar(255) DEFAULT NULL,
+  `mulai` datetime DEFAULT NULL,
+  `akhir` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `experiment_darpa` (
+  `id` varchar(255) NOT NULL,
+  `depth_awal` int(11) DEFAULT NULL,
+  `depth_akhir` int(11) DEFAULT NULL,
+  `depth_step` int(11) DEFAULT NULL,
+  `min_sample_awal` int(11) DEFAULT NULL,
+  `min_sample_akhir` int(11) DEFAULT NULL,
+  `min_sample_step` int(11) DEFAULT NULL,
+  `threshold_awal` double DEFAULT NULL,
+  `threshold_akhir` double DEFAULT NULL,
+  `threshold_step` double DEFAULT NULL,
+  `credal_awal` double DEFAULT NULL,
+  `credal_akhir` double DEFAULT NULL,
+  `credal_step` double DEFAULT NULL,
+  `id_dt_train` int(11) DEFAULT NULL,
+  `jns_dt_train` int(11) DEFAULT NULL,
+  `partition_train` varchar(255) DEFAULT NULL,
+  `id_dt_test` int(11) DEFAULT NULL,
+  `jns_dt_test` int(11) DEFAULT NULL,
+  `partition_test` varchar(255) DEFAULT NULL,
+  `mulai` datetime DEFAULT NULL,
+  `akhir` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

@@ -1,5 +1,6 @@
 #include "global.h"
 #include <thread>
+#include <experimental/filesystem>
 #include "tb_experiment.h"
 #include "Tdataframe.h"
 #include "Tmy_svm.h"
@@ -8,6 +9,13 @@
 #ifndef Included_Tdt_learn_svm_H
 
 #define Included_Tdt_learn_svm_H
+
+using namespace std;
+using std::experimental::filesystem::exists;
+using std::experimental::filesystem::path;
+using std::experimental::filesystem::directory_iterator;
+
+namespace fs = std::experimental::filesystem;
 
 class Tdt_learn_svm
 {
