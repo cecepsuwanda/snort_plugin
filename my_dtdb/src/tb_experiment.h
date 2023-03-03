@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include "global.h"
 #include "Tquery_builder.h"
 
 using namespace std;
@@ -24,7 +25,7 @@ public:
 
 	void insert_experiment(int depth_awal,int depth_akhir,int depth_step,int min_sample_awal,int min_sample_akhir,int min_sample_step,double threshold_awal, double threshold_akhir, double threshold_step, double credal_s_awal,double credal_s_akhir,double credal_s_step,int id_dt_train,int jns_dt_train,string partition_train,int id_dt_test,int jns_dt_test,string partition_test);
     void insert_detail_experiment(int id_dt_train,int jns_dt_train ,int id_dt_test,int jns_dt_test,int depth,int min_sample,double threshold,double credal);
-    bool cari_detail_experiment(int id_dt_train,int jns_dt_train ,int id_dt_test,int jns_dt_test,int depth,int min_sample,double threshold,double credal,time_t &id_detail_experiment);       
+    bool cari_detail_experiment(int id_dt_train,int jns_dt_train ,int depth,int min_sample,double threshold,double credal,time_t &id_detail_experiment);       
     
     void end_train_start_test(); 
     void end_test();

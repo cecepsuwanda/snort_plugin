@@ -17,6 +17,7 @@ bool tb_tree::cari_tree(time_t id_detail_experiment)
 	bool is_exist = false;
 
 	string sql = "select * from tree where id_detail=" + to_string(id_detail_experiment) + " limit 1 ";
+	
 	global_query_builder.open_connection();
 	if (global_query_builder.query(sql))
 	{

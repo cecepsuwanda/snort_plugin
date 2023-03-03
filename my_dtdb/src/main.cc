@@ -33,12 +33,12 @@ int main(int argc, const char **argv)
 	int min_sample_akhir = stoi(argv[5]);
 	int min_sample_step  = stoi(argv[6]);
 
-	double threshold_awal  = strtod(argv[10],&endptr);
-	double threshold_akhir = strtod(argv[11],&endptr);
-	double threshold_step  = strtod(argv[12],&endptr);
+	double threshold_awal  = strtod(argv[10], &endptr);
+	double threshold_akhir = strtod(argv[11], &endptr);
+	double threshold_step  = strtod(argv[12], &endptr);
 
 	//config.f_train = argv[14];
-	//config.f_test = argv[15];	
+	//config.f_test = argv[15];
 
 	config.id_dt_train = stoi(argv[14]);;
 	config.jns_dt_train = stoi(argv[15]);;
@@ -110,22 +110,29 @@ int main(int argc, const char **argv)
 
 					Tdt_build dec_tree_build(&config);
 
-					bool file_exist = false;
+					bool detail_exist = false;
+					bool detail_exist_1 = false;
+					bool tree_exist = false;
 
 					time_t tmp_id_detail_experiment;
-					file_exist = experiment.cari_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth - 1, config.min_sample, config.threshold, config.credal_s, tmp_id_detail_experiment);
 
-					if (file_exist)
-					{
-						file_exist = tree.cari_tree(tmp_id_detail_experiment);
+					detail_exist = experiment.cari_detail_experiment(config.id_dt_train, config.jns_dt_train , config.depth, config.min_sample, config.threshold, config.credal_s, tmp_id_detail_experiment);
+					if (!detail_exist) {
+						detail_exist_1 = experiment.cari_detail_experiment(config.id_dt_train, config.jns_dt_train , config.depth - 1, config.min_sample, config.threshold, config.credal_s, tmp_id_detail_experiment);
 					}
 
 
-					if (file_exist) //(j > depth_awal) and
+					if (detail_exist or detail_exist_1)
 					{
-					 	//df_train.reset_depth_branch();
-					 	dec_tree_build.read_tree(tmp_id_detail_experiment,missing_branch);
-					 	dec_tree_build.build_from_prev_tree(df_train,missing_branch, j - 1);
+						tree_exist = tree.cari_tree(tmp_id_detail_experiment);
+					}
+
+
+					if (tree_exist) //(j > depth_awal) and
+					{
+						//df_train.reset_depth_branch();
+						dec_tree_build.read_tree(tmp_id_detail_experiment, missing_branch);
+						dec_tree_build.build_from_prev_tree(df_train, missing_branch, j - 1, detail_exist);
 					} else {
 						df_train.reset_depth_branch();
 						missing_branch.clear_table();
@@ -134,7 +141,7 @@ int main(int argc, const char **argv)
 
 					experiment.end_train_start_test();
 
-					if ((file_exist) and (config.id_dt_train == config.id_dt_test) and (config.jns_dt_train == config.jns_dt_test) and (config.partition_train == config.partition_test))
+					if ((tree_exist) and (config.id_dt_train == config.id_dt_test) and (config.jns_dt_train == config.jns_dt_test) and (config.partition_train == config.partition_test))
 					{
 						df_train.train_to_test();
 					} else {

@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <ctime>
-
+#include "global.h"
 #include "Tquery_builder.h"
 
 using namespace std;

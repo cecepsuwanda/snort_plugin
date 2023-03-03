@@ -356,8 +356,8 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   Tlabel_stat _stat_label_below;
 
-  auto itr_next = _col_pot_split->begin();
-  itr_next++;
+  // auto itr_next = _col_pot_split->begin();
+  // itr_next++;
 
   auto itr = _col_pot_split->begin();
 
@@ -365,22 +365,23 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   while ((itr != _col_pot_split->end()))
   {
     (*itr).second.set_config(config);
-    (*itr_next).second.set_config(config);
+    //(*itr_next).second.set_config(config);
 
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
     
-      if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
-      {
+      //if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
+      //{
 
         Tmy_dttype tmp1 = (*itr).first;
-        Tmy_dttype tmp2 = (*itr_next).first;
+        //Tmy_dttype tmp2 = (*itr_next).first;
         try {
-          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
+          //mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
+          mid_point = tmp1.get_string();
         }
         catch (const std::invalid_argument& ia) {
-          cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
+          //cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
         }
 
         Tbelow_above ba(config);
@@ -399,7 +400,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
           gain = (entropy_before_split - entropy_after_split) / split_info;
         }
 
-      }
+      //}
 
       if ((first_iteration and (gain > 0)) or (gain_max < gain))
       {
@@ -410,7 +411,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
       }
       
 
-    itr_next++;
+    //itr_next++;
     itr++;
 
 

@@ -67,7 +67,7 @@ public:
 
 	void build_tree(Tdataframe &df_train,tb_missing_branch &missing_branch);
 	void read_tree(time_t id_detail_experiment,tb_missing_branch &missing_branch);
-	void build_from_prev_tree(Tdataframe &df_train,tb_missing_branch &missing_branch,int prev_tree_depth);
+	void build_from_prev_tree(Tdataframe &df_train,tb_missing_branch &missing_branch,int prev_tree_depth,bool bypass);
 
 };
 #endif

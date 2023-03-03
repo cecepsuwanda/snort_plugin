@@ -101,3 +101,16 @@ CREATE TABLE `detail_experiment_darpa` (
   `end_test` datetime DEFAULT NULL,
   PRIMARY KEY (`id`,`id_experiment`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+select depth,minsample,threshold,credal,FP,FN from detail_experiment_nsl a 
+where a.id_dt_train=a.id_dt_test and threshold=10
+order by FP asc,FN asc, depth asc,minsample asc,threshold asc,credal asc
+
+select jns_dt_test,depth,minsample,threshold,
+       sum(if(credal=0,FP,0)) as credal0,
+       sum(if(credal=0.5,FP,0)) as credal05,
+       sum(if(credal=1,FP,0)) as credal1,
+       sum(if(credal=1.5,FP,0)) as credal15,
+       sum(if(credal=2,FP,0)) as credal2      
+from detail_experiment 
+group by jns_dt_test,depth,minsample,threshold

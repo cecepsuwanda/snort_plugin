@@ -48,11 +48,12 @@ void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train ,
 	global_query_builder.close_connection();
 }
 
-bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, double threshold, double credal, time_t &id_detail_experiment)
+bool tb_experiment::cari_detail_experiment(int id_dt_train, int jns_dt_train , int depth, int min_sample, double threshold, double credal, time_t &id_detail_experiment)
 {
 	bool is_exist = false;
 
-	string sql = "select id from detail_experiment where id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and id_dt_test=" + to_string(id_dt_test) + " and jns_dt_test=" + to_string(jns_dt_test) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal)+" order by start_train desc limit 1";
+	string sql = "select id from detail_experiment where id<>"+to_string(_id_detail_experiment)+" and id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal)+" order by start_train desc limit 1";
+	
 	global_query_builder.open_connection();
 	if (global_query_builder.query(sql))
 	{

@@ -1831,7 +1831,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 
 		if (idx_svm != newnode.idx_svm)
 		{
-          newnode.idx_svm = idx_svm;
+			newnode.idx_svm = idx_svm;
 		}
 
 		// if (idx_svm < newnode.idx_svm)
@@ -1854,7 +1854,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 
 }
 
-void Tdt_build::build_from_prev_tree(Tdataframe &df_train, tb_missing_branch &missing_branch, int prev_tree_depth)
+void Tdt_build::build_from_prev_tree(Tdataframe &df_train, tb_missing_branch &missing_branch, int prev_tree_depth, bool bypass)
 {
 	//branch_number.clear();
 
@@ -1869,23 +1869,23 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, tb_missing_branch &mi
 
 	this->prev_tree_depth = prev_tree_depth;
 
-	{
+	if (!bypass) {
 		train(df_train, missing_branch, dec_tree);
 		//train(df_train, 0, 0, 0);
+		cetak("\n");
+		//branch_number.clear();
+		df_train.set_parent(0, 0, 0);
+		df_train.set_branch(0, 0, 0);
+		//df_train.reset_depth_branch();
+
+		if (config->prunning) {
+			//cetak("Start Prunning Decission Tree : \n");
+			post_pruning(df_train, missing_branch);
+			//cetak("\nEnd Prunning Decission Tree : \n");
+		}
+		cetak("\n");
 	}
-	cetak("\n");
 
-	//branch_number.clear();
-	df_train.set_parent(0, 0, 0);
-	df_train.set_branch(0, 0, 0);
-	//df_train.reset_depth_branch();
-
-
-	if (config->prunning) {
-		//cetak("Start Prunning Decission Tree : \n");
-		post_pruning(df_train, missing_branch);
-		//cetak("\nEnd Prunning Decission Tree : \n");
-	}
 	missing_branch.delete_non_missing();
 	save_tree();
 	//df_train.close_file();
@@ -1924,6 +1924,8 @@ void Tdt_build::build_tree(Tdataframe &df_train, tb_missing_branch &missing_bran
 		post_pruning(df_train, missing_branch);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
+
+	cetak("\n");
 
 	missing_branch.delete_non_missing();
 	save_tree();
