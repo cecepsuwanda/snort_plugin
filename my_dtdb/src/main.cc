@@ -155,11 +155,11 @@ int main(int argc, const char **argv)
 
 					experiment.end_test();
 
-					int jml_FN = dt_conf_metrix.get_FN("known");
-					int jml_FP = dt_conf_metrix.get_FP("known");
-					int jml_TN = dt_conf_metrix.get_TN("known");
-					int jml_TP = dt_conf_metrix.get_TP("known");
-					float f1 = dt_conf_metrix.get_F1("known");
+					int jml_FN = dt_conf_metrix.get_FN("normal");
+					int jml_FP = dt_conf_metrix.get_FP("normal");
+					int jml_TN = dt_conf_metrix.get_TN("normal");
+					int jml_TP = dt_conf_metrix.get_TP("normal");
+					float f1 = dt_conf_metrix.get_F1("normal");
 
 					experiment.hsl(jml_FP, jml_FN, jml_TP, jml_TN, f1);
 
