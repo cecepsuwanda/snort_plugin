@@ -227,6 +227,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     {
       df_left.ReFilter(false);
       if (df_left.getjmlrow() > 0) {
+        clear_worker(2);
         string label = parent_node->left->label;
         cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
@@ -266,6 +267,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     {
       df_right.ReFilter(false);
       if (df_right.getjmlrow() > 0) {
+        clear_worker(2);
         string label = parent_node->right->label;
         cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());

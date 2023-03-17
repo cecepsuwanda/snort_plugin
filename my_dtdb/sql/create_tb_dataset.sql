@@ -457,4 +457,3 @@ insert into nsl.dataset(id_dt,jns_dt,duration,
   label from dataset a inner join dataset_1 b on a.id=b.id order by id_dt,jns_dt,a.id   
 
 
-  
