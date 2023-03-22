@@ -322,11 +322,11 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
   if (split_value != "-1") {
     if (_data_type[split_column] == "continuous.")
     {
-      data_below.add_filter(split_column, 0, split_value, true, true);      
+      data_below.add_filter(split_column, 0, split_value, true, true);
       data_above.add_filter(split_column, 1, split_value, true, true);
     } else {
-      data_below.add_filter(split_column, 2, split_value, true, true);      
-      data_above.add_filter(split_column, 3, split_value, true, true);      
+      data_below.add_filter(split_column, 2, split_value, true, true);
+      data_above.add_filter(split_column, 3, split_value, true, true);
     }
   }
 
@@ -351,8 +351,8 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   bool first_iteration = true;
 
   int jml_row = stat_label.get_jml_row();
-  float prosen = 0.0;
-  
+  float prosen = 0.9;
+
 
   Tlabel_stat _stat_label_below;
 
@@ -364,13 +364,32 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   size_t i = 1;
   while ((itr != _col_pot_split->end()))
   {
+
     (*itr).second.set_config(config);
     (*itr_next).second.set_config(config);
 
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
-    
+    bool is_pass = false;
+
+    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    {
+      string label_below = _stat_label_below.get_max_label();
+      string label_next = (*itr_next).second.get_max_label();
+
+      is_pass = label_below != label_next;
+
+    } else {
+      if ((jml_row - config->min_sample)>config->threshold)
+      {
+        is_pass = _stat_label_below.get_jml_row() < (prosen * jml_row);
+      } 
+    }
+
+    if (is_pass)
+    {
+
       if (((itr != itr_next) and (itr_next != _col_pot_split->end()) ))
       {
 
@@ -393,23 +412,23 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         ba.add_above(tmp_stat);
 
         gain = 0;
-        
+
         if (ba.cek_valid_cont()) {
           float entropy_after_split = ba.get_overall_metric();
           float split_info = ba.get_split_info();
           gain = (entropy_before_split - entropy_after_split) / split_info;
         }
 
+        if ((first_iteration and (gain > 0)) or (gain_max < gain))
+        {
+          first_iteration = false;
+          gain_max = gain;
+          tmp_split_value = mid_point;
+          best_overall_metric = gain_max;
+        }
       }
 
-      if ((first_iteration and (gain > 0)) or (gain_max < gain))
-      {
-        first_iteration = false;
-        gain_max = gain;
-        tmp_split_value = mid_point;
-        best_overall_metric = gain_max;
-      }
-      
+    }
 
     itr_next++;
     itr++;
