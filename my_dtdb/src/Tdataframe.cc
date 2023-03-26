@@ -130,6 +130,11 @@ map<string, int> Tdataframe::get_stat_label()
   return _stat_label.get_map();
 }
 
+map<string,map<string,int>> Tdataframe::get_conf_metrix()
+{
+  return _data.hit_conf_metrik();
+}
+
 float Tdataframe::get_estimate_error()
 {
   return _stat_label.get_estimate_error();
@@ -381,10 +386,11 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
       is_pass = label_below != label_next;
 
     } else {
-      if ((jml_row - config->min_sample)>config->threshold)
-      {
-        is_pass = _stat_label_below.get_jml_row() < (prosen * jml_row);
-      } 
+      is_pass = true;
+      // if ((jml_row - config->min_sample)>config->threshold)
+      // {
+      //   is_pass = _stat_label_below.get_jml_row() < (prosen * jml_row);
+      // }
     }
 
     if (is_pass)

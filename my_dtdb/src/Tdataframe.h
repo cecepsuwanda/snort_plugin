@@ -134,6 +134,8 @@ public:
   void search_col_split();
   
   map<string, int> get_stat_label();
+  map<string,map<string,int>> get_conf_metrix();
+  
   float get_estimate_error();
   string get_max_label();
   bool is_single_label();

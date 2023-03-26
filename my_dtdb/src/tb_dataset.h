@@ -79,6 +79,7 @@ public:
 	void set_parent(int depth, int branch, int branch_number);
 	void set_child(int depth, int branch,int branch_number);	
 	void switch_parent_child();
+	void set_label(string label);
 
 	posisi_cabang get_posisi_parent();
 
@@ -87,6 +88,7 @@ public:
 	void read_hsl_filter();
 
 	Tlabel_stat hit_label_stat();
+	map<string,map<string,int>> hit_conf_metrik();
 	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom);
 	void update_attr_stat(int idx);
 	void clear_tmp_dataset();	

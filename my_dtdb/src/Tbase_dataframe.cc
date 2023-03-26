@@ -64,6 +64,11 @@ void Tbase_dataframe::switch_parent_branch()
 	_data.switch_parent_child();
 }
 
+void Tbase_dataframe::set_label(string label)
+{
+	_data.set_label(label);
+}
+
 
 string Tbase_dataframe::filter_to_query(bool is_last)
 {

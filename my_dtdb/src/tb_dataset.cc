@@ -181,6 +181,20 @@ void tb_dataset::switch_parent_child()
 	_parent_branch_number = _child_branch_number;
 }
 
+void tb_dataset::set_label(string label)
+{
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+
+	string query = "update " + _tmp_dataset_tb + " set label='" + label + "' where " + where_str;
+	global_query_builder.query(query);
+}
+
 bool tb_dataset::is_child_parent_exist()
 {
 	bool hsl = false;
@@ -513,6 +527,60 @@ Tlabel_stat tb_dataset::hit_label_stat()
 
 }
 
+map<string, map<string, int>> tb_dataset::hit_conf_metrik()
+{
+	map<string, map<string, int>> tmp_data;
+
+	string where_str  = "";
+	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
+	where_str += "child_branch=" + to_string(_child_branch) + " and ";
+	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
+	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
+	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
+	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+
+	string query = "select a.label as label_org,b.label as label_pred,count(*) as jml from dataset partition(" + _partition + ") a inner join tmp_dataset_test b on a.id=b.id_row where " + where_str + " group by a.label,b.label order by a.label,b.label";
+
+	if (global_query_builder.query(query))
+	{
+		if (global_query_builder.get_result())
+		{
+			int jml_row = global_query_builder.get_jml_row();
+
+			if (jml_row > 0) {
+
+				while (jml_row > 0)
+				{
+					vector<string> data = global_query_builder.fetch_row();
+
+					//label_stat.add(data[0], stoi(data[1]));
+
+					auto it = tmp_data.find(data[0]);
+					if (it == tmp_data.end())
+					{
+						map<string, int> tmp_map;
+						tmp_map.insert(pair<string, int>(data[1], stoi(data[2])));
+						tmp_data.insert(pair<string, map<string, int>>(data[0], tmp_map));
+					} else {
+						auto it1 = it->second.find(data[1]);
+						if (it1 == it->second.end())
+						{
+							it->second.insert(pair<string, int>(data[1], stoi(data[2])));
+						} else {
+							it1->second += stoi(data[2]);
+						}
+					}
+
+					jml_row--;
+				}
+			}
+		}
+	}
+
+	return tmp_data;
+
+}
+
 map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 {
 	map<Tmy_dttype, Tlabel_stat> col_split;
@@ -536,8 +604,8 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		if (_data_type[i] == "continuous.")
 		{
-			
-            tmp = "call sp_hit_stat('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
+
+			tmp = "call sp_hit_stat('attr" + to_string(i) + "','" + _partition + "','" + group_kolom + "')";
 
 			// tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
@@ -547,7 +615,7 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		} else {
 
-			tmp = "call sp_hit_stat1('attr"+to_string(i)+"','"+_partition+"','"+group_kolom+"')";
+			tmp = "call sp_hit_stat1('attr" + to_string(i) + "','" + _partition + "','" + group_kolom + "')";
 
 			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
 
@@ -695,7 +763,7 @@ void tb_dataset::train_to_test()
 	string tmp_sql = "truncate tmp_dataset_test";
 	global_query_builder.query(tmp_sql);
 
-	tmp_sql = "insert into tmp_dataset_test (select * from tmp_dataset_train)";
+	tmp_sql = "insert into tmp_dataset_test(id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number) (select id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number from tmp_dataset_train)";
 	global_query_builder.query(tmp_sql);
 
 }

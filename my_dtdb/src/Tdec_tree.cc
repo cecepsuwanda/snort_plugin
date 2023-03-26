@@ -191,15 +191,32 @@ string Tdec_tree::guess(vector<string> &data)
   return label;
 }
 
-void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix)
+// void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix)
+// {
+//   // std::mutex v_mutex;
+
+//   // std::lock_guard<std::mutex> lock(v_mutex);
+
+//   for (size_t i = 0; i < table.size(); ++i)
+//   {
+//     dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+//   }
+
+// }
+
+void Tdec_tree::thread_test_attack(map<string,map<string,int>> metrix, Tconf_metrix &dt_conf_metrix)
 {
   // std::mutex v_mutex;
 
   // std::lock_guard<std::mutex> lock(v_mutex);
 
-  for (size_t i = 0; i < table.size(); ++i)
+  for (auto i = metrix.begin(); i != metrix.end(); i++)
   {
-    dt_conf_metrix.add_jml(table[i][table[i].size() - 1], label, 1);
+      for (auto j = i->second.begin(); j != i->second.end(); j++)
+      {
+
+         dt_conf_metrix.add_jml(i->first, j->first, j->second);
+      }   
   }
 
 }
@@ -229,10 +246,13 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       if (df_left.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->left->label;
+        df_left.set_label(label);
+        map<string,map<string,int>> branch_conf_metrix = df_left.get_conf_metrix();
         cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
-        _table_attack = df_left.get_all_record();
-        worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        //_table_attack = df_left.get_all_record();
+        //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        worker.push_back(thread(&Tdec_tree::thread_test_attack, branch_conf_metrix, ref(dt_conf_metrix)));
         _table_attack.clear();
         _table_attack.shrink_to_fit();
       }
@@ -269,10 +289,13 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       if (df_right.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->right->label;
+        df_right.set_label(label);
+        map<string,map<string,int>> branch_conf_metrix = df_right.get_conf_metrix();
         cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
-        _table_attack = df_right.get_all_record();
-        worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        //_table_attack = df_right.get_all_record();
+        //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
+        worker.push_back(thread(&Tdec_tree::thread_test_attack, branch_conf_metrix, ref(dt_conf_metrix)));
         _table_attack.clear();
         _table_attack.shrink_to_fit();
       }

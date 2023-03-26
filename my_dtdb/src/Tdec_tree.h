@@ -52,7 +52,8 @@ private:
 	
 	bool is_pass(int opt, string value1, string value2);
 
-	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);
+	//static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);
+	static void thread_test_attack( map<string,map<string,int>> metrix, Tconf_metrix &dt_conf_metrix);
 	
     tree_node* vec_tree_to_dec_tree(int node_index); 
 	void del_dec_tree(tree_node* parent_node);

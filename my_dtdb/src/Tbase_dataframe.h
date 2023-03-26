@@ -113,6 +113,7 @@ public:
 	void set_branch(int depth, int branch, int branch_number);
 	void set_parent(int depth, int branch, int branch_number);
     void switch_parent_branch();
+    void set_label(string label);
 
 	void save_to(string nm_file);
 	string get_data_type(int idx);
