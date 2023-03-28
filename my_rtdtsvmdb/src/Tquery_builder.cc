@@ -8,7 +8,7 @@ Tquery_builder::Tquery_builder()
 	_user = "root";
 	//_user = "cecepsuwanda";
 	_pass = "198202";
-	_database = "nsl";
+	_database = "rtdtsvm";
 
 	_con = NULL;
 	_result = NULL;

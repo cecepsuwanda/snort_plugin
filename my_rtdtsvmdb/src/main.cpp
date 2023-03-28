@@ -119,6 +119,8 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
 
+			cf->kddcup_attr();
+
 			cf->print(config->should_print_extra_features());
 			delete cf;
 		}
@@ -133,6 +135,8 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		ConversationFeatures *cf = stats_engine.calculate_features(conv);
 		conv = nullptr;
 
+        cf->kddcup_attr(); 
+		
 		cf->print(config->should_print_extra_features());
 		delete cf;
 	}

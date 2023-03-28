@@ -1,12 +1,14 @@
 #pragma once
 
+#include <string>
 #include "types.h"
 #include "Conversation.h"
-#include "Tquery_builder.h"
+#include "Tkddcup_attr.h"
 
 
 namespace FeatureExtractor {
 
+    using namespace std;
 	/**
 	 * Set of features with link to conversation
 	 */
@@ -123,6 +125,7 @@ namespace FeatureExtractor {
 		 * Print in KDD style + optionally extra features
 		 */
 		void print(bool print_extra_features = true) const;
+		void kddcup_attr() const;
 
 		/**
 		 * Human readable print to stdout
