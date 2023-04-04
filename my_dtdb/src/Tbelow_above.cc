@@ -36,15 +36,17 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid_cont()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();
+	int jml = _below.get_jml_row() + _above.get_jml_row();    
 	bool pass = true;
 
 	if (config->limited)
 	{
 		if (config->threshold >= 1) {
-			pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
+			//pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() <= (jml-config->threshold));
+			pass = (_below.get_jml_row() >= config->threshold) and  (_below.get_jml_row() <= (jml-config->threshold));
 		} else {
-			pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_above.get_jml_row() >= ceil(config->threshold * jml) ));
+			//pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_above.get_jml_row() <= ceil((1-config->threshold) * jml) ));
+			pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_below.get_jml_row() <= ceil((1-config->threshold) * jml) ));
 		}
 
 

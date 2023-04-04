@@ -356,7 +356,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   bool first_iteration = true;
 
   int jml_row = stat_label.get_jml_row();
-  float prosen = 0.9;
+  float prosen = 1;
+  float prosen1 = 0;
+
+  if(config->threshold<1)
+  {
+    prosen = 1-config->threshold;
+    prosen1 = config->threshold;  
+  }
 
 
   Tlabel_stat _stat_label_below;
@@ -387,10 +394,10 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     } else {
       is_pass = true;
-      // if ((jml_row - config->min_sample)>config->threshold)
-      // {
-      //   is_pass = _stat_label_below.get_jml_row() < (prosen * jml_row);
-      // }
+      if ((jml_row - config->min_sample)>config->threshold)
+      {
+        is_pass = (_stat_label_below.get_jml_row() >= ceil(prosen1 * jml_row)) and (_stat_label_below.get_jml_row() <= ceil(prosen * jml_row));
+      }
     }
 
     if (is_pass)

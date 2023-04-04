@@ -18,9 +18,10 @@ Tkddcup_attr::~Tkddcup_attr()
 }
 
 
-void Tkddcup_attr::add_continuous(int idx, double attr)
+void Tkddcup_attr::add_continuous(int idx, double attr,int digit)
 {
-   Tmy_dttype tmp(to_string(attr), true);
+   
+   Tmy_dttype tmp(to_string(bulat_nol(attr,0.001,digit)), true);
    _attr.insert({idx, tmp});
 }
 

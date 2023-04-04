@@ -230,7 +230,7 @@ map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , stri
       //   tmp = tmp + sql;
       // }
 
-      tmp = "select round(" + group_kolom + ",7) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
+      tmp = "select round(" + group_kolom + ",2) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
 
       tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round," + count_kolom + ",count(" + count_kolom + ") as jml from (" + tmp + ") tb group by hsl_round," + count_kolom +  " order by hsl_round," + count_kolom;
 

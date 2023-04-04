@@ -1,6 +1,7 @@
 #include <string>
 #include <map>
 
+#include "global.h"
 #include "Tmy_dttype.h"
 #include "Tquery_builder.h"
 
@@ -30,7 +31,7 @@ public:
 	Tkddcup_attr();
 	~Tkddcup_attr();
 
-  void add_continuous(int idx,double attr);
+  void add_continuous(int idx,double attr,int digit);
   void add_non_continuous(int idx,string attr);
 
   void add_extra(string ip_src,int port_src,string ip_dst,int port_dst,time_t start_t,time_t end_t);

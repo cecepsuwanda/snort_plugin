@@ -75,10 +75,10 @@ vector<double> credal::maxEntropyDist(const ProbInterval &probint, const bool /*
 	vector<double> lower = probint.lower;
 	int lsize = lower.size();
 
-	double nmin, minval, sminval;
+	double nmin=0, minval=0, sminval=0;
 
 	// Due to the nature of IDM the intial free mass is s/(N+s)
-	double assignMass, freeMass = bulat_nol(_s / (static_cast<double>(probint.obs) + _s),1e-7,7);
+	double assignMass=0, freeMass = bulat_nol(_s / (static_cast<double>(probint.obs) + _s),1e-7,7);
 
 	bool hasFree = true;
 

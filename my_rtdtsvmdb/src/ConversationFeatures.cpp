@@ -248,38 +248,38 @@ void ConversationFeatures::kddcup_attr() const
 	Tkddcup_attr kddcup_attr;
 
 	// Intrinsic features
-	kddcup_attr.add_continuous(0, (conv->get_duration_ms() / 1000));
+	kddcup_attr.add_continuous(0, (conv->get_duration_ms() / 1000),1);
 	kddcup_attr.add_non_continuous(1, conv->get_protocol_type_str());
 	kddcup_attr.add_non_continuous(2, conv->get_service_str());
 	kddcup_attr.add_non_continuous(3, conv->get_state_str());
-	kddcup_attr.add_continuous(4, conv->get_src_bytes());
-	kddcup_attr.add_continuous(5, conv->get_dst_bytes());
+	kddcup_attr.add_continuous(4, conv->get_src_bytes(),1);
+	kddcup_attr.add_continuous(5, conv->get_dst_bytes(),1);
 	kddcup_attr.add_non_continuous(6, to_string(conv->land() == 0 ? 0 : 1));
-	kddcup_attr.add_continuous(7, conv->get_wrong_fragments());
-	kddcup_attr.add_continuous(8, conv->get_urgent_packets());
+	kddcup_attr.add_continuous(7, conv->get_wrong_fragments(),1);
+	kddcup_attr.add_continuous(8, conv->get_urgent_packets(),1);
 
 	// Derived time windows features
-	kddcup_attr.add_continuous(9, count);
-	kddcup_attr.add_continuous(10, srv_count);
-	kddcup_attr.add_continuous(11, serror_rate);
-	kddcup_attr.add_continuous(12, srv_serror_rate);
-	kddcup_attr.add_continuous(13, rerror_rate);
-	kddcup_attr.add_continuous(14, srv_rerror_rate);
-	kddcup_attr.add_continuous(15, same_srv_rate);
-	kddcup_attr.add_continuous(16, diff_srv_rate);
-	kddcup_attr.add_continuous(17, get_srv_diff_host_rate());
+	kddcup_attr.add_continuous(9, count,2);
+	kddcup_attr.add_continuous(10, srv_count,2);
+	kddcup_attr.add_continuous(11, serror_rate,2);
+	kddcup_attr.add_continuous(12, srv_serror_rate,2);
+	kddcup_attr.add_continuous(13, rerror_rate,2);
+	kddcup_attr.add_continuous(14, srv_rerror_rate,2);
+	kddcup_attr.add_continuous(15, same_srv_rate,2);
+	kddcup_attr.add_continuous(16, diff_srv_rate,2);
+	kddcup_attr.add_continuous(17, get_srv_diff_host_rate(),2);
 
 	// Derived connection count window features
-	kddcup_attr.add_continuous(18, dst_host_count);
-	kddcup_attr.add_continuous(19, dst_host_srv_count);
-	kddcup_attr.add_continuous(20, dst_host_same_srv_rate);
-	kddcup_attr.add_continuous(21, dst_host_diff_srv_rate);
-	kddcup_attr.add_continuous(22, dst_host_same_src_port_rate);
-	kddcup_attr.add_continuous(23, get_dst_host_srv_diff_host_rate());
-	kddcup_attr.add_continuous(24, dst_host_serror_rate);
-	kddcup_attr.add_continuous(25, dst_host_srv_serror_rate);
-	kddcup_attr.add_continuous(26, dst_host_rerror_rate);
-	kddcup_attr.add_continuous(27, dst_host_srv_rerror_rate);
+	kddcup_attr.add_continuous(18, dst_host_count,2);
+	kddcup_attr.add_continuous(19, dst_host_srv_count,2);
+	kddcup_attr.add_continuous(20, dst_host_same_srv_rate,2);
+	kddcup_attr.add_continuous(21, dst_host_diff_srv_rate,2);
+	kddcup_attr.add_continuous(22, dst_host_same_src_port_rate,2);
+	kddcup_attr.add_continuous(23, get_dst_host_srv_diff_host_rate(),2);
+	kddcup_attr.add_continuous(24, dst_host_serror_rate,2);
+	kddcup_attr.add_continuous(25, dst_host_srv_serror_rate,2);
+	kddcup_attr.add_continuous(26, dst_host_rerror_rate,2);
+	kddcup_attr.add_continuous(27, dst_host_srv_rerror_rate,2);
 
 	const FiveTuple *ft = conv->get_five_tuple_ptr();
 

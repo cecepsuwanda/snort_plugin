@@ -84,10 +84,10 @@ string Tbase_dataframe::filter_to_query(bool is_last)
 			switch (_filter[_filter.size() - 1].idx_opt)
 			{
 			case 0 :
-				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + ",7)<=" + _filter[_filter.size() - 1].value + ")" ;
+				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + ",2)<=" + _filter[_filter.size() - 1].value + ")" ;
 				break;
 			case 1 :
-				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] +  ",7)>" + _filter[_filter.size() - 1].value + ")";
+				tmp1 = tmp1 + " round(dataset." + _data_header[_filter[_filter.size() - 1].idx_col] +  ",2)>" + _filter[_filter.size() - 1].value + ")";
 				break;
 			case 2 :
 				tmp1 = tmp1 + " dataset." + _data_header[_filter[_filter.size() - 1].idx_col] + "='" + _filter[_filter.size() - 1].value + "')";
@@ -111,10 +111,10 @@ string Tbase_dataframe::filter_to_query(bool is_last)
 				switch (_filter[i].idx_opt)
 				{
 				case 0 :
-					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col] + ",7)<=" + _filter[i].value + ")" ;
+					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col] + ",2)<=" + _filter[i].value + ")" ;
 					break;
 				case 1 :
-					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col]  + ",7)>" + _filter[i].value + ")";
+					tmp1 = tmp1 + " round(dataset." + _data_header[_filter[i].idx_col]  + ",2)>" + _filter[i].value + ")";
 					break;
 				case 2 :
 					tmp1 = tmp1 + " dataset." + _data_header[_filter[i].idx_col] + "='" + _filter[i].value  + "')";
