@@ -4,6 +4,7 @@
 #include "types.h"
 #include "Conversation.h"
 #include "Tkddcup_attr.h"
+#include "Tmy_dtsvm.h"
 
 
 namespace FeatureExtractor {
@@ -125,7 +126,7 @@ namespace FeatureExtractor {
 		 * Print in KDD style + optionally extra features
 		 */
 		void print(bool print_extra_features = true) const;
-		void kddcup_attr() const;
+		void kddcup_attr(Tmy_dtsvm &my_dtsvm) const;
 
 		/**
 		 * Human readable print to stdout

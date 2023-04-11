@@ -457,3 +457,28 @@ insert into nsl.dataset(id_dt,jns_dt,duration,
   label from dataset a inner join dataset_1 b on a.id=b.id order by id_dt,jns_dt,a.id   
 
 
+update dataset set duration=round(duration,2),
+src_bytes=round(src_bytes,2),
+dst_bytes=round(dst_bytes,2),
+wrong_fragment=round(wrong_fragment,2),
+urgent=round(urgent,2),
+count=round(count,2),
+srv_count=round(srv_count,2),
+serror_rate=round(serror_rate,2),
+srv_serror_rate=round(srv_serror_rate,2),
+rerror_rate=round(rerror_rate,2),
+srv_rerror_rate=round(srv_rerror_rate,2),
+same_srv_rate=round(same_srv_rate,2),
+diff_srv_rate=round(diff_srv_rate,2),
+srv_diff_host_rate=round(srv_diff_host_rate,2),
+dst_host_count=round(dst_host_count,2), 
+dst_host_srv_count=round(dst_host_srv_count,2),
+dst_host_same_srv_rate=round(dst_host_same_srv_rate,2),
+dst_host_diff_srv_rate=round(dst_host_diff_srv_rate,2),
+dst_host_same_src_port_rate=round(dst_host_same_src_port_rate,2),
+dst_host_srv_diff_host_rate=round(dst_host_srv_diff_host_rate,2),
+dst_host_serror_rate=round(dst_host_serror_rate,2),
+dst_host_srv_serror_rate=round(dst_host_srv_serror_rate,2),
+dst_host_rerror_rate=round(dst_host_rerror_rate,2),
+dst_host_srv_rerror_rate=round(dst_host_srv_rerror_rate,2)
+where id_dt>80000

@@ -145,7 +145,7 @@ int main(int argc, const char **argv)
 					{
 						df_train.train_to_test();
 					} else {
-						df_test.reset_depth_branch();
+						//df_test.reset_depth_branch();
 					}
 
 					Tdec_tree dec_tree_test(&config);

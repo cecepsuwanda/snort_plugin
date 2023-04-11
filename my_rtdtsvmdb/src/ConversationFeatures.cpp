@@ -243,7 +243,7 @@ void ConversationFeatures::print(bool print_extra_features) const
 
 
 #pragma warning(disable : 4996)
-void ConversationFeatures::kddcup_attr() const
+void ConversationFeatures::kddcup_attr(Tmy_dtsvm &my_dtsvm) const
 {
 	Tkddcup_attr kddcup_attr;
 
@@ -303,6 +303,8 @@ void ConversationFeatures::kddcup_attr() const
 	local_tv_sec_last = conv->get_last_ts().get_secs();
 
 	kddcup_attr.add_extra(ip_src, port_src, ip_dst, port_dst, local_tv_sec_start, local_tv_sec_last);
+
+	kddcup_attr.set_label(my_dtsvm.guess(kddcup_attr));
 
 	kddcup_attr.save_to_db();
 

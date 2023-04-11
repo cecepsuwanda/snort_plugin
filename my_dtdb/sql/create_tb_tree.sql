@@ -114,3 +114,5 @@ CREATE TABLE `tree_darpa` (
   KEY `fk_tree` (`id_detail`),
   CONSTRAINT `fk_tree_darpa` FOREIGN KEY (`id_detail`) REFERENCES `detail_experiment_darpa` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+insert into rtdtsvm.tree(attrindex,attrvalue,label,treeindex,isleaf,opt,child1,child2,idx_svm) select attrindex,attrvalue,label,treeindex,isleaf,opt,child1,child2,idx_svm from nsl.tree where id_experiment=1680851176 and id_detail=1680851203 order by treeindex,id

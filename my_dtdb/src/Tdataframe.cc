@@ -130,7 +130,7 @@ map<string, int> Tdataframe::get_stat_label()
   return _stat_label.get_map();
 }
 
-map<string,map<string,int>> Tdataframe::get_conf_metrix()
+map<string, map<string, int>> Tdataframe::get_conf_metrix()
 {
   return _data.hit_conf_metrik();
 }
@@ -359,10 +359,19 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   float prosen = 1;
   float prosen1 = 0;
 
-  if(config->threshold<1)
+  float jml_row_prosen = jml_row;
+  float jml_row_prosen1 = 0;
+
+  if (config->threshold < 1)
   {
-    prosen = 1-config->threshold;
-    prosen1 = config->threshold;  
+    prosen = 1 - config->threshold;
+    prosen1 = config->threshold;
+
+    jml_row_prosen = ceil(prosen * jml_row);
+    jml_row_prosen1 =  ceil(prosen1 * jml_row);
+  } else {
+    jml_row_prosen = jml_row - config->threshold;
+    jml_row_prosen1 =  config->threshold;
   }
 
 
@@ -394,9 +403,9 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     } else {
       is_pass = true;
-      if ((jml_row - config->min_sample)>config->threshold)
+      if ((jml_row - config->min_sample) > config->threshold)
       {
-        is_pass = (_stat_label_below.get_jml_row() >= ceil(prosen1 * jml_row)) and (_stat_label_below.get_jml_row() <= ceil(prosen * jml_row));
+        is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
       }
     }
 

@@ -7,11 +7,14 @@
 #include <cstdlib>
 #include <assert.h>
 
-#include "Config.h"
+
 #include "Sniffer.h"
 #include "IpReassembler.h"
 #include "ConversationReconstructor.h"
 #include "StatsEngine.h"
+
+#include "Config.h"
+#include "Tmy_dtsvm.h"
 
 using namespace std;
 using namespace FeatureExtractor;
@@ -25,6 +28,8 @@ void parse_args(int argc, char **argv, Config *config);
 void invalid_option(const char *opt, const char *progname);
 void invalid_option_value(const char *opt, const char *val, const char *progname);
 void extract(Sniffer *sniffer, const Config *config, bool is_running_live);
+
+Tmy_dtsvm my_dtsvm;
 
 int main(int argc, char **argv)
 {
@@ -49,6 +54,7 @@ int main(int argc, char **argv)
 		}
 		else {
 			// Input from files
+			my_dtsvm.read_tree();
 			int count = config.get_files_count();
 			char **files = config.get_files_values();
 			for (int i = 0; i < count; i++) {
@@ -119,7 +125,7 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 			ConversationFeatures *cf = stats_engine.calculate_features(conv);
 			conv = nullptr;		// Should not be used anymore, object will commit suicide
 
-			cf->kddcup_attr();
+			cf->kddcup_attr(my_dtsvm);
 
 			cf->print(config->should_print_extra_features());
 			delete cf;
@@ -135,7 +141,7 @@ void extract(Sniffer *sniffer, const Config *config, bool is_running_live)
 		ConversationFeatures *cf = stats_engine.calculate_features(conv);
 		conv = nullptr;
 
-        cf->kddcup_attr(); 
+        cf->kddcup_attr(my_dtsvm); 
 		
 		cf->print(config->should_print_extra_features());
 		delete cf;

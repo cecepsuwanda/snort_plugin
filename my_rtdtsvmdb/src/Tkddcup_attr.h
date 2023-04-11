@@ -34,6 +34,10 @@ public:
   void add_continuous(int idx,double attr,int digit);
   void add_non_continuous(int idx,string attr);
 
+  void set_label(string label);
+
+  bool is_pass(int attr,int idx_opt,string value);
+
   void add_extra(string ip_src,int port_src,string ip_dst,int port_dst,time_t start_t,time_t end_t);
 
   void save_to_db();

@@ -50,7 +50,7 @@ void tb_tree::read_file()
 	if (data.size() > 0) {
 		int awal = 1;
 
-		for (int i = awal; i < (_jml_col - 2); i++)
+		for (int i = awal; i < _jml_col; i++)
 		{
 			_data.push_back(data[i]);
 		}
