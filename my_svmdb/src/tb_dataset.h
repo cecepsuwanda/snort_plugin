@@ -31,6 +31,7 @@ private:
 	int _child_branch_number = 0;
 
 	string _tmp_dataset_tb="";
+	string _tmp_attr_dataset_tb="";
 
 	int _jml_row = 0;
 	int _jml_col = 0;
@@ -128,6 +129,7 @@ public:
 		this->_child_branch_number = t._child_branch_number;
 
 		this->_tmp_dataset_tb = t._tmp_dataset_tb;
+		this->_tmp_attr_dataset_tb = t._tmp_attr_dataset_tb;
 
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;

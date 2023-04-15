@@ -129,10 +129,9 @@ vector<string> Tquery_builder::fetch_row()
 		MYSQL_ROW row = mysql_fetch_row(_result);
 		if (row != NULL) {
 			for (int i = 0; i < jml_col; i++)
-			{
+			{				
 				tmp.push_back(row[i]);
 			}
-
 		}
 	}
 	return tmp;

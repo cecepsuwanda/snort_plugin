@@ -49,7 +49,7 @@ int main(int argc, const char **argv)
 	config.jns_dt_test = stoi(argv[18]);
 	config.partition_test = argv[19];
 
-
+    cetak("Persiapan Data Latih : \n");
 	Tdataframe df_train(&config);
 	df_train.set_dataset(config.id_dt_train, config.jns_dt_train, config.partition_train);
 	df_train.read_header_type();
@@ -59,6 +59,7 @@ int main(int argc, const char **argv)
 	df_train.stat_tabel(true, true, true);
 	df_train.setjmltotalrow();
 
+	cetak("Persiapan Data Test : \n");
 	Tdataframe df_test(&config);
 	df_test.set_dataset(config.id_dt_test, config.jns_dt_test, config.partition_test);
 	df_test.read_header_type();
@@ -77,6 +78,8 @@ int main(int argc, const char **argv)
 	config.id_experiment = experiment.get_id_experiment();
 
 	tb_tree tree;
+
+	cetak("Latih Model : \n");
 
 	for (double l = threshold_awal; l <= threshold_akhir; l += threshold_step)
 	{
@@ -127,6 +130,7 @@ int main(int argc, const char **argv)
 						tree_exist = tree.cari_tree(tmp_id_detail_experiment);
 					}
 
+					cetak("Latih model untuk Depth : %d Credal : %f \n",j,k);
 
 					if (tree_exist) //(j > depth_awal) and
 					{
@@ -147,6 +151,8 @@ int main(int argc, const char **argv)
 					} else {
 						//df_test.reset_depth_branch();
 					}
+
+					cetak("Test model untuk Depth : %d Credal : %f \n",j,k);
 
 					Tdec_tree dec_tree_test(&config);
 					dec_tree_test.read_tree();

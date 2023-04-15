@@ -121,11 +121,11 @@ vector<string> Tdataframe::get_record_svm()
     return _data.get_record();
 
   } else {
-
+            
     vector<string> vec;//, tmp_data = _data.get_record();
 
     for (int i = 0; i < _jml_col; ++i)
-    {
+    {      
       switch (i) {
       case 1:
         vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
@@ -141,11 +141,11 @@ vector<string> Tdataframe::get_record_svm()
         vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
         break;
       default:
-        vec.push_back(_data.get_col_val(i));
+        vec.push_back(_data.get_col_val(i));        
         break;
       }
 
-    }
+    }    
 
     //tmp_data.clear();
     //tmp_data.shrink_to_fit();
@@ -164,13 +164,13 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
 
   vector<vector<string>> Table;
 
-  vector<string> tmp_data;
+  //vector<string> tmp_data;
 
   _data.reset_file();
   while (!_data.is_eof())
   {
     //cout << " get_all_record_svm get_record_svm " << endl;
-    tmp_data = get_record_svm();
+    vector<string> tmp_data = get_record_svm();
 
     //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
     //if (is_pass) {

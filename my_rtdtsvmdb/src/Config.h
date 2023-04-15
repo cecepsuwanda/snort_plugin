@@ -16,6 +16,7 @@ namespace FeatureExtractor {
 		 */
 		int files_c;	// Count of files, if 0 interface number should be used
 		char **files_v;
+		char *svm_path;
 		int interface_num;
 		int pcap_read_timeout;
 		size_t additional_frame_len;
@@ -53,6 +54,9 @@ namespace FeatureExtractor {
 	public:
 		Config();
 		~Config();
+
+        char *get_svm_path() const;
+		void set_svm_path(char *path);  		
 
 		int get_files_count() const;
 		void set_files_count(int files_c);

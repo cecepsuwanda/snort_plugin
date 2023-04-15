@@ -1907,6 +1907,7 @@ void Tdt_build::build_tree(Tdataframe &df_train, tb_missing_branch &missing_bran
 	// df_train.setjmltotalrow();
 
 	{
+		cetak("Start Train Decission Tree : \n");
 		//train(df_train, 0, 0);
 		dec_tree = train(df_train, missing_branch, 0);
 	}
@@ -1920,7 +1921,7 @@ void Tdt_build::build_tree(Tdataframe &df_train, tb_missing_branch &missing_bran
 
 
 	if (config->prunning) {
-		//cetak("Start Prunning Decission Tree : \n");
+		cetak("Start Prunning Decission Tree : \n");
 		post_pruning(df_train, missing_branch);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}

@@ -36,6 +36,18 @@ namespace FeatureExtractor {
 	{
 	}
 
+	
+	char *Config::get_svm_path() const
+	{
+       return svm_path;
+	}
+	
+	void Config::set_svm_path(char *path)
+	{
+       this->svm_path = path;  
+	}  
+
+
 	int Config::get_files_count() const
 	{
 		return files_c;

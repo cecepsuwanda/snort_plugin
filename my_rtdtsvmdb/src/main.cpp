@@ -57,10 +57,13 @@ int main(int argc, char **argv)
 			my_dtsvm.read_tree();
 			int count = config.get_files_count();
 			char **files = config.get_files_values();
+			config.set_svm_path(files[count]);
+			my_dtsvm.set_svm_path(files[count]);
 			for (int i = 0; i < count; i++) {
 				if (config.should_print_filename())
 					cout << "FILE '" << files[i] << "'" << endl;
 
+				my_dtsvm.set_dataset_file(files[i]);
 				Sniffer *sniffer = new Sniffer(files[i], &config);
 				extract(sniffer, &config, false);
 			}
@@ -487,8 +490,8 @@ void parse_args(int argc, char **argv, Config *config)
 	}
 
 	// File list
-	int file_cnt = argc - i;
-	config->set_files_count(file_cnt);
+	int file_cnt = (argc - i)-1;
+	config->set_files_count(file_cnt);	
 	if (file_cnt) {
 		config->set_files_values(&argv[i]);
 	}

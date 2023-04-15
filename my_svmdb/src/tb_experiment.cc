@@ -219,12 +219,12 @@ train_test_data tb_experiment::get_train_test_data(time_t id_experiment)
 		if (global_query_builder.get_result())
 		{
 			vector<string> tmp = global_query_builder.fetch_row();
-			data.jns_dt_train = stoi(tmp[13]);
-			data.id_dt_train = stoi(tmp[14]);
+			data.id_dt_train = stoi(tmp[13]);
+			data.jns_dt_train = stoi(tmp[14]);
 			data.partition_train = tmp[15];
 
-			data.jns_dt_test = stoi(tmp[16]);
-			data.id_dt_test = stoi(tmp[17]);
+			data.id_dt_test = stoi(tmp[16]);
+			data.jns_dt_test = stoi(tmp[17]);
 			data.partition_test = tmp[18];
 		}
 	}

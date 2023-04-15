@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   cetak("Menyiapkan Data Latih :\n");
 
   Tdataframe df_train(&config);
-  df_train.set_dataset(train_test.id_dt_train, train_test.jns_dt_train, train_test.partition_train);
+  df_train.set_dataset(train_test.id_dt_train, train_test.jns_dt_train, train_test.partition_train);  
   df_train.read_header_type();
   df_train.set_parent(0, 0, 0);
   df_train.set_branch(0, 0, 0);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   cetak("Menyiapkan Data Test :\n"); 
   
   Tdataframe df_test(&config);
-  df_test.set_dataset(train_test.id_dt_test, train_test.jns_dt_test, train_test.partition_test);
+  df_test.set_dataset(train_test.id_dt_test, train_test.jns_dt_test, train_test.partition_test);  
   df_test.read_header_type();
   df_test.set_parent(0, 0, 0);
   df_test.set_branch(0, 0, 0);

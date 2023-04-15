@@ -25,7 +25,9 @@ private:
 
   map<int, Tmy_dttype> _attr;
 
-  string _label; 
+  string _label;
+  string _dataset_file;
+  string _svm_file; 
 
 public:
 	Tkddcup_attr();
@@ -41,6 +43,10 @@ public:
   void add_extra(string ip_src,int port_src,string ip_dst,int port_dst,time_t start_t,time_t end_t);
 
   void save_to_db();
+
+  vector<string> get_svm_attr();
+
+  void set_file(string dataset_file,string svm_file);
 	
 };
 
