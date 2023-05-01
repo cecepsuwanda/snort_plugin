@@ -13,9 +13,9 @@ using namespace std;
 
 struct Tconfig
 {
-  string f_datatype = "";
-  string f_train = "";
-  string f_test = "";
+  // string f_datatype = "";
+  // string f_train = "";
+  // string f_test = "";
 
   int jns_dt_train = -1;
   int id_dt_train = -1;
@@ -28,20 +28,20 @@ struct Tconfig
   string path_model = "";
   string svm_path = "";
 
-  bool save_train = false;
-  bool save_test = false;
+  // bool save_train = false;
+  // bool save_test = false;
   bool use_credal = false;
   double credal_s = 0.0;
   bool limited = false;
   bool prunning = false;
 
-  bool train_svm = false;
+  // bool train_svm = false;
 
   bool normal_only = false;
 
 
-  double gamma = 0.0;
-  double nu = 0.0;
+  // double gamma = 0.0;
+  // double nu = 0.0;
 
   int depth = 0;
   int min_sample = 0;
@@ -193,21 +193,6 @@ static void cetak ( const char * format, ... )
   cetak_stdout(buffer);
 }
 
-static double bulat_nol(double val, double tolerance, int digit)
-{
-  double tmp = val;
 
-  if (abs(val) < tolerance)
-  {
-    tmp = 0.0;
-  }
-  else
-  {
-    const double multiplier = std::pow(10.0, digit);
-    tmp = ceil(val * multiplier) / multiplier;
-  }
-  // double tmp = val;
-  return tmp;
-}
 
 #endif

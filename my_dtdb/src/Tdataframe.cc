@@ -151,94 +151,6 @@ bool Tdataframe::is_single_label()
 }
 
 
-int Tdataframe::getjmlcol_svm()
-{
-  if (is_non_continuous)
-  {
-    return  (is_42 ? 46 : 33);
-  } else {
-    return _jml_col;
-  }
-}
-
-int Tdataframe::getjmlrow_svm()
-{
-  if (config->normal_only)
-  {
-    return _stat_label.get_value("normal");
-  } else {
-    return _jml_row;
-  }
-}
-
-vector<string> Tdataframe::get_record_svm()
-{
-  if (!is_non_continuous)
-  {
-    return _data.get_record();
-
-  } else {
-
-    vector<string> vec;//, tmp_data = _data.get_record();
-
-    for (int i = 0; i < _jml_col; ++i)
-    {
-
-      switch (i) {
-      case 1:
-        vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
-        vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
-        vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
-        break;
-      case 2:
-        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
-        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
-        break;
-      case 3:
-        vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
-        vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
-        break;
-      default:
-        vec.push_back(_data.get_col_val(i));
-        break;
-      }
-
-    }
-
-    //tmp_data.clear();
-    //tmp_data.shrink_to_fit();
-
-    return vec;
-
-  }
-}
-
-vector<vector<string>> Tdataframe::get_all_record_svm()
-{
-  //std::lock_guard<std::mutex> lock(v_mutex);
-  // ReFilter();
-
-  vector<vector<string>> Table;
-
-  // vector<string> tmp_data;
-
-  // _data.reset_file();
-  // while (!_data.is_eof())
-  //{
-  //cout << " get_all_record_svm get_record_svm " << endl;
-  //tmp_data = get_record_svm();
-
-  //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
-  //if (is_pass) {
-  //Table.push_back(tmp_data);
-  //}
-  //cout << " get_all_record_svm next_record " << endl;
-  //_data.next_record();
-  //}
-
-  return Table;
-}
-
 map<Tmy_dttype, Tlabel_stat> Tdataframe::get_col_split(int idx)
 {
   return _map_col_split.get_pot_split(idx);
@@ -250,12 +162,6 @@ void Tdataframe::clear_col_split()
   _map_col_split.clear();
 }
 
-// void Tdataframe::set_config(Tconfig v_config)
-// {
-//   config = v_config;
-//   _stat_label.set_config(config);
-//   _map_col_split.set_config(config);
-// }
 
 int Tdataframe::get_jml_valid_attr()
 {
@@ -382,7 +288,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   auto itr = _col_pot_split->begin();
 
-  size_t i = 1;
+  
   while ((itr != _col_pot_split->end()))
   {
 
@@ -418,15 +324,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         Tmy_dttype tmp1 = (*itr).first;
         Tmy_dttype tmp2 = (*itr_next).first;
         try {
-          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
-          //mid_point = tmp1.get_string();
+          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);          
         }
         catch (const std::invalid_argument& ia) {
           cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
         }
 
         Tbelow_above ba(config);
-        //ba.set_value(mid_point);
+        
 
         ba.add_below(_stat_label_below);
         Tlabel_stat tmp_stat = stat_label - _stat_label_below;
@@ -479,7 +384,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
         entropy_before_split = _stat_label.get_credal_entropy();
       }
 
-      //cetak("{ ==1 start ");
+      
       auto itr = _col_pot_split.begin();
 
 
@@ -507,7 +412,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
         current_overall_metric = gain;
         split_value = tmp1.get_string();
       }
-      //cetak(" ==1 end }");
+      
 
     } else {
       float tmp_best_overall_metric = 0.0;
@@ -546,8 +451,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     Tbelow_above ba(config);
 
     mid_point = ((Tmy_dttype) (*itr).first).get_string();
-
-    //ba.set_value(mid_point);
+    
     ba.add_below((*itr).second);
     Tlabel_stat tmp_stat = _stat_label - (*itr).second;
     tmp_stat.set_config(config);
@@ -580,20 +484,14 @@ void Tdataframe::calculate_overall_metric(int idx, float & current_overall_metri
 {
   std::lock_guard<std::mutex> lock(v_mutex);
   split_value = "-1";
-  current_overall_metric = -1;
-
-  //if (_map_col_split.is_valid_attr(idx)) {
+  current_overall_metric = -1;  
 
   if (_data_type[idx] == "continuous.") {
     handle_continuous(idx, current_overall_metric, split_value);
   } else {
     handle_non_continuous(idx, current_overall_metric, split_value);
   }
-  //}
-
-  //cetak(" split value %s ",split_value.c_str());
-
-  //_map_col_split.clear();
+  
 }
 
 string Tdataframe::get_nm_header(int idx_col)

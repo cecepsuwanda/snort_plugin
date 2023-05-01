@@ -43,8 +43,6 @@ private:
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int parent_branch_number, int child_depth, int child_branch, int child_branch_number, int idx);
 
-
-
 public:
   Tdataframe();
   Tdataframe(Tconfig* v_config);
@@ -138,18 +136,11 @@ public:
   
   float get_estimate_error();
   string get_max_label();
-  bool is_single_label();
-  
-  int getjmlcol_svm();
-  int getjmlrow_svm();
-  vector<string> get_record_svm();
-  vector<vector<string>> get_all_record_svm();
-
+  bool is_single_label();  
+   
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();
-
-  // void set_config(Tconfig v_config);
-
+  
   int get_jml_valid_attr();
   int get_valid_attr(int idx);
 

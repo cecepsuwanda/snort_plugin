@@ -16,6 +16,7 @@ private:
 	bool _is_continue;
 
 	string to_lower(const string str);
+	double bulat_nol(double val, double tolerance, int digit);
 
 public:
 	Tmy_dttype();

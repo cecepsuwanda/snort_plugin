@@ -143,50 +143,6 @@ string Tdec_tree::guess(vector<string> &data)
     return "dfs_failed.";
   } else {
     label = tree[leafNode].label;
-    if (config->train_svm)
-    {
-      if ((label == "normal") and (tree[leafNode].idx_svm != -1))
-      {
-        Twrite_file tmp_wf;
-
-        if (config->save_test) {
-          //tmp_wf.setnm_f(config->path_model + "/test/test_model_" + to_string(tree[leafNode].idx_svm) + ".csv");
-        }
-        //cetak("{v {model ");
-        Tmy_svm my_svm(config);
-        string nm_model = config->svm_path + "/svm_model_" + to_string(tree[leafNode].idx_svm) + ".csv";
-        my_svm.load_model(nm_model);
-        //cetak("save_model_");
-        //cetak(to_string(tree[leafNode].idx_svm).c_str());
-        //cetak(".csv} ");
-
-        vector<string> tmp_data;
-        string tmp_str = "";
-
-        for (size_t i = 0; i < (data.size() - 1); ++i)
-        {
-          tmp_data.push_back(data[i]);
-          tmp_str = tmp_str + data[i] + ",";
-        }
-
-
-        tmp_str = tmp_str + data[data.size() - 1];
-
-        if (config->save_test)
-        {
-          // tmp_wf.write_file(tmp_str);
-          // tmp_wf.close_file();
-        }
-        //cetak(" {guess ");
-        label = my_svm.guess(tmp_data);
-        //cetak("}");
-
-        tmp_data.clear();
-        tmp_data.shrink_to_fit();
-
-      }
-    }
-
   }
   return label;
 }
@@ -317,78 +273,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
   }
 }
 
-// void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter)
-// {
-//   if (tree[node_index].isLeaf)
-//   {
-//     df_test.ReFilter(false);
-//     if (df_test.getjmlrow() > 0) {
-//       string label = tree[node_index].label;
-//       cetak("[%s %d]\n", label.c_str(), df_test.getjmlrow());
-//       //clear_worker(1);
-//       _table_attack = df_test.get_all_record();
-//       worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
-//       _table_attack.clear();
-//       _table_attack.shrink_to_fit();
-//       //cetak("\n");
-//       df_test.clear_memory();
-//     }
-//   } else {
-//     cetak("%d|?", counter);
 
-//     counter++;
-
-//     auto itr = branch_number.find(counter);
-//     if (itr == branch_number.end()) {
-//       branch_number.insert({counter, 1});
-//     } else {
-//       branch_number[counter] = branch_number[counter] + 1;
-//     }
-
-//     int left = tree[node_index].children[0];
-//     int right = tree[node_index].children[1];
-
-//     Tdataframe df_left, df_right;
-//     df_left = df_test;
-//     df_left.switch_parent_branch();
-//     df_left.set_branch(counter, 1, branch_number[counter]);
-
-//     branch_number[counter] = branch_number[counter] + 1;
-
-//     df_right = df_test;
-//     df_right.switch_parent_branch();
-//     df_right.set_branch(counter, 2, branch_number[counter]);
-
-
-//     //clear_worker(0);
-
-//     if (left != -1) {
-//       df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue, false, false);
-//       //if (df_left.getjmlrow() > 0) {
-//       test_dfs(left, df_left, dt_conf_metrix, counter);
-//       //}
-//       df_left.clear_memory();
-//     }
-
-//     //clear_worker(0);
-//     if (right != -1) {
-//       df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue, false, false);
-//       //if (df_right.getjmlrow() > 0) {
-//       test_dfs(right, df_right, dt_conf_metrix, counter);
-//       //}
-//       df_right.clear_memory();
-//     }
-
-//     //clear_worker(0);
-
-//   }
-
-//   if (node_index == 0)
-//   {
-//     clear_worker(0);
-//   }
-
-// }
 
 void Tdec_tree::test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix)
 {
@@ -407,10 +292,10 @@ void Tdec_tree::test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix)
   dt_conf_metrix.add_konversi_asli("unknown", "known");
 
   {
-    //Timer timer;
+    
     test_dfs(dec_tree, df_test, dt_conf_metrix, 0);
     //test_dfs(0, df, dt_conf_metrix, 0);
-    //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+    
   }
 
   //df.close_file();
@@ -500,6 +385,8 @@ void Tdec_tree::read_tree()
   dbtree.close_file();
 
   dec_tree = vec_tree_to_dec_tree(0);
+
+  tree.clear();
 
 }
 

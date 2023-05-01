@@ -3,9 +3,7 @@
 #include <thread>
 #include "tb_missing_branch.h"
 #include "Tdataframe.h"
-#include "Timer.h"
 #include "Twrite_file.h"
-#include "Tmy_svm.h"
 #include "tb_tree.h"
 
 #ifndef Included_Tdt_build_H

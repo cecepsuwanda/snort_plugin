@@ -12,6 +12,23 @@ Tmy_dttype::~Tmy_dttype()
 
 }
 
+double Tmy_dttype::bulat_nol(double val, double tolerance, int digit)
+{
+  double tmp = val;
+
+  if (abs(val) < tolerance)
+  {
+    tmp = 0.0;
+  }
+  else
+  {
+    const double multiplier = std::pow(10.0, digit);
+    tmp = ceil(val * multiplier) / multiplier;
+  }
+  // double tmp = val;
+  return tmp;
+}
+
 Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 {
 	_value = value;
@@ -19,7 +36,7 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		to_lower(_lower_value);
+	  _lower_value = to_lower(_lower_value);
 	}else{
 		char *endptr;
 		double tmp = strtod(value.c_str(), &endptr);
@@ -35,7 +52,7 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		to_lower(_lower_value);
+		_lower_value = to_lower(_lower_value);
 	}else{
 		char *endptr;
 		double tmp = strtod(value.c_str(), &endptr);

@@ -46,7 +46,7 @@ void tb_dataset::read_header_type()
 				_data_header.push_back(tmp_header[i]);
 				_data_type.push_back(tmp_type[i]);
 
-				_idx_label = i - 3;
+				_idx_label = i - 2;
 			}
 
 		}
@@ -322,7 +322,7 @@ void tb_dataset::filter(string sql, bool is_all)
 	if (sql != "")
 	{
 
-		bool is_pass1 = true;
+		//bool is_pass1 = true;
 
 		if (!is_child_parent_exist())
 		{

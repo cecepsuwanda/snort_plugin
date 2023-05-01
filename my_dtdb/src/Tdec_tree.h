@@ -8,12 +8,10 @@
 #include "Tdataframe.h"
 #include "Tconf_metrix.h"
 #include "Tmy_dttype.h"
-#include "Tmy_svm.h"
 #include "Twrite_file.h"
 #include "credal.h"
 #include "tb_tree.h"
 
-#include "Timer.h"
 #include <experimental/filesystem>
 
 using namespace std;
@@ -48,7 +46,7 @@ private:
 	int dfs(vector<string> &data, int treeIndex);	
 	
     void test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
-	//void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix, int counter);
+	
 	
 	bool is_pass(int opt, string value1, string value2);
 
