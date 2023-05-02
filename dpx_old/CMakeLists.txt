@@ -9,26 +9,22 @@ if ( APPLE )
     set ( CMAKE_MACOSX_RPATH OFF )
 endif ( APPLE )
 
-
-include (FindPkgConfig)
+include ( FindPkgConfig )
 pkg_search_module ( SNORT3 REQUIRED snort>=3 )
-
 
 file(GLOB SOURCES
      "extractor/*.h"
      "extractor/*.cpp"
-     "my_dtsvmdb/*.h"
-     "my_dtsvmdb/*.cc"
-     "my_dtsvmdb/*.cpp"          
+     "my_dt/*.h"
+     "my_dt/*.cc"
     )
+
 
 add_library (
     dpx MODULE
     dpx.cc
-    ${SOURCES}       
+    ${SOURCES}
 )
-
-target_link_libraries(dpx -lmysqlclient)
 
 if ( APPLE )
     set_target_properties (
@@ -47,13 +43,10 @@ set_target_properties (
 target_include_directories (
     dpx PUBLIC
     ${SNORT3_INCLUDE_DIRS}
-
-        
 )
 
 install (
     TARGETS dpx
     LIBRARY
-        DESTINATION "${INSPECTOR_INSTALL_PATH}"
-
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/${CMAKE_PROJECT_NAME}/inspectors"
 )

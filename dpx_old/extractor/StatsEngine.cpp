@@ -16,7 +16,7 @@ namespace FeatureExtractor {
 	ConversationFeatures *StatsEngine::calculate_features(Conversation *conv)
 	{
 		ConversationFeatures *cf = new ConversationFeatures(conv);
-		
+
 		// Set time window features & to time window
 		time_window.add_conversation(cf);
 

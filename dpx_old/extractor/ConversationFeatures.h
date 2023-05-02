@@ -1,23 +1,18 @@
 #pragma once
 
-#include <string>
 #include "types.h"
 #include "Conversation.h"
-#include "../my_dtsvmdb/Tkddcup_attr.h"
-#include "../my_dtsvmdb/Tmy_dtsvm.h"
-
 
 namespace FeatureExtractor {
 
-    using namespace std;
 	/**
 	 * Set of features with link to conversation
 	 */
 	class ConversationFeatures
 	{
 		// Link to conversation
-		Conversation *conv;		
-		
+		Conversation *conv;
+
 		/**
 		 * Derived features for 2s time window
 		 */
@@ -126,7 +121,6 @@ namespace FeatureExtractor {
 		 * Print in KDD style + optionally extra features
 		 */
 		void print(bool print_extra_features = true) const;
-		void kddcup_attr(Tmy_dtsvm &my_dtsvm) const;
 
 		/**
 		 * Human readable print to stdout
