@@ -1,7 +1,10 @@
 #include <mysql/mysql.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -23,6 +26,8 @@ private:
     string _database;
 
     void finish_with_error();
+    map<string, map<string, string>> parse_ini_file(const string& filename);
+
 
 public:
 	Tquery_builder();
@@ -43,6 +48,7 @@ public:
 	Tquery_builder& operator = (const Tquery_builder &t)
 	{
          this->_con =t._con;
+         return *this;
 	}
 };
 

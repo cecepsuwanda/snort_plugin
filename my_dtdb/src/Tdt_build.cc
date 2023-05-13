@@ -154,7 +154,8 @@ bool Tdt_build::check_purity(Tdataframe &df)
 
 void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_node* parent_node)
 {
-	cetak("%d", parent_node->depth);
+	cetak(".");
+	//cetak("%d", parent_node->depth);
 
 	if (parent_node->isLeaf)
 	{
@@ -166,14 +167,14 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			posisi_cabang tmp_posisi = df.get_posisi();
 
 			string tmp_str = parent_node->label;
-			cetak("*");
+			//cetak("*");
 
 			if (tmp_str == "normal") {
 				idx_svm++;
 				parent_node->idx_svm = idx_svm;
-				cetak("{N}\n");
+				//cetak("{N}\n");
 			} else {
-				cetak("{A}\n");
+				//cetak("{A}\n");
 			}
 
 			if (parent_node->is_pure or parent_node->is_min_sample or parent_node->is_depth_limit)
@@ -198,7 +199,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 		}
 
 	} else {
-		cetak("?|");
+		//cetak("?|");
 
 		posisi_cabang tmp_posisi = df.get_posisi();
 		if (parent_node->left != NULL) {
@@ -218,7 +219,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 		Tdataframe df_below, df_above;
 
 		if (parent_node->left != NULL) {
-			cetak("->");
+			//cetak("->");
 
 			df_below = df;
 			df_below.switch_parent_branch();
@@ -232,7 +233,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 		}
 
 		if (parent_node->right != NULL) {
-			cetak("<-");
+			//cetak("<-");
 
 			df_above = df;
 			df_above.switch_parent_branch();
@@ -257,14 +258,14 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 
 					string tmp_str = parent_node->left->label;
 
-					cetak("+");
+					//cetak("+");
 
 					if (tmp_str == "normal") {
 						idx_svm++;
 						parent_node->idx_svm = idx_svm;
-						cetak("{N}");
+						//cetak("{N}");
 					} else {
-						cetak("{A}");
+						//cetak("{A}");
 					}
 
 					parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
@@ -294,8 +295,8 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 {
 	tree_node* parent_node = new tree_node;
 
-	//cout << counter;
-	cetak("[%d %d]", counter, df.getjmlrow());
+	cetak(".");
+	//cetak("[%d %d]", counter, df.getjmlrow());
 
 	bool is_pure = check_purity(df);
 	bool is_min_sample = (df.getjmlrow() < config->min_sample);
@@ -308,15 +309,15 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 	if (is_pure or is_min_sample or is_depth_limit)
 	{
 		string tmp_str = create_leaf(df);
-		cetak("*");
+		//cetak("*");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
 			parent_node->idx_svm = idx_svm;
-			cetak("{N}");
+			//cetak("{N}");
 
 		} else {
-			cetak("{A}");
+			//cetak("{A}");
 		}
 
 		parent_node->isLeaf = true;
@@ -329,11 +330,11 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 		missing_branch.insert_cut_off(tmp_posisi, tmp_str, (is_pure ? 1 : 0) , (is_min_sample ? 1 : 0) , (is_depth_limit ? 1 : 0), (parent_node->is_lanjut ? 1 : 0));
 
-		cetak("\n");
+		//cetak("\n");
 
 	} else {
 
-		cetak("?");
+		//cetak("?");
 
 		counter++;
 
@@ -372,14 +373,14 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 			if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
 				string tmp_str = create_leaf(df);
 
-				cetak("-");
+				//cetak("-");
 
 				if (tmp_str == "normal") {
 					idx_svm++;
 					parent_node->idx_svm = idx_svm;
-					cetak("{N}");
+					//cetak("{N}");
 				} else {
-					cetak("{A}");
+					//cetak("{A}");
 				}
 
 				parent_node->isLeaf = true;
@@ -398,14 +399,14 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 				missing_branch.insert_not_split(tmp_posisi, tmp_str, (parent_node->is_lanjut ? 1 : 0));
 
-				cetak("\n");
+				//cetak("\n");
 
 			} else {
-				cetak("|");
+				//cetak("|");
 
 				parent_node->criteriaAttrIndex = split_column;
 
-				cetak("->");
+				//cetak("->");
 				posisi_cabang tmp_posisi_below = df_below.get_posisi();
 				missing_branch.add_branch(tmp_posisi_below, split_column, df.get_opt(split_column, 1), split_value);
 
@@ -424,7 +425,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 				}
 
 
-				cetak("<-");
+				//cetak("<-");
 				posisi_cabang tmp_posisi_above = df_above.get_posisi();
 				missing_branch.add_branch(tmp_posisi_above, split_column, df.get_opt(split_column, 0), split_value);
 
@@ -445,15 +446,15 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 						string tmp_str = yes_node->label;
 
-						cetak("+");
+						//cetak("+");
 
 						if (tmp_str == "normal") {
 
 							idx_svm++;
 							parent_node->idx_svm = idx_svm;
-							cetak("{N}");
+							//cetak("{N}");
 						} else {
-							cetak("{A}");
+							//cetak("{A}");
 						}
 
 						parent_node->is_lanjut = yes_node->is_lanjut or no_node->is_lanjut;
@@ -484,15 +485,15 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 			string tmp_str = create_leaf(df);
 
-			cetak("-");
+			//cetak("-");
 
 			if (tmp_str == "normal") {
 
 				idx_svm++;
 				parent_node->idx_svm = idx_svm;
-				cetak("{N}");
+				//cetak("{N}");
 			} else {
-				cetak("{A}");
+				//cetak("{A}");
 			}
 
 			parent_node->isLeaf = true;
@@ -505,7 +506,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 			missing_branch.insert_not_split(tmp_posisi, tmp_str, (parent_node->is_lanjut ? 1 : 0));
 
-			cetak("\n");
+			//cetak("\n");
 
 		}
 	}
@@ -525,8 +526,8 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 		parent_node = prev_tree;
 	}
 
-	//cout << counter;
-	cetak("[%d %d]", counter, df.getjmlrow());
+	cetak(".");
+	//cetak("[%d %d]", counter, df.getjmlrow());
 
 	bool is_pure = check_purity(df);
 	bool is_min_sample = (df.getjmlrow() < config->min_sample);
@@ -540,15 +541,15 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 	if (is_pure or is_min_sample or is_depth_limit)
 	{
 		string tmp_str = create_leaf(df);
-		cetak("*");
+		//cetak("*");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
 			parent_node->idx_svm = idx_svm;
-			cetak("{N}");
+			//cetak("{N}");
 
 		} else {
-			cetak("{A}");
+			//cetak("{A}");
 		}
 
 		parent_node->is_lanjut = !(is_pure or is_min_sample);
@@ -561,14 +562,14 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 		missing_branch.insert_cut_off(tmp_posisi, tmp_str, (is_pure ? 1 : 0) , (is_min_sample ? 1 : 0) , (is_depth_limit ? 1 : 0), (parent_node->is_lanjut ? 1 : 0));
 
-		cetak("\n");
+		//cetak("\n");
 
 	} else {
 
 		// if (!prev_tree->is_pruning)
 		// {
 
-		cetak("?");
+		//cetak("?");
 
 		counter++;
 
@@ -649,14 +650,14 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 			if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
 				string tmp_str = create_leaf(df);
 
-				cetak("-");
+				//cetak("-");
 
 				if (tmp_str == "normal") {
 					idx_svm++;
 					parent_node->idx_svm = idx_svm;
-					cetak("{N}");
+					//cetak("{N}");
 				} else {
-					cetak("{A}");
+					//cetak("{A}");
 				}
 
 				parent_node->isLeaf = true;
@@ -675,14 +676,14 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 				missing_branch.insert_not_split(tmp_posisi, tmp_str, (parent_node->is_lanjut ? 1 : 0));
 
-				cetak("\n");
+				//cetak("\n");
 
 			} else {
-				cetak("|");
+				//cetak("|");
 
 				parent_node->criteriaAttrIndex = split_column;
 
-				cetak("->");
+				//cetak("->");
 				posisi_cabang tmp_posisi_below = df_below.get_posisi();
 				missing_branch.add_branch(tmp_posisi_below, split_column, df.get_opt(split_column, 1), split_value);
 
@@ -710,7 +711,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 				}
 
 
-				cetak("<-");
+				//cetak("<-");
 				posisi_cabang tmp_posisi_above = df_above.get_posisi();
 				missing_branch.add_branch(tmp_posisi_above, split_column, df.get_opt(split_column, 0), split_value);
 
@@ -738,15 +739,15 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 						string tmp_str = yes_node->label;
 
-						cetak("+");
+						//cetak("+");
 
 						if (tmp_str == "normal") {
 
 							idx_svm++;
 							parent_node->idx_svm = idx_svm;
-							cetak("{N}");
+							//cetak("{N}");
 						} else {
-							cetak("{A}");
+							//cetak("{A}");
 						}
 
 						parent_node->is_lanjut = yes_node->is_lanjut or no_node->is_lanjut;
@@ -778,15 +779,15 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 			string tmp_str = create_leaf(df);
 
-			cetak("-");
+			//cetak("-");
 
 			if (tmp_str == "normal") {
 
 				idx_svm++;
 				parent_node->idx_svm = idx_svm;
-				cetak("{N}");
+				//cetak("{N}");
 			} else {
-				cetak("{A}");
+				//cetak("{A}");
 			}
 
 			parent_node->isLeaf = true;
@@ -799,7 +800,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 			missing_branch.insert_not_split(tmp_posisi, tmp_str, (parent_node->is_lanjut ? 1 : 0));
 
-			cetak("\n");
+			//cetak("\n");
 
 		}
 

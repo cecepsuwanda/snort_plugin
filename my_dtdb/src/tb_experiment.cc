@@ -24,15 +24,15 @@ time_t tb_experiment::get_id_detail_experiment()
 
 void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, double threshold_awal, double threshold_akhir, double threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test)
 {
-	_id_experiment = 1682914352;//time(0);
+	_id_experiment = time(0);
 
-	// string data = to_string(_id_experiment) + "," + to_string(depth_awal) + "," + to_string(depth_akhir) + "," + to_string(depth_step) + "," + to_string(min_sample_awal) + "," + to_string(min_sample_akhir) + "," + to_string(min_sample_step) + "," + to_string(threshold_awal) + "," + to_string(threshold_akhir) + "," + to_string(threshold_step) + "," + to_string(credal_s_awal) + "," + to_string(credal_s_akhir) + "," + to_string(credal_s_step) + "," + to_string(id_dt_train) + "," + to_string(jns_dt_train) + "," + "'" + partition_train + "'" + "," + to_string(id_dt_test) + "," + to_string(jns_dt_test) + "," + "'" + partition_test + "'" + "," + "now()";
-	// string nm_kolom = "id,depth_awal,depth_akhir,depth_step,min_sample_awal,min_sample_akhir,min_sample_step,threshold_awal,threshold_akhir,threshold_step,credal_awal,credal_akhir,credal_step,id_dt_train,jns_dt_train,partition_train,id_dt_test,jns_dt_test,partition_test,mulai";
+	string data = to_string(_id_experiment) + "," + to_string(depth_awal) + "," + to_string(depth_akhir) + "," + to_string(depth_step) + "," + to_string(min_sample_awal) + "," + to_string(min_sample_akhir) + "," + to_string(min_sample_step) + "," + to_string(threshold_awal) + "," + to_string(threshold_akhir) + "," + to_string(threshold_step) + "," + to_string(credal_s_awal) + "," + to_string(credal_s_akhir) + "," + to_string(credal_s_step) + "," + to_string(id_dt_train) + "," + to_string(jns_dt_train) + "," + "'" + partition_train + "'" + "," + to_string(id_dt_test) + "," + to_string(jns_dt_test) + "," + "'" + partition_test + "'" + "," + "now()";
+	string nm_kolom = "id,depth_awal,depth_akhir,depth_step,min_sample_awal,min_sample_akhir,min_sample_step,threshold_awal,threshold_akhir,threshold_step,credal_awal,credal_akhir,credal_step,id_dt_train,jns_dt_train,partition_train,id_dt_test,jns_dt_test,partition_test,mulai";
 
-	// global_query_builder.open_connection();
-	// string sql = "insert into experiment(" + nm_kolom + ") values(" + data + ")";
-	// global_query_builder.query(sql);
-	// global_query_builder.close_connection();
+	global_query_builder.open_connection();
+	string sql = "insert into experiment(" + nm_kolom + ") values(" + data + ")";
+	global_query_builder.query(sql);
+	global_query_builder.close_connection();
 }
 
 void tb_experiment::insert_detail_experiment(int id_dt_train, int jns_dt_train , int id_dt_test, int jns_dt_test, int depth, int min_sample, double threshold, double credal)

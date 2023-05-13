@@ -71,12 +71,6 @@ int main(int argc, const char **argv)
 
 	tb_missing_branch missing_branch;
 
-
-	tb_experiment experiment;
-	experiment.insert_experiment(depth_awal, depth_akhir, depth_step, min_sample_awal, min_sample_akhir, min_sample_step, threshold_awal, threshold_akhir, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
-
-	config.id_experiment = experiment.get_id_experiment();
-
 	tb_tree tree;
 
 	cetak("Latih Model : \n");
@@ -88,6 +82,12 @@ int main(int argc, const char **argv)
 		for (int i = min_sample_awal; i <= min_sample_akhir; i += min_sample_step)
 		{
 			config.min_sample = i;
+			
+			tb_experiment experiment;
+	        experiment.insert_experiment(depth_awal, depth_akhir, depth_step, i, i, min_sample_step, l, l, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
+
+	        config.id_experiment = experiment.get_id_experiment();
+
 			for (double k = credal_s_awal; k <= credal_s_akhir; k += credal_s_step)
 			{
 				config.use_credal = k != 0.0;
@@ -184,10 +184,13 @@ int main(int argc, const char **argv)
 				}
 
 			}
+	     
+	        experiment.end_experiment();	
+
 		}
 	}
 
-	experiment.end_experiment();
+	
 	df_train.close_file();
 	df_test.close_file();
 
