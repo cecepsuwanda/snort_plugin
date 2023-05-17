@@ -261,24 +261,24 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   bool first_iteration = true;
 
-  int jml_row = stat_label.get_jml_row();
-  float prosen = 1;
-  float prosen1 = 0;
+  // int jml_row = stat_label.get_jml_row();
+  // float prosen = 1;
+  // float prosen1 = 0;
 
-  float jml_row_prosen = jml_row;
-  float jml_row_prosen1 = 0;
+  // float jml_row_prosen = jml_row;
+  // float jml_row_prosen1 = 0;
 
-  if (config->threshold < 1)
-  {
-    prosen = 1 - config->threshold;
-    prosen1 = config->threshold;
+  // if (config->threshold < 1)
+  // {
+  //   prosen = 1 - config->threshold;
+  //   prosen1 = config->threshold;
 
-    jml_row_prosen = ceil(prosen * jml_row);
-    jml_row_prosen1 =  ceil(prosen1 * jml_row);
-  } else {
-    jml_row_prosen = jml_row - config->threshold;
-    jml_row_prosen1 =  config->threshold;
-  }
+  //   jml_row_prosen = ceil(prosen * jml_row);
+  //   jml_row_prosen1 =  ceil(prosen1 * jml_row);
+  // } else {
+  //   jml_row_prosen = jml_row - config->threshold;
+  //   jml_row_prosen1 =  config->threshold;
+  // }
 
 
   Tlabel_stat _stat_label_below;
@@ -309,10 +309,10 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     } else {
       is_pass = true;
-      if ((jml_row - config->min_sample) > config->threshold)
-      {
-        is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
-      }
+      // if ((jml_row - config->min_sample) > config->threshold)
+      // {
+      //   is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
+      // }
     }
 
     if (is_pass)

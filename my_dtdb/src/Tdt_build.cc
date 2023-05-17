@@ -370,7 +370,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ((df_below.getjmlrow() < config->threshold) and (df_above.getjmlrow() < config->threshold)) ) {
 				string tmp_str = create_leaf(df);
 
 				//cetak("-");
@@ -647,7 +647,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or ((df_below.getjmlrow() < config->threshold) and (df_above.getjmlrow() < config->threshold)) ) {
 				string tmp_str = create_leaf(df);
 
 				//cetak("-");
