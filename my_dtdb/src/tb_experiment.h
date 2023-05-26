@@ -33,7 +33,9 @@ public:
     void end_experiment();
 
     time_t get_id_experiment();
+    void set_id_experiment(time_t id_experiment);
     time_t get_id_detail_experiment();
+    void set_id_detail_experiment(time_t id_detail_experiment);
 };
 
 #endif

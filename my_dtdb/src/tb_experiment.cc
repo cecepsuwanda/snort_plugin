@@ -17,9 +17,19 @@ time_t tb_experiment::get_id_experiment()
 	return _id_experiment;
 }
 
+void tb_experiment::set_id_experiment(time_t id_experiment)
+{
+	_id_experiment = id_experiment;
+}
+
 time_t tb_experiment::get_id_detail_experiment()
 {
 	return _id_detail_experiment;
+}
+
+void tb_experiment::set_id_detail_experiment(time_t id_detail_experiment)
+{
+	_id_detail_experiment = id_detail_experiment;
 }
 
 void tb_experiment::insert_experiment(int depth_awal, int depth_akhir, int depth_step, int min_sample_awal, int min_sample_akhir, int min_sample_step, double threshold_awal, double threshold_akhir, double threshold_step, double credal_s_awal, double credal_s_akhir, double credal_s_step, int id_dt_train, int jns_dt_train, string partition_train, int id_dt_test, int jns_dt_test, string partition_test)

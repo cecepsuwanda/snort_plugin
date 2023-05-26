@@ -256,29 +256,30 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   float best_overall_metric = 0.0;
   float gain = 0, gain_max = 0;
+  // bool not_valid = false;
   string mid_point = "0.0";
   string tmp_split_value = "-1";
 
   bool first_iteration = true;
 
-  // int jml_row = stat_label.get_jml_row();
-  // float prosen = 1;
-  // float prosen1 = 0;
+  int jml_row = stat_label.get_jml_row();
+  float prosen = 1;
+  float prosen1 = 0;
 
-  // float jml_row_prosen = jml_row;
-  // float jml_row_prosen1 = 0;
+  float jml_row_prosen = jml_row;
+  float jml_row_prosen1 = 0;
 
-  // if (config->threshold < 1)
-  // {
-  //   prosen = 1 - config->threshold;
-  //   prosen1 = config->threshold;
+  if (config->threshold < 1)
+  {
+    prosen = 1 - config->threshold;
+    prosen1 = config->threshold;
 
-  //   jml_row_prosen = ceil(prosen * jml_row);
-  //   jml_row_prosen1 =  ceil(prosen1 * jml_row);
-  // } else {
-  //   jml_row_prosen = jml_row - config->threshold;
-  //   jml_row_prosen1 =  config->threshold;
-  // }
+    jml_row_prosen = ceil(prosen * jml_row);
+    jml_row_prosen1 =  ceil(prosen1 * jml_row);
+  } else {
+    jml_row_prosen = jml_row - config->threshold;
+    jml_row_prosen1 =  config->threshold;
+  }
 
 
   Tlabel_stat _stat_label_below;
@@ -288,7 +289,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
   auto itr = _col_pot_split->begin();
 
-  
+
   while ((itr != _col_pot_split->end()))
   {
 
@@ -298,22 +299,22 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
     _stat_label_below = _stat_label_below + (*itr).second;
     _stat_label_below.set_config(config);
 
-    bool is_pass = false;
+    bool is_pass = true;
 
-    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
-    {
-      string label_below = _stat_label_below.get_max_label();
-      string label_next = (*itr_next).second.get_max_label();
+    // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    // {
+    //   string label_below = _stat_label_below.get_max_label();
+    //   string label_next = (*itr_next).second.get_max_label();
 
-      is_pass = label_below != label_next;
+    //   is_pass = label_below != label_next;
 
-    } else {
-      is_pass = true;
-      // if ((jml_row - config->min_sample) > config->threshold)
-      // {
-      //   is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
-      // }
-    }
+    // } else {
+      //is_pass = true;
+      if ((jml_row - config->min_sample) > jml_row_prosen1)
+      {
+        is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
+      }
+    //}
 
     if (is_pass)
     {
@@ -324,14 +325,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         Tmy_dttype tmp1 = (*itr).first;
         Tmy_dttype tmp2 = (*itr_next).first;
         try {
-          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);          
+          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
         }
         catch (const std::invalid_argument& ia) {
           cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
         }
 
         Tbelow_above ba(config);
-        
+
 
         ba.add_below(_stat_label_below);
         Tlabel_stat tmp_stat = stat_label - _stat_label_below;
@@ -352,6 +353,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
           gain_max = gain;
           tmp_split_value = mid_point;
           best_overall_metric = gain_max;
+          // not_valid = !ba.cek_valid_cont();
         }
       }
 
@@ -362,6 +364,13 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
 
   }
+
+  // if (not_valid)
+  // {
+  //   gain_max = 0;
+  //   tmp_split_value = "-1";
+  //   best_overall_metric = 0.0;
+  // }
 
   current_overall_metric = best_overall_metric;
   split_value = tmp_split_value;
@@ -384,7 +393,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
         entropy_before_split = _stat_label.get_credal_entropy();
       }
 
-      
+
       auto itr = _col_pot_split.begin();
 
 
@@ -412,7 +421,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
         current_overall_metric = gain;
         split_value = tmp1.get_string();
       }
-      
+
 
     } else {
       float tmp_best_overall_metric = 0.0;
@@ -438,6 +447,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
 
   float best_overall_metric = 0.0;
   float gain = 0, gain_max = 0;
+  // bool not_valid = false;
   string tmp_split_value = "-1";
   string mid_point = "0.0";
 
@@ -451,7 +461,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     Tbelow_above ba(config);
 
     mid_point = ((Tmy_dttype) (*itr).first).get_string();
-    
+
     ba.add_below((*itr).second);
     Tlabel_stat tmp_stat = _stat_label - (*itr).second;
     tmp_stat.set_config(config);
@@ -472,9 +482,17 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
       gain_max = gain;
       tmp_split_value = mid_point;
       best_overall_metric = gain_max;
+      // not_valid = !ba.cek_valid_cont();
     }
 
   }
+
+  // if (not_valid)
+  // {
+  //   gain_max = 0;
+  //   tmp_split_value = "-1";
+  //   best_overall_metric = 0.0;
+  // }
 
   current_overall_metric = best_overall_metric;
   split_value = tmp_split_value;
@@ -484,14 +502,14 @@ void Tdataframe::calculate_overall_metric(int idx, float & current_overall_metri
 {
   std::lock_guard<std::mutex> lock(v_mutex);
   split_value = "-1";
-  current_overall_metric = -1;  
+  current_overall_metric = -1;
 
   if (_data_type[idx] == "continuous.") {
     handle_continuous(idx, current_overall_metric, split_value);
   } else {
     handle_non_continuous(idx, current_overall_metric, split_value);
   }
-  
+
 }
 
 string Tdataframe::get_nm_header(int idx_col)

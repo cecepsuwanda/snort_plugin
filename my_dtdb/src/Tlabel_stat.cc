@@ -108,7 +108,7 @@ float Tlabel_stat::get_estimate_error()
 	float estimate_error = 0;
 
 	float f = (float) _min_value / _jml_row;
-	float z = 0.69;
+	float z = 0.05;//0.69;
 
 	estimate_error = (f + ((z * z) / (2 * _jml_row)) + (z * sqrt((f / _jml_row) - ((f * f) / _jml_row) + ((z * z) / (4 * _jml_row * _jml_row)))) ) / (1 + ((z * z) / _jml_row));
 

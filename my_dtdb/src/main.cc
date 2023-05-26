@@ -18,8 +18,7 @@ int main(int argc, const char **argv)
 	char *endptr;
 	Tconfig config;
 
-	//config.f_datatype = argv[13];
-	config.path_model = argv[13];
+
 
 	double credal_s_awal  = strtod(argv[7], &endptr);
 	double credal_s_akhir = strtod(argv[8], &endptr);
@@ -37,6 +36,13 @@ int main(int argc, const char **argv)
 	double threshold_akhir = strtod(argv[11], &endptr);
 	double threshold_step  = strtod(argv[12], &endptr);
 
+
+	bool is_experiment = stoi(argv[20]) == 1;
+	time_t id_experiment = (time_t) atoll(argv[21]);
+	bool is_detail_experiment = stoi(argv[22]) == 1;
+	time_t id_detail_experiment = (time_t) atoll(argv[23]);
+	bool is_break = stoi(argv[24]) == 1;
+
 	//config.f_train = argv[14];
 	//config.f_test = argv[15];
 
@@ -49,7 +55,9 @@ int main(int argc, const char **argv)
 	config.jns_dt_test = stoi(argv[18]);
 	config.partition_test = argv[19];
 
-    cetak("Persiapan Data Latih : \n");
+
+
+	cetak("Persiapan Data Latih : \n");
 	Tdataframe df_train(&config);
 	df_train.set_dataset(config.id_dt_train, config.jns_dt_train, config.partition_train);
 	df_train.read_header_type();
@@ -82,11 +90,17 @@ int main(int argc, const char **argv)
 		for (int i = min_sample_awal; i <= min_sample_akhir; i += min_sample_step)
 		{
 			config.min_sample = i;
-			
-			tb_experiment experiment;
-	        experiment.insert_experiment(depth_awal, depth_akhir, depth_step, i, i, min_sample_step, l, l, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
 
-	        config.id_experiment = experiment.get_id_experiment();
+			tb_experiment experiment;
+
+			if (is_experiment)
+			{
+               experiment.set_id_experiment(id_experiment);    
+			} else {
+
+				experiment.insert_experiment(depth_awal, depth_akhir, depth_step, i, i, min_sample_step, l, l, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, config.id_dt_train, config.jns_dt_train, config.partition_train, config.id_dt_test, config.jns_dt_test, config.partition_test);
+			}
+			config.id_experiment = experiment.get_id_experiment();
 
 			for (double k = credal_s_awal; k <= credal_s_akhir; k += credal_s_step)
 			{
@@ -107,7 +121,12 @@ int main(int argc, const char **argv)
 					config.depth = j;
 					config.prunning = true;
 
-					experiment.insert_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth, config.min_sample, config.threshold, config.credal_s);
+					if (is_detail_experiment)
+					{
+                       experiment.set_id_detail_experiment(id_detail_experiment);  
+					} else {
+						experiment.insert_detail_experiment(config.id_dt_train, config.jns_dt_train , config.id_dt_test, config.jns_dt_test, config.depth, config.min_sample, config.threshold, config.credal_s);
+					}
 
 					config.id_detail_experiment = experiment.get_id_detail_experiment();
 
@@ -130,7 +149,7 @@ int main(int argc, const char **argv)
 						tree_exist = tree.cari_tree(tmp_id_detail_experiment);
 					}
 
-					cetak("Latih model untuk Depth : %d Credal : %f \n",j,k);
+					cetak("Latih model untuk Depth : %d Credal : %f \n", j, k);
 
 					if (tree_exist) //(j > depth_awal) and
 					{
@@ -152,7 +171,7 @@ int main(int argc, const char **argv)
 						//df_test.reset_depth_branch();
 					}
 
-					cetak("Test model untuk Depth : %d Credal : %f \n",j,k);
+					cetak("Test model untuk Depth : %d Credal : %f \n", j, k);
 
 					Tdec_tree dec_tree_test(&config);
 					dec_tree_test.read_tree();
@@ -177,20 +196,25 @@ int main(int argc, const char **argv)
 						prev_jml_FN = jml_FN;
 					}
 
-					if (jml_sama >= 5)
-					{
-						break;
+
+					if (is_break) {
+						if (jml_sama >= 5)
+						{
+							break;
+						}
 					}
+
+
 				}
 
 			}
-	     
-	        experiment.end_experiment();	
+
+			experiment.end_experiment();
 
 		}
 	}
 
-	
+
 	df_train.close_file();
 	df_test.close_file();
 
