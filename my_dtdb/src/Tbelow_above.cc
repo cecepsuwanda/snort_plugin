@@ -41,12 +41,12 @@ bool Tbelow_above::cek_valid_cont()
 
 	if (config->limited)
 	{
-		if (config->threshold >= 1) {
-			pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
-		} else {
-			//pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_above.get_jml_row() <= ceil((1-config->threshold) * jml) ));
-			pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_below.get_jml_row() <= ceil((1-config->threshold) * jml) ));
-		}
+		// if (config->threshold >= 1) {
+		// 	pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
+		// } else {
+		// 	//pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_above.get_jml_row() <= ceil((1-config->threshold) * jml) ));
+		// 	pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_below.get_jml_row() <= ceil((1-config->threshold) * jml) ));
+		// }
 
 
 	}

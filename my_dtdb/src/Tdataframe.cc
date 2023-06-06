@@ -301,19 +301,20 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     bool is_pass = true;
 
-    // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
-    // {
-    //   string label_below = _stat_label_below.get_max_label();
-    //   string label_next = (*itr_next).second.get_max_label();
+    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    {
+      string label_below = _stat_label_below.get_max_label();
+      string label_next = (*itr_next).second.get_max_label();
 
-    //   is_pass = label_below != label_next;
+      is_pass = label_below != label_next;
 
-    // } else {
+    } 
+    //else {
       //is_pass = true;
-      if ((jml_row - config->min_sample) > jml_row_prosen1)
-      {
-        is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
-      }
+      // if ((jml_row - config->min_sample) > jml_row_prosen1)
+      // {
+      //   is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
+      // }
     //}
 
     if (is_pass)

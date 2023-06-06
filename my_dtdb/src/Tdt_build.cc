@@ -368,9 +368,30 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 			df_above.switch_parent_branch();
 			df_above.set_branch(counter, 2, branch_number[counter]);
 
+			int jml_row = df.getjmlrow();
+			float prosen = 1;
+			float prosen1 = 0;
+
+			float jml_row_prosen = jml_row;
+			float jml_row_prosen1 = 0;
+
+			if (config->threshold < 1)
+			{
+				prosen = 1 - config->threshold;
+				prosen1 = config->threshold;
+
+				jml_row_prosen = ceil(prosen * jml_row);
+				jml_row_prosen1 =  ceil(prosen1 * jml_row);
+			} else {
+				jml_row_prosen = jml_row - config->threshold;
+				jml_row_prosen1 =  config->threshold;
+			}
+
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
+            bool is_pass = (df_below.getjmlrow() >= jml_row_prosen1 ) and (df_above.getjmlrow() <= jml_row_prosen);
+
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass) ) {
 				string tmp_str = create_leaf(df);
 
 				//cetak("-");
@@ -645,9 +666,30 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 				df_above.set_branch(prev_tree->right->depth, prev_tree->right->branch, prev_tree->right->branch_number);
 			}
 
+			int jml_row = df.getjmlrow();
+			float prosen = 1;
+			float prosen1 = 0;
+
+			float jml_row_prosen = jml_row;
+			float jml_row_prosen1 = 0;
+
+			if (config->threshold < 1)
+			{
+				prosen = 1 - config->threshold;
+				prosen1 = config->threshold;
+
+				jml_row_prosen = ceil(prosen * jml_row);
+				jml_row_prosen1 =  ceil(prosen1 * jml_row);
+			} else {
+				jml_row_prosen = jml_row - config->threshold;
+				jml_row_prosen1 =  config->threshold;
+			}
+
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) {
+			bool is_pass = (df_below.getjmlrow() >= jml_row_prosen1 ) and (df_above.getjmlrow() <= jml_row_prosen);
+
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass)) {
 				string tmp_str = create_leaf(df);
 
 				//cetak("-");
@@ -829,11 +871,11 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, tb_mi
 
 	Tdataframe df_left;
 	df_left = df_train;
-	df_left.switch_parent_branch();	
+	df_left.switch_parent_branch();
 
 	Tdataframe df_right;
 	df_right = df_train;
-	df_right.switch_parent_branch();	
+	df_right.switch_parent_branch();
 
 	if (parent_node->left != NULL) {
 		df_left.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
