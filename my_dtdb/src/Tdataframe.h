@@ -153,7 +153,7 @@ public:
   void clear_map_col_split();
 
   void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
-  float get_entropy();
+  Tmy_dttype get_entropy();
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);

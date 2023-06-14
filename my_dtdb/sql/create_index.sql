@@ -151,3 +151,8 @@ create index idx_dst_host_serror_rate_label on attr_dataset_train(dst_host_serro
 create index idx_dst_host_srv_serror_rate_label on attr_dataset_train(dst_host_srv_serror_rate,label); 
 create index idx_dst_host_rerror_rate_label on attr_dataset_train(dst_host_rerror_rate,label); 
 create index idx_dst_host_srv_rerror_rate_label on attr_dataset_train(dst_host_srv_rerror_rate,label);  
+
+
+
+create index idx_branch_test on tmp_dataset_test(parent_depth,parent_branch,parent_branch_number,child_depth,child_branch,child_branch_number);
+create index idx_branch_train on tmp_dataset_train(parent_depth,parent_branch,parent_branch_number,child_depth,child_branch,child_branch_number);

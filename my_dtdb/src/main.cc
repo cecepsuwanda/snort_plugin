@@ -18,8 +18,6 @@ int main(int argc, const char **argv)
 	char *endptr;
 	Tconfig config;
 
-
-
 	double credal_s_awal  = strtod(argv[7], &endptr);
 	double credal_s_akhir = strtod(argv[8], &endptr);
 	double credal_s_step  = strtod(argv[9], &endptr);

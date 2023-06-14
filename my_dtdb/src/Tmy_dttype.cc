@@ -14,19 +14,19 @@ Tmy_dttype::~Tmy_dttype()
 
 double Tmy_dttype::bulat_nol(double val, double tolerance, int digit)
 {
-  double tmp = val;
+	double tmp = val;
 
-  if (abs(val) < tolerance)
-  {
-    tmp = 0.0;
-  }
-  else
-  {
-    const double multiplier = std::pow(10.0, digit);
-    tmp = ceil(val * multiplier) / multiplier;
-  }
-  // double tmp = val;
-  return tmp;
+	if (abs(val) < tolerance)
+	{
+		tmp = 0.0;
+	}
+	else
+	{
+		const double multiplier = std::pow(10.0, digit);
+		tmp = ceil(val * multiplier) / multiplier;
+	}
+	// double tmp = val;
+	return tmp;
 }
 
 Tmy_dttype::Tmy_dttype(string value, bool is_continue)
@@ -36,11 +36,11 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-	  _lower_value = to_lower(_lower_value);
-	}else{
-		char *endptr;
+		_lower_value = to_lower(_lower_value);
+	} else {
+		// char *endptr;
 		// double tmp = strtod(value.c_str(), &endptr);
-		// _value=to_string(bulat_nol(tmp,1e-2,2));
+		// _value = to_string(bulat_nol(tmp, 1e-7, 7));
 		_lower_value = value;
 	}
 }
@@ -53,10 +53,10 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	if (!_is_continue)
 	{
 		_lower_value = to_lower(_lower_value);
-	}else{
-		char *endptr;
+	} else {
+		// char *endptr;
 		// double tmp = strtod(value.c_str(), &endptr);
-		// _value=to_string(bulat_nol(tmp,1e-2,2));
+		// _value = to_string(bulat_nol(tmp, 1e-7, 7));
 		_lower_value = value;
 	}
 }

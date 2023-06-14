@@ -51,38 +51,7 @@ string Tlabel_stat::get_first_value_in_map()
 }
 
 
-double Tlabel_stat::get_entropy()
-{	
-	double entropy = 0;
-	credal crd(config->credal_s);
-
-	vector<int> freq;
-
-	std::transform(_map.begin(), _map.end(),
-	               std::back_inserter(freq),
-	[](const std::pair<string, int> &p) {
-		return p.second;
-	});
-
-
-	crd.input_frec(freq);
-
-	entropy = crd.get_ent();	
-
-	/*auto it = _map.begin();
-	while (it != _map.end())
-	{
-		if ( (it->second > 0) and (_jml_row > 0) ) {
-			entropy += ((float) it->second / _jml_row)  * (-1 * log2((float) it->second / _jml_row));
-		}
-
-		it++;
-	}*/
-
-	return entropy;
-}
-
-double Tlabel_stat::get_credal_entropy()
+Tmy_dttype Tlabel_stat::get_entropy()
 {
 	double entropy = 0;
 	credal crd(config->credal_s);
@@ -98,9 +67,46 @@ double Tlabel_stat::get_credal_entropy()
 
 	crd.input_frec(freq);
 
-	entropy = crd.get_max_ent();	
+	entropy = crd.get_ent();
 
-	return entropy;
+	/*auto it = _map.begin();
+	while (it != _map.end())
+	{
+		if ( (it->second > 0) and (_jml_row > 0) ) {
+			entropy += ((float) it->second / _jml_row)  * (-1 * log2((float) it->second / _jml_row));
+		}
+
+		it++;
+	}*/
+
+	Tmy_dttype tmp;
+	tmp.set_value(to_string(entropy), true);
+
+	return tmp;
+}
+
+Tmy_dttype Tlabel_stat::get_credal_entropy()
+{
+	double entropy = 0;
+	credal crd(config->credal_s);
+
+	vector<int> freq;
+
+	std::transform(_map.begin(), _map.end(),
+	               std::back_inserter(freq),
+	[](const std::pair<string, int> &p) {
+		return p.second;
+	});
+
+
+	crd.input_frec(freq);
+
+	entropy = crd.get_max_ent();
+
+	Tmy_dttype tmp;
+	tmp.set_value(to_string(entropy), true);
+
+	return tmp;
 }
 
 float Tlabel_stat::get_estimate_error()
@@ -115,7 +121,7 @@ float Tlabel_stat::get_estimate_error()
 	return estimate_error;
 }
 
-void Tlabel_stat::add(string value,int count)
+void Tlabel_stat::add(string value, int count)
 {
 	_jml_row += count;
 	map<string, int>::iterator it;

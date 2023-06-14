@@ -36,7 +36,7 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid_cont()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();    
+	//int jml = _below.get_jml_row() + _above.get_jml_row();    
 	bool pass = true;
 
 	if (config->limited)
@@ -56,7 +56,7 @@ bool Tbelow_above::cek_valid_cont()
 
 bool Tbelow_above::cek_valid_non_cont()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();
+	//int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
 	if (config->limited)
@@ -102,7 +102,7 @@ Tlabel_stat Tbelow_above::get_above()
 	return _above;
 }
 
-float Tbelow_above::get_overall_metric()
+Tmy_dttype Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
 
@@ -114,8 +114,8 @@ float Tbelow_above::get_overall_metric()
 		float p_dt_below = (float) _below.get_jml_row() / jml;
 		float p_dt_above = (float) _above.get_jml_row() / jml;
 
-		double entropy_below = _below.get_entropy();
-		double entropy_above = _above.get_entropy();
+		double entropy_below = stof(_below.get_entropy().get_value());
+		double entropy_above = stof(_above.get_entropy().get_value());
 
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 	} else {
@@ -130,15 +130,19 @@ float Tbelow_above::get_overall_metric()
 
 		crd.input_frec(freq);
 
-		ent.push_back(_below.get_entropy());
-		ent.push_back(_above.get_entropy());
+		ent.push_back(stof(_below.get_entropy().get_value()));
+		ent.push_back(stof(_above.get_entropy().get_value()));
 
-		max_ent.push_back(_below.get_credal_entropy());
-		max_ent.push_back(_above.get_credal_entropy());
+		max_ent.push_back(stof(_below.get_credal_entropy().get_value()));
+		max_ent.push_back(stof(_above.get_credal_entropy().get_value()));
 
 		overall_metric = crd.get_overall_metric(ent, max_ent);
 	}
-	return overall_metric;
+	
+    Tmy_dttype tmp;
+	tmp.set_value(to_string(overall_metric), true);
+
+	return tmp;
 }
 
 float Tbelow_above::get_split_info()

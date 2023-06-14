@@ -68,7 +68,7 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 
 	global_query_builder.open_connection();
 
-	string tmp = "select * from attr_stat where (is_continue=0) or ((is_continue=1) and  (jml < (0.5*" + to_string(jml_row) + ")) and  (jml>=2)) order by id"; //where (is_continue=0) or ((is_continue=1) and  (jml < (0.3*" + to_string(jml_row) + ")) and (jml>1) )
+	string tmp = "select * from attr_stat where (is_continue=0) or ((is_continue=1) and  (jml>=2)) order by id"; //where (is_continue=0) or ((is_continue=1) and  (jml < (0.3*" + to_string(jml_row) + ")) and (jml>1) )
 
 	if (global_query_builder.query(tmp))
 	{

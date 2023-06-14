@@ -246,7 +246,7 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
 
 void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
 {
-  float entropy_before_split;
+  Tmy_dttype entropy_before_split;
 
   if (!config->use_credal) {
     entropy_before_split = stat_label.get_entropy();
@@ -255,31 +255,31 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   }
 
   float best_overall_metric = 0.0;
-  float gain = 0, gain_max = 0;
+  Tmy_dttype gain, gain_max;
   // bool not_valid = false;
   string mid_point = "0.0";
   string tmp_split_value = "-1";
 
   bool first_iteration = true;
 
-  int jml_row = stat_label.get_jml_row();
-  float prosen = 1;
-  float prosen1 = 0;
+  // int jml_row = stat_label.get_jml_row();
+  // float prosen = 1;
+  // float prosen1 = 0;
 
-  float jml_row_prosen = jml_row;
-  float jml_row_prosen1 = 0;
+  // float jml_row_prosen = jml_row;
+  // float jml_row_prosen1 = 0;
 
-  if (config->threshold < 1)
-  {
-    prosen = 1 - config->threshold;
-    prosen1 = config->threshold;
+  // if (config->threshold < 1)
+  // {
+  //   prosen = 1 - config->threshold;
+  //   prosen1 = config->threshold;
 
-    jml_row_prosen = ceil(prosen * jml_row);
-    jml_row_prosen1 =  ceil(prosen1 * jml_row);
-  } else {
-    jml_row_prosen = jml_row - config->threshold;
-    jml_row_prosen1 =  config->threshold;
-  }
+  //   jml_row_prosen = ceil(prosen * jml_row);
+  //   jml_row_prosen1 =  ceil(prosen1 * jml_row);
+  // } else {
+  //   jml_row_prosen = jml_row - config->threshold;
+  //   jml_row_prosen1 =  config->threshold;
+  // }
 
 
   Tlabel_stat _stat_label_below;
@@ -301,14 +301,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     bool is_pass = true;
 
-    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
-    {
-      string label_below = _stat_label_below.get_max_label();
-      string label_next = (*itr_next).second.get_max_label();
+    // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    // {
+    //   string label_below = _stat_label_below.get_max_label();
+    //   string label_next = (*itr_next).second.get_max_label();
 
-      is_pass = label_below != label_next;
+    //   is_pass = label_below != label_next;
 
-    } 
+    // } 
     //else {
       //is_pass = true;
       // if ((jml_row - config->min_sample) > jml_row_prosen1)
@@ -325,35 +325,30 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
         Tmy_dttype tmp1 = (*itr).first;
         Tmy_dttype tmp2 = (*itr_next).first;
-        try {
-          mid_point = to_string((stof(tmp1.get_string()) + stof(tmp2.get_string())) / 2);
-        }
-        catch (const std::invalid_argument& ia) {
-          cout << tmp1.get_string() << "+" << tmp2.get_string() << " ";
-        }
+        Tmy_dttype tmp = (tmp1 + tmp2)/ 2.0;
+        mid_point = tmp.get_string();
 
         Tbelow_above ba(config);
-
 
         ba.add_below(_stat_label_below);
         Tlabel_stat tmp_stat = stat_label - _stat_label_below;
         tmp_stat.set_config(config);
         ba.add_above(tmp_stat);
 
-        gain = 0;
+        gain.set_value("0.0",true);
 
         if (ba.cek_valid_cont()) {
-          float entropy_after_split = ba.get_overall_metric();
+          Tmy_dttype entropy_after_split = ba.get_overall_metric();
           float split_info = ba.get_split_info();
           gain = (entropy_before_split - entropy_after_split) / split_info;
         }
 
-        if ((first_iteration and (gain > 0)) or (gain_max < gain))
+        if ((first_iteration and (gain > 0.0)) or (gain_max < gain))
         {
           first_iteration = false;
           gain_max = gain;
           tmp_split_value = mid_point;
-          best_overall_metric = gain_max;
+          best_overall_metric = stof(gain_max.get_value());
           // not_valid = !ba.cek_valid_cont();
         }
       }
@@ -386,7 +381,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
   {
     if (_col_pot_split.size() == 1)
     {
-      float entropy_before_split;
+      Tmy_dttype entropy_before_split;
 
       if (!config->use_credal) {
         entropy_before_split = _stat_label.get_entropy();
@@ -411,15 +406,15 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
       tmp_stat.set_config(config);
       ba.add_above(tmp_stat);
 
-      float gain = 0;
+      Tmy_dttype gain;
       if (ba.cek_valid_cont()) {
-        float entropy_after_split = ba.get_overall_metric();
+        Tmy_dttype entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
         gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
       }
 
-      if (gain > 0) {
-        current_overall_metric = gain;
+      if (gain > 0.0) {
+        current_overall_metric = stof(gain.get_value());
         split_value = tmp1.get_string();
       }
 
@@ -438,7 +433,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
 
 void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, string & split_value)
 {
-  float entropy_before_split;
+  Tmy_dttype entropy_before_split;
 
   if (!config->use_credal) {
     entropy_before_split = _stat_label.get_entropy();
@@ -447,7 +442,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   }
 
   float best_overall_metric = 0.0;
-  float gain = 0, gain_max = 0;
+  Tmy_dttype gain, gain_max;
   // bool not_valid = false;
   string tmp_split_value = "-1";
   string mid_point = "0.0";
@@ -468,21 +463,21 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     tmp_stat.set_config(config);
     ba.add_above(tmp_stat);
 
-    gain = 0;
+    gain.set_value("0.0",true);
     if (ba.cek_valid_non_cont()) {
-      float entropy_after_split = ba.get_overall_metric();
+      Tmy_dttype entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
       gain = (entropy_before_split - entropy_after_split) / split_info;
     }
 
     itr++;
 
-    if ((first_iteration and (gain > 0)) or (gain_max < gain))
+    if ((first_iteration and (gain > 0.0)) or (gain_max < gain))
     {
       first_iteration = false;
       gain_max = gain;
       tmp_split_value = mid_point;
-      best_overall_metric = gain_max;
+      best_overall_metric = stof(gain_max.get_value());
       // not_valid = !ba.cek_valid_cont();
     }
 
@@ -530,7 +525,7 @@ int Tdataframe::get_opt(int idx_col, int is_below)
 }
 
 
-float Tdataframe::get_entropy()
+Tmy_dttype Tdataframe::get_entropy()
 {
   return _stat_label.get_entropy();
 }

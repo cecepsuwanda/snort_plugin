@@ -1,4 +1,3 @@
-
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "global.h"
@@ -35,7 +34,7 @@ public:
 	void add_above(Tlabel_stat stat);
 	Tlabel_stat get_above();
 
-	float get_overall_metric();
+	Tmy_dttype get_overall_metric();
 	float get_split_info();
 
 	void clear();

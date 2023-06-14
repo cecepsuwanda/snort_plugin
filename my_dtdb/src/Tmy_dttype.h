@@ -131,6 +131,18 @@ public:
 		}
 	}
 
+	bool operator >(const float rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) > rhs);
+		} else {			
+			return false;			
+		}
+	}
+
+
+
 	bool operator >=(const Tmy_dttype& rhs) const
 	{
 		if (_is_continue and rhs._is_continue)
@@ -219,6 +231,53 @@ public:
 				return false;
 			}
 		}
+	}
+
+
+	const Tmy_dttype operator + (const Tmy_dttype &rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue and rhs._is_continue)
+		{
+			try {
+				tmp.set_value( to_string(stof(_value)+stof(rhs._value)),true);
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";				
+			}
+		}	
+
+		return tmp;
+	}
+
+	const Tmy_dttype operator - (const Tmy_dttype &rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue and rhs._is_continue)
+		{
+			try {
+				tmp.set_value( to_string(stof(_value)-stof(rhs._value)),true);
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";				
+			}
+		}	
+
+		return tmp;
+	}
+
+	const Tmy_dttype operator / (const float rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue)
+		{			
+			tmp.set_value(to_string(stof(_value)/rhs),true);			
+		}	
+
+		return tmp;
 	}
 
 };
