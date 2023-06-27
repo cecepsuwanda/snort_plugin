@@ -17,7 +17,7 @@ int main(int argc, const char **argv)
 {
 	char *endptr;
 	Tconfig config;
-
+	
 	double credal_s_awal  = strtod(argv[7], &endptr);
 	double credal_s_akhir = strtod(argv[8], &endptr);
 	double credal_s_step  = strtod(argv[9], &endptr);
@@ -34,26 +34,20 @@ int main(int argc, const char **argv)
 	double threshold_akhir = strtod(argv[11], &endptr);
 	double threshold_step  = strtod(argv[12], &endptr);
 
-
 	bool is_experiment = stoi(argv[20]) == 1;
 	time_t id_experiment = (time_t) atoll(argv[21]);
 	bool is_detail_experiment = stoi(argv[22]) == 1;
 	time_t id_detail_experiment = (time_t) atoll(argv[23]);
 	bool is_break = stoi(argv[24]) == 1;
+	
 
-	//config.f_train = argv[14];
-	//config.f_test = argv[15];
-
-	config.id_dt_train = stoi(argv[14]);;
-	config.jns_dt_train = stoi(argv[15]);;
+	config.id_dt_train = stoi(argv[14]);
+	config.jns_dt_train = stoi(argv[15]);
 	config.partition_train = argv[16];
-
 
 	config.id_dt_test = stoi(argv[17]);
 	config.jns_dt_test = stoi(argv[18]);
 	config.partition_test = argv[19];
-
-
 
 	cetak("Persiapan Data Latih : \n");
 	Tdataframe df_train(&config);

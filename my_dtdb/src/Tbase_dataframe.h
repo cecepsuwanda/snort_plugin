@@ -1,7 +1,6 @@
 #include <mutex>
 #include "tb_dataset.h"
 #include "Tlabel_stat.h"
-#include "Tmy_dttype.h"
 #include "Tmap_col_split.h"
 #include "global.h"
 #include <string>
@@ -16,7 +15,15 @@ struct field_filter
 {
 	int idx_col;
 	int idx_opt;
-	string value;
+	Tmy_dttype value;
+    
+    string to_query(vector<string> data_header)
+    {
+    	vector<string> opt_arr{ "<=", ">", "=", "!="};
+
+    	return ("(a." + data_header[idx_col] + opt_arr[idx_opt] + value.get_string() + ")");
+    }
+
 };
 
 class Tbase_dataframe
@@ -27,6 +34,8 @@ protected:
 	vector<string> _data_header;
 	vector<string> _data_type;
 	vector<field_filter> _filter;
+	map<int, map<int, vector<field_filter>>> _map_filter;
+
 	int _jml_col = 0;
 	int _jml_row = 0;
 	int _jml_total_row = 0;
@@ -35,13 +44,13 @@ protected:
 	int _jns_dt;
 	string _partition;
 
-	int _parent_depth=-1;
-	int _parent_branch=-1;
-	int _parent_branch_number=-1;
+	int _parent_depth = -1;
+	int _parent_branch = -1;
+	int _parent_branch_number = -1;
 
-	int _child_depth=-1;
-	int _child_branch=-1;
-	int _child_branch_number=-1;
+	int _child_depth = -1;
+	int _child_branch = -1;
+	int _child_branch_number = -1;
 
 	mutable std::mutex v_mutex;
 
@@ -59,6 +68,7 @@ public:
 		_data_header = t._data_header;
 		_data_type = t._data_type;
 		_filter = t._filter;
+		_map_filter = t._map_filter;
 
 		_jml_col = t._jml_col;
 		_jml_row = t._jml_row;
@@ -85,6 +95,7 @@ public:
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;
 		this->_filter = t._filter;
+		this->_map_filter = t._map_filter;
 
 		this->_jml_col = t._jml_col;
 		this->_jml_row = t._jml_row;
@@ -105,21 +116,21 @@ public:
 		return *this;
 	}
 
-    void switch_to_test();
+	void switch_to_test();
 
-    void read_header_type();
-	
+	void read_header_type();
+
 	void set_dataset(int id_dt, int jns_dt, string partition);
 	void set_branch(int depth, int branch, int branch_number);
 	void set_parent(int depth, int branch, int branch_number);
-    void switch_parent_branch();
-    void set_label(string label);
+	void switch_parent_branch();
+	void set_label(string label);
 
 	void save_to(string nm_file);
 	string get_data_type(int idx);
 
 	//bool is_pass(vector<string> &data);
-	//bool is_pass();	
+	//bool is_pass();
 
 	int getjmlcol();
 	int getjmlrow();
@@ -140,19 +151,19 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-	void add_filter(int idx_col, int idx_opt, string value);
-	void add_filter(field_filter filter);
-	void ReFilter();
+	void add_filter(int idx_col, int idx_opt, Tmy_dttype value,bool is_filter,bool is_last);
+	void add_filter(field_filter filter,bool is_filter,bool is_last);
+	void ReFilter(bool is_last);
 	vector<field_filter> get_filter();
 
-	void clear_memory(int idx);    
-	
+	void clear_memory(int idx);
+
 	void info();
 	void head();
 
 	void train_to_test();
 
-	posisi_cabang get_posisi();
+	Tposisi_cabang get_posisi();
 
 };
 

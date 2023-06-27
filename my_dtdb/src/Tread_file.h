@@ -67,7 +67,7 @@ public:
 	void filter(string sql,bool is_con);
 	void delete_data(string sql);    
 	Tlabel_stat hit_label_stat(string nm_kolom,string sql);	
-	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom ,string count_kolom,string sql);
+	// map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom ,string count_kolom,string sql);
 	void update_attr_stat(int idx);
 	
 	int get_jml_row();

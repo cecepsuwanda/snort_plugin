@@ -174,18 +174,12 @@ int Tdataframe::get_valid_attr(int idx)
 }
 
 
-void Tdataframe::add_filter(int idx_col, int idx_opt, string value, bool is_filter, bool is_last)
+void Tdataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last)
 {
-  field_filter f;
-  f.idx_col = idx_col;
-  f.idx_opt = idx_opt;
-  f.value = value;
-  _filter.push_back(f);
+  
+  Tbase_dataframe::add_filter(idx_col,idx_opt,value,is_filter,is_last);
 
-
-  if (is_filter) {
-    string sql = filter_to_query(is_last);
-    _data.filter(sql, !is_last);
+  if (is_filter) {    
     stat_tabel(false, is_last, true);
   }
 
@@ -193,10 +187,7 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value, bool is_filt
 
 void Tdataframe::ReFilter(bool is_last)
 {
-  string sql = filter_to_query(is_last);
-  if (sql != "") {
-    _data.filter(sql, !is_last);
-  }
+  Tbase_dataframe::ReFilter(is_last);
 
   stat_tabel(false, is_last, true);
 }
@@ -207,12 +198,10 @@ void Tdataframe::clear_map_col_split()
 }
 
 void Tdataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
-{
-  _filter.push_back(filter);
+{  
+  Tbase_dataframe::add_filter(filter,is_filter,is_last);
 
-  if (is_filter) {
-    string sql = filter_to_query(is_last);
-    _data.filter(sql, !is_last);
+  if (is_filter) {   
     stat_tabel(false, is_last, true);
   }
 
@@ -228,7 +217,7 @@ void Tdataframe::info()
   cout << _stat_label << endl ;
 }
 
-void Tdataframe::split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above)
+void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
   if (split_value != "-1") {
     if (_data_type[split_column] == "continuous.")
@@ -244,7 +233,7 @@ void Tdataframe::split_data(int split_column, string split_value, Tdataframe &da
 }
 
 
-void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label)
+void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label)
 {
   Tmy_dttype entropy_before_split;
 
@@ -257,8 +246,8 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   float best_overall_metric = 0.0;
   Tmy_dttype gain, gain_max;
   // bool not_valid = false;
-  string mid_point = "0.0";
-  string tmp_split_value = "-1";
+  Tmy_dttype mid_point("0.0", true);
+  Tmy_dttype tmp_split_value;
 
   bool first_iteration = true;
 
@@ -301,20 +290,20 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     bool is_pass = true;
 
-    // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
-    // {
-    //   string label_below = _stat_label_below.get_max_label();
-    //   string label_next = (*itr_next).second.get_max_label();
+    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    {
+      string label_below = _stat_label_below.get_max_label();
+      string label_next = (*itr_next).second.get_max_label();
 
-    //   is_pass = label_below != label_next;
+      is_pass = label_below != label_next;
 
-    // } 
+    }
     //else {
-      //is_pass = true;
-      // if ((jml_row - config->min_sample) > jml_row_prosen1)
-      // {
-      //   is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
-      // }
+    //is_pass = true;
+    // if ((jml_row - config->min_sample) > jml_row_prosen1)
+    // {
+    //   is_pass = (_stat_label_below.get_jml_row() >= jml_row_prosen1 ) and (_stat_label_below.get_jml_row() <= jml_row_prosen);
+    // }
     //}
 
     if (is_pass)
@@ -325,8 +314,8 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
         Tmy_dttype tmp1 = (*itr).first;
         Tmy_dttype tmp2 = (*itr_next).first;
-        Tmy_dttype tmp = (tmp1 + tmp2)/ 2.0;
-        mid_point = tmp.get_string();
+        Tmy_dttype tmp = (tmp1 + tmp2) / 2.0;
+        mid_point = tmp;
 
         Tbelow_above ba(config);
 
@@ -335,7 +324,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         tmp_stat.set_config(config);
         ba.add_above(tmp_stat);
 
-        gain.set_value("0.0",true);
+        gain.set_value("0.0", true);
 
         if (ba.cek_valid_cont()) {
           Tmy_dttype entropy_after_split = ba.get_overall_metric();
@@ -373,7 +362,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
 }
 
-void Tdataframe::handle_continuous(int idx, float & current_overall_metric, string & split_value)
+void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value)
 {
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
@@ -415,13 +404,13 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
 
       if (gain > 0.0) {
         current_overall_metric = stof(gain.get_value());
-        split_value = tmp1.get_string();
+        split_value = tmp1;
       }
 
 
     } else {
       float tmp_best_overall_metric = 0.0;
-      string tmp_split_value = "-1";
+      Tmy_dttype tmp_split_value;
       calculate_metric(idx, &_col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
 
       current_overall_metric = tmp_best_overall_metric;
@@ -431,7 +420,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, stri
   }
 }
 
-void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, string & split_value)
+void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value)
 {
   Tmy_dttype entropy_before_split;
 
@@ -444,8 +433,8 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   float best_overall_metric = 0.0;
   Tmy_dttype gain, gain_max;
   // bool not_valid = false;
-  string tmp_split_value = "-1";
-  string mid_point = "0.0";
+  Tmy_dttype tmp_split_value;
+  Tmy_dttype mid_point("0.0", true);
 
   bool first_iteration = true;
 
@@ -456,14 +445,14 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   {
     Tbelow_above ba(config);
 
-    mid_point = ((Tmy_dttype) (*itr).first).get_string();
+    mid_point = ((Tmy_dttype) (*itr).first);
 
     ba.add_below((*itr).second);
     Tlabel_stat tmp_stat = _stat_label - (*itr).second;
     tmp_stat.set_config(config);
     ba.add_above(tmp_stat);
 
-    gain.set_value("0.0",true);
+    gain.set_value("0.0", true);
     if (ba.cek_valid_non_cont()) {
       Tmy_dttype entropy_after_split = ba.get_overall_metric();
       float split_info = ba.get_split_info();
@@ -494,10 +483,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   split_value = tmp_split_value;
 }
 
-void Tdataframe::calculate_overall_metric(int idx, float & current_overall_metric, string & split_value)
+void Tdataframe::calculate_overall_metric(int idx, float & current_overall_metric, Tmy_dttype & split_value)
 {
   std::lock_guard<std::mutex> lock(v_mutex);
-  split_value = "-1";
+  split_value.set_value("-1", _data_type[idx] == "continuous.");
   current_overall_metric = -1;
 
   if (_data_type[idx] == "continuous.") {

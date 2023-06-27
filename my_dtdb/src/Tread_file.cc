@@ -197,65 +197,65 @@ Tlabel_stat Tread_file::hit_label_stat(string nm_kolom, string sql)
 
 }
 
-map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , string count_kolom, string sql)
-{
-  map<Tmy_dttype, Tlabel_stat> col_split;
+// map<Tmy_dttype, Tlabel_stat> Tread_file::hit_col_split(string group_kolom , string count_kolom, string sql)
+// {
+//   map<Tmy_dttype, Tlabel_stat> col_split;
   
-  size_t i = 0;
-  bool ketemu = false;
-  while ((i < _data_header.size()) and (not ketemu))
-  {
-    if (_data_header[i] == group_kolom)
-    {
-      ketemu = true;
-    } else {
-      i++;
-    }
-  }
+//   size_t i = 0;
+//   bool ketemu = false;
+//   while ((i < _data_header.size()) and (not ketemu))
+//   {
+//     if (_data_header[i] == group_kolom)
+//     {
+//       ketemu = true;
+//     } else {
+//       i++;
+//     }
+//   }
 
-  if (ketemu)
-  {
-    global_query_builder.open_connection();
+//   if (ketemu)
+//   {
+//     global_query_builder.open_connection();
 
-    string tmp = "truncate attr" + to_string(i);
+//     string tmp = "truncate attr" + to_string(i);
 
-    global_query_builder.query(tmp);
+//     global_query_builder.query(tmp);
 
-    if (_data_type[i] == "continuous.")
-    {
+//     if (_data_type[i] == "continuous.")
+//     {
 
-      // tmp = "select round(" + group_kolom + ",7) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
-      // if (sql != "")
-      // {
-      //   tmp = tmp + sql;
-      // }
+//       // tmp = "select round(" + group_kolom + ",7) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
+//       // if (sql != "")
+//       // {
+//       //   tmp = tmp + sql;
+//       // }
 
-      tmp = "select round(" + group_kolom + ",2) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
+//       tmp = "select round(" + group_kolom + ",2) as hsl_round," + count_kolom + " from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
 
-      tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round," + count_kolom + ",count(" + count_kolom + ") as jml from (" + tmp + ") tb group by hsl_round," + count_kolom +  " order by hsl_round," + count_kolom;
+//       tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round," + count_kolom + ",count(" + count_kolom + ") as jml from (" + tmp + ") tb group by hsl_round," + count_kolom +  " order by hsl_round," + count_kolom;
 
-      global_query_builder.query(tmp);
+//       global_query_builder.query(tmp);
 
-    } else {
-      // tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
-      // if (sql != "")
-      // {
-      //   tmp = tmp + sql;
-      // }
+//     } else {
+//       // tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where (" + _head_where + ") ";
+//       // if (sql != "")
+//       // {
+//       //   tmp = tmp + sql;
+//       // }
 
-      tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
+//       tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + "," + count_kolom + ",count(" + count_kolom + ") as jml from " + _nm_tb + " partition(" + _partition + ") where id in (select idx_row from tb_index)";
 
-      tmp = tmp + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
-      global_query_builder.query(tmp);
-    }
+//       tmp = tmp + " group by " + group_kolom + "," + count_kolom +  " order by " + group_kolom + "," + count_kolom;
+//       global_query_builder.query(tmp);
+//     }
 
-    global_query_builder.close_connection();
+//     global_query_builder.close_connection();
 
-  }
+//   }
 
 
-  return col_split;
-}
+//   return col_split;
+// }
 
 void Tread_file::update_attr_stat(int idx)
 {

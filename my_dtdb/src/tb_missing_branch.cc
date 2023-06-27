@@ -31,7 +31,7 @@ void tb_missing_branch::clear_table()
 
 }
 
-void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt, string attrvalue)
+void tb_missing_branch::add_branch(Tposisi_cabang posisi, int attrindex, int opt, Tmy_dttype attrvalue)
 {
 	if (!cabang_exixst(posisi))
 	{
@@ -43,7 +43,7 @@ void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt,
 		values += to_string(posisi.parent_branch) + ",";
 		values += to_string(posisi.parent_branch_number) + ",";
 		values += to_string(attrindex) + ",";
-		values += "'" + attrvalue + "',";
+		values += "'" + attrvalue.get_string() + "',";
 		values += to_string(opt);
 
 		string query = "insert into missing_branch(child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number,attrindex,attrvalue,opt,is_pure,is_min_sample,is_depth_limit,is_same_label,is_pruning,is_not_split) values(" + values + ",0,0,0,0,0,0)";
@@ -66,7 +66,7 @@ void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt,
 		set_str += "is_same_label=0,";
 		set_str += "label='-1',";
 		set_str += "attrindex=" + to_string(attrindex) + ",";
-		set_str += "attrvalue='" + attrvalue + "'";
+		set_str += "attrvalue='" + attrvalue.get_string() + "'";
 
 		if (opt != -1)
 		{
@@ -80,7 +80,7 @@ void tb_missing_branch::add_branch(posisi_cabang posisi, int attrindex, int opt,
 
 }
 
-bool tb_missing_branch::cabang_exixst(posisi_cabang posisi)
+bool tb_missing_branch::cabang_exixst(Tposisi_cabang posisi)
 {
 	bool hsl = false;
 
@@ -109,7 +109,7 @@ bool tb_missing_branch::cabang_exixst(posisi_cabang posisi)
 
 
 
-void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label, int is_lanjut)
+void tb_missing_branch::insert_not_split(Tposisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -132,7 +132,7 @@ void tb_missing_branch::insert_not_split(posisi_cabang posisi, string label, int
 	}
 }
 
-void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label, int is_lanjut)
+void tb_missing_branch::insert_same_label(Tposisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -155,7 +155,7 @@ void tb_missing_branch::insert_same_label(posisi_cabang posisi, string label, in
 	}
 }
 
-void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int is_pure, int is_min_sample, int is_depth_limit, int is_lanjut)
+void tb_missing_branch::insert_cut_off(Tposisi_cabang posisi, string label, int is_pure, int is_min_sample, int is_depth_limit, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -181,7 +181,7 @@ void tb_missing_branch::insert_cut_off(posisi_cabang posisi, string label, int i
 }
 
 
-void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label, int is_lanjut)
+void tb_missing_branch::insert_pruning(Tposisi_cabang posisi, string label, int is_lanjut)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -203,7 +203,7 @@ void tb_missing_branch::insert_pruning(posisi_cabang posisi, string label, int i
 	}
 }
 
-void tb_missing_branch::get_split(posisi_cabang posisi, int &attrindex, int &opt, string &attrvalue)
+void tb_missing_branch::get_split(Tposisi_cabang posisi, int &attrindex, int &opt, Tmy_dttype &attrvalue)
 {
 	if (cabang_exixst(posisi))
 	{
@@ -226,19 +226,19 @@ void tb_missing_branch::get_split(posisi_cabang posisi, int &attrindex, int &opt
 
 				if (data.size() > 0) {
 					attrindex = stoi(data[6]);
-					attrvalue = data[7];
 					opt = stoi(data[9]);
+					attrvalue.set_value(data[7],(opt==0) or (opt==1));
 				}
 			}
 		}
 
 	} else {
 		attrindex = -1;
-		attrvalue = "-1";
+		attrvalue.set_value("-1",true);
 	}
 }
 
-bool tb_missing_branch::parent_exixst(posisi_cabang posisi)
+bool tb_missing_branch::parent_exixst(Tposisi_cabang posisi)
 {
 	bool hsl = false;
 
@@ -272,7 +272,7 @@ bool tb_missing_branch::parent_exixst(posisi_cabang posisi)
 }
 
 
-void tb_missing_branch::get_stat(posisi_cabang posisi)
+void tb_missing_branch::get_stat(Tposisi_cabang posisi)
 {
 	_is_pure = false;
 	_is_min_sample = false;
@@ -358,7 +358,7 @@ string tb_missing_branch::get_label()
 	return _label;
 }
 
-void tb_missing_branch::delete_cabang(posisi_cabang posisi)
+void tb_missing_branch::delete_cabang(Tposisi_cabang posisi)
 {
 	if (cabang_exixst(posisi))
 	{

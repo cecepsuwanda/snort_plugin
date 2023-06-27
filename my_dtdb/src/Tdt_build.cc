@@ -63,7 +63,7 @@ Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 {
 	Tmetric_split_value hsl;
 
-	string current_split_value = "-1";
+	Tmy_dttype current_split_value;
 	float current_overall_metric = -1;
 
 	df.calculate_overall_metric(idx, current_overall_metric, current_split_value);
@@ -75,7 +75,7 @@ Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 }
 
 
-void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
+void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dttype &split_value)
 {
 
 	df.search_col_split();
@@ -87,7 +87,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 	//float current_overall_metric = -1;
 
 	split_column = -1;
-	split_value = "-1";
+	split_value.set_value("-1",true);
 
 	vector<future<Tmetric_split_value>> async_worker;
 
@@ -164,7 +164,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			tree_node* tmp_node = train_prev_tree(df, missing_branch, parent_node->depth, parent_node);
 			parent_node = tmp_node;
 		} else {
-			posisi_cabang tmp_posisi = df.get_posisi();
+			Tposisi_cabang tmp_posisi = df.get_posisi();
 
 			string tmp_str = parent_node->label;
 			//cetak("*");
@@ -201,7 +201,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 	} else {
 		//cetak("?|");
 
-		posisi_cabang tmp_posisi = df.get_posisi();
+		Tposisi_cabang tmp_posisi = df.get_posisi();
 		if (parent_node->left != NULL) {
 			missing_branch.add_branch(tmp_posisi, parent_node->criteriaAttrIndex, -1, parent_node->left->attrValue);
 		} else {
@@ -226,7 +226,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			df_below.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
 			df_below.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
 
-			posisi_cabang tmp_posisi_below = df_below.get_posisi();
+			Tposisi_cabang tmp_posisi_below = df_below.get_posisi();
 			missing_branch.add_branch(tmp_posisi_below, parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue);
 
 			train(df_below, missing_branch, parent_node->left);
@@ -240,7 +240,7 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 			df_above.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
 			df_above.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
 
-			posisi_cabang tmp_posisi_above = df_above.get_posisi();
+			Tposisi_cabang tmp_posisi_above = df_above.get_posisi();
 			missing_branch.add_branch(tmp_posisi_above, parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue);
 
 			train(df_above, missing_branch, parent_node->right);
@@ -290,6 +290,29 @@ void Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, tree_no
 }
 
 
+bool Tdt_build::limit_jml_dt_cabang(int jml_root, int jml_below, int jml_above)
+{
+	int jml_row = jml_root;
+	float prosen = 1;
+	float prosen1 = 0;
+
+	float jml_row_prosen = jml_row;
+	float jml_row_prosen1 = 0;
+
+	if (config->threshold < 1)
+	{
+		prosen = 1 - config->threshold;
+		prosen1 = config->threshold;
+
+		jml_row_prosen = ceil(prosen * jml_row);
+		jml_row_prosen1 =  ceil(prosen1 * jml_row);
+	} else {
+		jml_row_prosen = jml_row - config->threshold;
+		jml_row_prosen1 =  config->threshold;
+	}
+
+	return ((jml_below >= jml_row_prosen1 ) and (jml_below <= jml_row_prosen));
+}
 
 tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, int counter)
 {
@@ -302,9 +325,9 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 	bool is_min_sample = (df.getjmlrow() < config->min_sample);
 	bool is_depth_limit = (counter >= config->depth);
 
-	posisi_cabang tmp_posisi = df.get_posisi();
+	Tposisi_cabang tmp_posisi = df.get_posisi();
 	int split_column = -1;
-	string split_value = "-1";
+	Tmy_dttype split_value;
 
 	if (is_pure or is_min_sample or is_depth_limit)
 	{
@@ -341,7 +364,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 		df.stat_tabel(true, true, true);
 		determine_best_split(df, split_column, split_value);
 
-		cetak(" [%d,%s] ", split_column, split_value.c_str());
+		cetak(" [%d,%s] ", split_column, split_value.get_string().c_str());
 
 
 		if (split_value != "-1")
@@ -368,28 +391,9 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 			df_above.switch_parent_branch();
 			df_above.set_branch(counter, 2, branch_number[counter]);
 
-			int jml_row = df.getjmlrow();
-			float prosen = 1;
-			float prosen1 = 0;
-
-			float jml_row_prosen = jml_row;
-			float jml_row_prosen1 = 0;
-
-			if (config->threshold < 1)
-			{
-				prosen = 1 - config->threshold;
-				prosen1 = config->threshold;
-
-				jml_row_prosen = ceil(prosen * jml_row);
-				jml_row_prosen1 =  ceil(prosen1 * jml_row);
-			} else {
-				jml_row_prosen = jml_row - config->threshold;
-				jml_row_prosen1 =  config->threshold;
-			}
-
 			df.split_data(split_column, split_value, df_below, df_above);
 
-            bool is_pass = (df_below.getjmlrow() >= jml_row_prosen1 ) and (df_below.getjmlrow() <= jml_row_prosen);
+			bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
 
 			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass) ) {
 				string tmp_str = create_leaf(df);
@@ -428,7 +432,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 				parent_node->criteriaAttrIndex = split_column;
 
 				cetak("->");
-				posisi_cabang tmp_posisi_below = df_below.get_posisi();
+				Tposisi_cabang tmp_posisi_below = df_below.get_posisi();
 				missing_branch.add_branch(tmp_posisi_below, split_column, df.get_opt(split_column, 1), split_value);
 
 				tree_node* yes_node = train(df_below, missing_branch, counter);
@@ -447,7 +451,7 @@ tree_node* Tdt_build::train(Tdataframe &df, tb_missing_branch &missing_branch, i
 
 
 				cetak("<-");
-				posisi_cabang tmp_posisi_above = df_above.get_posisi();
+				Tposisi_cabang tmp_posisi_above = df_above.get_posisi();
 				missing_branch.add_branch(tmp_posisi_above, split_column, df.get_opt(split_column, 0), split_value);
 
 				tree_node* no_node = train(df_above, missing_branch, counter);
@@ -554,10 +558,10 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 	bool is_min_sample = (df.getjmlrow() < config->min_sample);
 	bool is_depth_limit = (counter >= config->depth);
 
-	posisi_cabang tmp_posisi = df.get_posisi();
+	Tposisi_cabang tmp_posisi = df.get_posisi();
 
 	int split_column = -1;
-	string split_value = "-1";
+	Tmy_dttype split_value;
 
 	if (is_pure or is_min_sample or is_depth_limit)
 	{
@@ -665,29 +669,11 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 			} else {
 				df_above.set_branch(prev_tree->right->depth, prev_tree->right->branch, prev_tree->right->branch_number);
 			}
-
-			int jml_row = df.getjmlrow();
-			float prosen = 1;
-			float prosen1 = 0;
-
-			float jml_row_prosen = jml_row;
-			float jml_row_prosen1 = 0;
-
-			if (config->threshold < 1)
-			{
-				prosen = 1 - config->threshold;
-				prosen1 = config->threshold;
-
-				jml_row_prosen = ceil(prosen * jml_row);
-				jml_row_prosen1 =  ceil(prosen1 * jml_row);
-			} else {
-				jml_row_prosen = jml_row - config->threshold;
-				jml_row_prosen1 =  config->threshold;
-			}
+			
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			bool is_pass = (df_below.getjmlrow() >= jml_row_prosen1 ) and (df_above.getjmlrow() <= jml_row_prosen);
+			bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
 
 			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass)) {
 				string tmp_str = create_leaf(df);
@@ -726,7 +712,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 				parent_node->criteriaAttrIndex = split_column;
 
 				//cetak("->");
-				posisi_cabang tmp_posisi_below = df_below.get_posisi();
+				Tposisi_cabang tmp_posisi_below = df_below.get_posisi();
 				missing_branch.add_branch(tmp_posisi_below, split_column, df.get_opt(split_column, 1), split_value);
 
 				tree_node* yes_node = NULL;
@@ -754,7 +740,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, tb_missing_branch &missing
 
 
 				//cetak("<-");
-				posisi_cabang tmp_posisi_above = df_above.get_posisi();
+				Tposisi_cabang tmp_posisi_above = df_above.get_posisi();
 				missing_branch.add_branch(tmp_posisi_above, split_column, df.get_opt(split_column, 0), split_value);
 
 				tree_node* no_node = NULL;
@@ -928,7 +914,7 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train, tb_mi
 
 				parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
 
-				posisi_cabang tmp_posisi = df_train.get_posisi();
+				Tposisi_cabang tmp_posisi = df_train.get_posisi();
 				missing_branch.insert_pruning(tmp_posisi, node_label, (parent_node->is_lanjut ? 1 : 0 ));
 
 				delete parent_node->left;
@@ -1034,7 +1020,7 @@ void Tdt_build::save_tree()
 
 	for (size_t i = 0; i < tree.size(); ++i)
 	{
-		tmp_str = to_string(tree[i].criteriaAttrIndex) + ",'" + tree[i].attrValue + "','" + tree[i].label + "'," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
+		tmp_str = to_string(tree[i].criteriaAttrIndex) + ",'" + tree[i].attrValue.get_string() + "','" + tree[i].label + "'," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
 
 		if (tree[i].children.size() > 0)
 		{
@@ -1059,7 +1045,7 @@ void Tdt_build::save_tree()
 	dbtree.close_file();
 }
 
-tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb_missing_branch &missing_branch)
+tree_node* Tdt_build::build_missing_branch(int counter, Tposisi_cabang posisi, tb_missing_branch &missing_branch)
 {
 	tree_node* parent_node = new tree_node;
 
@@ -1091,7 +1077,7 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 			//cetak("?|");
 			counter++;
 
-			posisi_cabang posisi_tmp = posisi;
+			Tposisi_cabang posisi_tmp = posisi;
 			posisi_tmp.switch_parent_branch();
 			posisi_tmp.set_child(counter, -1, -1);
 
@@ -1101,7 +1087,7 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 				tree_node* right_node = NULL;
 
 				int attrindex = -1;
-				string attrValue = "-1";
+				Tmy_dttype attrValue;
 				int opt = -1;
 
 				missing_branch.get_split(posisi, attrindex, opt, attrValue);
@@ -1116,13 +1102,13 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 
 				int tmp_max_branch_number = max_branch_number + 1;
 
-				posisi_cabang posisi_left = posisi;
+				Tposisi_cabang posisi_left = posisi;
 				posisi_left.switch_parent_branch();
 				posisi_left.set_child(counter, 1, tmp_max_branch_number);
 
 				if (missing_branch.parent_exixst(posisi_left)) {
 					int attrindex_left = -1;
-					string attrValue_left = "-1";
+					Tmy_dttype attrValue_left;
 					int opt_left = -1;
 
 					missing_branch.get_split(posisi_left, attrindex_left, opt_left, attrValue_left);
@@ -1146,14 +1132,14 @@ tree_node* Tdt_build::build_missing_branch(int counter, posisi_cabang posisi, tb
 
 				tmp_max_branch_number += 1;
 
-				posisi_cabang posisi_right = posisi;
+				Tposisi_cabang posisi_right = posisi;
 				posisi_right.switch_parent_branch();
 				posisi_right.set_child(counter, 2, tmp_max_branch_number);
 
 				if (missing_branch.parent_exixst(posisi_right)) {
 
 					int attrindex_right = -1;
-					string attrValue_right = "-1";
+					Tmy_dttype attrValue_right;
 					int opt_right = -1;
 
 					missing_branch.get_split(posisi_right, attrindex_right, opt_right, attrValue_right);
@@ -1253,7 +1239,7 @@ void Tdt_build::trim_dec_tree(tree_node* parent_node)
 
 }
 
-tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, posisi_cabang posisi, tb_missing_branch &missing_branch)
+tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_cabang posisi, tb_missing_branch &missing_branch)
 {
 	//cetak("%d ", counter);
 
@@ -1298,7 +1284,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, posisi_c
 		int left = prev_tree[node_index].children[0];
 		int right = prev_tree[node_index].children[1];
 
-		posisi_cabang posisi_left = posisi;
+		Tposisi_cabang posisi_left = posisi;
 		posisi_left.switch_parent_branch();
 		posisi_left.set_child(counter, 1, branch_number[counter]);
 
@@ -1306,9 +1292,8 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, posisi_c
 		if (left != -1) {
 			//cetak("->");
 			tree_node* left_node = vec_tree_to_dec_tree(left, counter, posisi_left, missing_branch);
-			left_node->attrValue = prev_tree[left].attrValue;
 			left_node->opt = prev_tree[left].opt;
-
+			left_node->attrValue.set_value(prev_tree[left].attrValue.get_string(),(left_node->opt==0) or (left_node->opt==1));
 			left_node->depth = counter;
 			left_node->branch = 1;
 			left_node->branch_number = branch_number[counter];
@@ -1321,17 +1306,16 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, posisi_c
 			//cetak("\n");
 		}
 
-		posisi_cabang posisi_right = posisi;
+		Tposisi_cabang posisi_right = posisi;
 		posisi_right.switch_parent_branch();
 		branch_number[counter] = branch_number[counter] + 1;
 		posisi_right.set_child(counter, 2, branch_number[counter]);
 
 		if (right != -1) {
 			//cetak("<-");
-			tree_node* right_node = vec_tree_to_dec_tree(right, counter, posisi_right, missing_branch);
-			right_node->attrValue = prev_tree[right].attrValue;
+			tree_node* right_node = vec_tree_to_dec_tree(right, counter, posisi_right, missing_branch);			
 			right_node->opt = prev_tree[right].opt;
-
+            right_node->attrValue.set_value(prev_tree[right].attrValue.get_string(),(right_node->opt==0) or (right_node->opt==1));  
 			right_node->depth = counter;
 			right_node->branch = 2;
 			right_node->branch_number = branch_number[counter];
@@ -1360,7 +1344,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 		Node newnode;
 		//cout << tmp_data[0] << endl;
 		newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-		newnode.attrValue = tmp_data[1];
+		newnode.attrValue.set_value(tmp_data[1],false);
 		newnode.label = tmp_data[2];
 		//cout << tmp_data[2] << endl;
 		newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
@@ -1372,7 +1356,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 		//cout << tmp_data[6] << endl;
 		newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
 
-		idx_svm = (tmp_data[8] == "-1") ? idx_svm : idx_svm+1;
+		idx_svm = (tmp_data[8] == "-1") ? idx_svm : idx_svm + 1;
 
 		newnode.idx_svm = (tmp_data[8] == "-1") ? -1 : stoi(tmp_data[8]);
 
@@ -1393,7 +1377,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment, tb_missing_branch &missin
 
 	tree.close_file();
 
-	posisi_cabang posisi_root;
+	Tposisi_cabang posisi_root;
 	posisi_root.reset();
 
 	dec_tree = vec_tree_to_dec_tree(0, 0, posisi_root, missing_branch);

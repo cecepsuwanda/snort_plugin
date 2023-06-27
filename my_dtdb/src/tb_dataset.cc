@@ -5,6 +5,8 @@ tb_dataset::tb_dataset()
 {
 	_tmp_dataset_tb = "tmp_dataset_train";
 	_tmp_attr_dataset_tb = "attr_dataset_train";
+
+
 }
 
 tb_dataset::~tb_dataset()
@@ -164,34 +166,22 @@ void tb_dataset::set_dataset(int id_dt, int jns_dt, string partition)
 
 void tb_dataset::set_parent(int depth, int branch, int branch_number)
 {
-	_parent_depth = depth;
-	_parent_branch = branch;
-	_parent_branch_number = branch_number;
+	_posisi_cabang.set_parent(depth, branch, branch_number);
 }
 
 void tb_dataset::set_child(int depth, int branch, int branch_number)
 {
-	_child_depth = depth;
-	_child_branch = branch;
-	_child_branch_number = branch_number;
+	_posisi_cabang.set_child(depth, branch, branch_number);
 }
 
 void tb_dataset::switch_parent_child()
 {
-	_parent_depth = _child_depth;
-	_parent_branch = _child_branch;
-	_parent_branch_number = _child_branch_number;
+	_posisi_cabang.switch_parent_branch();
 }
 
 void tb_dataset::set_label(string label)
 {
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
 	string query = "update " + _tmp_dataset_tb + " set label='" + label + "' where " + where_str;
 	global_query_builder.query(query);
@@ -201,13 +191,7 @@ bool tb_dataset::is_child_parent_exist()
 {
 	bool hsl = false;
 
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
 	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
 
@@ -227,16 +211,12 @@ bool tb_dataset::is_parent_exist(int idx)
 {
 	bool hsl = false;
 
-	string where_str  = "";
-
-	where_str  = "child_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "child_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(3);
+	
 	if (idx == 1) {
-		where_str  = "parent_depth=" + to_string(_child_depth) + " and ";
-		where_str += "parent_branch=" + to_string(_child_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(_child_branch_number);
+		where_str  = _posisi_cabang.to_query(4);
 	}
+	
 	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
 
 	if (global_query_builder.query(query))
@@ -255,20 +235,11 @@ bool tb_dataset::exist_in_detil(int idx)
 {
 	bool hsl = false;
 
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
 	if (idx == 1)
 	{
-		where_str  = "";
-		where_str  = "child_depth=" + to_string(_parent_depth) + " and ";
-		where_str += "child_branch=" + to_string(_parent_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(_parent_branch_number);
+		where_str  = _posisi_cabang.to_query(3);
 	}
 
 	string query = "select count(*) as jml from detail_missing_branch where " + where_str;
@@ -285,14 +256,11 @@ bool tb_dataset::exist_in_detil(int idx)
 	return hsl;
 }
 
-posisi_cabang tb_dataset::get_posisi_parent()
+Tposisi_cabang tb_dataset::get_posisi_parent()
 {
-	posisi_cabang tmp_posisi;
+	Tposisi_cabang tmp_posisi;
 
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "child_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(3);
 
 	string query = "select child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number from " + _tmp_dataset_tb + " where " + where_str + " group by child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number ";
 
@@ -342,12 +310,12 @@ void tb_dataset::filter(string sql, bool is_all)
 				// global_query_builder.query(query);
 
 				string set_str = "";
-				set_str  = _tmp_dataset_tb + ".child_depth=" + to_string(_child_depth) + ",";
-				set_str += _tmp_dataset_tb + ".child_branch=" + to_string(_child_branch) + ",";
-				set_str += _tmp_dataset_tb + ".child_branch_number=" + to_string(_child_branch_number) + ",";
-				set_str += _tmp_dataset_tb + ".parent_depth=" + to_string(_parent_depth) + ",";
-				set_str += _tmp_dataset_tb + ".parent_branch=" + to_string(_parent_branch) + ",";
-				set_str += _tmp_dataset_tb + ".parent_branch_number=" + to_string(_parent_branch_number);
+				set_str  = _tmp_dataset_tb + ".child_depth=" + to_string(_posisi_cabang.child_depth) + ",";
+				set_str += _tmp_dataset_tb + ".child_branch=" + to_string(_posisi_cabang.child_branch) + ",";
+				set_str += _tmp_dataset_tb + ".child_branch_number=" + to_string(_posisi_cabang.child_branch_number) + ",";
+				set_str += _tmp_dataset_tb + ".parent_depth=" + to_string(_posisi_cabang.parent_depth) + ",";
+				set_str += _tmp_dataset_tb + ".parent_branch=" + to_string(_posisi_cabang.parent_branch) + ",";
+				set_str += _tmp_dataset_tb + ".parent_branch_number=" + to_string(_posisi_cabang.parent_branch_number);
 
 				// string where_str  = "";
 				// where_str  = _tmp_dataset_tb + ".child_depth=" + to_string(_parent_depth) + " and ";
@@ -356,7 +324,7 @@ void tb_dataset::filter(string sql, bool is_all)
 				// query = "update (" + _tmp_dataset_tb + " inner join tb_index1 on id_row=idx_row) set " + set_str + " where (" + where_str + ")";
 				// global_query_builder.query(query);
 
-				query = "call sp_filter(" + to_string(_child_depth) + "," + to_string(_child_branch) + "," + to_string(_child_branch_number) + "," + to_string(_parent_depth) + "," + to_string(_parent_branch) + "," + to_string(_parent_branch_number) + "," + '"' + sql + '"' + ",'" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "')";
+				query = "call sp_filter(" + to_string(_posisi_cabang.child_depth) + "," + to_string(_posisi_cabang.child_branch) + "," + to_string(_posisi_cabang.child_branch_number) + "," + to_string(_posisi_cabang.parent_depth) + "," + to_string(_posisi_cabang.parent_branch) + "," + to_string(_posisi_cabang.parent_branch_number) + "," + '"' + sql + '"' + ",'" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "')";
 				global_query_builder.query(query);
 
 			} else {
@@ -375,7 +343,7 @@ void tb_dataset::filter(string sql, bool is_all)
 						// query = "insert into tb_index1(idx_row) (select id_row from detail_missing_branch where " + where_str + ")";
 						// global_query_builder.query(query);
 
-						query = "call sp_filter1(" + to_string(_child_depth) + "," + to_string(_child_branch) + "," + to_string(_child_branch_number) + "," + to_string(_parent_depth) + "," + to_string(_parent_branch) + "," + to_string(_parent_branch_number) + ",'" + _tmp_dataset_tb + "')";
+						query = "call sp_filter1(" + to_string(_posisi_cabang.child_depth) + "," + to_string(_posisi_cabang.child_branch) + "," + to_string(_posisi_cabang.child_branch_number) + "," + to_string(_posisi_cabang.parent_depth) + "," + to_string(_posisi_cabang.parent_branch) + "," + to_string(_posisi_cabang.parent_branch_number) + ",'" + _tmp_dataset_tb + "')";
 						global_query_builder.query(query);
 
 					} else {
@@ -386,8 +354,8 @@ void tb_dataset::filter(string sql, bool is_all)
 
 						// query = "insert into tb_index1(idx_row) (select dataset.id from dataset partition(" + _partition + ") where (" + sql + "))";
 						// global_query_builder.query(query);
-						
-						query = "call sp_filter2(" + to_string(_child_depth) + "," + to_string(_child_branch) + "," + to_string(_child_branch_number) + "," + to_string(_parent_depth) + "," + to_string(_parent_branch) + "," + to_string(_parent_branch_number) + "," + '"' + sql + '"' + ",'" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "')";
+
+						query = "call sp_filter2(" + to_string(_posisi_cabang.child_depth) + "," + to_string(_posisi_cabang.child_branch) + "," + to_string(_posisi_cabang.child_branch_number) + "," + to_string(_posisi_cabang.parent_depth) + "," + to_string(_posisi_cabang.parent_branch) + "," + to_string(_posisi_cabang.parent_branch_number) + "," + '"' + sql + '"' + ",'" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "')";
 						global_query_builder.query(query);
 					}
 
@@ -464,7 +432,7 @@ void tb_dataset::filter(string sql, bool is_all)
 		// string query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where " + where_str + " order by id_row)";
 		// global_query_builder.query(query);
 
-		string query = "call sp_filter3(" + to_string(_child_depth) + "," + to_string(_child_branch) + "," + to_string(_child_branch_number) + "," + to_string(_parent_depth) + "," + to_string(_parent_branch) + "," + to_string(_parent_branch_number) + ",'" + _tmp_dataset_tb + "')";
+		string query = "call sp_filter3(" + to_string(_posisi_cabang.child_depth) + "," + to_string(_posisi_cabang.child_branch) + "," + to_string(_posisi_cabang.child_branch_number) + "," + to_string(_posisi_cabang.parent_depth) + "," + to_string(_posisi_cabang.parent_branch) + "," + to_string(_posisi_cabang.parent_branch_number) + ",'" + _tmp_dataset_tb + "')";
 		global_query_builder.query(query);
 
 	}
@@ -478,7 +446,7 @@ void tb_dataset::filter(string sql, bool is_all)
 		if (global_query_builder.get_result())
 		{
 			vector<string> tmp = global_query_builder.fetch_row();
-			_jml_row = stoi(tmp[0]);			
+			_jml_row = stoi(tmp[0]);
 		}
 	}
 
@@ -534,13 +502,7 @@ map<string, map<string, int>> tb_dataset::hit_conf_metrik()
 {
 	map<string, map<string, int>> tmp_data;
 
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
 	string query = "select a.label as label_org,b.label as label_pred,count(*) as jml from " + _tmp_attr_dataset_tb + " a inner join tmp_dataset_test b on a.id=b.id_row where " + where_str + " group by a.label,b.label order by a.label,b.label";
 
@@ -673,7 +635,7 @@ void tb_dataset::clear_tb_index1()
 void tb_dataset::child_to_tmp_dataset()
 {
 
-	string query = "call sp_child_to_tmp_dataset('" + _tmp_dataset_tb + "','" +_tmp_attr_dataset_tb+"','"+_partition+"','" + to_string(_id_dt) + "','"+to_string(_jns_dt)+"')";
+	string query = "call sp_child_to_tmp_dataset('" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "','" + _partition + "','" + to_string(_id_dt) + "','" + to_string(_jns_dt) + "')";
 	global_query_builder.query(query);
 
 	// clear_tmp_dataset();
@@ -700,21 +662,9 @@ void tb_dataset::reset_depth_branch()
 
 void tb_dataset::clear_child_parent()
 {
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_parent_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
-	string set_str  = "";
-	set_str  = "child_depth = " + to_string(_parent_depth) + ",";
-	set_str += "child_branch = " + to_string(_parent_branch) + ",";
-	set_str += "child_branch_number = " + to_string(_parent_branch_number) + ",";
-	set_str += "parent_depth = " + to_string(_parent_depth) + ",";
-	set_str += "parent_branch = " + to_string(_parent_branch) + ",";
-	set_str += "parent_branch_number = " + to_string(_parent_branch_number);
+	string set_str   = _posisi_cabang.to_query(5);
 
 	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
 	global_query_builder.query(query);
@@ -723,18 +673,9 @@ void tb_dataset::clear_child_parent()
 
 void tb_dataset::set_child_parent()
 {
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(_child_depth) + " and ";
-	where_str += "child_branch=" + to_string(_child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(_child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(_child_depth) + " and ";
-	where_str += "parent_branch=" + to_string(_child_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(_child_branch_number);
+	string where_str  = _posisi_cabang.to_query(0);
 
-	string set_str  = "";
-	set_str = "parent_depth = " + to_string(_parent_depth) + ",";
-	set_str += "parent_branch = " + to_string(_parent_branch) + ",";
-	set_str += "parent_branch_number = " + to_string(_parent_branch_number);
+	string set_str   = _posisi_cabang.to_query(7);
 
 	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
 	global_query_builder.query(query);
@@ -753,9 +694,9 @@ void tb_dataset::delete_child(int child_depth, int child_branch, int child_branc
 	set_str += "parent_branch_number = 0";
 
 	string where_str  = "";
-	where_str  = "child_depth=" + to_string(child_depth) + " and ";
-	where_str += "child_branch=" + to_string(child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(child_branch_number);
+	where_str  = "((child_depth=" + to_string(child_depth) + ") and ";
+	where_str += "(child_branch=" + to_string(child_branch) + ") and ";
+	where_str += "(child_branch_number=" + to_string(child_branch_number) + "))";
 
 	string query = "update " + _tmp_dataset_tb + " set " + set_str + " where " + where_str;
 	global_query_builder.query(query);

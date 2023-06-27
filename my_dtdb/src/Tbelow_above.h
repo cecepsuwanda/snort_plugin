@@ -1,4 +1,3 @@
-#include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "global.h"
 #include <string>

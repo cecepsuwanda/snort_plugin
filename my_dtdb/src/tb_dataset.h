@@ -21,13 +21,7 @@ private:
 	int _jns_dt;
 	string _partition;
 
-	int _parent_depth = 0;
-	int _parent_branch = 0;
-	int _parent_branch_number = 0;
-
-	int _child_depth = 0;
-	int _child_branch = 0;
-	int _child_branch_number = 0;
+	Tposisi_cabang _posisi_cabang;
 
 	string _tmp_dataset_tb="";
 	string _tmp_attr_dataset_tb="";
@@ -82,7 +76,7 @@ public:
 	void switch_parent_child();
 	void set_label(string label);
 
-	posisi_cabang get_posisi_parent();
+	Tposisi_cabang get_posisi_parent();
 
 	
 	void filter(string sql, bool is_all);
@@ -111,13 +105,8 @@ public:
 		this->_jns_dt = t._jns_dt;
 		this->_partition = t._partition;
 
-		this->_parent_depth = t._parent_depth;
-		this->_parent_branch = t._parent_branch;
-		this->_parent_branch_number = t._parent_branch_number;
+		this->_posisi_cabang = t._posisi_cabang;
 		
-		this->_child_depth = t._child_depth;
-		this->_child_branch = t._child_branch;
-		this->_child_branch_number = t._child_branch_number;
 
 		this->_tmp_dataset_tb = t._tmp_dataset_tb;
 		this->_tmp_attr_dataset_tb = t._tmp_attr_dataset_tb;

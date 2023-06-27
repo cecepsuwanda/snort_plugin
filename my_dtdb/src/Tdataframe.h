@@ -35,11 +35,10 @@ private:
   bool is_42 = false;
   Tconfig* config;
   
+  void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
-  void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
-
-  void handle_continuous(int idx, float & current_overall_metric, string & split_value);
-  void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);  
+  void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
+  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int parent_branch_number, int child_depth, int child_branch, int child_branch_number, int idx);
 
@@ -55,6 +54,7 @@ public:
     _data_header = t._data_header;
     _data_type = t._data_type;
     _filter = t._filter;
+    _map_filter = t._map_filter;
     
 
     _jml_col = t._jml_col;
@@ -94,6 +94,7 @@ public:
     this->_data_header = t._data_header;
     this->_data_type = t._data_type;
     this->_filter = t._filter;
+    this->_map_filter = t._map_filter;
     
     this->_jml_col = t._jml_col;
     this->_jml_row = t._jml_row;
@@ -146,19 +147,19 @@ public:
 
   void info();
 
-  void add_filter(int idx_col, int idx_opt, string value,bool is_filter,bool is_last);
+  void add_filter(int idx_col, int idx_opt, Tmy_dttype value,bool is_filter,bool is_last);
   void add_filter(field_filter filter,bool is_filter,bool is_last);
   void ReFilter(bool is_last);
 
   void clear_map_col_split();
 
-  void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
+  void split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above);
   Tmy_dttype get_entropy();
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
   
-  void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);
+  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);
 
   void set_config(Tconfig* v_config);
   
