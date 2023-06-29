@@ -44,13 +44,7 @@ protected:
 	int _jns_dt;
 	string _partition;
 
-	int _parent_depth = -1;
-	int _parent_branch = -1;
-	int _parent_branch_number = -1;
-
-	int _child_depth = -1;
-	int _child_branch = -1;
-	int _child_branch_number = -1;
+	Tposisi_cabang _posisi_cabang;
 
 	mutable std::mutex v_mutex;
 
@@ -77,13 +71,8 @@ public:
 		_jns_dt = t._jns_dt;
 		_partition = t._partition;
 
-		_parent_depth = t._parent_depth;
-		_parent_branch = t._parent_branch;
-		_parent_branch_number = t._parent_branch_number;
-
-		_child_depth = t._child_depth;
-		_child_branch = t._child_branch;
-		_child_branch_number = t._child_branch_number;
+		_posisi_cabang = t._posisi_cabang;
+		
 
 		_jml_total_row = t._jml_total_row;
 	}
@@ -104,14 +93,8 @@ public:
 		this->_jns_dt = t._jns_dt;
 		this->_partition = t._partition;
 
-		this->_parent_depth = t._parent_depth;
-		this->_parent_branch = t._parent_branch;
-		this->_parent_branch_number = t._parent_branch_number;
-
-		this->_child_depth = t._child_depth;
-		this->_child_branch = t._child_branch;
-		this->_child_branch_number = t._child_branch_number;
-
+		this->_posisi_cabang = t._posisi_cabang;
+		
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}

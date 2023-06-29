@@ -16,11 +16,10 @@ class Tmap_col_split
 map<int, map<Tmy_dttype, Tlabel_stat>> _pot_split;
 vector<int> _valid_attr;
 
-Tconfig* config;
+Tglobal_config global_config;
 
 public:
-	Tmap_col_split();
-	Tmap_col_split(Tconfig* v_config);
+	Tmap_col_split();	
 	~Tmap_col_split();
 	void add_data(int idx_col,string split_value,string tipe_data,string label);
 	void add_data(int idx_col, map<Tmy_dttype, Tlabel_stat> data);
@@ -31,10 +30,7 @@ public:
 
 	int get_jml_valid_attr();
 	int get_valid_attr(int idx);
-	bool is_valid_attr(int idx);
-
-
-    void set_config(Tconfig* v_config);
+	bool is_valid_attr(int idx);    
 	
 };
 

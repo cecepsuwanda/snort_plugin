@@ -1,10 +1,10 @@
 #include "tb_missing_branch.h"
 
+Tquery_builder tb_missing_branch::global_query_builder;
+
 
 tb_missing_branch::tb_missing_branch()
 {
-	global_query_builder.open_connection();
-
 	_is_pure = false;
 	_is_min_sample = false;
 	_is_depth_limit = false;
@@ -17,17 +17,26 @@ tb_missing_branch::tb_missing_branch()
 
 tb_missing_branch::~tb_missing_branch()
 {
-	global_query_builder.close_connection();
+	
 }
 
+void tb_missing_branch::open_connection()
+{
+    tb_missing_branch::global_query_builder.open_connection();
+}
+
+void tb_missing_branch::close_connection()
+{
+	tb_missing_branch::global_query_builder.close_connection();
+}
 
 void tb_missing_branch::clear_table()
 {
 	string tmp_sql = "truncate missing_branch";
-	global_query_builder.query(tmp_sql);
+	tb_missing_branch::global_query_builder.query(tmp_sql);
 
 	tmp_sql = "truncate detail_missing_branch";
-	global_query_builder.query(tmp_sql);
+	tb_missing_branch::global_query_builder.query(tmp_sql);
 
 }
 
@@ -47,16 +56,10 @@ void tb_missing_branch::add_branch(Tposisi_cabang posisi, int attrindex, int opt
 		values += to_string(opt);
 
 		string query = "insert into missing_branch(child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number,attrindex,attrvalue,opt,is_pure,is_min_sample,is_depth_limit,is_same_label,is_pruning,is_not_split) values(" + values + ",0,0,0,0,0,0)";
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 	} else {
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
-
+		string where_str  = posisi.to_query(0);
+		
 		string set_str = "";
 		set_str = "is_pure=0,";
 		set_str += "is_min_sample=0,";
@@ -75,7 +78,7 @@ void tb_missing_branch::add_branch(Tposisi_cabang posisi, int attrindex, int opt
 
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 	}
 
 }
@@ -84,22 +87,15 @@ bool tb_missing_branch::cabang_exixst(Tposisi_cabang posisi)
 {
 	bool hsl = false;
 
-	string where_str  = "";
-	where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-	where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-	where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-	where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
-
+	string where_str  = posisi.to_query(0);
 
 	string query = "select count(*) as jml from missing_branch where " + where_str;
 
-	if (global_query_builder.query(query))
+	if (tb_missing_branch::global_query_builder.query(query))
 	{
-		if (global_query_builder.get_result())
+		if (tb_missing_branch::global_query_builder.get_result())
 		{
-			vector<string> tmp = global_query_builder.fetch_row();
+			vector<string> tmp = tb_missing_branch::global_query_builder.fetch_row();
 			hsl = stoi(tmp[0]) > 0;
 		}
 	}
@@ -113,13 +109,7 @@ void tb_missing_branch::insert_not_split(Tposisi_cabang posisi, string label, in
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string set_str = "";
 		set_str = "is_not_split=1,";
@@ -127,7 +117,7 @@ void tb_missing_branch::insert_not_split(Tposisi_cabang posisi, string label, in
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 
 	}
 }
@@ -136,13 +126,7 @@ void tb_missing_branch::insert_same_label(Tposisi_cabang posisi, string label, i
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string set_str = "";
 		set_str = "is_same_label=1,";
@@ -150,7 +134,7 @@ void tb_missing_branch::insert_same_label(Tposisi_cabang posisi, string label, i
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 
 	}
 }
@@ -159,13 +143,7 @@ void tb_missing_branch::insert_cut_off(Tposisi_cabang posisi, string label, int 
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string set_str = "";
 		set_str = "is_pure=" + to_string(is_pure) + ",";
@@ -175,7 +153,7 @@ void tb_missing_branch::insert_cut_off(Tposisi_cabang posisi, string label, int 
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 
 	}
 }
@@ -185,13 +163,7 @@ void tb_missing_branch::insert_pruning(Tposisi_cabang posisi, string label, int 
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string set_str = "";
 		set_str = "is_pruning=1,";
@@ -199,7 +171,7 @@ void tb_missing_branch::insert_pruning(Tposisi_cabang posisi, string label, int 
 		set_str += "label='" + label + "'";
 
 		string query = "update missing_branch set " + set_str + " where " + where_str;
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 	}
 }
 
@@ -207,22 +179,16 @@ void tb_missing_branch::get_split(Tposisi_cabang posisi, int &attrindex, int &op
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string query = "select * from missing_branch where " + where_str;
 
-		if (global_query_builder.query(query))
+		if (tb_missing_branch::global_query_builder.query(query))
 		{
-			if (global_query_builder.get_result())
+			if (tb_missing_branch::global_query_builder.get_result())
 			{
 
-				vector<string> data = global_query_builder.fetch_row();
+				vector<string> data = tb_missing_branch::global_query_builder.fetch_row();
 
 				if (data.size() > 0) {
 					attrindex = stoi(data[6]);
@@ -253,17 +219,15 @@ bool tb_missing_branch::parent_exixst(Tposisi_cabang posisi)
 		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
 	}
 
-	where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-	where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-	where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
-
+	where_str += posisi.to_query(2);
+	
 	string query = "select count(*) as jml from missing_branch where " + where_str;
 
-	if (global_query_builder.query(query))
+	if (tb_missing_branch::global_query_builder.query(query))
 	{
-		if (global_query_builder.get_result())
+		if (tb_missing_branch::global_query_builder.get_result())
 		{
-			vector<string> tmp = global_query_builder.fetch_row();
+			vector<string> tmp = tb_missing_branch::global_query_builder.fetch_row();
 			hsl = stoi(tmp[0]) > 0;
 		}
 	}
@@ -285,22 +249,16 @@ void tb_missing_branch::get_stat(Tposisi_cabang posisi)
 
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string query = "select * from missing_branch where " + where_str;
 
-		if (global_query_builder.query(query))
+		if (tb_missing_branch::global_query_builder.query(query))
 		{
-			if (global_query_builder.get_result())
+			if (tb_missing_branch::global_query_builder.get_result())
 			{
 
-				vector<string> data = global_query_builder.fetch_row();
+				vector<string> data = tb_missing_branch::global_query_builder.fetch_row();
 
 				if (data.size() > 0) {
 					_is_pure = data[10] == "1";
@@ -362,17 +320,11 @@ void tb_missing_branch::delete_cabang(Tposisi_cabang posisi)
 {
 	if (cabang_exixst(posisi))
 	{
-		string where_str  = "";
-		where_str  = "child_depth=" + to_string(posisi.child_depth) + " and ";
-		where_str += "child_branch=" + to_string(posisi.child_branch) + " and ";
-		where_str += "child_branch_number=" + to_string(posisi.child_branch_number) + " and ";
-		where_str += "parent_depth=" + to_string(posisi.parent_depth) + " and ";
-		where_str += "parent_branch=" + to_string(posisi.parent_branch) + " and ";
-		where_str += "parent_branch_number=" + to_string(posisi.parent_branch_number);
+		string where_str  = posisi.to_query(0);
 
 		string query = "delete from missing_branch where " + where_str;
 
-		global_query_builder.query(query);
+		tb_missing_branch::global_query_builder.query(query);
 
 	}
 }
@@ -418,6 +370,6 @@ void tb_missing_branch::delete_non_missing()
 
 
 	string query = "delete from missing_branch where " + where_str;
-	global_query_builder.query(query);
+	tb_missing_branch::global_query_builder.query(query);
 }
 

@@ -12,35 +12,56 @@ using namespace std;
 
 #define Included_global_H
 
-struct Tconfig
+class Tglobal_config
 {
+public:
+  static int jns_dt_train;
+  static int id_dt_train;
+  static string partition_train;
 
-  int jns_dt_train = -1;
-  int id_dt_train = -1;
-  string partition_train;
+  static int jns_dt_test;
+  static int id_dt_test;
+  static string partition_test;
 
-  int jns_dt_test = -1;
-  int id_dt_test = -1;
-  string partition_test;
+  static bool use_credal;
+  static double credal_s;
+  static bool limited;
+  static bool prunning;
 
-  string path_model = "";
-  string svm_path = "";
+  static int depth;
+  static int min_sample;
+  static double threshold;
 
-  bool use_credal = false;
-  double credal_s = 0.0;
-  bool limited = false;
-  bool prunning = false;
+  static time_t id_experiment;
+  static time_t id_detail_experiment;
 
-  bool normal_only = false;
+  static double ratio_valid_attr;
 
-  int depth = 0;
-  int min_sample = 0;
-  double threshold = 0;
+  static void init()
+  {
+    jns_dt_train = -1;
+    id_dt_train = -1;
+    partition_train = "-1";
 
-  time_t id_experiment;
-  time_t id_detail_experiment;
+    jns_dt_test = -1;
+    id_dt_test = -1;
+    partition_test = "-1";
+
+    use_credal = false;
+    credal_s = 0.0;
+    limited = false;
+    prunning = false;
+
+    depth = 0;
+    min_sample = 0;
+    threshold = 0;
+
+    ratio_valid_attr = 0.3;
+  }
 
 };
+
+
 
 class Node {
 public:
@@ -223,23 +244,26 @@ struct Tposisi_cabang
   }
 };
 
-static void cetak_stdout(const char *s)
+class Tpesan
 {
-  fputs(s, stdout);
-  fflush(stdout);
-}
+public:
+  static void cetak_stdout(const char *s)
+  {
+    fputs(s, stdout);
+    fflush(stdout);
+  }
 
-static void cetak ( const char * format, ... )
-{
-  char buffer[256];
-  va_list args;
-  va_start (args, format);
-  vsprintf (buffer, format, args);
-  //perror (buffer);
-  va_end (args);
-  cetak_stdout(buffer);
-}
+  static void cetak ( const char * format, ... )
+  {
+    char buffer[256];
+    va_list args;
+    va_start (args, format);
+    vsprintf (buffer, format, args);
+    //perror (buffer);
+    va_end (args);
+    cetak_stdout(buffer);
+  }
 
-
+};
 
 #endif

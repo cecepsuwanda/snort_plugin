@@ -16,14 +16,11 @@ class Tbelow_above
   Tlabel_stat _below;
   Tlabel_stat _above;
  
-  Tconfig* config;
+  Tglobal_config global_config;
 
 public:
-	Tbelow_above();
-	Tbelow_above(Tconfig* v_config);
-	~Tbelow_above();
-	
-    //void set_config(Tconfig* v_config); 
+	Tbelow_above();	
+	~Tbelow_above();    
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();

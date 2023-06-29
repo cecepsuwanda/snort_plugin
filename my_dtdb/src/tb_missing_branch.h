@@ -15,7 +15,7 @@ using namespace std;
 class tb_missing_branch
 {
 private:
-    Tquery_builder global_query_builder;
+    static Tquery_builder global_query_builder;
 
     bool _is_pure;
     bool _is_min_sample;
@@ -32,6 +32,9 @@ private:
 public:
     tb_missing_branch();
     ~tb_missing_branch();
+
+    void open_connection();
+    void close_connection(); 
 
     void clear_table();
     void add_branch(Tposisi_cabang posisi, int attrindex, int opt, Tmy_dttype attrvalue);

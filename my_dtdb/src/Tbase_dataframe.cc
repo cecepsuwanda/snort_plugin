@@ -40,27 +40,21 @@ void Tbase_dataframe::set_dataset(int id_dt, int jns_dt, string partition)
 
 void Tbase_dataframe::set_branch(int depth, int branch, int branch_number)
 {
-	_child_depth = depth;
-	_child_branch = branch;
-	_child_branch_number = branch_number;
+	_posisi_cabang.set_child(depth, branch, branch_number);
 	_data.delete_child(depth, branch, branch_number);
-	_data.set_child(_child_depth, _child_branch, _child_branch_number);
+	_data.set_child(_posisi_cabang.child_depth, _posisi_cabang.child_branch, _posisi_cabang.child_branch_number);
 
 }
 
 void Tbase_dataframe::set_parent(int depth, int branch, int branch_number)
 {
-	_parent_depth = depth;
-	_parent_branch = branch;
-	_parent_branch = branch_number;
-	_data.set_child(_parent_depth, _parent_branch, _parent_branch_number);
+	_posisi_cabang.set_parent(depth, branch, branch_number);
+	_data.set_parent(_posisi_cabang.parent_depth, _posisi_cabang.parent_branch, _posisi_cabang.parent_branch_number);
 }
 
 void Tbase_dataframe::switch_parent_branch()
 {
-	_parent_depth = _child_depth;
-	_parent_branch = _child_branch;
-	_parent_branch_number = _child_branch_number;
+	_posisi_cabang.switch_parent_branch();
 	_data.switch_parent_child();
 }
 
@@ -530,18 +524,7 @@ void Tbase_dataframe::train_to_test()
 
 Tposisi_cabang Tbase_dataframe::get_posisi()
 {
-	Tposisi_cabang tmp;
-
-	tmp.parent_depth  = _parent_depth;
-	tmp.parent_branch = _parent_branch;
-	tmp.parent_branch_number = _parent_branch_number;
-
-	tmp.child_depth  = _child_depth;
-	tmp.child_branch = _child_branch;
-	tmp.child_branch_number = _child_branch_number;
-
-
-	return tmp;
+	return _posisi_cabang;
 }
 
 

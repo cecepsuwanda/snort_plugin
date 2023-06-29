@@ -33,7 +33,8 @@ private:
 	int idx_svm;
 	int id_df;
 
-	Tconfig *config;
+	Tglobal_config global_config;
+	Tpesan pesan; 
 
 	vector<thread> worker;
 	
@@ -57,7 +58,7 @@ private:
 	void del_dec_tree(tree_node* parent_node);
 
 public:
-	Tdec_tree(Tconfig *v_config);
+	Tdec_tree();
 	~Tdec_tree();
 
 	//void set_config(Tconfig v_config);

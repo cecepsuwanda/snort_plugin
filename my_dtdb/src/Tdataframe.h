@@ -33,18 +33,17 @@ private:
   int _idx_label;
   bool is_non_continuous = false;
   bool is_42 = false;
-  Tconfig* config;
-  
+  Tglobal_config global_config;
+
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
 
-  static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int parent_branch_number, int child_depth, int child_branch, int child_branch_number, int idx);
+  static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 
 public:
-  Tdataframe();
-  Tdataframe(Tconfig* v_config);
+  Tdataframe();  
   ~Tdataframe();
 
   Tdataframe(const Tdataframe &t)
@@ -68,21 +67,13 @@ public:
     _jns_dt = t._jns_dt;
     _partition = t._partition;
 
-    _parent_depth = t._parent_depth;
-    _parent_branch = t._parent_branch;
-    _parent_branch_number = t._parent_branch_number;
-
-    _child_depth = t._child_depth;
-    _child_branch = t._child_branch;
-    _child_branch_number = t._child_branch_number;
+    _posisi_cabang = t._posisi_cabang;
+    
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
-    _jml_total_row = t._jml_total_row;
-    config = t.config;
-
-    _stat_label.set_config(config);
-    _map_col_split.set_config(config);
+    _jml_total_row = t._jml_total_row;   
+    
 
   }
 
@@ -105,22 +96,12 @@ public:
     this->_jns_dt = t._jns_dt;
     this->_partition = t._partition;
 
-    this->_parent_depth = t._parent_depth;
-    this->_parent_branch = t._parent_branch;
-    this->_parent_branch_number = t._parent_branch_number;
-
-    this->_child_depth = t._child_depth;
-    this->_child_branch = t._child_branch;
-    this->_child_branch_number = t._child_branch_number;
-
+    this->_posisi_cabang = t._posisi_cabang;
+    
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
-    this->_jml_total_row = t._jml_total_row;
-    this->config = t.config;
-
-    this->_stat_label.set_config(this->config);
-    this->_map_col_split.set_config(this->config);
-
+    this->_jml_total_row = t._jml_total_row;    
+    
     return *this;
   }
 
@@ -159,10 +140,7 @@ public:
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
   
-  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);
-
-  void set_config(Tconfig* v_config);
-  
+  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);  
 
 };
 

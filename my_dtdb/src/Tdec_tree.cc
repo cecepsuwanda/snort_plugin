@@ -1,12 +1,12 @@
 #include "Tdec_tree.h"
 
 
-Tdec_tree::Tdec_tree(Tconfig *v_config)
+Tdec_tree::Tdec_tree()
 {
   idx_svm = 0;
   id_df = 1;
 
-  config = v_config;
+  
 }
 
 Tdec_tree::~Tdec_tree()
@@ -126,9 +126,9 @@ int Tdec_tree::dfs(vector<string> &data, int treeIndex)
 
   }
 
-  cetak("\n");
-  cetak(tmp_str.c_str());
-  cetak("\n");
+  pesan.cetak("\n");
+  pesan.cetak(tmp_str.c_str());
+  pesan.cetak("\n");
 
   return -1;
 }
@@ -204,7 +204,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
         string label = parent_node->left->label;
         df_left.set_label(label);
         map<string,map<string,int>> branch_conf_metrix = df_left.get_conf_metrix();
-        cetak("+");
+        pesan.cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
         //_table_attack = df_left.get_all_record();
         //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
@@ -215,7 +215,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
 
       //df_left.clear_memory();
     } else {
-      cetak(".");
+      pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|->");
       test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
@@ -247,7 +247,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
         string label = parent_node->right->label;
         df_right.set_label(label);
         map<string,map<string,int>> branch_conf_metrix = df_right.get_conf_metrix();
-        cetak("+");
+        pesan.cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
         //_table_attack = df_right.get_all_record();
         //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
@@ -257,7 +257,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       }
       //df_right.clear_memory();
     } else {
-      cetak(".");
+      pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|<-");
       test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
@@ -301,7 +301,7 @@ void Tdec_tree::test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix)
   //df.close_file();
 
   dt_conf_metrix.kalkulasi();
-  cetak("\n Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%.4f,FP=%d,FN=%d,F1=%.4f \n", config->depth, config->min_sample, config->credal_s, config->threshold, dt_conf_metrix.get_FP("normal"), dt_conf_metrix.get_FN("normal"), dt_conf_metrix.get_F1("normal"));
+  pesan.cetak("\n Depth=%d,Minimum_Sample=%d,credal=%.4f,threshold=%.4f,FP=%d,FN=%d,F1=%.4f \n", global_config.depth, global_config.min_sample, global_config.credal_s, global_config.threshold, dt_conf_metrix.get_FP("normal"), dt_conf_metrix.get_FN("normal"), dt_conf_metrix.get_F1("normal"));
 
   // dt_conf_metrix.save(config->path_model + "/dt_metrik.csv", config->f_test, config->depth, config->min_sample, config->gamma, config->nu, config->credal_s);
 
@@ -346,7 +346,7 @@ void Tdec_tree::read_tree()
 {
   vector<string> tmp_data;
   tb_tree dbtree;
-  dbtree.baca_tree(config->id_experiment, config->id_detail_experiment);
+  dbtree.baca_tree(global_config.id_experiment, global_config.id_detail_experiment);
 
   dbtree.reset_file();
   while (!dbtree.is_eof()) {

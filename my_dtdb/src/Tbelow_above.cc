@@ -3,23 +3,8 @@
 
 Tbelow_above::Tbelow_above()
 {
-	config = NULL;
+	
 }
-
-Tbelow_above::Tbelow_above(Tconfig* v_config)
-{
-	config = v_config;
-	_below.set_config(config);
-	_above.set_config(config);
-}
-
-
-/*void Tbelow_above::set_config(Tconfig* v_config)
-{
-	config = v_config;
-	_below.set_config(config);
-	_above.set_config(config);
-}*/
 
 Tbelow_above::~Tbelow_above()
 {
@@ -36,16 +21,16 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid_cont()
 {
-	//int jml = _below.get_jml_row() + _above.get_jml_row();    
+	// int jml = _below.get_jml_row() + _above.get_jml_row();    
 	bool pass = true;
 
-	if (config->limited)
+	if (global_config.limited)
 	{
-		// if (config->threshold >= 1) {
-		// 	pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
+		// if (global_config.threshold >= 1) {
+		// 	pass = ((_below.get_jml_row() >= 2) and (_above.get_jml_row() >= 2)) and (((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold)) or (_below.is_single_label() or _above.is_single_label()));
 		// } else {
-		// 	//pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_above.get_jml_row() <= ceil((1-config->threshold) * jml) ));
-		// 	pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_below.get_jml_row() <= ceil((1-config->threshold) * jml) ));
+		// 	//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
+		// 	pass = ((_below.get_jml_row() >= 2) and (_above.get_jml_row() >= 2)) and (((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) )) or (_below.is_single_label() or _above.is_single_label()));
 		// }
 
 
@@ -56,15 +41,15 @@ bool Tbelow_above::cek_valid_cont()
 
 bool Tbelow_above::cek_valid_non_cont()
 {
-	//int jml = _below.get_jml_row() + _above.get_jml_row();
+	// int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
-	if (config->limited)
+	if (global_config.limited)
 	{
-		// if (config->threshold >= 1) {
-		// 	pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
+		// if (global_config.threshold >= 1) {
+		// 	pass = (_below.get_jml_row() >= global_config.threshold) and  (_above.get_jml_row() >= global_config.threshold);
 		// } else {
-		// 	pass = ((_below.get_jml_row() >= ceil(config->threshold * jml) ) and (_below.get_jml_row() <= ceil((1-config->threshold) * jml) ));
+		// 	pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
 		// }
 	}
 
@@ -105,11 +90,9 @@ Tlabel_stat Tbelow_above::get_above()
 Tmy_dttype Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
+	
 
-	_below.set_config(config);
-	_above.set_config(config);
-
-	if (!config->use_credal) {
+	if (!global_config.use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
 		float p_dt_below = (float) _below.get_jml_row() / jml;
 		float p_dt_above = (float) _above.get_jml_row() / jml;
@@ -120,7 +103,7 @@ Tmy_dttype Tbelow_above::get_overall_metric()
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 	} else {
 
-		credal crd(config->credal_s);
+		credal crd(global_config.credal_s);
 
 		vector<int> freq;
 		vector<double> ent, max_ent;

@@ -6,23 +6,12 @@
 Tdataframe::Tdataframe()
 {
   _idx_label = -1;
-  config = NULL;
-
-
-}
-
-Tdataframe::Tdataframe(Tconfig* v_config)
-{
-  _idx_label = -1;
-  config = v_config;
-  _stat_label.set_config(config);
-  _map_col_split.set_config(config);
 }
 
 Tdataframe::~Tdataframe()
 {
   _stat_label.clear();
-  _data.set_child(_child_depth, _child_branch, _child_branch_number);
+  _data.set_child(_posisi_cabang.child_depth, _posisi_cabang.child_branch, _posisi_cabang.child_branch_number);
 }
 
 
@@ -43,21 +32,15 @@ void Tdataframe::read_header_type()
   }
 }
 
-void Tdataframe::set_config(Tconfig* v_config)
-{
-  config = v_config;
-}
 
-
-
-Tpot_split Tdataframe::get_pot_split(int id_dt, int jns_dt, string partition, int parent_depth, int parent_branch, int parent_branch_number, int child_depth, int child_branch, int child_branch_number, int idx)
+Tpot_split Tdataframe::get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx)
 {
   Tpot_split hsl;
   tb_dataset data;
   data.set_dataset(id_dt, jns_dt, partition);
   data.read_header_type();
-  data.set_parent(parent_depth, parent_branch, parent_branch_number);
-  data.set_child(child_depth, child_branch, child_branch_number);
+  data.set_parent(posisi_cabang.parent_depth, posisi_cabang.parent_branch, posisi_cabang.parent_branch_number);
+  data.set_child(posisi_cabang.child_depth, posisi_cabang.child_branch, posisi_cabang.child_branch_number);
   vector<string> data_header = data.get_data_header();
   hsl.data = data.hit_col_split(data_header[idx]);
   hsl.idx = idx;
@@ -89,8 +72,7 @@ void Tdataframe::stat_tabel(bool is_filter, bool is_last, bool is_stat_label)
 
   if (is_stat_label) {
     _stat_label.clear();
-    _stat_label = _data.hit_label_stat();
-    _stat_label.set_config(config);
+    _stat_label = _data.hit_label_stat();    
   }
 
 }
@@ -101,7 +83,7 @@ void Tdataframe::search_col_split()
 
   for (size_t i = 0; i < (_data_header.size() - 1); ++i)
   {
-    async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, config->id_dt_train, config->jns_dt_train, config->partition_train, _parent_depth, _parent_branch, _parent_branch_number, _child_depth, _child_branch, _child_branch_number, i));
+    async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, global_config.id_dt_train, global_config.jns_dt_train, global_config.partition_train, _posisi_cabang, i));
 
   }
 
@@ -237,7 +219,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 {
   Tmy_dttype entropy_before_split;
 
-  if (!config->use_credal) {
+  if (!global_config.use_credal) {
     entropy_before_split = stat_label.get_entropy();
   } else {
     entropy_before_split = stat_label.get_credal_entropy();
@@ -280,14 +262,10 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
 
   while ((itr != _col_pot_split->end()))
-  {
-
-    (*itr).second.set_config(config);
-    (*itr_next).second.set_config(config);
+  {    
 
     _stat_label_below = _stat_label_below + (*itr).second;
-    _stat_label_below.set_config(config);
-
+    
     bool is_pass = true;
 
     if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
@@ -317,11 +295,10 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         Tmy_dttype tmp = (tmp1 + tmp2) / 2.0;
         mid_point = tmp;
 
-        Tbelow_above ba(config);
+        Tbelow_above ba;
 
         ba.add_below(_stat_label_below);
         Tlabel_stat tmp_stat = stat_label - _stat_label_below;
-        tmp_stat.set_config(config);
         ba.add_above(tmp_stat);
 
         gain.set_value("0.0", true);
@@ -372,7 +349,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_
     {
       Tmy_dttype entropy_before_split;
 
-      if (!config->use_credal) {
+      if (!global_config.use_credal) {
         entropy_before_split = _stat_label.get_entropy();
       } else {
         entropy_before_split = _stat_label.get_credal_entropy();
@@ -383,16 +360,14 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_
 
 
       Tlabel_stat _stat_label_below = (*itr).second;
-      _stat_label_below.set_config(config);
-
+      
       Tmy_dttype tmp1 = (*itr).first;
 
-      Tbelow_above ba(config);
+      Tbelow_above ba;
       ba.set_value(tmp1);
       ba.add_below(_stat_label_below);
 
       Tlabel_stat tmp_stat = _stat_label - _stat_label_below;
-      tmp_stat.set_config(config);
       ba.add_above(tmp_stat);
 
       Tmy_dttype gain;
@@ -424,7 +399,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
 {
   Tmy_dttype entropy_before_split;
 
-  if (!config->use_credal) {
+  if (!global_config.use_credal) {
     entropy_before_split = _stat_label.get_entropy();
   } else {
     entropy_before_split = _stat_label.get_credal_entropy();
@@ -443,13 +418,12 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
   {
-    Tbelow_above ba(config);
+    Tbelow_above ba;
 
     mid_point = ((Tmy_dttype) (*itr).first);
 
     ba.add_below((*itr).second);
     Tlabel_stat tmp_stat = _stat_label - (*itr).second;
-    tmp_stat.set_config(config);
     ba.add_above(tmp_stat);
 
     gain.set_value("0.0", true);
