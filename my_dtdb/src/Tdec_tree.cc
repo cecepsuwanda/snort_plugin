@@ -6,7 +6,7 @@ Tdec_tree::Tdec_tree()
   idx_svm = 0;
   id_df = 1;
 
-  
+
 }
 
 Tdec_tree::~Tdec_tree()
@@ -160,7 +160,7 @@ string Tdec_tree::guess(vector<string> &data)
 
 // }
 
-void Tdec_tree::thread_test_attack(map<string,map<string,int>> metrix, Tconf_metrix &dt_conf_metrix)
+void Tdec_tree::thread_test_attack(map<string, map<string, int>> metrix, Tconf_metrix &dt_conf_metrix)
 {
   // std::mutex v_mutex;
 
@@ -168,11 +168,11 @@ void Tdec_tree::thread_test_attack(map<string,map<string,int>> metrix, Tconf_met
 
   for (auto i = metrix.begin(); i != metrix.end(); i++)
   {
-      for (auto j = i->second.begin(); j != i->second.end(); j++)
-      {
+    for (auto j = i->second.begin(); j != i->second.end(); j++)
+    {
 
-         dt_conf_metrix.add_jml(i->first, j->first, j->second);
-      }   
+      dt_conf_metrix.add_jml(i->first, j->first, j->second);
+    }
   }
 
 }
@@ -194,23 +194,24 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     df_left = df_test;
     df_left.switch_parent_branch();
     df_left.set_branch(counter, 1, branch_number[counter]);
-    df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
+    df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, true, true);
 
     if (parent_node->left->isLeaf)
     {
-      df_left.ReFilter(false);
+      pesan.cetak("-");
+      //df_left.ReFilter(false);
       if (df_left.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->left->label;
         df_left.set_label(label);
-        map<string,map<string,int>> branch_conf_metrix = df_left.get_conf_metrix();
+        map<string, map<string, int>> branch_conf_metrix = df_left.get_conf_metrix();
         pesan.cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_left.getjmlrow());
         //_table_attack = df_left.get_all_record();
         //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
         worker.push_back(thread(&Tdec_tree::thread_test_attack, branch_conf_metrix, ref(dt_conf_metrix)));
-        _table_attack.clear();
-        _table_attack.shrink_to_fit();
+        // _table_attack.clear();
+        // _table_attack.shrink_to_fit();
       }
 
       //df_left.clear_memory();
@@ -218,7 +219,9 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|->");
-      test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
+      if (df_left.getjmlrow() > 0) {
+        test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
+      }
       //df_left.clear_memory();
     }
 
@@ -237,30 +240,33 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     df_right = df_test;
     df_right.switch_parent_branch();
     df_right.set_branch(counter, 2, branch_number[counter]);
-    df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
+    df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, true, true);
 
     if (parent_node->right->isLeaf)
     {
-      df_right.ReFilter(false);
+      pesan.cetak("-");
+      //df_right.ReFilter(false);
       if (df_right.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->right->label;
         df_right.set_label(label);
-        map<string,map<string,int>> branch_conf_metrix = df_right.get_conf_metrix();
+        map<string, map<string, int>> branch_conf_metrix = df_right.get_conf_metrix();
         pesan.cetak("+");
         //cetak("[%s %d]\n", label.c_str(), df_right.getjmlrow());
         //_table_attack = df_right.get_all_record();
         //worker.push_back(thread(&Tdec_tree::thread_test_attack, label, _table_attack, ref(dt_conf_metrix)));
         worker.push_back(thread(&Tdec_tree::thread_test_attack, branch_conf_metrix, ref(dt_conf_metrix)));
-        _table_attack.clear();
-        _table_attack.shrink_to_fit();
+        // _table_attack.clear();
+        // _table_attack.shrink_to_fit();
       }
       //df_right.clear_memory();
     } else {
       pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|<-");
-      test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
+      if (df_right.getjmlrow() > 0) {
+        test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
+      }
       //df_right.clear_memory();
     }
 
@@ -275,7 +281,7 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
 
 
 
-void Tdec_tree::test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix)
+void Tdec_tree::test(Tdataframe &df_test, Tconf_metrix &dt_conf_metrix)
 {
 
   // Tdataframe df(config);
@@ -292,10 +298,10 @@ void Tdec_tree::test(Tdataframe &df_test,Tconf_metrix &dt_conf_metrix)
   dt_conf_metrix.add_konversi_asli("unknown", "known");
 
   {
-    
+
     test_dfs(dec_tree, df_test, dt_conf_metrix, 0);
     //test_dfs(0, df, dt_conf_metrix, 0);
-    
+
   }
 
   //df.close_file();
@@ -327,14 +333,14 @@ tree_node* Tdec_tree::vec_tree_to_dec_tree(int node_index)
     if (left != -1) {
       tree_node* left_node = vec_tree_to_dec_tree(left);
       left_node->opt = tree[left].opt;
-      left_node->attrValue.set_value(tree[left].attrValue.get_string(),(left_node->opt==0) or (left_node->opt==1));      
+      left_node->attrValue.set_value(tree[left].attrValue.get_string(), (left_node->opt == 0) or (left_node->opt == 1));
       parent_node->left = left_node;
     }
 
     if (right != -1) {
       tree_node* right_node = vec_tree_to_dec_tree(right);
       right_node->opt = tree[right].opt;
-      right_node->attrValue.set_value(tree[right].attrValue.get_string(),(right_node->opt==0) or (right_node->opt==1));      
+      right_node->attrValue.set_value(tree[right].attrValue.get_string(), (right_node->opt == 0) or (right_node->opt == 1));
       parent_node->right = right_node;
     }
   }
@@ -358,7 +364,7 @@ void Tdec_tree::read_tree()
     Node newnode;
     //cout << tmp_data[0] << endl;
     newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-    newnode.attrValue.set_value(tmp_data[1],false);
+    newnode.attrValue.set_value(tmp_data[1], false);
     newnode.label = tmp_data[2];
     //cout << tmp_data[2] << endl;
     newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);

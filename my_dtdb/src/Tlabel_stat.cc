@@ -4,7 +4,7 @@
 Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
-	_max_value = 0;	
+	_max_value = 0;
 }
 
 Tlabel_stat::~Tlabel_stat()
@@ -52,9 +52,13 @@ Tmy_dttype Tlabel_stat::get_entropy()
 
 
 	crd.input_frec(freq);
-
 	entropy = crd.get_ent();
-
+    
+    if(global_config.cetak_credal)
+    {	
+	  crd.info();
+	}  
+	
 	/*auto it = _map.begin();
 	while (it != _map.end())
 	{
@@ -207,6 +211,7 @@ ostream & operator << (ostream &out, const Tlabel_stat &tc)
 		for (auto it = tc._map.begin(); it != tc._map.end(); ++it) {
 			out << std::setw(30) << (*it).first << std::setw(10) << (*it).second << endl;
 		}
+		out << std::setw(30) << "total" << std::setw(10) << tc._jml_row << endl;
 	}
 	return out;
 }

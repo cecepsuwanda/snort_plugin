@@ -31,6 +31,15 @@ public:
 
 	bool is_continue();
 
+	Tmy_dttype(const Tmy_dttype &t)
+	{
+		//cout << "Copy Constructor" << endl;
+		_value = t._value;
+		_lower_value = t._lower_value;
+		_is_continue = t._is_continue;
+	}
+
+
 
 	Tmy_dttype& operator = (const Tmy_dttype &t)
 	{
@@ -88,7 +97,7 @@ public:
 	{
 		if (_is_continue)
 		{
-			
+
 			return  (stof(_value) <= stof(rhs));
 
 		} else {
@@ -136,12 +145,20 @@ public:
 		if (_is_continue)
 		{
 			return  (stof(_value) > rhs);
-		} else {			
-			return false;			
+		} else {
+			return false;
 		}
 	}
 
-
+	bool operator >=(const float rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) >= rhs);
+		} else {
+			return false;
+		}
+	}
 
 	bool operator >=(const Tmy_dttype& rhs) const
 	{
@@ -241,12 +258,12 @@ public:
 		if (_is_continue and rhs._is_continue)
 		{
 			try {
-				tmp.set_value( to_string(stof(_value)+stof(rhs._value)),true);
+				tmp.set_value( to_string(stof(_value) + stof(rhs._value)), true);
 			}
 			catch (const std::invalid_argument& ia) {
-				cout << _value << "," << rhs._value << " bukan bilangan !!!";				
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";
 			}
-		}	
+		}
 
 		return tmp;
 	}
@@ -258,12 +275,12 @@ public:
 		if (_is_continue and rhs._is_continue)
 		{
 			try {
-				tmp.set_value( to_string(stof(_value)-stof(rhs._value)),true);
+				tmp.set_value( to_string(stof(_value) - stof(rhs._value)), true);
 			}
 			catch (const std::invalid_argument& ia) {
-				cout << _value << "," << rhs._value << " bukan bilangan !!!";				
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";
 			}
-		}	
+		}
 
 		return tmp;
 	}
@@ -273,9 +290,9 @@ public:
 		Tmy_dttype tmp;
 
 		if (_is_continue)
-		{			
-			tmp.set_value(to_string(stof(_value)/rhs),true);			
-		}	
+		{
+			tmp.set_value(to_string(stof(_value) / rhs), true);
+		}
 
 		return tmp;
 	}

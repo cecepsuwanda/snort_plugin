@@ -35,6 +35,8 @@ time_t Tglobal_config::id_detail_experiment;
 
 double Tglobal_config::ratio_valid_attr;
 
+bool Tglobal_config::cetak_credal;
+
 int main(int argc, const char **argv)
 {
 	char *endptr;
@@ -180,12 +182,12 @@ int main(int argc, const char **argv)
 
 					experiment.end_train_start_test();
 
-					if ((tree_exist) and (global_config.id_dt_train == global_config.id_dt_test) and (global_config.jns_dt_train == global_config.jns_dt_test) and (global_config.partition_train == global_config.partition_test))
-					{
-						df_train.train_to_test();
-					} else {
-						//df_test.reset_depth_branch();
-					}
+					// if ((tree_exist) and (global_config.id_dt_train == global_config.id_dt_test) and (global_config.jns_dt_train == global_config.jns_dt_test) and (global_config.partition_train == global_config.partition_test))
+					// {
+					// 	df_train.train_to_test();
+					// } else {
+						df_test.reset_depth_branch();
+					// }
 
 					pesan.cetak("Test model untuk Depth : %d Credal : %f \n", j, k);
 
@@ -214,7 +216,7 @@ int main(int argc, const char **argv)
 
 
 					if (is_break) {
-						if (jml_sama >= 10)
+						if (jml_sama >= 5)
 						{
 							break;
 						}

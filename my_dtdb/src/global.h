@@ -37,6 +37,8 @@ public:
 
   static double ratio_valid_attr;
 
+  static bool cetak_credal;
+
   static void init()
   {
     jns_dt_train = -1;
@@ -57,6 +59,9 @@ public:
     threshold = 0;
 
     ratio_valid_attr = 0.3;
+    
+    cetak_credal = false;
+
   }
 
 };

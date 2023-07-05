@@ -3,7 +3,7 @@
 
 Tbelow_above::Tbelow_above()
 {
-	
+
 }
 
 Tbelow_above::~Tbelow_above()
@@ -21,16 +21,16 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid_cont()
 {
-	// int jml = _below.get_jml_row() + _above.get_jml_row();    
+	// int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
 	if (global_config.limited)
 	{
 		// if (global_config.threshold >= 1) {
-		// 	pass = ((_below.get_jml_row() >= 2) and (_above.get_jml_row() >= 2)) and (((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold)) or (_below.is_single_label() or _above.is_single_label()));
+		// 	pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
 		// } else {
 		// 	//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-		// 	pass = ((_below.get_jml_row() >= 2) and (_above.get_jml_row() >= 2)) and (((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) )) or (_below.is_single_label() or _above.is_single_label()));
+		// 	pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
 		// }
 
 
@@ -90,7 +90,7 @@ Tlabel_stat Tbelow_above::get_above()
 Tmy_dttype Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
-	
+
 
 	if (!global_config.use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
@@ -101,6 +101,17 @@ Tmy_dttype Tbelow_above::get_overall_metric()
 		double entropy_above = stof(_above.get_entropy().get_value());
 
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+
+		if (global_config.cetak_credal)
+		{
+			cout << "jml = " << jml << endl;
+			cout << "p_dt_below = " << p_dt_below << endl;
+			cout << "p_dt_above = " << p_dt_above << endl;
+			cout << "entropy_below = " << entropy_below << endl;
+			cout << "entropy_above = " << entropy_above << endl;
+			cout << "overall_metric = " << overall_metric << endl;
+		}
+
 	} else {
 
 		credal crd(global_config.credal_s);
@@ -121,8 +132,8 @@ Tmy_dttype Tbelow_above::get_overall_metric()
 
 		overall_metric = crd.get_overall_metric(ent, max_ent);
 	}
-	
-    Tmy_dttype tmp;
+
+	Tmy_dttype tmp;
 	tmp.set_value(to_string(overall_metric), true);
 
 	return tmp;
@@ -134,7 +145,7 @@ float Tbelow_above::get_split_info()
 	float p_dt_below = (float) _below.get_jml_row() / jml;
 	float p_dt_above = (float) _above.get_jml_row() / jml;
 
-	float split_info = 0;
+	float split_info = 0.0;
 	if (p_dt_below > 0) {
 		split_info += (p_dt_below  * (-1 * log2(p_dt_below)));
 	}

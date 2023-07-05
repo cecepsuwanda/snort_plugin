@@ -36,12 +36,15 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		_lower_value = to_lower(_lower_value);
+		// cout<<"1 "<<_lower_value<<endl;
+		// _lower_value = to_lower(_lower_value);
+		// cout<<"2 "<<_lower_value<<endl;
+
 	} else {
 		// char *endptr;
 		// double tmp = strtod(value.c_str(), &endptr);
-		// _value = to_string(bulat_nol(tmp, 1e-7, 7));
-		_lower_value = value;
+		// _value = to_string(bulat_nol(tmp, 1e-4, 4));
+		//_lower_value = value;
 	}
 }
 
@@ -52,12 +55,14 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		_lower_value = to_lower(_lower_value);
+		// cout<<"1 "<<_lower_value<<endl;
+		// _lower_value = to_lower(_lower_value);
+		// cout<<"2 "<<_lower_value<<endl;
 	} else {
 		// char *endptr;
 		// double tmp = strtod(value.c_str(), &endptr);
-		// _value = to_string(bulat_nol(tmp, 1e-7, 7));
-		_lower_value = value;
+		// _value = to_string(bulat_nol(tmp, 1e-4, 4));
+		//_lower_value = value;
 	}
 }
 
@@ -71,7 +76,9 @@ string Tmy_dttype::to_lower(const string str)
 	string tmp_str;
 	for (size_t i = 0; i < str.length(); ++i)
 	{
-		tmp_str[i] = toupper(str[i]);
+		char tmp_chr = toupper(str[i]); 
+		cout<< tmp_chr << endl;
+		//tmp_str[i] =  
 	}
 	return tmp_str;
 }

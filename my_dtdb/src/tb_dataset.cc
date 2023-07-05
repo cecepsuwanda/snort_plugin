@@ -193,14 +193,14 @@ bool tb_dataset::is_child_parent_exist()
 
 	string where_str  = _posisi_cabang.to_query(0);
 
-	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
+	string query = "select * from " + _tmp_dataset_tb + " where " + where_str + " limit 1 ";
 
 	if (global_query_builder.query(query))
 	{
 		if (global_query_builder.get_result())
 		{
-			vector<string> tmp = global_query_builder.fetch_row();
-			hsl = stoi(tmp[0]) > 0;
+			int tmp = global_query_builder.get_jml_row();
+			hsl = tmp > 0;
 		}
 	}
 
@@ -212,19 +212,19 @@ bool tb_dataset::is_parent_exist(int idx)
 	bool hsl = false;
 
 	string where_str  = _posisi_cabang.to_query(3);
-	
+
 	if (idx == 1) {
 		where_str  = _posisi_cabang.to_query(4);
 	}
-	
-	string query = "select count(*) as jml from " + _tmp_dataset_tb + " where " + where_str;
+
+	string query = "select * from " + _tmp_dataset_tb + " where " + where_str + " limit 1 ";
 
 	if (global_query_builder.query(query))
 	{
 		if (global_query_builder.get_result())
 		{
-			vector<string> tmp = global_query_builder.fetch_row();
-			hsl = stoi(tmp[0]) > 0;
+			int tmp = global_query_builder.get_jml_row();
+			hsl = tmp > 0;
 		}
 	}
 

@@ -53,7 +53,7 @@ Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 	Tmetric_split_value hsl;
 
 	Tmy_dttype current_split_value;
-	float current_overall_metric = -1;
+	float current_overall_metric = 0.0;
 
 	df.calculate_overall_metric(idx, current_overall_metric, current_split_value);
 
@@ -76,7 +76,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	//float current_overall_metric = -1;
 
 	split_column = -1;
-	split_value.set_value("-1",true);
+	split_value.set_value("-1", true);
 
 	vector<future<Tmetric_split_value>> async_worker;
 
@@ -87,11 +87,15 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	if (async_worker.size() > 0)
 	{
-
+		pesan.cetak("\n");
 		Tmetric_split_value hsl;
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
-			hsl = th.get();
+			hsl = th.get();			
+			if((hsl.idx==2) or (hsl.idx==4)){
+			  pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
+			}
+			
 			if (first_iteration or (max_gain < hsl.overall_metric))
 			{
 				first_iteration = false;
@@ -99,6 +103,9 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 				split_column = hsl.idx;
 				split_value = hsl.split_value;
+                if((hsl.idx==2) or (hsl.idx==4)){ 
+				   pesan.cetak("  [%d,%f]\n", split_column, max_gain);
+				}
 			}
 		}
 
@@ -312,7 +319,7 @@ tree_node* Tdt_build::train(Tdataframe &df, int counter)
 
 	bool is_pure = check_purity(df);
 	bool is_min_sample = (df.getjmlrow() < global_config.min_sample);
-	bool is_depth_limit = (counter >= global_config.depth);
+	bool is_depth_limit = (counter == (global_config.depth - 1));
 
 	Tposisi_cabang tmp_posisi = df.get_posisi();
 	int split_column = -1;
@@ -382,11 +389,11 @@ tree_node* Tdt_build::train(Tdataframe &df, int counter)
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
+			//bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
 
-			is_pass = ((df_below.getjmlrow()>=2) and (df_above.getjmlrow()>=2)) and (is_pass or (df_below.is_single_label() or df_above.is_single_label()));
+			//is_pass = ((df_below.getjmlrow()>=2) and (df_above.getjmlrow()>=2)) and (is_pass or (df_below.is_single_label() or df_above.is_single_label()));
 
-			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass) ) { //or (!is_pass)
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) { //or (!is_pass)
 				string tmp_str = create_leaf(df);
 
 				pesan.cetak("-");
@@ -547,7 +554,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 
 	bool is_pure = check_purity(df);
 	bool is_min_sample = (df.getjmlrow() < global_config.min_sample);
-	bool is_depth_limit = (counter >= global_config.depth);
+	bool is_depth_limit = (counter == (global_config.depth - 1));
 
 	Tposisi_cabang tmp_posisi = df.get_posisi();
 
@@ -621,7 +628,8 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 		if (new_branch_number)
 		{
 			determine_best_split(df, split_column, split_value);
-			//cetak(" [%d,%s] [%d,%s] ", split_column_tmp, split_value_tmp.c_str(), split_column, split_value.c_str());
+			pesan.cetak(" [%d,%s] ", split_column, split_value.get_string().c_str());
+			//pesan.cetak(" [%d,%s] [%d,%s] ", split_column_tmp, split_value_tmp.c_str(), split_column, split_value.c_str());
 		}
 
 		if (split_value != "-1")
@@ -660,15 +668,15 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 			} else {
 				df_above.set_branch(prev_tree->right->depth, prev_tree->right->branch, prev_tree->right->branch_number);
 			}
-			
+
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
+			//bool is_pass = limit_jml_dt_cabang(df.getjmlrow(),df_below.getjmlrow(),df_above.getjmlrow());
 
-			is_pass = ((df_below.getjmlrow()>=2) and (df_above.getjmlrow()>=2)) and (is_pass or (df_below.is_single_label() or df_above.is_single_label()));
+			//is_pass = ((df_below.getjmlrow()>=2) and (df_above.getjmlrow()>=2)) and (is_pass or (df_below.is_single_label() or df_above.is_single_label()));
 
-			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass) ) { //or (!is_pass)
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) { //or (!is_pass)
 				string tmp_str = create_leaf(df);
 
 				pesan.cetak("-");
@@ -1286,7 +1294,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_
 			//cetak("->");
 			tree_node* left_node = vec_tree_to_dec_tree(left, counter, posisi_left);
 			left_node->opt = prev_tree[left].opt;
-			left_node->attrValue.set_value(prev_tree[left].attrValue.get_string(),(left_node->opt==0) or (left_node->opt==1));
+			left_node->attrValue.set_value(prev_tree[left].attrValue.get_string(), (left_node->opt == 0) or (left_node->opt == 1));
 			left_node->depth = counter;
 			left_node->branch = 1;
 			left_node->branch_number = branch_number[counter];
@@ -1306,9 +1314,9 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_
 
 		if (right != -1) {
 			//cetak("<-");
-			tree_node* right_node = vec_tree_to_dec_tree(right, counter, posisi_right);			
+			tree_node* right_node = vec_tree_to_dec_tree(right, counter, posisi_right);
 			right_node->opt = prev_tree[right].opt;
-            right_node->attrValue.set_value(prev_tree[right].attrValue.get_string(),(right_node->opt==0) or (right_node->opt==1));  
+			right_node->attrValue.set_value(prev_tree[right].attrValue.get_string(), (right_node->opt == 0) or (right_node->opt == 1));
 			right_node->depth = counter;
 			right_node->branch = 2;
 			right_node->branch_number = branch_number[counter];
@@ -1337,7 +1345,7 @@ void Tdt_build::read_tree(time_t id_detail_experiment)
 		Node newnode;
 		//cout << tmp_data[0] << endl;
 		newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-		newnode.attrValue.set_value(tmp_data[1],false);
+		newnode.attrValue.set_value(tmp_data[1], false);
 		newnode.label = tmp_data[2];
 		//cout << tmp_data[2] << endl;
 		newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);

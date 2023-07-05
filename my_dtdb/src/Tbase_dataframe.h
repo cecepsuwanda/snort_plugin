@@ -16,13 +16,20 @@ struct field_filter
 	int idx_col;
 	int idx_opt;
 	Tmy_dttype value;
-    
-    string to_query(vector<string> data_header)
-    {
-    	vector<string> opt_arr{ "<=", ">", "=", "!="};
 
-    	return ("(a." + data_header[idx_col] + opt_arr[idx_opt] + value.get_string() + ")");
-    }
+	string to_query(vector<string> data_header)
+	{
+		vector<string> opt_arr{ "<=", ">", "=", "!="};
+
+		string tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + value.get_string() + ")";
+
+		if ((idx_opt == 2) or (idx_opt == 3))
+		{
+			tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + "'" + value.get_string() + "')";
+		}
+
+		return tmp_str;
+	}
 
 };
 
@@ -72,7 +79,7 @@ public:
 		_partition = t._partition;
 
 		_posisi_cabang = t._posisi_cabang;
-		
+
 
 		_jml_total_row = t._jml_total_row;
 	}
@@ -94,7 +101,7 @@ public:
 		this->_partition = t._partition;
 
 		this->_posisi_cabang = t._posisi_cabang;
-		
+
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}
@@ -134,8 +141,8 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-	void add_filter(int idx_col, int idx_opt, Tmy_dttype value,bool is_filter,bool is_last);
-	void add_filter(field_filter filter,bool is_filter,bool is_last);
+	void add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last);
+	void add_filter(field_filter filter, bool is_filter, bool is_last);
 	void ReFilter(bool is_last);
 	vector<field_filter> get_filter();
 

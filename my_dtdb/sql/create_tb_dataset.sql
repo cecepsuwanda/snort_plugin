@@ -205,6 +205,8 @@ begin
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt; 
 end;
+        
+set @sql := CONCAT('insert into',nm_table,'(id_row,child_depth,child_branch,child_branch_number,parent_depth,parent_branch,parent_branch_number) (select idx_row,',child_depth,',',child_branch,',',child_branch_number,',',parent_depth,',',parent_branch,',',parent_branch_number,'from tb_index1) DUPLICATE KEY UPDATE child_branch=',child_branch,',child_branch_number=',child_branch_number,', parent_depth=',parent_depth,', parent_branch=',parent_branch,', parent_branch_number=',parent_branch_number,';');
 
 create procedure sp_filter1(in child_depth int,in child_branch int,in child_branch_number int,in parent_depth int,in parent_branch int,in parent_branch_number int,in nm_table text)
 begin  
@@ -253,6 +255,7 @@ begin
   DEALLOCATE PREPARE stmt;  
 end;
 
+'insert into ',nm_table,'(',nm_kolom,',label,jml) (select ',nm_kolom,',label,count(label) as jml from ',nm_table1,' a inner join tb_index b on a.id=b.idx_row group by ',nm_kolom,',label order by ',nm_kolom,',label);'
 
 create procedure sp_hit_stat1(in nm_table text,in partisi text,in nm_kolom text)
 begin 

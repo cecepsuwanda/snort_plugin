@@ -111,13 +111,7 @@ public:
 			{
 				tmp._map.insert(pair<string, int>(it->first, it->second));
 			} else {
-				if (it->second > it1->second) {
-					tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
-				}else{
-				   if (it->second < it1->second) {	
-					 cout<<"1 kacau !!! "<< it->first << " "<< it->second <<"-"<< it1->second <<endl;
-				   }
-				}
+				tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
 			}
 		}
 
@@ -126,8 +120,8 @@ public:
 			auto it1 = tmp._map.find(it->first);
 			if (it1 == tmp._map.end())
 			{
-				//cout<<"2 kacau !!! "<< it->first << " " << it->second <<endl;
-				//tmp._map.insert(pair<string, int>(it->first, it->second));
+				cout<<"kacau !!! "<< it->first << " " << it->second <<endl;
+				tmp._map.insert(pair<string, int>(it->first, -1*it->second));
 			}
 		}
 
