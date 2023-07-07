@@ -3,6 +3,7 @@
 #include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "Tbelow_above.h"
+#include "Tbelow_above_kategori.h"
 #include "Tbase_dataframe.h"
 #include <future>
 #include <thread>
@@ -27,7 +28,7 @@ struct Tpot_split
 class Tdataframe : public Tbase_dataframe
 {
 private:
-  
+
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
@@ -38,12 +39,12 @@ private:
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
-  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
+  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 
 public:
-  Tdataframe();  
+  Tdataframe();
   ~Tdataframe();
 
   Tdataframe(const Tdataframe &t)
@@ -54,7 +55,7 @@ public:
     _data_type = t._data_type;
     _filter = t._filter;
     _map_filter = t._map_filter;
-    
+
 
     _jml_col = t._jml_col;
     _jml_row = t._jml_row;
@@ -68,12 +69,12 @@ public:
     _partition = t._partition;
 
     _posisi_cabang = t._posisi_cabang;
-    
+
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
-    _jml_total_row = t._jml_total_row;   
-    
+    _jml_total_row = t._jml_total_row;
+
 
   }
 
@@ -86,7 +87,7 @@ public:
     this->_data_type = t._data_type;
     this->_filter = t._filter;
     this->_map_filter = t._map_filter;
-    
+
     this->_jml_col = t._jml_col;
     this->_jml_row = t._jml_row;
     this->_stat_label = t._stat_label;
@@ -97,39 +98,39 @@ public:
     this->_partition = t._partition;
 
     this->_posisi_cabang = t._posisi_cabang;
-    
+
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
-    this->_jml_total_row = t._jml_total_row;    
-    
+    this->_jml_total_row = t._jml_total_row;
+
     return *this;
   }
 
   void read_header_type();
 
   void clone_dataset();
-  void reset_depth_branch();  
+  void reset_depth_branch();
 
   void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);
   void search_col_split();
-  
+
   map<string, int> get_stat_label();
-  map<string,map<string,int>> get_conf_metrix();
-  
+  map<string, map<string, int>> get_conf_metrix();
+
   float get_estimate_error();
   string get_max_label();
-  bool is_single_label();  
-   
+  bool is_single_label();
+
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();
-  
+
   int get_jml_valid_attr();
   int get_valid_attr(int idx);
 
   void info();
 
-  void add_filter(int idx_col, int idx_opt, Tmy_dttype value,bool is_filter,bool is_last);
-  void add_filter(field_filter filter,bool is_filter,bool is_last);
+  void add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last);
+  void add_filter(field_filter filter, bool is_filter, bool is_last);
   void ReFilter(bool is_last);
 
   void clear_map_col_split();
@@ -139,8 +140,8 @@ public:
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
-  
-  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);  
+
+  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);
 
 };
 

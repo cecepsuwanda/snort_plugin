@@ -15,7 +15,7 @@ struct Tmetric_split_value
 {
 	int idx = 0;
 	float overall_metric = -1;
-	Tmy_dttype split_value;
+	Tmy_dttype split_value;	
 };
 
 class Tdt_build
@@ -39,7 +39,7 @@ private:
 
 	static Tmetric_split_value get_split_value(Tdataframe &df, int idx);
 
-	
+
 	void determine_best_split(Tdataframe &df, int &split_column, Tmy_dttype &split_value);
 
 	void clear_worker(size_t limit);

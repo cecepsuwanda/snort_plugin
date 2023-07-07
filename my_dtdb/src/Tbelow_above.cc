@@ -19,42 +19,24 @@ void Tbelow_above::clear()
 }
 
 
-bool Tbelow_above::cek_valid_cont()
+bool Tbelow_above::cek_valid()
 {
-	// int jml = _below.get_jml_row() + _above.get_jml_row();
+	int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
 	if (global_config.limited)
 	{
-		// if (global_config.threshold >= 1) {
-		// 	pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
-		// } else {
-		// 	//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-		// 	pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-		// }
-
-
+		if (global_config.threshold >= 1) {
+			pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
+		} else {
+			//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
+			pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
+		}
 	}
 
 	return pass;
 }
 
-bool Tbelow_above::cek_valid_non_cont()
-{
-	// int jml = _below.get_jml_row() + _above.get_jml_row();
-	bool pass = true;
-
-	if (global_config.limited)
-	{
-		// if (global_config.threshold >= 1) {
-		// 	pass = (_below.get_jml_row() >= global_config.threshold) and  (_above.get_jml_row() >= global_config.threshold);
-		// } else {
-		// 	pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-		// }
-	}
-
-	return pass;
-}
 
 void Tbelow_above::set_value(Tmy_dttype value)
 {
@@ -102,15 +84,15 @@ Tmy_dttype Tbelow_above::get_overall_metric()
 
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
 
-		if (global_config.cetak_credal)
-		{
-			cout << "jml = " << jml << endl;
-			cout << "p_dt_below = " << p_dt_below << endl;
-			cout << "p_dt_above = " << p_dt_above << endl;
-			cout << "entropy_below = " << entropy_below << endl;
-			cout << "entropy_above = " << entropy_above << endl;
-			cout << "overall_metric = " << overall_metric << endl;
-		}
+		// if (global_config.cetak_credal)
+		// {
+		// 	cout << "jml = " << jml << endl;
+		// 	cout << "p_dt_below = " << p_dt_below << endl;
+		// 	cout << "p_dt_above = " << p_dt_above << endl;
+		// 	cout << "entropy_below = " << entropy_below << endl;
+		// 	cout << "entropy_above = " << entropy_above << endl;
+		// 	cout << "overall_metric = " << overall_metric << endl;
+		// }
 
 	} else {
 
@@ -154,5 +136,3 @@ float Tbelow_above::get_split_info()
 	}
 	return split_info;
 }
-
-

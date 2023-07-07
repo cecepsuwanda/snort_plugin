@@ -225,9 +225,9 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
     entropy_before_split = stat_label.get_credal_entropy();
   }
 
-  if (idx == 4) {
-    cout << " stat root = " << stat_label << endl;
-  }
+  // if (idx == 4) {
+  //   cout << " stat root = " << stat_label << endl;
+  // }
 
   float best_overall_metric = 0.0;
   Tmy_dttype gain, gain_max;
@@ -236,6 +236,7 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   Tmy_dttype tmp_split_value;
 
   bool first_iteration = true;
+
 
   // int jml_row = stat_label.get_jml_row();
   // float prosen = 1;
@@ -297,42 +298,43 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
         Tmy_dttype tmp = (tmp1 + tmp2) / 2.0;
         mid_point = tmp;
 
-        if ((idx == 4) and (mid_point == "0.5") ) {
-          cout << " mid_point = " << mid_point.get_string() << endl;
-          cout << " stat below = " << _stat_label_below << endl;
-          global_config.cetak_credal=true;
-        }
+        // if ((idx == 4) and (mid_point == "0.5") ) {
+        //   cout << " mid_point = " << mid_point.get_string() << endl;
+        //   cout << " stat below = " << _stat_label_below << endl;
+        //   global_config.cetak_credal=true;
+        // }
 
         Tbelow_above ba;
 
         ba.add_below(_stat_label_below);
         Tlabel_stat tmp_stat = stat_label - _stat_label_below;
 
-        if ((idx == 4) and (mid_point == "0.5") ) {
-          cout << " stat above = " << tmp_stat << endl;
-        }
+        // if ((idx == 4) and (mid_point == "0.5") ) {
+        //   cout << " stat above = " << tmp_stat << endl;
+        // }
 
         ba.add_above(tmp_stat);
 
         gain.set_value("0.0", true);
 
-        if (ba.cek_valid_cont()) {
+        if (ba.cek_valid()) {
           Tmy_dttype entropy_after_split = ba.get_overall_metric();
           float split_info = ba.get_split_info();
           if (split_info > 0.0) {
             gain = (entropy_before_split - entropy_after_split) / split_info;
           }
 
-          if ((idx == 4) and (mid_point == "0.5") ) {
-            cout << " entropy after split = " << entropy_after_split.get_string() << endl;
-            cout << " entropy before split = " << entropy_before_split.get_string() << endl;
-            cout << " split info = " << split_info << endl;
-            cout << " gain = " << gain.get_string() << endl;
-            global_config.cetak_credal=false;
-          }
+          // if ((idx == 4) and (mid_point == "0.5") ) {
+          //   cout << " entropy after split = " << entropy_after_split.get_string() << endl;
+          //   cout << " entropy before split = " << entropy_before_split.get_string() << endl;
+          //   cout << " split info = " << split_info << endl;
+          //   cout << " gain = " << gain.get_string() << endl;
+          //   global_config.cetak_credal=false;
+          // }
         }
 
-        if ((first_iteration and (gain > 0.0)) or (gain_max < gain))
+
+        if ((first_iteration) or (gain_max < gain))
         {
           first_iteration = false;
           gain_max = gain;
@@ -394,7 +396,7 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_
       ba.add_above(tmp_stat);
 
       Tmy_dttype gain;
-      if (ba.cek_valid_cont()) {
+      if (ba.cek_valid()) {
         Tmy_dttype entropy_after_split = ba.get_overall_metric();
         float split_info = ba.get_split_info();
         if (split_info > 0.0) {
@@ -402,10 +404,10 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_
         }
       }
 
-      if (gain > 0.0) {
-        current_overall_metric = stof(gain.get_value());
-        split_value = tmp1;
-      }
+      //if (gain > 0.0) {
+      current_overall_metric = stof(gain.get_value());
+      split_value = tmp1;
+      // }
 
 
     } else {
@@ -430,83 +432,62 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     entropy_before_split = _stat_label.get_credal_entropy();
   }
 
-  if (idx == 2) {
-    cout << " stat root = " << _stat_label << endl;
-  }
-
-  float best_overall_metric = 0.0;
-  Tmy_dttype gain, gain_max;
-  // bool not_valid = false;
-  Tmy_dttype tmp_split_value;
-  Tmy_dttype mid_point("0.0", false);
-
-  bool first_iteration = true;
-
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
+
+  Tbelow_above_kategori ba;
+  Tmy_dttype max_entropi("0.0", false);
+  Tmy_dttype mid_point("0.0", false);
+  Tmy_dttype tmp_split_value;
+  bool first_iteration = true;
 
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
   {
-    Tbelow_above ba;
-
     mid_point = ((Tmy_dttype) (*itr).first);
-    if ((idx == 2) and (mid_point.get_string() == "http")) {
-      cout << " mid_point = " << mid_point.get_string() << endl;
-      cout << " stat below = " << (*itr).second << endl;
-      global_config.cetak_credal=true;
+
+    ba.add_stat((*itr).second);
+
+    Tlabel_stat stat_below = (*itr).second;
+    Tlabel_stat stat_above = _stat_label - stat_below;
+
+    Tbelow_above_kategori tmp_ba;
+    tmp_ba.add_stat(stat_below);
+    tmp_ba.add_stat(stat_above);
+
+    Tmy_dttype entropy_mid_poin;
+    if (!global_config.use_credal) {
+      entropy_mid_poin = stat_below.get_entropy();
+    } else {
+      entropy_mid_poin = stat_below.get_credal_entropy();
     }
 
-
-    ba.add_below((*itr).second);
-    Tlabel_stat tmp_stat = _stat_label - (*itr).second;
-    if ((idx == 2) and (mid_point.get_string() == "http")) {
-      cout << " stat above = " << tmp_stat << endl;
-    }
-    ba.add_above(tmp_stat);
-
-    gain.set_value("0.0", true);
-    if (ba.cek_valid_non_cont()) {
-      Tmy_dttype entropy_after_split = ba.get_overall_metric();
-      float split_info = ba.get_split_info();
-
-      if (split_info > 0.0) {
-        gain = (entropy_before_split - entropy_after_split) / split_info;
-      }
-
-      if ((idx == 2) and (mid_point.get_string() == "http")) {
-        cout << " entropy after split = " << entropy_after_split.get_string() << endl;
-        cout << " entropy before split = " << entropy_before_split.get_string() << endl;
-        cout << " split info = " << split_info << endl;
-        cout << " gain = " << gain.get_string() << endl;
-        global_config.cetak_credal=false;
+    if (ba.cek_valid()) {
+      if ((first_iteration) or (max_entropi < entropy_mid_poin))
+      {
+          first_iteration = false;
+          max_entropi = entropy_mid_poin;
+          tmp_split_value = mid_point; 
       }
     }
 
     itr++;
-
-    if ((first_iteration and (gain > 0)) or (gain_max < gain))
-    {
-      first_iteration = false;
-      gain_max = gain;
-      tmp_split_value = mid_point;
-      best_overall_metric = stof(gain_max.get_value());
-      // not_valid = !ba.cek_valid_cont();
-    }
-
   }
 
-  // if (not_valid)
-  // {
-  //   gain_max = 0;
-  //   tmp_split_value = "-1";
-  //   best_overall_metric = 0.0;
-  // }
+  Tmy_dttype entropy_after_split = ba.get_overall_metric();
+  float split_info = ba.get_split_info();
 
-  current_overall_metric = best_overall_metric;
+  Tmy_dttype gain;
+  gain.set_value("0.0", true);
+  if (split_info > 0.0) {
+    gain = (entropy_before_split - entropy_after_split) / split_info;
+  }
+
+  current_overall_metric = stof(gain.get_value());
   split_value = tmp_split_value;
+  
 }
 
-void Tdataframe::calculate_overall_metric(int idx, float & current_overall_metric, Tmy_dttype & split_value)
+void Tdataframe::calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value)
 {
   std::lock_guard<std::mutex> lock(v_mutex);
   split_value.set_value("-1", _data_type[idx] == "continuous.");

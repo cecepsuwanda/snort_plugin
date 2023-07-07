@@ -60,7 +60,7 @@ public:
 
     ratio_valid_attr = 0.3;
     
-    cetak_credal = false;
+    //cetak_credal = false;
 
   }
 

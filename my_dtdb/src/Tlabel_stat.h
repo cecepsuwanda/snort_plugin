@@ -44,7 +44,7 @@ public:
 	string get_first_value_in_map();
 
 	string get_max_label();
-	bool is_single_label();
+	bool is_single_label();   
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{
@@ -111,7 +111,9 @@ public:
 			{
 				tmp._map.insert(pair<string, int>(it->first, it->second));
 			} else {
-				tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
+				if(it->second > it1->second){
+				  tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
+				}
 			}
 		}
 
@@ -120,8 +122,8 @@ public:
 			auto it1 = tmp._map.find(it->first);
 			if (it1 == tmp._map.end())
 			{
-				cout<<"kacau !!! "<< it->first << " " << it->second <<endl;
-				tmp._map.insert(pair<string, int>(it->first, -1*it->second));
+				//cout<<"kacau !!! "<< it->first << " " << it->second <<endl;
+				//tmp._map.insert(pair<string, int>(it->first, -1*it->second));
 			}
 		}
 

@@ -53,12 +53,12 @@ Tmy_dttype Tlabel_stat::get_entropy()
 
 	crd.input_frec(freq);
 	entropy = crd.get_ent();
-    
-    if(global_config.cetak_credal)
-    {	
-	  crd.info();
-	}  
-	
+
+	// if(global_config.cetak_credal)
+	// {
+	//   crd.info();
+	// }
+
 	/*auto it = _map.begin();
 	while (it != _map.end())
 	{

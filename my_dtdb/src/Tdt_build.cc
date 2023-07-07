@@ -50,8 +50,7 @@ void Tdt_build::del_dec_tree(tree_node* parent_node)
 
 Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 {
-	Tmetric_split_value hsl;
-
+	Tmetric_split_value hsl;	
 	Tmy_dttype current_split_value;
 	float current_overall_metric = 0.0;
 
@@ -71,7 +70,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	float max_gain = 0;
 	bool  first_iteration = true;
-
+	
 	string current_split_value = "-1";
 	//float current_overall_metric = -1;
 
@@ -87,26 +86,25 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	if (async_worker.size() > 0)
 	{
-		pesan.cetak("\n");
+		//pesan.cetak("\n");
 		Tmetric_split_value hsl;
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
-			hsl = th.get();			
-			if((hsl.idx==2) or (hsl.idx==4)){
-			  pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
-			}
-			
+			hsl = th.get();
+
+			//pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
+
 			if (first_iteration or (max_gain < hsl.overall_metric))
 			{
-				first_iteration = false;
 				max_gain = hsl.overall_metric;
-
 				split_column = hsl.idx;
-				split_value = hsl.split_value;
-                if((hsl.idx==2) or (hsl.idx==4)){ 
-				   pesan.cetak("  [%d,%f]\n", split_column, max_gain);
-				}
-			}
+				split_value = hsl.split_value;				
+
+				first_iteration = false;
+
+				//pesan.cetak("1  [%d,%f]\n", split_column, max_gain);
+
+			} 
 		}
 
 		async_worker.clear();
