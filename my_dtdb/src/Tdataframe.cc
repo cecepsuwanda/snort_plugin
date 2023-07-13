@@ -77,6 +77,11 @@ void Tdataframe::stat_tabel(bool is_filter, bool is_last, bool is_stat_label)
 
 }
 
+int Tdataframe::get_jml_stat(string label)
+{
+  return _stat_label.get_jml_stat(label);
+}
+
 void Tdataframe::search_col_split()
 {
   vector<future<Tpot_split>> async_worker;
@@ -133,6 +138,7 @@ bool Tdataframe::is_single_label()
 }
 
 
+
 map<Tmy_dttype, Tlabel_stat> Tdataframe::get_col_split(int idx)
 {
   return _map_col_split.get_pot_split(idx);
@@ -163,6 +169,10 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_
 
   if (is_filter) {
     stat_tabel(false, is_last, true);
+    if (_is_train) {
+      missing_branch.add_opt_label(_posisi_cabang, idx_opt, _stat_label.get_max_label(), _stat_label.get_jml_stat("known"), _stat_label.get_jml_stat("normal"));
+    }
+
   }
 
 }
@@ -185,6 +195,10 @@ void Tdataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
 
   if (is_filter) {
     stat_tabel(false, is_last, true);
+    if (_is_train) {
+      missing_branch.add_opt_label(_posisi_cabang, filter.idx_opt, _stat_label.get_max_label(), _stat_label.get_jml_stat("known"), _stat_label.get_jml_stat("normal"));
+    }
+
   }
 
 }
@@ -202,14 +216,26 @@ void Tdataframe::info()
 void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
   if (split_value != "-1") {
+    missing_branch.add_split(_posisi_cabang, split_column, split_value);
+
+    if (_posisi_cabang.get_id_branch() == "000000")
+    {
+      missing_branch.add_opt_label(_posisi_cabang, -1, _stat_label.get_max_label(), _stat_label.get_jml_stat("known"), _stat_label.get_jml_stat("normal"));
+    }
+
     if (_data_type[split_column] == "continuous.")
     {
       data_below.add_filter(split_column, 0, split_value, true, true);
       data_above.add_filter(split_column, 1, split_value, true, true);
+
     } else {
       data_below.add_filter(split_column, 2, split_value, true, true);
       data_above.add_filter(split_column, 3, split_value, true, true);
+
     }
+
+
+
   }
 
 }
@@ -271,14 +297,14 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
     bool is_pass = true;
 
-    // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
-    // {
-    //   string label_below = _stat_label_below.get_max_label();
-    //   string label_next = (*itr_next).second.get_max_label();
+    if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+    {
+      string label_below = _stat_label_below.get_max_label();
+      string label_next = (*itr_next).second.get_max_label();
 
-    //   is_pass = label_below != label_next;
+      is_pass = label_below != label_next;
 
-    // }
+    }
     //else {
     //is_pass = true;
     // if ((jml_row - config->min_sample) > jml_row_prosen1)
@@ -333,8 +359,9 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
           // }
         }
 
+        bool is_pass = global_config.use_credal ? true : (gain > 0.0);
 
-        if ((first_iteration) or (gain_max < gain))
+        if ((first_iteration and is_pass ) or ((gain_max < gain) and is_pass))
         {
           first_iteration = false;
           gain_max = gain;
@@ -404,10 +431,12 @@ void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_
         }
       }
 
-      //if (gain > 0.0) {
-      current_overall_metric = stof(gain.get_value());
-      split_value = tmp1;
-      // }
+      bool is_pass = global_config.use_credal ? true : (gain > 0.0);
+
+      if (is_pass) {
+        current_overall_metric = stof(gain.get_value());
+        split_value = tmp1;
+      }
 
 
     } else {
@@ -464,9 +493,9 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     if (ba.cek_valid()) {
       if ((first_iteration) or (max_entropi < entropy_mid_poin))
       {
-          first_iteration = false;
-          max_entropi = entropy_mid_poin;
-          tmp_split_value = mid_point; 
+        first_iteration = false;
+        max_entropi = entropy_mid_poin;
+        tmp_split_value = mid_point;
       }
     }
 
@@ -482,9 +511,11 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     gain = (entropy_before_split - entropy_after_split) / split_info;
   }
 
+  //bool is_pass = global_config.use_credal ? true : (gain > 0.0);
+
   current_overall_metric = stof(gain.get_value());
   split_value = tmp_split_value;
-  
+
 }
 
 void Tdataframe::calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value)

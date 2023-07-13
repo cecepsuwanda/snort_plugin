@@ -59,7 +59,7 @@ public:
     threshold = 0;
 
     ratio_valid_attr = 0.3;
-    
+
     //cetak_credal = false;
 
   }
@@ -107,6 +107,9 @@ struct tree_node
   int branch;
   int branch_number;
 
+  int jml_normal;
+  int jml_known;
+
   bool is_pure;
   bool is_min_sample;
   bool is_depth_limit;
@@ -133,6 +136,9 @@ struct tree_node
     branch = 0;
     branch_number = 0;
 
+    jml_normal = 0;
+    jml_known = 0;
+
     is_pure = false;
     is_min_sample = false;
     is_depth_limit = false;
@@ -156,6 +162,7 @@ struct Tposisi_cabang
   int parent_depth = -1 ;
   int parent_branch = -1 ;
   int parent_branch_number = -1 ;
+  string id_branch = "-1";
 
   void reset()
   {
@@ -165,6 +172,12 @@ struct Tposisi_cabang
     parent_depth = 0 ;
     parent_branch = 0 ;
     parent_branch_number = 0 ;
+    id_branch = "000000";
+  }
+
+  string get_id_branch()
+  {
+    return id_branch;
   }
 
   void set_child(int depth, int branch, int branch_number)
@@ -172,6 +185,7 @@ struct Tposisi_cabang
     child_depth = depth ;
     child_branch = branch ;
     child_branch_number = branch_number ;
+    id_branch = to_string(child_depth) + to_string(child_branch) + to_string(child_branch_number) + to_string(parent_depth) + to_string(parent_branch) + to_string(parent_branch_number);
   }
 
   void set_parent(int depth, int branch, int branch_number)
@@ -179,6 +193,7 @@ struct Tposisi_cabang
     parent_depth = depth ;
     parent_branch = branch ;
     parent_branch_number = branch_number ;
+    id_branch = to_string(child_depth) + to_string(child_branch) + to_string(child_branch_number) + to_string(parent_depth) + to_string(parent_branch) + to_string(parent_branch_number);
   }
 
   void switch_parent_branch()
@@ -186,6 +201,7 @@ struct Tposisi_cabang
     parent_depth = child_depth;
     parent_branch = child_branch;
     parent_branch_number = child_branch_number;
+    id_branch = to_string(child_depth) + to_string(child_branch) + to_string(child_branch_number) + to_string(parent_depth) + to_string(parent_branch) + to_string(parent_branch_number);
   }
 
   string to_query(int idx)
@@ -242,6 +258,17 @@ struct Tposisi_cabang
       tmp += "parent_depth = " + to_string(parent_depth) + ",";
       tmp += "parent_branch = " + to_string(parent_branch) + ",";
       tmp += "parent_branch_number = " + to_string(parent_branch_number);
+    }
+
+    if (idx == 8)
+    {
+      tmp += "'" + id_branch + "',";
+      tmp += to_string(child_depth) + ",";
+      tmp += to_string(child_branch) + ",";
+      tmp += to_string(child_branch_number) + ",";
+      tmp += to_string(parent_depth) + ",";
+      tmp += to_string(parent_branch) + ",";
+      tmp += to_string(parent_branch_number);
     }
 
 

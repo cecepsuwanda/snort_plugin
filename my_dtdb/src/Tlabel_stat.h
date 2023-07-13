@@ -44,7 +44,9 @@ public:
 	string get_first_value_in_map();
 
 	string get_max_label();
-	bool is_single_label();   
+	bool is_single_label();
+	bool is_more_half();
+	int get_jml_stat(string label);   
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{

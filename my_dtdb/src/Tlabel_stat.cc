@@ -187,9 +187,16 @@ bool Tlabel_stat::is_single_label()
 	return _map.size() == 1;
 }
 
+
+
 string Tlabel_stat::get_max_label()
 {
 	return _max_label;
+}
+
+int Tlabel_stat::get_jml_stat(string label)
+{
+   return _map[label];	
 }
 
 map<string, int> Tlabel_stat::get_map()

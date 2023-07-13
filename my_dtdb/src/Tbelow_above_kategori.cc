@@ -22,20 +22,15 @@ bool Tbelow_above_kategori::cek_valid()
 
 	if (global_config.limited)
 	{
-		if (global_config.threshold >= 1) {
+		// if (global_config.threshold >= 1) {
 
-			for (auto itr = _stat.begin(); itr != _stat.end(); ++itr)
-			{
-				if (pass) {
-					pass = (*itr).get_jml_row() >= global_config.threshold;
-				}
-			}			
+		// 	pass = (_stat[0].get_jml_row() >= global_config.threshold) and (_stat[0].get_jml_row()<= (_jml_row-global_config.threshold));
 
-		} else {
+		// } else {
 
-			pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
+		// 	pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
 
-		}
+		// }
 	}
 
 	return pass;

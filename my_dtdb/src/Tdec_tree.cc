@@ -194,12 +194,12 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     df_left = df_test;
     df_left.switch_parent_branch();
     df_left.set_branch(counter, 1, branch_number[counter]);
-    df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, true, true);
+    df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
 
     if (parent_node->left->isLeaf)
     {
       pesan.cetak("-");
-      //df_left.ReFilter(false);
+      df_left.ReFilter(false);
       if (df_left.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->left->label;
@@ -219,9 +219,9 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|->");
-      if (df_left.getjmlrow() > 0) {
+      //if (df_left.getjmlrow() > 0) {
         test_dfs(parent_node->left, df_left, dt_conf_metrix, counter);
-      }
+      //}
       //df_left.clear_memory();
     }
 
@@ -240,12 +240,12 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
     df_right = df_test;
     df_right.switch_parent_branch();
     df_right.set_branch(counter, 2, branch_number[counter]);
-    df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, true, true);
+    df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
 
     if (parent_node->right->isLeaf)
     {
       pesan.cetak("-");
-      //df_right.ReFilter(false);
+      df_right.ReFilter(false);
       if (df_right.getjmlrow() > 0) {
         clear_worker(2);
         string label = parent_node->right->label;
@@ -264,9 +264,9 @@ void Tdec_tree::test_dfs(tree_node* parent_node , Tdataframe &df_test, Tconf_met
       pesan.cetak(".");
       //cetak("%d", counter - 1);
       //cetak("?|<-");
-      if (df_right.getjmlrow() > 0) {
+      //if (df_right.getjmlrow() > 0) {
         test_dfs(parent_node->right, df_right, dt_conf_metrix, counter);
-      }
+      //}
       //df_right.clear_memory();
     }
 

@@ -3,7 +3,7 @@
 
 Tbase_dataframe::Tbase_dataframe()
 {
-
+   _is_train = true;
 }
 
 Tbase_dataframe::~Tbase_dataframe()
@@ -13,12 +13,13 @@ Tbase_dataframe::~Tbase_dataframe()
 	_data_type.clear();
 	_data_type.shrink_to_fit();
 	_filter.clear();
-	_filter.shrink_to_fit();
+	_filter.shrink_to_fit();	
 }
 
 void Tbase_dataframe::switch_to_test()
 {
 	_data.switch_to_test();
+	_is_train = false;
 }
 
 void Tbase_dataframe::read_header_type()
@@ -43,7 +44,9 @@ void Tbase_dataframe::set_branch(int depth, int branch, int branch_number)
 	_posisi_cabang.set_child(depth, branch, branch_number);
 	_data.delete_child(depth, branch, branch_number);
 	_data.set_child(_posisi_cabang.child_depth, _posisi_cabang.child_branch, _posisi_cabang.child_branch_number);
-
+	if (_is_train) {
+		missing_branch.add_branch(_posisi_cabang);
+	}
 }
 
 void Tbase_dataframe::set_parent(int depth, int branch, int branch_number)
@@ -390,6 +393,8 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value, boo
 		string sql = filter_to_query(is_last);
 		_data.filter(sql, !is_last);
 	}
+
+
 
 }
 

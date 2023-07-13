@@ -43,7 +43,7 @@ int main(int argc, const char **argv)
 	Tpesan pesan;
 	Tglobal_config global_config;
 	global_config.init();
-		
+
 	double credal_s_awal  = strtod(argv[7], &endptr);
 	double credal_s_akhir = strtod(argv[8], &endptr);
 	double credal_s_step  = strtod(argv[9], &endptr);
@@ -65,14 +65,18 @@ int main(int argc, const char **argv)
 	bool is_detail_experiment = stoi(argv[22]) == 1;
 	time_t id_detail_experiment = (time_t) atoll(argv[23]);
 	bool is_break = stoi(argv[24]) == 1;
-	
+
 	global_config.id_dt_train = stoi(argv[14]);
 	global_config.jns_dt_train = stoi(argv[15]);
-	global_config.partition_train = argv[16];	
+	global_config.partition_train = argv[16];
 
 	global_config.id_dt_test = stoi(argv[17]);
 	global_config.jns_dt_test = stoi(argv[18]);
 	global_config.partition_test = argv[19];
+
+	tb_missing_branch missing_branch;
+	missing_branch.open_connection();
+	missing_branch.clear_table();
 
 	pesan.cetak("Persiapan Data Latih : \n");
 	Tdataframe df_train;
@@ -94,9 +98,6 @@ int main(int argc, const char **argv)
 	df_test.clone_dataset();
 	df_test.stat_tabel(false, false, false);
 
-	tb_missing_branch missing_branch;
-	missing_branch.open_connection();
-
 	tb_tree tree;
 
 	pesan.cetak("Latih Model : \n");
@@ -113,7 +114,7 @@ int main(int argc, const char **argv)
 
 			if (is_experiment)
 			{
-               experiment.set_id_experiment(id_experiment);    
+				experiment.set_id_experiment(id_experiment);
 			} else {
 
 				experiment.insert_experiment(depth_awal, depth_akhir, depth_step, i, i, min_sample_step, l, l, threshold_step, credal_s_awal, credal_s_akhir, credal_s_step, global_config.id_dt_train, global_config.jns_dt_train, global_config.partition_train, global_config.id_dt_test, global_config.jns_dt_test, global_config.partition_test);
@@ -141,7 +142,7 @@ int main(int argc, const char **argv)
 
 					if (is_detail_experiment)
 					{
-                       experiment.set_id_detail_experiment(id_detail_experiment);  
+						experiment.set_id_detail_experiment(id_detail_experiment);
 					} else {
 						experiment.insert_detail_experiment(global_config.id_dt_train, global_config.jns_dt_train , global_config.id_dt_test, global_config.jns_dt_test, global_config.depth, global_config.min_sample, global_config.threshold, global_config.credal_s);
 					}
@@ -182,12 +183,12 @@ int main(int argc, const char **argv)
 
 					experiment.end_train_start_test();
 
-					// if ((tree_exist) and (global_config.id_dt_train == global_config.id_dt_test) and (global_config.jns_dt_train == global_config.jns_dt_test) and (global_config.partition_train == global_config.partition_test))
-					// {
-					// 	df_train.train_to_test();
-					// } else {
-						df_test.reset_depth_branch();
-					// }
+					if ((tree_exist) and (global_config.id_dt_train == global_config.id_dt_test) and (global_config.jns_dt_train == global_config.jns_dt_test) and (global_config.partition_train == global_config.partition_test))
+					{
+						df_train.train_to_test();
+					} else {
+						//df_test.reset_depth_branch();
+					}
 
 					pesan.cetak("Test model untuk Depth : %d Credal : %f \n", j, k);
 

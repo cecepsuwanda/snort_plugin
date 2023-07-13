@@ -21,17 +21,17 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();
+	//int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
 	if (global_config.limited)
 	{
-		if (global_config.threshold >= 1) {
-			pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
-		} else {
-			//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-			pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
-		}
+		// if (global_config.threshold >= 1) {
+		// 	pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
+		// } else {
+		// 	//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
+		// 	pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
+		// }
 	}
 
 	return pass;

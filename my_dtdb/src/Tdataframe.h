@@ -69,7 +69,7 @@ public:
     _partition = t._partition;
 
     _posisi_cabang = t._posisi_cabang;
-
+    _is_train = t._is_train;
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
@@ -98,6 +98,7 @@ public:
     this->_partition = t._partition;
 
     this->_posisi_cabang = t._posisi_cabang;
+    this->_is_train = t._is_train;
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
@@ -113,6 +114,7 @@ public:
 
   void stat_tabel(bool is_filter, bool is_last, bool is_stat_label);
   void search_col_split();
+  int get_jml_stat(string label);
 
   map<string, int> get_stat_label();
   map<string, map<string, int>> get_conf_metrix();
@@ -120,6 +122,7 @@ public:
   float get_estimate_error();
   string get_max_label();
   bool is_single_label();
+ 
 
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();

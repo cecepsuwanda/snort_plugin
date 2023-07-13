@@ -485,3 +485,40 @@ dst_host_srv_serror_rate=round(dst_host_srv_serror_rate,2),
 dst_host_rerror_rate=round(dst_host_rerror_rate,2),
 dst_host_srv_rerror_rate=round(dst_host_srv_rerror_rate,2)
 where id_dt>80000
+
+
+CREATE TABLE `branch_histori` (
+  `id_branch` varchar(255) NOT NULL,
+  `child_depth` int(11) DEFAULT NULL,
+  `child_branch` int(11) DEFAULT NULL,
+  `child_branch_number` int(11) DEFAULT NULL,
+  `parent_depth` int(11) DEFAULT NULL,
+  `parent_branch` int(11) DEFAULT NULL,
+  `parent_branch_number` int(11) DEFAULT NULL,  
+  PRIMARY KEY (`id_branch`)  
+);
+
+
+CREATE TABLE `split_histori` (
+  `id_branch` varchar(255) NOT NULL,
+   `attrindex` int(11) DEFAULT '-1',
+  `attrvalue` varchar(255) DEFAULT '-1',
+  PRIMARY KEY (`id_branch`)  
+);
+
+CREATE TABLE `opt_label_histori` (
+  `id_branch` varchar(255) NOT NULL,
+  `opt` int(11) DEFAULT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `known` int(11) DEFAULT NULL,
+  `normal` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_branch`)  
+);
+
+
+CREATE TABLE `cut_off_histori` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_branch` varchar(255) NOT NULL,
+  `kd_cut_off` int(11) DEFAULT '-1',  
+  PRIMARY KEY (`id`)  
+);

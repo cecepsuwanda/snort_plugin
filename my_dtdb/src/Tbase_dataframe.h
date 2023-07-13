@@ -2,6 +2,7 @@
 #include "tb_dataset.h"
 #include "Tlabel_stat.h"
 #include "Tmap_col_split.h"
+#include "tb_missing_branch.h"
 #include "global.h"
 #include <string>
 
@@ -42,6 +43,7 @@ protected:
 	vector<string> _data_type;
 	vector<field_filter> _filter;
 	map<int, map<int, vector<field_filter>>> _map_filter;
+	tb_missing_branch missing_branch;
 
 	int _jml_col = 0;
 	int _jml_row = 0;
@@ -52,6 +54,8 @@ protected:
 	string _partition;
 
 	Tposisi_cabang _posisi_cabang;
+
+	bool _is_train;
 
 	mutable std::mutex v_mutex;
 
@@ -79,7 +83,7 @@ public:
 		_partition = t._partition;
 
 		_posisi_cabang = t._posisi_cabang;
-
+		_is_train = t._is_train;
 
 		_jml_total_row = t._jml_total_row;
 	}
@@ -101,6 +105,7 @@ public:
 		this->_partition = t._partition;
 
 		this->_posisi_cabang = t._posisi_cabang;
+		this->_is_train = t._is_train;
 
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
