@@ -200,7 +200,7 @@ void tb_missing_branch::get_branch_stat(Tposisi_cabang posisi)
 				_is_same_label = data[4] == "1";
 				_is_pruning = data[5] == "1";
 				_is_not_split = data[6] == "1";
-				_is_lanjut = !((data[1] == "1") or (data[2] == "1"));
+				_is_lanjut = !((data[1] == "1") or (data[2] == "1") or (data[6] == "1"));
 
 			}
 		}
@@ -214,8 +214,18 @@ void tb_missing_branch::delete_histori(Tposisi_cabang posisi)
 {
 	string query = "delete from cut_off_histori where id_branch='" + posisi.get_id_branch() + "'";
 	tb_missing_branch::global_query_builder.query(query);
+}
 
+void tb_missing_branch::delete_split(Tposisi_cabang posisi)
+{
+	string query = "delete from split_histori where id_branch='" + posisi.get_id_branch() + "'";
+	cout << query << endl;
+	tb_missing_branch::global_query_builder.query(query);
 
+	string tmp = "%" + to_string(posisi.child_depth) + to_string(posisi.child_branch) + to_string(posisi.child_branch_number);
+	query = "delete from opt_label_histori where id_branch like '" + tmp + "'";
+	cout << query << endl;
+	tb_missing_branch::global_query_builder.query(query);
 }
 
 void tb_missing_branch::add_cut_off(Tposisi_cabang posisi, int kd_cut_off)
@@ -230,7 +240,6 @@ bool tb_missing_branch::get_split(int depth, int attrindex, Tmy_dttype attrvalue
 	bool hsl = false;
 
 	string query = "select * from (branch_histori a inner join split_histori b on a.id_branch=b.id_branch) inner join opt_label_histori c on a.id_branch=c.id_branch where a.child_depth =" + to_string(depth) + " and b.attrindex=" + to_string(attrindex) + " and b.attrvalue='" + attrvalue.get_string() + "'";
-
 	if (tb_missing_branch::global_query_builder.query(query))
 	{
 		if (tb_missing_branch::global_query_builder.get_result())
@@ -259,7 +268,8 @@ bool tb_missing_branch::get_opt_label(int opt, Tposisi_cabang posisi_root, Tposi
 {
 	bool hsl = false;
 
-	string query = "select * from (branch_histori a inner join opt_label_histori b on a.id_branch=b.id_branch) where a.id_branch like '%" + to_string(posisi_root.child_depth)+ to_string(posisi_root.child_branch)+ to_string(posisi_root.child_branch_number) + "' and b.opt=" + to_string(opt);
+	string query = "select * from (branch_histori a inner join opt_label_histori b on a.id_branch=b.id_branch) where a.parent_depth = " + to_string(posisi_root.child_depth)+" and a.parent_branch = " + to_string(posisi_root.child_branch) +" and a.parent_branch_number = " + to_string(posisi_root.child_branch_number) + " and b.opt=" + to_string(opt);
+
 	if (tb_missing_branch::global_query_builder.query(query))
 	{
 		if (tb_missing_branch::global_query_builder.get_result())
@@ -288,7 +298,7 @@ bool tb_missing_branch::get_opt_label_child(int child_branch, Tposisi_cabang pos
 {
 	bool hsl = false;
 
-	string query = "select * from (branch_histori a inner join opt_label_histori b on a.id_branch=b.id_branch) where a.id_branch like '%" + to_string(posisi_root.child_depth)+ to_string(posisi_root.child_branch)+ to_string(posisi_root.child_branch_number) + "' and a.child_branch=" + to_string(child_branch);
+	string query = "select * from (branch_histori a inner join opt_label_histori b on a.id_branch=b.id_branch) where a.parent_depth = " + to_string(posisi_root.child_depth)+" and a.parent_branch =" + to_string(posisi_root.child_branch)+" and a.parent_branch_number=" + to_string(posisi_root.child_branch_number) + " and a.child_branch=" + to_string(child_branch);
 	if (tb_missing_branch::global_query_builder.query(query))
 	{
 		if (tb_missing_branch::global_query_builder.get_result())

@@ -54,7 +54,8 @@ public:
     void add_cut_off(Tposisi_cabang posisi, int kd_cut_off);
 
     void get_branch_stat(Tposisi_cabang posisi);
-    void delete_histori(Tposisi_cabang posisi);    
+    void delete_histori(Tposisi_cabang posisi);
+    void delete_split(Tposisi_cabang posisi);    
     
     bool get_split(int depth,int attrindex,Tmy_dttype attrvalue,Tposisi_cabang &posisi);
     bool get_opt_label(int opt,Tposisi_cabang posisi_root,Tposisi_cabang &posisi_child);

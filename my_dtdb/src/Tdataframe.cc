@@ -215,6 +215,7 @@ void Tdataframe::info()
 
 void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
+  
   if (split_value != "-1") {
     missing_branch.add_split(_posisi_cabang, split_column, split_value);
 
@@ -233,10 +234,8 @@ void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe
       data_above.add_filter(split_column, 3, split_value, true, true);
 
     }
-
-
-
   }
+  
 
 }
 
