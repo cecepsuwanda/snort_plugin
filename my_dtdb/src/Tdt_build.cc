@@ -155,8 +155,7 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 	{
 		df.ReFilter(false);
 		if (parent_node->is_lanjut) {
-			Tposisi_cabang tmp_posisi = df.get_posisi();
-			//cout << " id_branch : " << tmp_posisi.get_id_branch() << " ";
+
 			tree_node* tmp_node = train_prev_tree(df, parent_node->depth, parent_node);
 			parent_node = tmp_node;
 
@@ -178,7 +177,17 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 		pesan.cetak("?|");
 
 		Tposisi_cabang tmp_posisi = df.get_posisi();
-		//cout << " id_branch : " << tmp_posisi.get_id_branch() << " ";
+
+		if (tmp_posisi.get_id_branch() = "000000")
+		{
+			bool get_stat = (parent_node->jml_known == 0) or (parent_node->jml_normal == 0);
+			if (get_stat) {
+				df.ReFilter(false);
+				parent_node->label = df.get_max_label();
+				parent_node->jml_known = df.get_jml_stat("known");
+				parent_node->jml_normal = df.get_jml_stat("normal");
+			}
+		}
 
 		Tdataframe df_below, df_above;
 
@@ -188,9 +197,17 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			df_below = df;
 			df_below.switch_parent_branch();
 			df_below.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
-			df_below.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
 
-			Tposisi_cabang tmp_posisi_below = df_below.get_posisi();
+			bool get_stat = (parent_node->left->jml_known == 0) or (parent_node->left->jml_normal == 0);
+			df_below.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, get_stat, get_stat);
+
+			if (get_stat)
+			{
+				parent_node->left->label = df_below.get_max_label();
+				parent_node->left->jml_known = df_below.get_jml_stat("known");
+				parent_node->left->jml_normal = df_below.get_jml_stat("normal");
+			}
+
 			train(df_below, parent_node->left);
 		}
 
@@ -200,9 +217,16 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			df_above = df;
 			df_above.switch_parent_branch();
 			df_above.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
-			df_above.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
+			bool get_stat = (parent_node->right->jml_known == 0) or (parent_node->right->jml_normal == 0);
+			df_above.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, get_stat, get_stat);
 
-			Tposisi_cabang tmp_posisi_above = df_above.get_posisi();
+			if (get_stat)
+			{
+				parent_node->right->label = df_above.get_max_label();
+				parent_node->right->jml_known = df_above.get_jml_stat("known");
+				parent_node->right->jml_normal = df_above.get_jml_stat("normal");
+			}
+
 			train(df_above, parent_node->right);
 		}
 
@@ -1348,7 +1372,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_
 
 		parent_node->label = prev_tree[node_index].label;
 		parent_node->isLeaf = true;
-		
+
 	} else {
 
 		parent_node = new tree_node;
@@ -1381,7 +1405,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_
 			posisi_right.set_child(counter, 2, branch_number[counter]);
 		}
 
-		
+
 		if (left != -1) {
 			tree_node* left_node = vec_tree_to_dec_tree(left, counter, posisi_left);
 			left_node->opt = prev_tree[left].opt;
@@ -1392,7 +1416,7 @@ tree_node* Tdt_build::vec_tree_to_dec_tree(int node_index, int counter, Tposisi_
 
 			parent_node->left = left_node;
 		}
-		
+
 		if (right != -1) {
 			tree_node* right_node = vec_tree_to_dec_tree(right, counter, posisi_right);
 			right_node->opt = prev_tree[right].opt;
