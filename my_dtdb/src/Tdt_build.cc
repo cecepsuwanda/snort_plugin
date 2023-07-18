@@ -154,12 +154,16 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 	if (parent_node->isLeaf)
 	{
 		df.ReFilter(false);
+		Tposisi_cabang tmp_posisi_root = df.get_posisi();
+
 		if (parent_node->is_lanjut) {
 
 			tree_node* tmp_node = train_prev_tree(df, parent_node->depth, parent_node);
 			parent_node = tmp_node;
 
 		} else {
+
+
 
 			string tmp_str = parent_node->label;
 			pesan.cetak("*");
@@ -173,19 +177,31 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			}
 		}
 
+		if ((parent_node->is_pure == false) and (parent_node->is_min_sample == false) and (parent_node->is_depth_limit == false) and (parent_node->is_same_label == false) and (parent_node->is_pruning == false) and (parent_node->is_not_split == false)) {
+			Tposisi_cabang tmp_posisi = df.get_posisi();
+			missing_branch.add_opt_label(tmp_posisi, parent_node->opt, parent_node->label, parent_node->jml_known, parent_node->jml_normal);
+		}
+
 	} else {
 		pesan.cetak("?|");
 
-		Tposisi_cabang tmp_posisi = df.get_posisi();
+		bool is_add_split = false;
 
-		if (tmp_posisi.get_id_branch() = "000000")
-		{
-			bool get_stat = (parent_node->jml_known == 0) or (parent_node->jml_normal == 0);
-			if (get_stat) {
-				df.ReFilter(false);
-				parent_node->label = df.get_max_label();
-				parent_node->jml_known = df.get_jml_stat("known");
-				parent_node->jml_normal = df.get_jml_stat("normal");
+		Tposisi_cabang tmp_posisi_root = df.get_posisi();
+
+		bool get_stat = (parent_node->jml_known == 0) and (parent_node->jml_normal == 0);
+		if (get_stat) {
+			df.ReFilter(false);
+			parent_node->label = df.get_max_label();
+			parent_node->jml_known = df.get_jml_stat("known");
+			parent_node->jml_normal = df.get_jml_stat("normal");
+
+
+			missing_branch.add_branch(tmp_posisi_root);
+
+			if (tmp_posisi_root.get_id_branch() == "000000")
+			{
+				missing_branch.add_opt_label(tmp_posisi_root, -1, parent_node->label, parent_node->jml_known, parent_node->jml_normal);
 			}
 		}
 
@@ -198,7 +214,7 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			df_below.switch_parent_branch();
 			df_below.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
 
-			bool get_stat = (parent_node->left->jml_known == 0) or (parent_node->left->jml_normal == 0);
+			bool get_stat = (parent_node->left->jml_known == 0) and (parent_node->left->jml_normal == 0);
 			df_below.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, get_stat, get_stat);
 
 			if (get_stat)
@@ -206,6 +222,19 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 				parent_node->left->label = df_below.get_max_label();
 				parent_node->left->jml_known = df_below.get_jml_stat("known");
 				parent_node->left->jml_normal = df_below.get_jml_stat("normal");
+
+				Tposisi_cabang tmp_posisi = df_below.get_posisi();
+				missing_branch.add_branch(tmp_posisi);
+
+
+				//missing_branch.add_opt_label(tmp_posisi, parent_node->left->opt, parent_node->left->label, parent_node->left->jml_known, parent_node->left->jml_normal);
+				if (!is_add_split)
+				{
+					missing_branch.add_split(tmp_posisi_root, parent_node->criteriaAttrIndex, parent_node->left->attrValue);
+					is_add_split = true;
+				}
+
+
 			}
 
 			train(df_below, parent_node->left);
@@ -217,7 +246,7 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			df_above = df;
 			df_above.switch_parent_branch();
 			df_above.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
-			bool get_stat = (parent_node->right->jml_known == 0) or (parent_node->right->jml_normal == 0);
+			bool get_stat = (parent_node->right->jml_known == 0) and (parent_node->right->jml_normal == 0);
 			df_above.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, get_stat, get_stat);
 
 			if (get_stat)
@@ -225,6 +254,17 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 				parent_node->right->label = df_above.get_max_label();
 				parent_node->right->jml_known = df_above.get_jml_stat("known");
 				parent_node->right->jml_normal = df_above.get_jml_stat("normal");
+
+				Tposisi_cabang tmp_posisi = df_above.get_posisi();
+				missing_branch.add_branch(tmp_posisi);
+
+				//missing_branch.add_opt_label(tmp_posisi, parent_node->right->opt, parent_node->right->label, parent_node->right->jml_known, parent_node->right->jml_normal);
+				if (!is_add_split)
+				{
+					missing_branch.add_split(tmp_posisi_root, parent_node->criteriaAttrIndex, parent_node->right->attrValue);
+					is_add_split = true;
+				}
+
 			}
 
 			train(df_above, parent_node->right);
@@ -260,6 +300,8 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 					delete parent_node->right;
 					parent_node->left = NULL;
 					parent_node->right = NULL;
+
+					Tposisi_cabang tmp_posisi = df.get_posisi();
 
 					df_below.clear_memory(0);
 					df_above.clear_memory(0);
