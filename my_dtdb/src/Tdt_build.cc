@@ -154,8 +154,7 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 	if (parent_node->isLeaf)
 	{
 		df.ReFilter(false);
-		Tposisi_cabang tmp_posisi_root = df.get_posisi();
-
+		//Tposisi_cabang tmp_posisi_root = df.get_posisi();
 		if (parent_node->is_lanjut) {
 
 			tree_node* tmp_node = train_prev_tree(df, parent_node->depth, parent_node);
@@ -163,7 +162,27 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 
 		} else {
 
+			if ((parent_node->is_pure == false) and (parent_node->is_min_sample == false) and (parent_node->is_depth_limit == false) and (parent_node->is_same_label == false) and (parent_node->is_pruning == false) and (parent_node->is_not_split == false)) {
+				Tposisi_cabang tmp_posisi = df.get_posisi();
+				missing_branch.add_opt_label(tmp_posisi, parent_node->opt, parent_node->label, parent_node->jml_known, parent_node->jml_normal);
 
+				bool is_pure = check_purity(df);
+				bool is_min_sample = (df.getjmlrow() < global_config.min_sample);
+				bool is_depth_limit = (tmp_posisi.child_depth == (this->prev_tree_depth - 1));
+
+				if (is_pure) {
+					missing_branch.add_cut_off(tmp_posisi, 11);
+				}
+
+				if (is_min_sample) {
+					missing_branch.add_cut_off(tmp_posisi, 12);
+				}
+
+				if (is_depth_limit) {
+					missing_branch.add_cut_off(tmp_posisi, 13);
+				}
+
+			}
 
 			string tmp_str = parent_node->label;
 			pesan.cetak("*");
@@ -175,11 +194,6 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 			} else {
 				pesan.cetak("{A}\n");
 			}
-		}
-
-		if ((parent_node->is_pure == false) and (parent_node->is_min_sample == false) and (parent_node->is_depth_limit == false) and (parent_node->is_same_label == false) and (parent_node->is_pruning == false) and (parent_node->is_not_split == false)) {
-			Tposisi_cabang tmp_posisi = df.get_posisi();
-			missing_branch.add_opt_label(tmp_posisi, parent_node->opt, parent_node->label, parent_node->jml_known, parent_node->jml_normal);
 		}
 
 	} else {
@@ -233,7 +247,6 @@ void Tdt_build::train(Tdataframe &df, tree_node* parent_node)
 					missing_branch.add_split(tmp_posisi_root, parent_node->criteriaAttrIndex, parent_node->left->attrValue);
 					is_add_split = true;
 				}
-
 
 			}
 
@@ -726,9 +739,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 			{
 				auto itr = branch_number.find(counter);
 				if (itr == branch_number.end()) {
-					branch_number.insert({counter, 1});
-				} else {
-					branch_number[counter] = branch_number[counter] + 1;
+					branch_number.insert({counter, 0});
 				}
 			}
 
@@ -737,8 +748,8 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 			df_below.switch_parent_branch();
 
 			if (new_branch_number) {
-				df_below.set_branch(counter, 1, branch_number[counter]);
 				branch_number[counter] = branch_number[counter] + 1;
+				df_below.set_branch(counter, 1, branch_number[counter]);
 			} else {
 				df_below.set_branch(prev_tree->left->depth, prev_tree->left->branch, prev_tree->left->branch_number);
 			}
@@ -747,6 +758,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 			df_above.switch_parent_branch();
 
 			if (new_branch_number) {
+				branch_number[counter] = branch_number[counter] + 1;
 				df_above.set_branch(counter, 2, branch_number[counter]);
 			} else {
 				df_above.set_branch(prev_tree->right->depth, prev_tree->right->branch, prev_tree->right->branch_number);
@@ -940,17 +952,8 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 	return parent_node;
 }
 
-
-
-void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train)
+void Tdt_build::pruning_method_1(tree_node* parent_node, Tdataframe &df_train)
 {
-	//pesan.cetak(".");
-
-	pesan.cetak("[%d %s %d %d]", parent_node->depth, parent_node->label.c_str(), parent_node->jml_known, parent_node->jml_normal);
-
-	Tlabel_stat root_stat, left_stat, right_stat;
-	float error_node = 0.0, error_left = 0.0, error_right = 0.0, sum_error = 0.0;
-
 	Tdataframe df_left;
 	df_left = df_train;
 	df_left.switch_parent_branch();
@@ -959,32 +962,133 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train)
 	df_right = df_train;
 	df_right.switch_parent_branch();
 
-	if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
+	if (parent_node->left != NULL) {
+		//pesan.cetak("->");
 		df_left.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
-		df_right.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
-
-		root_stat.add("known", parent_node->jml_known);
-		root_stat.add("normal", parent_node->jml_normal);
-
-		left_stat.add("known", parent_node->left->jml_known);
-		left_stat.add("normal", parent_node->left->jml_normal);
-
-		right_stat.add("known", parent_node->right->jml_known);
-		right_stat.add("normal", parent_node->right->jml_normal);
-
-		error_node = root_stat.get_estimate_error();
-		error_left = left_stat.get_estimate_error();
-		error_right = right_stat.get_estimate_error();
-
-		sum_error = (((float) left_stat.get_jml_row() / root_stat.get_jml_row()) * error_left) + (((float) right_stat.get_jml_row() / root_stat.get_jml_row()) * error_right);
+		df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
+		if (!parent_node->left->isLeaf) {
+			pruning_method_1(parent_node->left, df_left);
+			//df_left.clear_memory();
+		}
 	}
-	if (error_node < sum_error) {
+
+
+
+	if (parent_node->right != NULL) {
+		//pesan.cetak("<-");
+		df_right.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
+		df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
+		if (!parent_node->right->isLeaf) {
+			pruning_method_1(parent_node->right, df_right);
+			//df_right.clear_memory();
+		}
+	}
+
+
+	if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
+		if ((parent_node->left->isLeaf) and (parent_node->right->isLeaf))
+		{
+			pesan.cetak("+");
+
+			df_train.ReFilter(false);
+
+			float error_node, error_left, error_right, sum_error;
+
+			string left_label = parent_node->left->label;
+			string right_label = parent_node->right->label;
+
+			error_node = df_train.get_estimate_error();
+			string node_label = df_train.get_max_label();
+
+			df_left.ReFilter(false);
+			error_left = df_left.get_estimate_error();
+
+			df_right.ReFilter(false);
+			error_right = df_right.get_estimate_error();
+
+
+			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
+
+			// cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",parent_node->criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error);
+
+			if (error_node < sum_error)
+			{
+				pesan.cetak("*");
+
+				parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
+
+				Tposisi_cabang tmp_posisi = df_train.get_posisi();
+				missing_branch.add_cut_off(tmp_posisi, 5);
+
+				pesan.cetak("[%d]", parent_node->criteriaAttrIndex);
+
+				delete parent_node->left;
+				delete parent_node->right;
+
+				parent_node->left = NULL;
+				parent_node->right = NULL;
+
+				parent_node->criteriaAttrIndex = -1;
+				parent_node->isLeaf = true;
+				parent_node->label = node_label;
+
+				if (node_label == "normal")
+				{
+					idx_svm++;
+					parent_node->idx_svm = idx_svm;
+				}
+
+				df_left.clear_memory(0);
+				df_right.clear_memory(0);
+				df_train.clear_memory(1);
+
+			}
+
+		}
+
+	}
+}
+
+void Tdt_build::pruning_method_2(tree_node* parent_node, Tposisi_cabang& posisi)
+{
+	pesan.cetak(".");
+
+	//pesan.cetak("[%d %s %d %d]", parent_node->depth, parent_node->label.c_str(), parent_node->jml_known, parent_node->jml_normal);
+
+	Tlabel_stat root_stat, left_stat, right_stat;
+	float root_error = 0.0, branch_error = 0.0;
+
+	Tposisi_cabang posisi_left = posisi;
+	posisi_left.switch_parent_branch();
+
+	Tposisi_cabang posisi_right = posisi;
+	posisi_right.switch_parent_branch();
+
+
+	if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
+
+		int jml_sample = parent_node->jml_known + parent_node->jml_normal;
+		int root_false_predic = min(parent_node->jml_known, parent_node->jml_normal);
+
+		root_error = root_false_predic + global_config.skala_pruning;
+
+		int branch_false_predic = min(parent_node->left->jml_known, parent_node->left->jml_normal) + min(parent_node->right->jml_known, parent_node->right->jml_normal);
+
+		branch_error = branch_false_predic + (2 * global_config.skala_pruning) ;
+
+		float se = sqrt((branch_error * (jml_sample - branch_error)) / jml_sample);
+
+		branch_error = branch_error + se;
+		cout<<"["<<root_error<<" "<<branch_error<<"]";
+
+	}
+	if (root_error < branch_error) { //error_node < sum_error
 		pesan.cetak("*");
 
 		parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
 
-		Tposisi_cabang tmp_posisi = df_train.get_posisi();
-		missing_branch.add_cut_off(tmp_posisi, 5);
+		cout << " cut off " << parent_node->criteriaAttrIndex << " " << parent_node->left->attrValue.get_string() << " ";
+		missing_branch.add_cut_off(posisi, 5);
 
 		parent_node->isLeaf = true;
 
@@ -994,13 +1098,14 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train)
 			parent_node->idx_svm = idx_svm;
 		}
 
-		del_dec_tree(parent_node->left);
-		del_dec_tree(parent_node->right);
+		 del_dec_tree(parent_node->left);
+		 del_dec_tree(parent_node->right);
 
 	} else {
 		if (parent_node->left != NULL) {
-			pesan.cetak("->");
-			pruning_dfs(parent_node->left, df_left);
+			//pesan.cetak("->");
+			posisi_left.set_child(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
+			pruning_method_2(parent_node->left, posisi_left);
 		}
 
 		if (parent_node->depth == 1)
@@ -1009,117 +1114,60 @@ void Tdt_build::pruning_dfs(tree_node* parent_node, Tdataframe & df_train)
 		}
 
 		if (parent_node->right != NULL) {
-			pesan.cetak("<-");
-			pruning_dfs(parent_node->right, df_right);
+			//pesan.cetak("<-");
+			posisi_right.set_child(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
+			pruning_method_2(parent_node->right, posisi_right);
 		}
 	}
 
+}
+
+void Tdt_build::subtree_stat(tree_node* parent_node, int counter, int depth, int &jml_leaf, int &sum_min)
+{
+	if (parent_node->isLeaf or (counter == depth) )
+	{
+		jml_leaf = jml_leaf + 1;
+		sum_min = sum_min + min(parent_node->jml_known, parent_node->jml_normal);
+	} else {
+		counter++;
+		if (parent_node->left != NULL) {
+			subtree_stat(parent_node->left, counter, depth, jml_leaf, sum_min);
+		}
+
+		if (parent_node->left != NULL) {
+			subtree_stat(parent_node->right, counter, depth, jml_leaf, sum_min);
+		}
+
+	}
+}
 
 
+void Tdt_build::pruning_method_3(tree_node* parent_node, Tposisi_cabang& posisi)
+{
+	int jml_total = 0, jml_leaf = 0, sum_min = 0;
 
+	jml_total = parent_node->jml_known + parent_node->jml_normal;
 
+	for (int i = 1; i <= global_config.depth; ++i)
+	{
+		jml_leaf = 0;
+		sum_min = 0;
+		subtree_stat(parent_node, 0, i, jml_leaf, sum_min);
+		float est_error = sum_min + (jml_leaf*global_config.skala_pruning);
+		float se = sqrt((est_error * (jml_total - est_error)) / jml_total);
+		est_error = est_error + se;
+		cout << i << " est_error = " << est_error << endl;
+	}
 
-
-	// Tdataframe df_left;
-	// df_left = df_train;
-	// df_left.switch_parent_branch();
-
-	// Tdataframe df_right;
-	// df_right = df_train;
-	// df_right.switch_parent_branch();
-
-	// if (parent_node->left != NULL) {
-	// 	//pesan.cetak("->");
-	// 	df_left.set_branch(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
-	// 	df_left.add_filter(parent_node->criteriaAttrIndex, parent_node->left->opt, parent_node->left->attrValue, false, false);
-	// 	if (!parent_node->left->isLeaf) {
-	// 		pruning_dfs(parent_node->left, df_left);
-	// 		//df_left.clear_memory();
-	// 	}
-	// }
-
-
-
-	// if (parent_node->right != NULL) {
-	// 	//pesan.cetak("<-");
-	// 	df_right.set_branch(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
-	// 	df_right.add_filter(parent_node->criteriaAttrIndex, parent_node->right->opt, parent_node->right->attrValue, false, false);
-	// 	if (!parent_node->right->isLeaf) {
-	// 		pruning_dfs(parent_node->right, df_right);
-	// 		//df_right.clear_memory();
-	// 	}
-	// }
-
-
-	// if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
-	// 	if ((parent_node->left->isLeaf) and (parent_node->right->isLeaf))
-	// 	{
-	// 		pesan.cetak("+");
-
-	// 		df_train.ReFilter(false);
-
-	// 		float error_node, error_left, error_right, sum_error;
-
-	// 		string left_label = parent_node->left->label;
-	// 		string right_label = parent_node->right->label;
-
-	// 		error_node = df_train.get_estimate_error();
-	// 		string node_label = df_train.get_max_label();
-
-	// 		df_left.ReFilter(false);
-	// 		error_left = df_left.get_estimate_error();
-
-	// 		df_right.ReFilter(false);
-	// 		error_right = df_right.get_estimate_error();
-
-
-	// 		sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
-
-	// 		// cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n",parent_node->criteriaAttrIndex,df_train.getjmlrow(),df_left.getjmlrow(),df_right.getjmlrow(),error_node,sum_error);
-
-	// 		if (error_node < sum_error)
-	// 		{
-	// 			pesan.cetak("*");
-
-	// 			parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
-
-	// 			Tposisi_cabang tmp_posisi = df_train.get_posisi();
-	// 			missing_branch.add_cut_off(tmp_posisi, 5);
-
-	// 			pesan.cetak("[%d]", parent_node->criteriaAttrIndex);
-
-	// 			delete parent_node->left;
-	// 			delete parent_node->right;
-
-	// 			parent_node->left = NULL;
-	// 			parent_node->right = NULL;
-
-	// 			parent_node->criteriaAttrIndex = -1;
-	// 			parent_node->isLeaf = true;
-	// 			parent_node->label = node_label;
-
-	// 			if (node_label == "normal")
-	// 			{
-	// 				idx_svm++;
-	// 				parent_node->idx_svm = idx_svm;
-	// 			}
-
-	// 			df_left.clear_memory(0);
-	// 			df_right.clear_memory(0);
-	// 			df_train.clear_memory(1);
-
-	// 		}
-
-	// 	}
-
-	// }
 
 }
 
 
 void Tdt_build::post_pruning(Tdataframe & df_train)
 {
-	pruning_dfs(dec_tree, df_train);
+	Tposisi_cabang posisi = df_train.get_posisi();
+	pruning_method_2(dec_tree, posisi);
+	//pruning_method_3(dec_tree, posisi);
 	//pruning_dfs(0, df_train, 0);
 }
 
@@ -1218,137 +1266,223 @@ void Tdt_build::save_tree()
 
 tree_node* Tdt_build::build_missing_branch(int counter, Tposisi_cabang posisi)
 {
-	cout << posisi.get_id_branch() << " masuk !!!" << endl;
 
-	tree_node* parent_node = new tree_node;
+	tree_node* parent_node = NULL;
+	Tmy_dttype attrvalue;
 
 	//cetak("%d ", counter);
 
-	//missing_branch.get_stat(posisi);
 	missing_branch.get_branch_stat(posisi);
 
-	parent_node->is_pure = missing_branch.get_is_pure();
-	parent_node->is_min_sample = missing_branch.get_is_min_sample();
-	parent_node->is_depth_limit = missing_branch.get_is_depth_limit();
-	parent_node->is_same_label = missing_branch.get_is_same_label();
-	parent_node->is_pruning = missing_branch.get_is_pruning();
-	parent_node->is_not_split = missing_branch.get_is_not_split();
-	parent_node->is_lanjut = missing_branch.get_is_lanjut();
-
-	bool is_split = missing_branch.get_is_split();
-
-	parent_node->label = missing_branch.get_label();
-	parent_node->jml_known = missing_branch.get_jml_known();
-	parent_node->jml_normal = missing_branch.get_jml_normal();
-
-	if (parent_node->is_pure or parent_node->is_min_sample or parent_node->is_depth_limit)
+	if (missing_branch.get_is_split() or missing_branch.get_is_cut_off())
 	{
-		parent_node->isLeaf = true;
+		//cout << " is split or is cut off : " << posisi.get_id_branch() << endl;
 
-		//cetak("\n");
+		parent_node = new tree_node;
 
-	} else {
+		parent_node->is_pure = missing_branch.get_is_pure();
+		parent_node->is_min_sample = missing_branch.get_is_min_sample();
+		parent_node->is_depth_limit = missing_branch.get_is_depth_limit();
+		parent_node->is_same_label = missing_branch.get_is_same_label();
+		parent_node->is_pruning = missing_branch.get_is_pruning();
+		parent_node->is_not_split = missing_branch.get_is_not_split();
+		parent_node->is_lanjut = missing_branch.get_is_lanjut();
 
-		if ( parent_node->is_same_label  or parent_node->is_pruning or parent_node->is_not_split)
+		parent_node->label = missing_branch.get_label();
+		parent_node->jml_known = missing_branch.get_jml_known();
+		parent_node->jml_normal = missing_branch.get_jml_normal();
+
+		parent_node->depth = posisi.child_depth;
+		parent_node->branch = posisi.child_branch;
+		parent_node->branch_number = posisi.child_branch_number;
+
+		int attrindex = missing_branch.get_attrindex();
+		attrvalue = missing_branch.get_attrvalue();
+
+		parent_node->criteriaAttrIndex = attrindex;
+		parent_node->opt = missing_branch.get_opt();
+
+		bool is_split = missing_branch.get_is_split();
+
+		if (parent_node->is_pure or parent_node->is_min_sample or parent_node->is_depth_limit)
 		{
 			parent_node->isLeaf = true;
-
-			if (is_split)
-			{
-				cout << posisi.get_id_branch() << " split !!!" << endl;
-
-				parent_node->isLeaf = false;
-
-				if (parent_node->is_not_split)
-				{
-					parent_node->isLeaf = true;
-					//parent_node->is_lanjut = false;
-				}
-
-				//cetak("?|");
-
-				counter++;
-
-				auto itr = branch_number.find(counter);
-				if (itr == branch_number.end()) {
-					branch_number.insert({counter, 1});
-				} else {
-					branch_number[counter] = branch_number[counter] + 1;
-				}
-
-				int attrindex = missing_branch.get_attrindex();
-				Tmy_dttype attrvalue = missing_branch.get_attrvalue();
-
-				parent_node->criteriaAttrIndex = attrindex;
-
-				Tposisi_cabang posisi_left = posisi;
-				posisi_left.switch_parent_branch();
-				posisi_left.set_child(counter, 1, branch_number[counter]);
-
-				Tposisi_cabang posisi_right = posisi;
-				posisi_right.switch_parent_branch();
-				branch_number[counter] = branch_number[counter] + 1;
-				posisi_right.set_child(counter, 2, branch_number[counter]);
-
-				tree_node* left_node = NULL;
-				if (missing_branch.get_opt_label_child(1, posisi, posisi_left))
-				{
-					branch_number[posisi_left.child_depth] = (branch_number[posisi_left.child_depth] < posisi_left.child_branch_number) ? posisi_left.child_branch_number : branch_number[posisi_left.child_depth];
-
-					left_node = build_missing_branch(counter, posisi_left);
-
-					missing_branch.get_branch_stat(posisi_left);
-
-					if (left_node != NULL) {
-						left_node->attrValue = attrvalue;
-						left_node->opt = missing_branch.get_opt();
-
-						left_node->depth = posisi_left.child_depth;
-						left_node->branch = posisi_left.child_branch;
-						left_node->branch_number = posisi_left.child_branch_number;
-
-						cout << posisi.get_id_branch() << " left !!!" << endl;
-
-					}
-
-				}
-
-				tree_node* right_node = NULL;
-				if (missing_branch.get_opt_label_child(2, posisi, posisi_right))
-				{
-					branch_number[posisi_right.child_depth] = (branch_number[posisi_right.child_depth] < posisi_right.child_branch_number) ? posisi_right.child_branch_number : branch_number[posisi_right.child_depth];
-
-					right_node = build_missing_branch(counter, posisi_right);
-
-					missing_branch.get_branch_stat(posisi_right);
-
-					if (right_node != NULL) {
-						right_node->attrValue = attrvalue;
-						right_node->opt = missing_branch.get_opt();
-
-						right_node->depth = posisi_right.child_depth;
-						right_node->branch = posisi_right.child_branch;
-						right_node->branch_number = posisi_right.child_branch_number;
-
-						cout << posisi.get_id_branch() << " right !!!" << endl;
-
-					}
-
-				}
-
-				parent_node->right = right_node;
-				parent_node->left = left_node;
-
-			} else {
-				//parent_node = NULL;
-			}
-
-
-
 		} else {
-			//parent_node = NULL;
+			if ( parent_node->is_same_label  or parent_node->is_pruning or parent_node->is_not_split)
+			{
+				parent_node->isLeaf = true;
+				if (is_split)
+				{
+					parent_node->isLeaf = false;
+					if (parent_node->is_not_split)
+					{
+						parent_node->isLeaf = true;
+					}
+				}
+			}
+		}
+
+		counter++;
+
+		auto itr = branch_number.find(counter);
+		if (itr == branch_number.end()) {
+			branch_number.insert({counter, 0});
 		}
 	}
+
+	vector<Tposisi_cabang> v_posisi = missing_branch.get_branch(posisi);
+
+	if (v_posisi.size() > 0)
+	{
+		//cout << " punya cabang : " << posisi.get_id_branch() << endl;
+
+		tree_node* left_node = NULL;
+		tree_node* right_node = NULL;
+
+		for (size_t i = 0; i < v_posisi.size(); ++i)
+		{
+
+			if (v_posisi[i].child_branch == 1)
+			{
+				//cout << " left split : " << v_posisi[i].get_id_branch() << endl;
+				left_node = build_missing_branch(counter, v_posisi[i]);
+
+				if (left_node != NULL)
+				{
+					branch_number[counter] =  (branch_number[counter] < left_node->branch_number) ? left_node->branch_number : branch_number[counter];
+					left_node->attrValue = attrvalue;
+				}
+			}
+
+			if (v_posisi[i].child_branch == 2)
+			{
+				//cout << " right split : " << v_posisi[i].get_id_branch() << endl;
+				right_node = build_missing_branch(counter, v_posisi[i]);
+				if (right_node != NULL)
+				{
+					branch_number[counter] =  (branch_number[counter] < right_node->branch_number) ? right_node->branch_number : branch_number[counter];
+					right_node->attrValue = attrvalue;
+				}
+			}
+
+		}
+
+		parent_node->left = left_node;
+		parent_node->right = right_node;
+
+	}
+
+
+
+
+	// if (parent_node->is_pure or parent_node->is_min_sample or parent_node->is_depth_limit)
+	// {
+	// 	parent_node->isLeaf = true;
+
+	// 	//cetak("\n");
+
+	// } else {
+
+	// 	if ( parent_node->is_same_label  or parent_node->is_pruning or parent_node->is_not_split)
+	// 	{
+	// 		parent_node->isLeaf = true;
+
+	// 		if (is_split)
+	// 		{
+	// 			cout << posisi.get_id_branch() << " split !!!" << endl;
+
+	// 			parent_node->isLeaf = false;
+
+	// 			if (parent_node->is_not_split)
+	// 			{
+	// 				parent_node->isLeaf = true;
+	// 				//parent_node->is_lanjut = false;
+	// 			}
+
+	// 			//cetak("?|");
+
+	// 			counter++;
+
+	// 			auto itr = branch_number.find(counter);
+	// 			if (itr == branch_number.end()) {
+	// 				branch_number.insert({counter, 1});
+	// 			} else {
+	// 				branch_number[counter] = branch_number[counter] + 1;
+	// 			}
+
+	// 			int attrindex = missing_branch.get_attrindex();
+	// 			Tmy_dttype attrvalue = missing_branch.get_attrvalue();
+
+	// 			parent_node->criteriaAttrIndex = attrindex;
+
+	// 			Tposisi_cabang posisi_left = posisi;
+	// 			posisi_left.switch_parent_branch();
+	// 			posisi_left.set_child(counter, 1, branch_number[counter]);
+
+	// 			Tposisi_cabang posisi_right = posisi;
+	// 			posisi_right.switch_parent_branch();
+	// 			branch_number[counter] = branch_number[counter] + 1;
+	// 			posisi_right.set_child(counter, 2, branch_number[counter]);
+
+	// 			tree_node* left_node = NULL;
+	// 			if (missing_branch.get_opt_label_child(1, posisi, posisi_left))
+	// 			{
+	// 				branch_number[posisi_left.child_depth] = (branch_number[posisi_left.child_depth] < posisi_left.child_branch_number) ? posisi_left.child_branch_number : branch_number[posisi_left.child_depth];
+
+	// 				left_node = build_missing_branch(counter, posisi_left);
+
+	// 				missing_branch.get_branch_stat(posisi_left);
+
+	// 				if (left_node != NULL) {
+	// 					left_node->attrValue = attrvalue;
+	// 					left_node->opt = missing_branch.get_opt();
+
+	// 					left_node->depth = posisi_left.child_depth;
+	// 					left_node->branch = posisi_left.child_branch;
+	// 					left_node->branch_number = posisi_left.child_branch_number;
+
+	// 					cout << posisi.get_id_branch() << " left !!!" << endl;
+
+	// 				}
+
+	// 			}
+
+	// 			tree_node* right_node = NULL;
+	// 			if (missing_branch.get_opt_label_child(2, posisi, posisi_right))
+	// 			{
+	// 				branch_number[posisi_right.child_depth] = (branch_number[posisi_right.child_depth] < posisi_right.child_branch_number) ? posisi_right.child_branch_number : branch_number[posisi_right.child_depth];
+
+	// 				right_node = build_missing_branch(counter, posisi_right);
+
+	// 				missing_branch.get_branch_stat(posisi_right);
+
+	// 				if (right_node != NULL) {
+	// 					right_node->attrValue = attrvalue;
+	// 					right_node->opt = missing_branch.get_opt();
+
+	// 					right_node->depth = posisi_right.child_depth;
+	// 					right_node->branch = posisi_right.child_branch;
+	// 					right_node->branch_number = posisi_right.child_branch_number;
+
+	// 					cout << posisi.get_id_branch() << " right !!!" << endl;
+
+	// 				}
+
+	// 			}
+
+	// 			parent_node->right = right_node;
+	// 			parent_node->left = left_node;
+
+	// 		} else {
+	// 			//parent_node = NULL;
+	// 		}
+
+
+
+	// 	} else {
+	// 		//parent_node = NULL;
+	// 	}
+	// }
 
 
 	return parent_node;
@@ -1528,8 +1662,12 @@ void Tdt_build::read_tree(time_t id_detail_experiment)
 	Tposisi_cabang posisi_root;
 	posisi_root.reset();
 
-	dec_tree = vec_tree_to_dec_tree(0, 0, posisi_root);
-	//trim_dec_tree(dec_tree);
+	dec_tree = build_missing_branch(0, posisi_root);
+	if (dec_tree == NULL) {
+		dec_tree = vec_tree_to_dec_tree(0, 0, posisi_root);
+	}
+
+	trim_dec_tree(dec_tree);
 
 	prev_tree.clear();
 }

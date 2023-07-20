@@ -35,6 +35,8 @@ time_t Tglobal_config::id_detail_experiment;
 
 double Tglobal_config::ratio_valid_attr;
 
+double Tglobal_config::skala_pruning;
+
 //bool Tglobal_config::cetak_credal;
 
 int main(int argc, const char **argv)

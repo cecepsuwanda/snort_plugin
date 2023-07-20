@@ -47,7 +47,12 @@ private:
 	bool check_purity(Tdataframe &df);
 
 
-	void pruning_dfs(tree_node* parent_node, Tdataframe &df_train);
+	void subtree_stat(tree_node* parent_node,int counter, int depth,int &jml_leaf,int &sum_min);
+
+	void pruning_method_2(tree_node* parent_node,Tposisi_cabang& posisi);
+	void pruning_method_1(tree_node* parent_node, Tdataframe &df_train);
+    void pruning_method_3(tree_node* parent_node,Tposisi_cabang& posisi);
+
 
 	//void pruning_dfs(int node_index , Tdataframe &df_train, int counter);
 	void post_pruning(Tdataframe &df_train);

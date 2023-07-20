@@ -37,6 +37,8 @@ public:
 
   static double ratio_valid_attr;
 
+  static double skala_pruning;
+
   static bool cetak_credal;
 
   static void init()
@@ -59,6 +61,8 @@ public:
     threshold = 0;
 
     ratio_valid_attr = 0.3;
+
+    skala_pruning = 0.5;
 
     //cetak_credal = false;
 

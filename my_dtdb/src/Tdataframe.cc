@@ -463,10 +463,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
   Tbelow_above_kategori ba;
-  Tmy_dttype max_entropi("0.0", false);
+  Tmy_dttype max_entropi("10000", true);
   Tmy_dttype mid_point("0.0", false);
   Tmy_dttype tmp_split_value;
-  bool first_iteration = true;
+  //bool first_iteration = true;
 
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
@@ -490,9 +490,9 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     }
 
     if (ba.cek_valid()) {
-      if ((first_iteration) or (max_entropi < entropy_mid_poin))
+      if ((max_entropi > entropy_mid_poin)) //(first_iteration) or
       {
-        first_iteration = false;
+        //first_iteration = false;
         max_entropi = entropy_mid_poin;
         tmp_split_value = mid_point;
       }
