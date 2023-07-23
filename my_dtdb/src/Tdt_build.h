@@ -47,7 +47,7 @@ private:
 	bool check_purity(Tdataframe &df);
 
 
-	void subtree_stat(tree_node* parent_node,int counter, int depth,int &jml_leaf,int &sum_min);
+	void subtree_stat(tree_node* parent_node,bool is_pruning,int &jml_leaf,int &sum_min);
 
 	void pruning_method_2(tree_node* parent_node,Tposisi_cabang& posisi);
 	void pruning_method_1(tree_node* parent_node, Tdataframe &df_train);
@@ -71,6 +71,7 @@ private:
 	void dec_tree_to_vec_tree(tree_node* parent_node, int node_index);
 	tree_node* vec_tree_to_dec_tree(int node_index, int counter, Tposisi_cabang posisi);
 	void trim_dec_tree(tree_node* parent_node);
+	void trim_same_leaf(tree_node* parent_node);
 
 
 	void save_tree();

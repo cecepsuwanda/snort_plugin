@@ -40,6 +40,7 @@ private:
 
   void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
   void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
+  void handle_non_continuous_1(int idx, float & current_overall_metric, Tmy_dttype & split_value);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 

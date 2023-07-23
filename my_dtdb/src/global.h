@@ -119,6 +119,7 @@ struct tree_node
   bool is_depth_limit;
   bool is_same_label;
   bool is_pruning;
+  bool is_pruning_1;
   bool is_not_split;
   bool is_lanjut;
 
@@ -148,6 +149,7 @@ struct tree_node
     is_depth_limit = false;
     is_same_label = false;
     is_pruning = false;
+    is_pruning_1 = false;
     is_not_split = false;
     is_lanjut = true;
 

@@ -215,7 +215,7 @@ void Tdataframe::info()
 
 void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above)
 {
-  
+
   if (split_value != "-1") {
     missing_branch.add_split(_posisi_cabang, split_column, split_value);
 
@@ -235,7 +235,7 @@ void Tdataframe::split_data(int split_column, Tmy_dttype split_value, Tdataframe
 
     }
   }
-  
+
 
 }
 
@@ -463,10 +463,10 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
   Tbelow_above_kategori ba;
-  Tmy_dttype max_entropi("10000", true);
+  Tmy_dttype max_entropi("0.0", true);
   Tmy_dttype mid_point("0.0", false);
   Tmy_dttype tmp_split_value;
-  //bool first_iteration = true;
+  bool first_iteration = true;
 
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
@@ -476,11 +476,7 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     ba.add_stat((*itr).second);
 
     Tlabel_stat stat_below = (*itr).second;
-    Tlabel_stat stat_above = _stat_label - stat_below;
 
-    Tbelow_above_kategori tmp_ba;
-    tmp_ba.add_stat(stat_below);
-    tmp_ba.add_stat(stat_above);
 
     Tmy_dttype entropy_mid_poin;
     if (!global_config.use_credal) {
@@ -490,9 +486,9 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
     }
 
     if (ba.cek_valid()) {
-      if ((max_entropi > entropy_mid_poin)) //(first_iteration) or
+      if ((first_iteration) or (max_entropi < entropy_mid_poin)) //(first_iteration) or
       {
-        //first_iteration = false;
+        first_iteration = false;
         max_entropi = entropy_mid_poin;
         tmp_split_value = mid_point;
       }
@@ -513,6 +509,65 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
   //bool is_pass = global_config.use_credal ? true : (gain > 0.0);
 
   current_overall_metric = stof(gain.get_value());
+  split_value = tmp_split_value;
+
+}
+
+void Tdataframe::handle_non_continuous_1(int idx, float & current_overall_metric, Tmy_dttype & split_value)
+{
+  Tmy_dttype entropy_before_split;
+
+  if (!global_config.use_credal) {
+    entropy_before_split = _stat_label.get_entropy();
+  } else {
+    entropy_before_split = _stat_label.get_credal_entropy();
+  }
+
+  map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
+
+
+  float best_overall_metric = 0.0;
+  Tmy_dttype gain, gain_max;
+  Tmy_dttype mid_point("0.0", false);
+  Tmy_dttype tmp_split_value;
+  bool first_iteration = true;
+
+  auto itr = _col_pot_split.begin();
+  while (itr != _col_pot_split.end())
+  {
+    mid_point = ((Tmy_dttype) (*itr).first);
+
+    Tlabel_stat stat_below = (*itr).second;
+    Tlabel_stat stat_above = _stat_label - stat_below;
+
+    Tbelow_above tmp_ba;
+    tmp_ba.add_below(stat_below);
+    tmp_ba.add_above(stat_above);
+
+    gain.set_value("0.0", true);
+
+    if (tmp_ba.cek_valid()) {
+      Tmy_dttype entropy_after_split = tmp_ba.get_overall_metric();
+      float split_info = tmp_ba.get_split_info();
+      if (split_info > 0.0) {
+        gain = (entropy_before_split - entropy_after_split) / split_info;
+      }
+    }
+
+    bool is_pass = global_config.use_credal ? true : (gain > 0.0);
+
+    if ((first_iteration and is_pass ) or ((gain_max < gain) and is_pass))
+    {
+      first_iteration = false;
+      gain_max = gain;
+      tmp_split_value = mid_point;
+      best_overall_metric = stof(gain_max.get_value());      
+    }
+
+    itr++;
+  }
+ 
+  current_overall_metric = best_overall_metric;
   split_value = tmp_split_value;
 
 }
