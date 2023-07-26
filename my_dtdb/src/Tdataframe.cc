@@ -526,48 +526,142 @@ void Tdataframe::handle_non_continuous_1(int idx, float & current_overall_metric
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
 
-  float best_overall_metric = 0.0;
-  Tmy_dttype gain, gain_max;
-  Tmy_dttype mid_point("0.0", false);
-  Tmy_dttype tmp_split_value;
+  Tmy_dttype max_entropi("0.0", true);
+  Tmy_dttype tmp_split_value("-1", false);
   bool first_iteration = true;
+  Tmy_dttype gain;
 
   auto itr = _col_pot_split.begin();
   while (itr != _col_pot_split.end())
   {
-    mid_point = ((Tmy_dttype) (*itr).first);
+    Tmy_dttype mid_point = ((Tmy_dttype) (*itr).first);
 
-    Tlabel_stat stat_below = (*itr).second;
-    Tlabel_stat stat_above = _stat_label - stat_below;
+    Tlabel_stat stat_below, stat_above;
+    stat_below = (*itr).second;
+    stat_above = _stat_label - stat_below;
 
     Tbelow_above tmp_ba;
     tmp_ba.add_below(stat_below);
     tmp_ba.add_above(stat_above);
 
     gain.set_value("0.0", true);
-
-    if (tmp_ba.cek_valid()) {
-      Tmy_dttype entropy_after_split = tmp_ba.get_overall_metric();
-      float split_info = tmp_ba.get_split_info();
-      if (split_info > 0.0) {
-        gain = (entropy_before_split - entropy_after_split) / split_info;
-      }
+    Tmy_dttype entropy_after_split = tmp_ba.get_overall_metric();
+    float split_info = tmp_ba.get_split_info();
+    if (split_info > 0.0) {
+      gain = (entropy_before_split - entropy_after_split) / split_info;
     }
 
-    bool is_pass = global_config.use_credal ? true : (gain > 0.0);
-
-    if ((first_iteration and is_pass ) or ((gain_max < gain) and is_pass))
+    if ((first_iteration) or (max_entropi > gain))
     {
       first_iteration = false;
-      gain_max = gain;
       tmp_split_value = mid_point;
-      best_overall_metric = stof(gain_max.get_value());      
+      max_entropi = gain;
+
     }
 
     itr++;
   }
- 
-  current_overall_metric = best_overall_metric;
+
+  
+
+
+  if (_col_pot_split.size() > 3)
+  {
+    for (auto itr = _col_pot_split.begin(); itr != _col_pot_split.end(); ++itr)
+    {
+      for (auto itr1 = _col_pot_split.begin(); itr1 != _col_pot_split.end(); ++itr1)
+      {
+        if (itr != itr1)
+        {
+
+          Tmy_dttype tmp_mid_point1 = ((Tmy_dttype) (*itr).first);
+          Tmy_dttype tmp_mid_point2 = ((Tmy_dttype) (*itr1).first);
+
+          Tmy_dttype mid_point;
+          mid_point.set_value(tmp_mid_point1.get_string() + ";" + tmp_mid_point2.get_string(), false);
+
+          Tlabel_stat stat_below, stat_above;
+          stat_below = (*itr).second + (*itr1).second;
+          stat_above = _stat_label - stat_below;
+
+          Tbelow_above tmp_ba;
+          tmp_ba.add_below(stat_below);
+          tmp_ba.add_above(stat_above);
+
+          gain.set_value("0.0", true);
+          Tmy_dttype entropy_after_split = tmp_ba.get_overall_metric();
+          float split_info = tmp_ba.get_split_info();
+          if (split_info > 0.0) {
+            gain = (entropy_before_split - entropy_after_split) / split_info;
+          }
+
+          if ((max_entropi > gain))
+          {
+            tmp_split_value = mid_point;
+            max_entropi = gain;
+            //cout << tmp_split_value.get_string() << endl;
+          }
+
+        }
+      }
+
+    }
+  }
+
+
+  if (_col_pot_split.size() >= 6)
+  {
+
+    for (auto itr = _col_pot_split.begin(); itr != _col_pot_split.end(); ++itr)
+    {
+      for (auto itr1 = _col_pot_split.begin(); itr1 != _col_pot_split.end(); ++itr1)
+      {
+        if (itr != itr1)
+        {
+          for (auto itr2 = _col_pot_split.begin(); itr2 != _col_pot_split.end(); ++itr2)
+          {
+
+            if ((itr2 != itr1) and (itr2 != itr))
+            {
+
+              Tmy_dttype tmp_mid_point1 = ((Tmy_dttype) (*itr).first);
+              Tmy_dttype tmp_mid_point2 = ((Tmy_dttype) (*itr1).first);
+              Tmy_dttype tmp_mid_point3 = ((Tmy_dttype) (*itr2).first);
+
+              Tmy_dttype mid_point;
+              mid_point.set_value(tmp_mid_point1.get_string() + ";" + tmp_mid_point2.get_string() + ";" + tmp_mid_point3.get_string(), false);
+
+              Tlabel_stat stat_below, stat_above;
+              stat_below = (*itr).second + (*itr1).second + (*itr2).second;
+              stat_above = _stat_label - stat_below;
+
+              Tbelow_above tmp_ba;
+              tmp_ba.add_below(stat_below);
+              tmp_ba.add_above(stat_above);
+
+              gain.set_value("0.0", true);
+              Tmy_dttype entropy_after_split = tmp_ba.get_overall_metric();
+              float split_info = tmp_ba.get_split_info();
+              if (split_info > 0.0) {
+                gain = (entropy_before_split - entropy_after_split) / split_info;
+              }
+
+              if ((max_entropi > gain))
+              {
+                tmp_split_value = mid_point;
+                max_entropi = gain;
+                //cout << tmp_split_value.get_string() << endl;
+              }
+
+            }
+          }
+        }
+
+      }
+    }
+  }
+
+  current_overall_metric = stof(max_entropi.get_value());;
   split_value = tmp_split_value;
 
 }
@@ -581,7 +675,7 @@ void Tdataframe::calculate_overall_metric(int idx, float &current_overall_metric
   if (_data_type[idx] == "continuous.") {
     handle_continuous(idx, current_overall_metric, split_value);
   } else {
-    handle_non_continuous(idx, current_overall_metric, split_value);
+    handle_non_continuous_1(idx, current_overall_metric, split_value);
   }
 
 }

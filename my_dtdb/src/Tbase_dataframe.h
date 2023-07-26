@@ -26,7 +26,34 @@ struct field_filter
 
 		if ((idx_opt == 2) or (idx_opt == 3))
 		{
-			tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + "'" + value.get_string() + "')";
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+				string tmp = "";
+				for (size_t i = 0; i < v_tmp.size(); ++i)
+				{
+					tmp = tmp + "'" + v_tmp[i] + "'";
+					if (i < v_tmp.size())
+					{
+						tmp = tmp + ",";
+					}
+				}
+				if (idx_opt == 2)
+				{
+					tmp_str = "(a." + data_header[idx_col] + "in (" + tmp + "))";
+				} else {
+					if (idx_opt == 3)
+					{
+						tmp_str = "(a." + data_header[idx_col] + "not in (" + tmp + "))";
+					}
+				}
+				cout << tmp_str << endl;
+
+			} else {
+				tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + "'" + value.get_string() + "')";
+			}
+
+
 		}
 
 		return tmp_str;

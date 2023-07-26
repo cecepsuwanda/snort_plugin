@@ -1,6 +1,8 @@
 #include <cmath>
+#include <cstring>
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 
@@ -18,6 +20,7 @@ private:
 	string to_lower(const string str);
 	double bulat_nol(double val, double tolerance, int digit);
 
+
 public:
 	Tmy_dttype();
 	~Tmy_dttype();
@@ -30,6 +33,9 @@ public:
 	string get_string();
 
 	bool is_continue();
+
+	bool delimiter_exist();
+	vector<string> str_split(string delimiter);
 
 	Tmy_dttype(const Tmy_dttype &t)
 	{

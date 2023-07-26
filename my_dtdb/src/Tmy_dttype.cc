@@ -29,6 +29,29 @@ double Tmy_dttype::bulat_nol(double val, double tolerance, int digit)
 	return tmp;
 }
 
+bool Tmy_dttype::delimiter_exist()
+{
+	size_t found = _value.find(';');
+	return found != string::npos;
+}
+
+vector<string> Tmy_dttype::str_split(string delimiter)
+{
+	vector<string> tmp;
+	const int length = _value.length();
+	char* char_array = new char[length + 1];
+	strcpy(char_array, _value.c_str());
+	char *token = strtok(char_array, delimiter.c_str());	
+	while (token != NULL)
+	{
+		string tmp_str(token);
+		tmp.push_back(tmp_str);
+		token = strtok(NULL, delimiter.c_str());
+	}
+
+	return tmp;
+}
+
 Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 {
 	_value = value;
@@ -76,9 +99,9 @@ string Tmy_dttype::to_lower(const string str)
 	string tmp_str;
 	for (size_t i = 0; i < str.length(); ++i)
 	{
-		char tmp_chr = toupper(str[i]); 
-		cout<< tmp_chr << endl;
-		//tmp_str[i] =  
+		char tmp_chr = toupper(str[i]);
+		cout << tmp_chr << endl;
+		//tmp_str[i] =
 	}
 	return tmp_str;
 }
