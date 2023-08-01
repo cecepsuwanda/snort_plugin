@@ -78,11 +78,12 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	split_value.set_value("-1", true);
 
 	vector<future<Tmetric_split_value>> async_worker;
-
+	
 	for (int i = 0; i < df.get_jml_valid_attr(); ++i)
-	{
+	{		
 		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));
 	}
+	
 
 	if (async_worker.size() > 0)
 	{
@@ -1197,7 +1198,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 			//cout << "[" << root_error << " " << branch_error_left << "]" << endl;
 
 			if (root_error >= branch_error_left)
-			{			
+			{
 				cut_left = true;
 			}
 		}
@@ -1220,7 +1221,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 			//cout << "[" << root_error << " " << branch_error_right << "]" << endl;
 
 			if (root_error >= branch_error_right)
-			{				
+			{
 				cut_right = true;
 			}
 		}
@@ -1240,60 +1241,60 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 	if (del_branch) {
 		del_branch = false;
 		pesan.cetak("*");
-		
-			if ((parent_node->left != NULL) and cut_left) {
-				cut_left = false;
-				posisi_left.set_child(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
-                cout << " cut off left " << parent_node->criteriaAttrIndex << " " << parent_node->left->attrValue.get_string() << " ";
-				
-				if (parent_node->left->left != NULL)
-				{
-					del_dec_tree(parent_node->left->left);
-					parent_node->left->left = NULL;
-				}
 
-				if (parent_node->left->right != NULL)
-				{
-					del_dec_tree(parent_node->left->right);
-					parent_node->left->right = NULL;
-				}
+		if ((parent_node->left != NULL) and cut_left) {
+			cut_left = false;
+			posisi_left.set_child(parent_node->left->depth, parent_node->left->branch, parent_node->left->branch_number);
+			cout << " cut off left " << parent_node->criteriaAttrIndex << " " << parent_node->left->attrValue.get_string() << " ";
 
-				missing_branch.add_cut_off(posisi_left, 5);
-				parent_node->left->isLeaf = true;
-
-				if (parent_node->left->label == "normal")
-				{
-					idx_svm++;
-					parent_node->left->idx_svm = idx_svm;
-				}
+			if (parent_node->left->left != NULL)
+			{
+				del_dec_tree(parent_node->left->left);
+				parent_node->left->left = NULL;
 			}
 
-			if ((parent_node->right != NULL) and cut_right) {
-				cut_right = false;
-				posisi_right.set_child(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
-                cout << " cut off right " << parent_node->criteriaAttrIndex << " " << parent_node->right->attrValue.get_string()  << " ";
-				
-				if (parent_node->right->left != NULL)
-				{
-					del_dec_tree(parent_node->right->left);
-					parent_node->right->left = NULL;
-				}
-
-				if (parent_node->right->right != NULL)
-				{
-					del_dec_tree(parent_node->right->right);
-					parent_node->right->right = NULL;
-				}
-
-				missing_branch.add_cut_off(posisi_right, 5);
-				parent_node->right->isLeaf = true;
-				if (parent_node->right->label == "normal")
-				{
-					idx_svm++;
-					parent_node->right->idx_svm = idx_svm;
-				}
+			if (parent_node->left->right != NULL)
+			{
+				del_dec_tree(parent_node->left->right);
+				parent_node->left->right = NULL;
 			}
-		
+
+			missing_branch.add_cut_off(posisi_left, 5);
+			parent_node->left->isLeaf = true;
+
+			if (parent_node->left->label == "normal")
+			{
+				idx_svm++;
+				parent_node->left->idx_svm = idx_svm;
+			}
+		}
+
+		if ((parent_node->right != NULL) and cut_right) {
+			cut_right = false;
+			posisi_right.set_child(parent_node->right->depth, parent_node->right->branch, parent_node->right->branch_number);
+			cout << " cut off right " << parent_node->criteriaAttrIndex << " " << parent_node->right->attrValue.get_string()  << " ";
+
+			if (parent_node->right->left != NULL)
+			{
+				del_dec_tree(parent_node->right->left);
+				parent_node->right->left = NULL;
+			}
+
+			if (parent_node->right->right != NULL)
+			{
+				del_dec_tree(parent_node->right->right);
+				parent_node->right->right = NULL;
+			}
+
+			missing_branch.add_cut_off(posisi_right, 5);
+			parent_node->right->isLeaf = true;
+			if (parent_node->right->label == "normal")
+			{
+				idx_svm++;
+				parent_node->right->idx_svm = idx_svm;
+			}
+		}
+
 
 	}
 
@@ -1324,7 +1325,7 @@ void Tdt_build::post_pruning(Tdataframe & df_train)
 	Tposisi_cabang posisi = df_train.get_posisi();
 	pruning_method_2(dec_tree, posisi);
 	//trim_same_leaf(dec_tree);
-    cout<<endl;
+	cout << endl;
 	pruning_method_3(dec_tree, posisi);
 	//trim_same_leaf(dec_tree);
 

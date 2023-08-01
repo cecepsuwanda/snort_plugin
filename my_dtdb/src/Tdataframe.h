@@ -24,6 +24,12 @@ struct Tpot_split
   map<Tmy_dttype, Tlabel_stat> data;
 };
 
+struct Tmax_entropi_split
+{
+  Tmy_dttype entropi; 
+  Tmy_dttype split_value;
+};
+
 
 class Tdataframe : public Tbase_dataframe
 {
@@ -39,11 +45,12 @@ private:
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
   void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
-  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
+  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
   void handle_non_continuous_1(int idx, float & current_overall_metric, Tmy_dttype & split_value);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
-
+  
+  
 public:
   Tdataframe();
   ~Tdataframe();
@@ -123,7 +130,7 @@ public:
   float get_estimate_error();
   string get_max_label();
   bool is_single_label();
- 
+
 
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();
@@ -146,6 +153,8 @@ public:
   int get_opt(int idx_col, int is_below);
 
   void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);
+
+
 
 };
 

@@ -33,21 +33,21 @@ struct field_filter
 				for (size_t i = 0; i < v_tmp.size(); ++i)
 				{
 					tmp = tmp + "'" + v_tmp[i] + "'";
-					if (i < v_tmp.size())
+					if (i < (v_tmp.size()-1))
 					{
 						tmp = tmp + ",";
 					}
 				}
 				if (idx_opt == 2)
 				{
-					tmp_str = "(a." + data_header[idx_col] + "in (" + tmp + "))";
+					tmp_str = "(a." + data_header[idx_col] + " in (" + tmp + "))";
 				} else {
 					if (idx_opt == 3)
 					{
-						tmp_str = "(a." + data_header[idx_col] + "not in (" + tmp + "))";
+						tmp_str = "(a." + data_header[idx_col] + " not in (" + tmp + "))";
 					}
 				}
-				cout << tmp_str << endl;
+				//cout << tmp_str << endl;
 
 			} else {
 				tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + "'" + value.get_string() + "')";

@@ -23,8 +23,8 @@ private:
 
 	Tposisi_cabang _posisi_cabang;
 
-	string _tmp_dataset_tb="";
-	string _tmp_attr_dataset_tb="";
+	string _tmp_dataset_tb = "";
+	string _tmp_attr_dataset_tb = "";
 
 	int _jml_row = 0;
 	int _jml_col = 0;
@@ -35,13 +35,16 @@ private:
 	vector<string> _data;
 	vector<string> _data_header;
 	vector<string> _data_type;
-	
+
 	void clear_tb_index();
 	void clear_tb_index1();
 	bool is_child_parent_exist();
 	bool is_parent_exist(int idx);
-	
+
 	bool exist_in_detil(int idx);
+
+	void gen_permutation(vector<string> lst_label, int depth,string tb, string group_kolom);
+	void gen_permutation_rec(vector<string> lst_label, int count, int depth, int geser,string tb, string group_kolom, string str_select, string query);
 
 public:
 	tb_dataset();
@@ -72,30 +75,30 @@ public:
 
 	void set_dataset(int id_dt, int jns_dt, string partition);
 	void set_parent(int depth, int branch, int branch_number);
-	void set_child(int depth, int branch,int branch_number);	
+	void set_child(int depth, int branch, int branch_number);
 	void switch_parent_child();
 	void set_label(string label);
 
 	Tposisi_cabang get_posisi_parent();
 
-	
+
 	void filter(string sql, bool is_all);
 	void read_hsl_filter();
 
 	Tlabel_stat hit_label_stat();
-	map<string,map<string,int>> hit_conf_metrik();
+	map<string, map<string, int>> hit_conf_metrik();
 	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom);
 	void update_attr_stat(int idx);
-	void clear_tmp_dataset();	
+	void clear_tmp_dataset();
 	void child_to_tmp_dataset();
 	void reset_depth_branch();
 	void clear_child_parent();
 	void set_child_parent();
-	void delete_child(int child_depth,int child_branch, int child_branch_number);
+	void delete_child(int child_depth, int child_branch, int child_branch_number);
 
 	void switch_to_test();
 
-	void train_to_test();	
+	void train_to_test();
 
 	tb_dataset& operator = (const tb_dataset &t)
 	{
@@ -106,7 +109,7 @@ public:
 		this->_partition = t._partition;
 
 		this->_posisi_cabang = t._posisi_cabang;
-		
+
 
 		this->_tmp_dataset_tb = t._tmp_dataset_tb;
 		this->_tmp_attr_dataset_tb = t._tmp_attr_dataset_tb;

@@ -546,6 +546,38 @@ map<string, map<string, int>> tb_dataset::hit_conf_metrik()
 
 }
 
+void tb_dataset::gen_permutation_rec(vector<string> lst_label, int count, int depth, int geser, string tb, string group_kolom, string str_select , string query)
+{
+	if (count == depth)
+	{
+		for (size_t i = geser; i < lst_label.size(); ++i)
+		{
+			string tmp_query = query + ",'" + lst_label[i] + "'";
+			string tmp_select = str_select + ";" + lst_label[i];
+			string tmp = "insert into " + tb + "(" + group_kolom + ",label,jml) (select '" + tmp_select + "',label,count(*) as jml from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " in (" + tmp_query + ") group by label)";
+			global_query_builder.query(tmp);
+		}
+	} else {
+		count++;
+		for (size_t i = geser; i < lst_label.size(); ++i)
+		{
+			string tmp_query = query + ",'" + lst_label[i] + "'";
+			string tmp_select = str_select + ";" + lst_label[i];
+			gen_permutation_rec(lst_label, count, depth, i + 1, tb, group_kolom, tmp_select, tmp_query);
+		}
+	}
+}
+
+void tb_dataset::gen_permutation(vector<string> lst_label, int depth, string tb, string group_kolom)
+{
+	for (size_t i = 0; i < lst_label.size(); ++i)
+	{
+		string tmp_query = "'" + lst_label[i] + "'";
+		string str_select = lst_label[i];
+		gen_permutation_rec(lst_label, 1, depth, i + 1, tb, group_kolom, str_select, tmp_query);
+	}
+}
+
 map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 {
 	map<Tmy_dttype, Tlabel_stat> col_split;
@@ -571,22 +603,48 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 		{
 
 			tmp = "call sp_hit_stat('attr" + to_string(i) + "','" + _tmp_attr_dataset_tb + "','" + group_kolom + "')";
-
-			// tmp = "select round(" + group_kolom + ",7) as hsl_round,label from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
-
-			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select hsl_round,label,count(label) as jml from (" + tmp + ") tb group by hsl_round,label order by hsl_round,label";
-
 			global_query_builder.query(tmp);
 
 		} else {
 
 			tmp = "call sp_hit_stat1('attr" + to_string(i) + "','" + _tmp_attr_dataset_tb + "','" + group_kolom + "')";
-
-			// tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) select " + group_kolom + ",label,count(label) as jml from dataset partition(" + _partition + ") inner join tb_index on dataset.id=idx_row";
-
-			// tmp = tmp + " group by " + group_kolom + ",label order by " + group_kolom + ",label";
-
 			global_query_builder.query(tmp);
+
+			vector<string> lst_label;
+
+			bool is_kombinasi = false;
+
+			string query = "select distinct " + group_kolom + ",count(*) as jml_data from attr" + to_string(i) + " group by " + group_kolom+" having jml_data>1 ";
+			if (global_query_builder.query(query))
+			{
+				if (global_query_builder.get_result())
+				{
+					int jml_row = global_query_builder.get_jml_row();
+					is_kombinasi = true;
+
+					if (jml_row > 0) {
+
+						while (jml_row > 0)
+						{
+							vector<string> data = global_query_builder.fetch_row();
+							lst_label.push_back(data[0]);
+							jml_row--;
+						}
+
+					}
+				}
+			}
+
+			if (is_kombinasi) {
+				size_t jml_kombinasi = 2;
+				while ((lst_label.size() >= (2 * jml_kombinasi)) and (jml_kombinasi < 5) ) {
+					gen_permutation(lst_label, jml_kombinasi - 1, "attr" + to_string(i), group_kolom);
+					jml_kombinasi++;
+				}
+			}
+
+			lst_label.clear();
+			lst_label.shrink_to_fit();
 
 		}
 
