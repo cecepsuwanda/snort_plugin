@@ -607,45 +607,108 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		} else {
 
-			tmp = "call sp_hit_stat1('attr" + to_string(i) + "','" + _tmp_attr_dataset_tb + "','" + group_kolom + "')";
-			global_query_builder.query(tmp);
+			//bool pass = true;
+            
+            // if(i==6)
+            // {
+            //    pass = true;
+            // }
+			
+			// if (i == 1)
+			// {
+			// 	pass = false;
+			// 	// string query = "select "+group_kolom+" from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " not in ('icmp','tcp','udp') group by "+group_kolom;
+			// 	// global_query_builder.query(query);
+			// 	// global_query_builder.get_result();
+			// 	// pass = global_query_builder.get_jml_row() <= 2;
 
-			vector<string> lst_label;
+			// 	// if (pass1)
+			// 	// {
+			// 	// 	string tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) (select 'icmp;tcp;udp',label,count(*) as jml from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " in ('icmp','tcp','udp') group by label)";
+			// 	// 	global_query_builder.query(tmp);
+			// 	// }
 
-			bool is_kombinasi = false;
+			// }
 
-			string query = "select distinct " + group_kolom + ",count(*) as jml_data from attr" + to_string(i) + " group by " + group_kolom+" having jml_data>1 ";
-			if (global_query_builder.query(query))
-			{
-				if (global_query_builder.get_result())
+			// if (i == 2) {
+			// 	string query = "select * from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " in ('private','ecri','ecr_i','http')";
+			// 	global_query_builder.query(query);
+			// 	global_query_builder.get_result();
+			// 	bool pass1 = global_query_builder.get_jml_row() > 0;
+			// 	query = "select * from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " not in ('private','ecri','ecr_i','http')";
+			// 	global_query_builder.query(query);
+			// 	global_query_builder.get_result();
+			// 	bool pass2 = global_query_builder.get_jml_row() > 0;
+
+			// 	if (pass1 and pass2)
+			// 	{
+			// 		pass = false;
+			// 		string tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) (select 'private;ecri;ecr_i;http',label,count(*) as jml from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " in ('private','ecri','ecr_i','http') group by label)";
+			// 		global_query_builder.query(tmp);
+			// 	}
+			// }
+
+			// if (i == 3)
+			// {
+			// 	string query = "select * from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + "='SF'";
+			// 	global_query_builder.query(query);
+			// 	global_query_builder.get_result();
+			// 	bool pass1 = global_query_builder.get_jml_row() > 0;
+			// 	query = "select * from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + "!='SF'";
+			// 	global_query_builder.query(query);
+			// 	global_query_builder.get_result();
+			// 	bool pass2 = global_query_builder.get_jml_row() > 0;
+
+			// 	if (pass1 and pass2)
+			// 	{
+			// 		pass = false;
+			// 		string tmp = "insert into attr" + to_string(i) + "(" + group_kolom + ",label,jml) (select 'SF',label,count(*) as jml from " + _tmp_attr_dataset_tb + " a inner join tb_index b on a.id=b.idx_row where " + group_kolom + " ='SF' group by label)";
+			// 		global_query_builder.query(tmp);
+			// 	}
+			// }
+
+
+			// if (pass) {
+				tmp = "call sp_hit_stat1('attr" + to_string(i) + "','" + _tmp_attr_dataset_tb + "','" + group_kolom + "')";
+				global_query_builder.query(tmp);
+
+				vector<string> lst_label;
+
+				bool is_kombinasi = false;
+
+				string query = "select distinct " + group_kolom + ",count(*) as jml_data from attr" + to_string(i) + " group by " + group_kolom + " having jml_data>1 ";
+				if (global_query_builder.query(query))
 				{
-					int jml_row = global_query_builder.get_jml_row();
-					is_kombinasi = true;
+					if (global_query_builder.get_result())
+					{
+						int jml_row = global_query_builder.get_jml_row();
 
-					if (jml_row > 0) {
+						is_kombinasi = true;
 
-						while (jml_row > 0)
-						{
-							vector<string> data = global_query_builder.fetch_row();
-							lst_label.push_back(data[0]);
-							jml_row--;
+						if (jml_row > 0) {
+
+							while (jml_row > 0)
+							{
+								vector<string> data = global_query_builder.fetch_row();
+								lst_label.push_back(data[0]);
+								jml_row--;
+							}
+
 						}
-
 					}
 				}
-			}
 
-			if (is_kombinasi) {
-				size_t jml_kombinasi = 2;
-				while ((lst_label.size() >= (2 * jml_kombinasi)) and (jml_kombinasi < 5) ) {
-					gen_permutation(lst_label, jml_kombinasi - 1, "attr" + to_string(i), group_kolom);
-					jml_kombinasi++;
+				if (is_kombinasi) {
+					size_t jml_kombinasi = 2;
+					while ((lst_label.size() >= (2 * jml_kombinasi)) and (jml_kombinasi < 4) ) {
+						gen_permutation(lst_label, jml_kombinasi - 1, "attr" + to_string(i), group_kolom);
+						jml_kombinasi++;
+					}
 				}
-			}
 
-			lst_label.clear();
-			lst_label.shrink_to_fit();
-
+				lst_label.clear();
+				lst_label.shrink_to_fit();
+			//}
 		}
 
 	}

@@ -51,14 +51,7 @@ void Tdt_build::del_dec_tree(tree_node* parent_node)
 Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 {
 	Tmetric_split_value hsl;
-	Tmy_dttype current_split_value;
-	float current_overall_metric = 0.0;
-
-	df.calculate_overall_metric(idx, current_overall_metric, current_split_value);
-
-	hsl.idx = idx;
-	hsl.overall_metric = current_overall_metric;
-	hsl.split_value = current_split_value;
+	hsl = df.calculate_overall_metric(idx);
 	return hsl;
 }
 
@@ -78,39 +71,67 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	split_value.set_value("-1", true);
 
 	vector<future<Tmetric_split_value>> async_worker;
-	
+
 	for (int i = 0; i < df.get_jml_valid_attr(); ++i)
-	{		
+	{
 		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));
 	}
-	
+
+	vector<Tmetric_split_value> v_hsl;
+	float sum_neg = 0.0, sum_po = 0.0;
+	int jml_hsl = 0;
 
 	if (async_worker.size() > 0)
 	{
 		//pesan.cetak("\n");
-		Tmetric_split_value hsl;
+		//Tmetric_split_value hsl;
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
-			hsl = th.get();
-
+			Tmetric_split_value hsl = th.get();
+			if (hsl.split_value != "-1") {
+				v_hsl.push_back(hsl);
+				sum_po += (hsl.max_gain > 0.0) ? hsl.max_gain : 0.0;
+				sum_neg += (hsl.max_gain < 0.0) ? hsl.max_gain : 0.0;
+				jml_hsl++;
+			}
 			//pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
 
-			if (first_iteration or (max_gain < hsl.overall_metric))
-			{
-				max_gain = hsl.overall_metric;
-				split_column = hsl.idx;
-				split_value = hsl.split_value;
+			// if (first_iteration or (max_gain < hsl.max_gain_ratio))
+			// {
+			// 	max_gain = hsl.max_gain_ratio;
+			// 	split_column = hsl.idx;
+			// 	split_value = hsl.split_value;
 
-				first_iteration = false;
+			// 	first_iteration = false;
 
-				//pesan.cetak("1  [%d,%f]\n", split_column, max_gain);
+			// 	//pesan.cetak("1  [%d,%f]\n", split_column, max_gain);
 
-			}
+			// }
 		}
 
 		async_worker.clear();
 		async_worker.shrink_to_fit();
 
+	}
+
+	if (v_hsl.size() > 0)
+	{
+		float rata2_gain = (sum_po - abs(sum_neg)) / jml_hsl;
+
+		for (size_t i = 0; i < v_hsl.size(); ++i)
+		{
+			if (rata2_gain < v_hsl[i].max_gain)
+			{
+				if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
+				{
+					max_gain = v_hsl[i].max_gain_ratio;
+					split_column = v_hsl[i].idx;
+					split_value = v_hsl[i].split_value;
+
+					first_iteration = false;
+				}
+			}
+		}
 	}
 
 	df.clear_map_col_split();

@@ -24,10 +24,12 @@ struct Tpot_split
   map<Tmy_dttype, Tlabel_stat> data;
 };
 
-struct Tmax_entropi_split
+struct Tmetric_split_value
 {
-  Tmy_dttype entropi; 
-  Tmy_dttype split_value;
+  int idx = 0;
+  float max_gain_ratio = -1;
+  float max_gain = -1;
+  Tmy_dttype split_value; 
 };
 
 
@@ -38,15 +40,14 @@ private:
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
-  bool is_non_continuous = false;
-  bool is_42 = false;
+  
   Tglobal_config global_config;
 
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
-  void handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);
+  Tmetric_split_value handle_continuous(int idx);
   void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
-  void handle_non_continuous_1(int idx, float & current_overall_metric, Tmy_dttype & split_value);
+  Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
   
@@ -79,8 +80,7 @@ public:
     _posisi_cabang = t._posisi_cabang;
     _is_train = t._is_train;
 
-    is_non_continuous = t.is_non_continuous;
-    is_42 = t.is_42;
+    
     _jml_total_row = t._jml_total_row;
 
 
@@ -108,8 +108,7 @@ public:
     this->_posisi_cabang = t._posisi_cabang;
     this->_is_train = t._is_train;
 
-    this->is_non_continuous = t.is_non_continuous;
-    this->is_42 = t.is_42;
+    
     this->_jml_total_row = t._jml_total_row;
 
     return *this;
@@ -152,7 +151,7 @@ public:
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
 
-  void calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value);
+  Tmetric_split_value calculate_overall_metric(int idx);
 
 
 

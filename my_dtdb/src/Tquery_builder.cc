@@ -111,6 +111,12 @@ void Tquery_builder::open_connection()
 bool Tquery_builder::query(string sql)
 {
 	bool hsl = true;
+	if(_result!=NULL)
+	{
+      mysql_free_result(_result);
+      _result=NULL;
+	}
+
 	if (mysql_query(_con, sql.c_str()))
 	{
 		hsl = false;

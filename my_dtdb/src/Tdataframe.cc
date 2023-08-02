@@ -22,14 +22,8 @@ void Tdataframe::read_header_type()
   _data_type = _data.get_data_type();
   _idx_label = _data.get_idx_label();
 
-  is_non_continuous = true;
   _jml_col = _idx_label + 1;
 
-
-  if (is_non_continuous)
-  {
-    is_42 = _jml_col == 42;
-  }
 }
 
 
@@ -340,10 +334,10 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
   }
 
   float max_entropi = 0.0;
-  
-  float rata_gain=0.0;
-  if(v_container.size()>0){
-     rata_gain = (sum_po - abs(sum_ne)) / jml_data;
+
+  float rata_gain = 0.0;
+  if (v_container.size() > 0) {
+    rata_gain = (sum_po - abs(sum_ne)) / jml_data;
   }
   Tmy_dttype tmp_split_value("0.0", true);
   bool first_iteration = true;
@@ -379,70 +373,115 @@ void Tdataframe::calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_po
 
 }
 
-void Tdataframe::handle_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value)
+Tmetric_split_value Tdataframe::handle_continuous(int idx)
 {
 
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
-
+  Tmetric_split_value hsl;
   if (_col_pot_split.size() > 0)
   {
-    if (_col_pot_split.size() == 1)
+    Tmy_dttype entropy_before_split;
+
+    if (!global_config.use_credal) {
+      entropy_before_split = _stat_label.get_entropy();
+    } else {
+      entropy_before_split = _stat_label.get_credal_entropy();
+    }
+
+
+    Tmy_dttype mid_point("0.0", true), max_gain_ratio("0.0", true), max_gain("0.0", true);
+    Tmy_dttype tmp_split_value("-1", true);
+    bool first_iteration = true;
+    Tlabel_stat _stat_label_below;
+
+    auto itr_next = _col_pot_split.begin();
+    itr_next++;
+
+    auto itr = _col_pot_split.begin();
+    while ((itr != _col_pot_split.end()))
     {
 
-      Tmy_dttype entropy_before_split;
+      _stat_label_below = _stat_label_below + (*itr).second;
 
-      if (!global_config.use_credal) {
-        entropy_before_split = _stat_label.get_entropy();
-      } else {
-        entropy_before_split = _stat_label.get_credal_entropy();
-      }
+      bool is_pass = true;
+
+      // if (_stat_label_below.is_single_label() and (*itr_next).second.is_single_label())
+      // {
+      //   string label_below = _stat_label_below.get_max_label();
+      //   string label_next = (*itr_next).second.get_max_label();
+
+      //   is_pass = label_below != label_next;
+
+      // }
+
+      if (is_pass)
+      {
+
+        if (((itr != itr_next) and (itr_next != _col_pot_split.end()) ))
+        {
+
+          Tmy_dttype tmp1 = (*itr).first;
+          Tmy_dttype tmp2 = (*itr_next).first;
+          Tmy_dttype tmp = (tmp1 + tmp2) / 2.0;
+          mid_point = tmp;
+
+          Tbelow_above ba;
+
+          ba.add_below(_stat_label_below);
+          Tlabel_stat tmp_stat = _stat_label - _stat_label_below;
+          ba.add_above(tmp_stat);
+
+          Tmy_dttype gain("0.0", true);
+          Tmy_dttype gain_ratio("0.0", true);
+
+          if (ba.cek_valid()) {
+            Tmy_dttype entropy_after_split = ba.get_overall_metric();
+            float split_info = ba.get_split_info();
+            gain = entropy_before_split - entropy_after_split;
+            if (abs(split_info) > 0) {
+              gain_ratio = gain / split_info;
+            }
+          }
 
 
-      auto itr = _col_pot_split.begin();
+          bool is_pass = global_config.use_credal ? true : (gain_ratio > 0.0);
+
+          if ((first_iteration and is_pass) or ((max_gain_ratio < gain_ratio) and is_pass))
+          {
+            first_iteration = false;
+            tmp_split_value = mid_point;
+            max_gain_ratio = gain_ratio;
+            max_gain = gain;
+          }
 
 
-      Tlabel_stat _stat_label_below = (*itr).second;
 
-      Tmy_dttype tmp1 = (*itr).first;
-
-      Tbelow_above ba;
-      ba.set_value(tmp1);
-      ba.add_below(_stat_label_below);
-
-      Tlabel_stat tmp_stat = _stat_label - _stat_label_below;
-      ba.add_above(tmp_stat);
-
-      Tmy_dttype gain;
-      if (ba.cek_valid()) {
-        Tmy_dttype entropy_after_split = ba.get_overall_metric();
-        float split_info = ba.get_split_info();
-        if (split_info > 0.0) {
-          gain = (entropy_before_split - entropy_after_split) / split_info;// 0;
         }
+
       }
 
-      bool is_pass = global_config.use_credal ? true : (gain > 0.0);
-
-      if (is_pass) {
-        current_overall_metric = stof(gain.get_value());
-        split_value = tmp1;
-      }
-
-
-    } else {
-
-      float tmp_best_overall_metric = 0.0;
-      Tmy_dttype tmp_split_value;
-      calculate_metric(idx, &_col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
-
-      current_overall_metric = tmp_best_overall_metric;
-      split_value = tmp_split_value;
+      itr_next++;
+      itr++;
     }
+
+    hsl.idx = idx;
+    hsl.max_gain_ratio = stof(max_gain_ratio.get_string());
+    hsl.max_gain = stof(max_gain.get_string());
+    hsl.split_value = tmp_split_value;
+
+
+    // float tmp_best_overall_metric = 0.0;
+    // Tmy_dttype tmp_split_value;
+    // calculate_metric(idx, &_col_pot_split, tmp_best_overall_metric, tmp_split_value, _stat_label);
+
+    // current_overall_metric = tmp_best_overall_metric;
+    // split_value = tmp_split_value;
+
 
   }
 
   _col_pot_split.clear();
-
+  return hsl;
 
 }
 
@@ -511,126 +550,89 @@ void Tdataframe::handle_non_continuous(int idx, float & current_overall_metric, 
 
 
 
-void Tdataframe::handle_non_continuous_1(int idx, float & current_overall_metric, Tmy_dttype & split_value)
+Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
 {
-
-  Tmy_dttype entropy_before_split;
-
-  if (!global_config.use_credal) {
-    entropy_before_split = _stat_label.get_entropy();
-  } else {
-    entropy_before_split = _stat_label.get_credal_entropy();
-  }
-
   map<Tmy_dttype, Tlabel_stat> _col_pot_split = _map_col_split.get_pot_split(idx);
 
-  struct Tcontainer
-  {
-    Tmy_dttype mid_point;
-    float entropy_after_split;
-    float split_info;
-    float gain;
-  };
+  Tmetric_split_value hsl;
+  if (_col_pot_split.size() > 0) {
 
-  vector<Tcontainer> v_container;
-  int jml_data = 0;
-  int sum_po = 0, sum_ne = 0;
+    Tmy_dttype entropy_before_split;
 
-  auto itr = _col_pot_split.begin();
-  while (itr != _col_pot_split.end())
-  {
-    Tmy_dttype mid_point = ((Tmy_dttype) (*itr).first);
+    if (!global_config.use_credal) {
+      entropy_before_split = _stat_label.get_entropy();
+    } else {
+      entropy_before_split = _stat_label.get_credal_entropy();
+    }
 
-    Tlabel_stat stat_below, stat_above;
-    stat_below = (*itr).second;
-    stat_above = _stat_label - stat_below;
 
-    Tbelow_above tmp_ba;
-    tmp_ba.add_below(stat_below);
-    tmp_ba.add_above(stat_above);
+    Tmy_dttype mid_point("-1", false), max_gain_ratio("0.0", true), max_gain("0.0", true);
+    Tmy_dttype tmp_split_value("-1", false);
+    bool first_iteration = true;
+    Tlabel_stat _stat_label_below;
 
-    if (tmp_ba.cek_valid()) {
 
-      Tcontainer tmp;
-      tmp.entropy_after_split = stof(tmp_ba.get_overall_metric().get_string());
-      tmp.split_info = tmp_ba.get_split_info();
-      tmp.gain = stof(entropy_before_split.get_string()) - tmp.entropy_after_split;
+    auto itr = _col_pot_split.begin();
+    while (itr != _col_pot_split.end())
+    {
+      Tmy_dttype mid_point = ((Tmy_dttype) (*itr).first);
 
-      if (tmp.gain > 0)
-      {
-        sum_po += tmp.gain;
-      } else {
-        if (tmp.gain < 0)
-        {
-          sum_ne += tmp.gain;
+      Tlabel_stat stat_below, stat_above;
+      stat_below = (*itr).second;
+      stat_above = _stat_label - stat_below;
+
+      Tbelow_above ba;
+      ba.add_below(stat_below);
+      ba.add_above(stat_above);
+
+      Tmy_dttype gain("0.0", true);
+      Tmy_dttype gain_ratio("0.0", true);
+
+      if (ba.cek_valid()) {
+        Tmy_dttype entropy_after_split = ba.get_overall_metric();
+        float split_info = ba.get_split_info();
+        gain = entropy_before_split - entropy_after_split;
+        if (abs(split_info) > 0) {
+          gain_ratio = gain / split_info;
         }
       }
 
-      tmp.mid_point = mid_point;
-
-      v_container.push_back(tmp);
-
-      jml_data++;
-
-    }
-
-    itr++;
-  }
-
-  float max_entropi = 0.0;
-  
-  float rata_gain = 0.0;
-  if(v_container.size()>0){
-    rata_gain = (sum_po - abs(sum_ne)) / jml_data;
-  }
-  
-  Tmy_dttype tmp_split_value("-1", false);
-  bool first_iteration = true;
-
-
-  for (size_t i = 0; i < v_container.size(); ++i)
-  {
-    if (rata_gain < v_container[i].gain)
-    {
-      float gain_ratio = 0.0;
-
-      if (abs(v_container[i].split_info) > 0) {
-        gain_ratio = v_container[i].gain / v_container[i].split_info;
-      }
 
       bool is_pass = global_config.use_credal ? true : (gain_ratio > 0.0);
 
-      if ((first_iteration and is_pass) or ((max_entropi < gain_ratio) and is_pass))
+      if ((first_iteration and is_pass) or ((max_gain_ratio > gain_ratio) and is_pass))
       {
         first_iteration = false;
-        tmp_split_value = v_container[i].mid_point;
-        max_entropi = gain_ratio;
-
+        tmp_split_value = mid_point;
+        max_gain_ratio = gain_ratio;
+        max_gain = gain;
       }
+
+      itr++;
     }
 
-  }
+    hsl.idx = idx;
+    hsl.max_gain_ratio = stof(max_gain_ratio.get_string());
+    hsl.max_gain = stof(max_gain.get_string());
+    hsl.split_value = tmp_split_value;
 
-  v_container.clear();
-  v_container.shrink_to_fit();
+  }
 
   _col_pot_split.clear();
-
-  current_overall_metric = max_entropi;
-  split_value = tmp_split_value;
+  return hsl;
 }
 
-void Tdataframe::calculate_overall_metric(int idx, float &current_overall_metric, Tmy_dttype &split_value)
+Tmetric_split_value Tdataframe::calculate_overall_metric(int idx)
 {
   std::lock_guard<std::mutex> lock(v_mutex);
-  split_value.set_value("-1", _data_type[idx] == "continuous.");
-  current_overall_metric = -1;
-
+  Tmetric_split_value hsl;
   if (_data_type[idx] == "continuous.") {
-    handle_continuous(idx, current_overall_metric, split_value);
+    hsl = handle_continuous(idx);
   } else {
-    handle_non_continuous_1(idx, current_overall_metric, split_value);
+    hsl = handle_non_continuous_1(idx);
   }
+
+  return hsl;
 
 }
 

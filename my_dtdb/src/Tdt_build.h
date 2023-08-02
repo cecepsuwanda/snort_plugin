@@ -11,12 +11,7 @@
 
 #define Included_Tdt_build_H
 
-struct Tmetric_split_value
-{
-	int idx = 0;
-	float overall_metric = -1;
-	Tmy_dttype split_value;	
-};
+
 
 class Tdt_build
 {
