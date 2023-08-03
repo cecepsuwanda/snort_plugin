@@ -120,8 +120,8 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 		for (size_t i = 0; i < v_hsl.size(); ++i)
 		{
-			if (rata2_gain < v_hsl[i].max_gain)
-			{
+			 // if (rata2_gain < v_hsl[i].max_gain)
+			 // {
 				if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
 				{
 					max_gain = v_hsl[i].max_gain_ratio;
@@ -130,7 +130,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 					first_iteration = false;
 				}
-			}
+			//}
 		}
 	}
 

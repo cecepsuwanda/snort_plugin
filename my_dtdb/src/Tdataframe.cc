@@ -600,7 +600,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
 
       bool is_pass = global_config.use_credal ? true : (gain_ratio > 0.0);
 
-      if ((first_iteration and is_pass) or ((max_gain_ratio > gain_ratio) and is_pass))
+      if ((first_iteration and is_pass) or ((max_gain_ratio < gain_ratio) and is_pass))
       {
         first_iteration = false;
         tmp_split_value = mid_point;
