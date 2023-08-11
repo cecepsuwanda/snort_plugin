@@ -29,7 +29,9 @@ struct Tmetric_split_value
   int idx = 0;
   float max_gain_ratio = -1;
   float max_gain = -1;
-  Tmy_dttype split_value; 
+  int jml_below = 0;
+  int jml_above = 0;
+  Tmy_dttype split_value;
 };
 
 
@@ -40,18 +42,19 @@ private:
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
-  
+
   Tglobal_config global_config;
 
   void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
 
   Tmetric_split_value handle_continuous(int idx);
-  void handle_non_continuous(int idx, float & current_overall_metric, Tmy_dttype & split_value);  
+  Tmetric_split_value handle_non_continuous(int idx);
   Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
-  
-  
+
+  void gen_kombinasi(map<Tmy_dttype, Tlabel_stat> v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
+  void gen_kombinasi_normal(map<Tmy_dttype, Tlabel_stat> v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
 public:
   Tdataframe();
   ~Tdataframe();
@@ -80,7 +83,7 @@ public:
     _posisi_cabang = t._posisi_cabang;
     _is_train = t._is_train;
 
-    
+
     _jml_total_row = t._jml_total_row;
 
 
@@ -108,7 +111,7 @@ public:
     this->_posisi_cabang = t._posisi_cabang;
     this->_is_train = t._is_train;
 
-    
+
     this->_jml_total_row = t._jml_total_row;
 
     return *this;

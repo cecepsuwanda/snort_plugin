@@ -61,17 +61,12 @@ public:
     bool get_opt_label(int opt,Tposisi_cabang posisi_root,Tposisi_cabang &posisi_child);
     bool get_opt_label_child(int child_branch,Tposisi_cabang posisi_root,Tposisi_cabang &posisi_child);
 
-    vector<Tposisi_cabang> get_branch(Tposisi_cabang posisi);
-
-    void insert_not_split(Tposisi_cabang posisi, string label, int is_lanjut);
-    void insert_same_label(Tposisi_cabang posisi, string label, int is_lanjut);
-    void insert_cut_off(Tposisi_cabang posisi, string label, int is_pure, int is_min_sample, int is_depth_limit, int is_lanjut);
-    void insert_pruning(Tposisi_cabang posisi, string label, int is_lanjut);
+    vector<Tposisi_cabang> get_branch(Tposisi_cabang posisi);   
+    
 
     void get_split(Tposisi_cabang posisi, int &attrindex, int &opt, Tmy_dttype &attrvalue);
 
     bool parent_exixst(Tposisi_cabang posisi);
-
 
     void get_stat(Tposisi_cabang posisi);
 

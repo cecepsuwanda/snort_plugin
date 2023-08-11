@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 
+#include "global.h"
 #include "Tquery_builder.h"
 #include "Tlabel_stat.h"
 #include "Tmy_dttype.h"
@@ -16,6 +17,7 @@ class tb_dataset
 {
 private:
 	Tquery_builder global_query_builder;
+	Tglobal_config global_config;
 
 	int _id_dt;
 	int _jns_dt;

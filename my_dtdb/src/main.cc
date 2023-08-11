@@ -34,8 +34,10 @@ time_t Tglobal_config::id_experiment;
 time_t Tglobal_config::id_detail_experiment;
 
 double Tglobal_config::ratio_valid_attr;
-
 double Tglobal_config::skala_pruning;
+bool Tglobal_config::continue_attr_only;
+bool Tglobal_config::buat_kombinasi;
+bool Tglobal_config::gunakan_rata2gain;
 
 //bool Tglobal_config::cetak_credal;
 

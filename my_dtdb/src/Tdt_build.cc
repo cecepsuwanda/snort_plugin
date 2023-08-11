@@ -89,10 +89,17 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 		{
 			Tmetric_split_value hsl = th.get();
 			if (hsl.split_value != "-1") {
-				v_hsl.push_back(hsl);
-				sum_po += (hsl.max_gain > 0.0) ? hsl.max_gain : 0.0;
-				sum_neg += (hsl.max_gain < 0.0) ? hsl.max_gain : 0.0;
-				jml_hsl++;
+
+				// cout << df.getjmlrow() << "," << hsl.jml_below << "," << hsl.jml_above << endl;
+				bool pass = limit_jml_dt_cabang(df.getjmlrow(), hsl.jml_below, hsl.jml_above);
+
+				if (pass or !global_config.limited)
+				{
+					v_hsl.push_back(hsl);
+					sum_po += (hsl.max_gain > 0.0) ? hsl.max_gain : 0.0;
+					sum_neg += (hsl.max_gain < 0.0) ? hsl.max_gain : 0.0;
+					jml_hsl++;
+				}
 			}
 			//pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
 
@@ -120,8 +127,8 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 		for (size_t i = 0; i < v_hsl.size(); ++i)
 		{
-			 // if (rata2_gain < v_hsl[i].max_gain)
-			 // {
+			if ((rata2_gain < v_hsl[i].max_gain) or !global_config.gunakan_rata2gain)
+			{
 				if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
 				{
 					max_gain = v_hsl[i].max_gain_ratio;
@@ -130,7 +137,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 					first_iteration = false;
 				}
-			//}
+			}
 		}
 	}
 

@@ -124,25 +124,7 @@ void Tlabel_stat::add(string value, int count)
 		it->second += count;
 	}
 
-	auto itr = _map.begin();
-	_max_label = itr->first;
-	_max_value = itr->second;
-
-	while (itr != _map.end())
-	{
-		if (itr != _map.begin())
-		{
-			if (_max_value < itr->second)
-			{
-				_max_label = itr->first;
-				_max_value = itr->second;
-			}
-		}
-
-		itr++;
-	}
-
-	_min_value = _jml_row - _max_value;
+	cari_max_label();
 
 }
 
@@ -160,6 +142,17 @@ void Tlabel_stat::add(string value)
 		it->second += 1;
 	}
 
+   cari_max_label();
+
+}
+
+bool Tlabel_stat::is_single_label()
+{
+	return _map.size() == 1;
+}
+
+void Tlabel_stat::cari_max_label()
+{
 	auto itr = _map.begin();
 	_max_label = itr->first;
 	_max_value = itr->second;
@@ -179,15 +172,7 @@ void Tlabel_stat::add(string value)
 	}
 
 	_min_value = _jml_row - _max_value;
-
 }
-
-bool Tlabel_stat::is_single_label()
-{
-	return _map.size() == 1;
-}
-
-
 
 string Tlabel_stat::get_max_label()
 {
@@ -196,7 +181,7 @@ string Tlabel_stat::get_max_label()
 
 int Tlabel_stat::get_jml_stat(string label)
 {
-   return _map[label];	
+	return _map[label];
 }
 
 map<string, int> Tlabel_stat::get_map()

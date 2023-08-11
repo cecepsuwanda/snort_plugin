@@ -24,6 +24,8 @@ private:
 	int _min_value;
 	Tglobal_config global_config;
 
+	void cari_max_label();
+
 public:
 	Tlabel_stat();
 	~Tlabel_stat();
@@ -94,6 +96,8 @@ public:
 			}
 		}
 
+		tmp.cari_max_label();
+
 		return tmp;
 	}
 
@@ -129,7 +133,7 @@ public:
 			}
 		}
 
-
+        tmp.cari_max_label();
 
 		return tmp;
 	}

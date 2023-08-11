@@ -36,8 +36,10 @@ public:
   static time_t id_detail_experiment;
 
   static double ratio_valid_attr;
-
   static double skala_pruning;
+  static bool continue_attr_only;
+  static bool buat_kombinasi;
+  static bool gunakan_rata2gain;
 
   static bool cetak_credal;  
 
@@ -54,7 +56,7 @@ public:
     use_credal = false;
     credal_s = 0.0;
     limited = false;
-    prunning = false;
+    prunning = true;
 
     depth = 0;
     min_sample = 0;
@@ -62,7 +64,12 @@ public:
 
     ratio_valid_attr = 0.3;
 
-    skala_pruning = 0.5;    
+    skala_pruning = 0.5;  
+
+    continue_attr_only = false;
+
+    buat_kombinasi = true;
+    gunakan_rata2gain = false;  
 
     //cetak_credal = false;
 
