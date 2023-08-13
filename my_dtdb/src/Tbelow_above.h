@@ -9,6 +9,12 @@ using namespace std;
 
 #define Included_Tbelow_above_H
 
+struct Tgain_ratio
+{
+	Tmy_dttype gain;
+	Tmy_dttype gain_ratio;
+};
+
 class Tbelow_above
 {
  private: 
@@ -34,8 +40,9 @@ public:
 	float get_split_info();
 
 	void clear();
+	bool cek_valid();
 
-	bool cek_valid();	
+    Tgain_ratio kalkulasi_gain_ration(Tmy_dttype entropy_before_split);
 	
 };
 

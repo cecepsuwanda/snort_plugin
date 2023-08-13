@@ -9,6 +9,12 @@ using namespace std;
 
 #define Included_Tbelow_above_kategori_H
 
+struct Tgain_ratio_kategori
+{
+	Tmy_dttype gain;
+	Tmy_dttype gain_ratio;
+};
+
 class Tbelow_above_kategori
 {
  private: 
@@ -32,10 +38,10 @@ public:
 	Tmy_dttype get_overall_metric();
 	float get_split_info();
 
-	void clear();
-	
+	void clear();	
 	bool cek_valid();	
-	
+
+	Tgain_ratio_kategori kalkulasi_gain_ration(Tmy_dttype entropy_before_split);
 };
 
 #endif

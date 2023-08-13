@@ -58,7 +58,7 @@ Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 
 void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dttype &split_value)
 {
-
+    
 	df.search_col_split();
 
 	float max_gain = 0;
@@ -142,6 +142,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	}
 
 	df.clear_map_col_split();
+	
 }
 
 void Tdt_build::clear_worker(size_t limit)

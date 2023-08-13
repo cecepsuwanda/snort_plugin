@@ -5,6 +5,8 @@ Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
 	_max_value = 0;
+	_min_value = 0;
+	_max_label = "undefined";
 }
 
 Tlabel_stat::~Tlabel_stat()
@@ -16,6 +18,9 @@ Tlabel_stat::~Tlabel_stat()
 void Tlabel_stat::clear()
 {
 	_jml_row = 0;
+	_max_value = 0;
+	_min_value = 0;
+	_max_label = "undefined";
 	_map.clear();
 }
 

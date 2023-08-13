@@ -55,7 +55,7 @@ public:
 
     use_credal = false;
     credal_s = 0.0;
-    limited = false;
+    limited = true;
     prunning = true;
 
     depth = 0;

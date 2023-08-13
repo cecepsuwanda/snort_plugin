@@ -24,6 +24,12 @@ struct Tpot_split
   map<Tmy_dttype, Tlabel_stat> data;
 };
 
+struct Tsplit_stat
+{
+   Tmy_dttype split_value;
+   Tlabel_stat label_stat;
+};
+
 struct Tmetric_split_value
 {
   int idx = 0;
@@ -49,12 +55,14 @@ private:
 
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
+  
+  static bool cmp(Tsplit_stat a,Tsplit_stat b);
   Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 
   void gen_kombinasi(map<Tmy_dttype, Tlabel_stat> v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
-  void gen_kombinasi_normal(map<Tmy_dttype, Tlabel_stat> v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
+  void gen_kombinasi_normal(vector<Tsplit_stat> &v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
 public:
   Tdataframe();
   ~Tdataframe();

@@ -126,3 +126,17 @@ float Tbelow_above_kategori::get_split_info()
 
 	return split_info;
 }
+
+Tgain_ratio_kategori Tbelow_above_kategori::kalkulasi_gain_ration(Tmy_dttype entropy_before_split)
+{
+	Tgain_ratio_kategori hsl;
+
+	Tmy_dttype entropy_after_split = get_overall_metric();
+	float split_info = get_split_info();
+	hsl.gain = entropy_before_split - entropy_after_split;
+	if (abs(split_info) > 0) {
+		hsl.gain_ratio = hsl.gain / split_info;
+	}
+
+	return hsl;
+}
