@@ -391,7 +391,7 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
     Tmy_dttype tmp_split_value("-1", true);
     bool first_iteration = true;
     Tlabel_stat stat_label_below, stat_label_above;
-    int max_jml_below = 0, max_jml_above = 0;    
+    int max_jml_below = 0, max_jml_above = 0;
 
     auto itr_next = _col_pot_split.begin();
     itr_next++;
@@ -437,7 +437,7 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
         }
 
       }
-      
+
 
       itr_next++;
       itr++;
@@ -861,14 +861,6 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
       rata2 = rata2 + ((float) v_split_stat[i].label_stat.get_jml_row() / jml_total);
     }
 
-    int diatas_rata2 = 0;
-    for (size_t i = 0; i < v_split_stat.size(); ++i)
-    {
-      if (rata2 > v_split_stat[i].label_stat.get_jml_row())
-      {
-        diatas_rata2++;
-      }
-    }
 
     Tmy_dttype entropy_before_split;
 
@@ -885,16 +877,17 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
     Tlabel_stat _stat_label_below;
     int max_jml_below = 0, max_jml_above = 0;
 
-    //vector<Tsplit_stat> normal_col_pot_split, known_col_pot_split;
+    Tmy_dttype mid_point_normal("", false);
+    Tmy_dttype mid_point_known("", false);
+    Tmy_dttype mid_point_rata2("", false);
 
-    // bool kombinasi_normal = false;
-    // bool kombinasi_known = false;
+    Tlabel_stat stat_below_normal;
+    Tlabel_stat stat_below_known;
+    Tlabel_stat stat_below_rata2;
 
-    //Tmy_dttype split_point_normal("", false);
-    //Tmy_dttype split_point_known("", false);
+    int jml_known = 0;
+    int jml_normal = 0;
 
-    //Tlabel_stat stat_below_normal;
-    //Tlabel_stat stat_below_known;
 
     for (size_t i = 0; i < v_split_stat.size(); i++)
     {
@@ -903,42 +896,72 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
       Tlabel_stat stat_below, stat_above;
       stat_below = v_split_stat[i].label_stat;
       stat_above = _stat_label - stat_below;
-      //stat_above.cari_max_label();
-
-
-      //if (stat_below.get_max_label() == "normal") {
-      // stat_below_normal = stat_below_normal + stat_below;
-
-      // if (split_point_normal == "")
-      // {
-      //   split_point_normal = mid_point;
-      // } else {
-      //   Tmy_dttype separator(";", false);
-      //   split_point_normal = split_point_normal + separator + mid_point;
-      // }
-
-      // normal_col_pot_split.push_back(v_split_stat[i]);
 
       Tbelow_above ba;
       ba.add_below(stat_below);
       ba.add_above(stat_above);
 
-      Tgain_ratio hsl = ba.kalkulasi_gain_ration(entropy_before_split);
-
-      bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
-
-      if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
+      if (stat_below.get_max_label() == "normal")
       {
-        first_iteration = false;
-        tmp_split_value = mid_point;
-        max_gain_ratio = hsl.gain_ratio;
-        max_gain = hsl.gain;
-        max_jml_above = stat_below.get_jml_row();
-        max_jml_below = stat_above.get_jml_row();
+        if (mid_point_normal == "")
+        {
+          mid_point_normal = mid_point;
+        } else {
+          Tmy_dttype separator(";", false);
+          mid_point_normal = mid_point_normal + separator + mid_point;
+        }
 
+        stat_below_normal = stat_below_normal + stat_below;
+
+        jml_normal++;
       }
 
-      //}
+      if (stat_below.get_max_label() == "known")
+      {
+        if (mid_point_known == "")
+        {
+          mid_point_known = mid_point;
+        } else {
+          Tmy_dttype separator(";", false);
+          mid_point_known = mid_point_known + separator + mid_point;
+        }
+
+        stat_below_known = stat_below_known + stat_below;
+
+        jml_known++;
+      }
+
+      if (rata2 < v_split_stat[i].label_stat.get_jml_row())
+      {
+        if (mid_point_rata2 == "")
+        {
+          mid_point_rata2 = mid_point;
+        } else {
+          Tmy_dttype separator(";", false);
+          mid_point_rata2 = mid_point_rata2 + separator + mid_point;
+        }
+
+        stat_below_rata2 = stat_below_rata2 + stat_below;
+      }
+
+      if (stat_below.get_max_label() != stat_above.get_max_label())
+      {
+        Tgain_ratio hsl = ba.kalkulasi_gain_ration(entropy_before_split);
+
+        bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+
+        if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
+        {
+          first_iteration = false;
+          tmp_split_value = mid_point;
+          max_gain_ratio = hsl.gain_ratio;
+          max_gain = hsl.gain;
+          max_jml_above = stat_below.get_jml_row();
+          max_jml_below = stat_above.get_jml_row();
+
+        }
+      }
+
     }
 
 
@@ -946,26 +969,95 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
 
     while ((v_split_stat.size() > (jml_kombinasi * 2)))
     {
-      if (jml_kombinasi < 5)
+      // if (jml_kombinasi < 5)
+      // {
+      Tlabel_stat tmp_stat;
+      Tmetric_split_value tmp_split;
+
+      gen_kombinasi_normal(v_split_stat, 0, jml_kombinasi - 1, 0, "", tmp_stat, tmp_split);
+
+      if (max_gain_ratio < tmp_split.max_gain_ratio)
       {
-        Tlabel_stat tmp_stat;
-        Tmetric_split_value tmp_split;
-
-        gen_kombinasi_normal(v_split_stat, 0, jml_kombinasi - 1, 0, "", tmp_stat, tmp_split);
-
-        if (max_gain_ratio < tmp_split.max_gain_ratio)
-        {
-          tmp_split_value = tmp_split.split_value;
-          max_gain_ratio.set_value(to_string(tmp_split.max_gain_ratio), true);
-          max_gain.set_value(to_string(tmp_split.max_gain), true);
-        }
+        tmp_split_value = tmp_split.split_value;
+        max_gain_ratio.set_value(to_string(tmp_split.max_gain_ratio), true);
+        max_gain.set_value(to_string(tmp_split.max_gain), true);
       }
+      // }
 
       jml_kombinasi++;
     }
 
-    //normal_col_pot_split.clear();
-    //known_col_pot_split.clear();
+
+    Tlabel_stat stat_above_normal = _stat_label - stat_below_normal;
+    Tlabel_stat stat_above_known = _stat_label - stat_below_known;
+    Tlabel_stat stat_above_rata2 = _stat_label - stat_below_rata2;
+
+    if ((jml_normal > 0) and (jml_known > 0))
+    {
+      if (jml_normal < jml_known)
+      {
+        Tbelow_above ba;
+        ba.add_below(stat_below_normal);
+        ba.add_above(stat_above_normal);
+
+        Tgain_ratio hsl = ba.kalkulasi_gain_ration(entropy_before_split);
+
+        bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+
+        if ((max_gain_ratio < hsl.gain_ratio) and is_pass)
+        {
+
+          tmp_split_value = mid_point_normal;
+          max_gain_ratio = hsl.gain_ratio;
+          max_gain = hsl.gain;
+          max_jml_below = stat_below_normal.get_jml_row();
+          max_jml_above = stat_above_normal.get_jml_row();
+        }
+
+      } else {
+
+        Tbelow_above ba;
+        ba.add_below(stat_below_known);
+        ba.add_above(stat_above_known);
+
+        Tgain_ratio hsl = ba.kalkulasi_gain_ration(entropy_before_split);
+
+        bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+
+        if ((max_gain_ratio < hsl.gain_ratio) and is_pass)
+        {
+
+          tmp_split_value = mid_point_known;
+          max_gain_ratio = hsl.gain_ratio;
+          max_gain = hsl.gain;
+          max_jml_below = stat_below_known.get_jml_row();
+          max_jml_above = stat_above_known.get_jml_row();
+        }
+
+      }
+    }
+
+    {
+
+      Tbelow_above ba;
+      ba.add_below(stat_below_rata2);
+      ba.add_above(stat_above_rata2);
+
+      Tgain_ratio hsl = ba.kalkulasi_gain_ration(entropy_before_split);
+
+      bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+
+      if ((max_gain_ratio < hsl.gain_ratio) and is_pass)
+      {
+
+        tmp_split_value = mid_point_rata2;
+        max_gain_ratio = hsl.gain_ratio;
+        max_gain = hsl.gain;
+        max_jml_below = stat_below_rata2.get_jml_row();
+        max_jml_above = stat_above_rata2.get_jml_row();
+      }
+
+    }
 
     hsl.idx = idx;
     hsl.max_gain_ratio = stof(max_gain_ratio.get_string());
