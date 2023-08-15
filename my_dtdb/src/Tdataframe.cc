@@ -410,7 +410,7 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
 
       if (((itr != itr_next) and (itr_next != _col_pot_split.end()) ))
       {
-        if ( (stat_label_below.get_max_label() != stat_label_above.get_max_label()) or (stat_label_below.get_jml_row() > (0.5 * _stat_label.get_jml_row())))
+        if (stat_label_below.get_max_label() != stat_label_above.get_max_label())
         {
           Tmy_dttype tmp1 = (*itr).first;
           Tmy_dttype tmp2 = (*itr_next).first;
@@ -570,6 +570,7 @@ void Tdataframe::gen_kombinasi_normal(vector<Tsplit_stat> &v_col_pot_split, int 
 
     Tmy_dttype  max_gain_ratio("0.0", true), max_gain("0.0", true);
     Tmy_dttype tmp_split_value("-1", false);
+    int max_jml_below = 0, max_jml_above = 0;
     bool first_iteration = true;
 
     for (size_t i = geser; i < v_col_pot_split.size(); ++i)
@@ -586,16 +587,21 @@ void Tdataframe::gen_kombinasi_normal(vector<Tsplit_stat> &v_col_pot_split, int 
       tmp_ba.add_below(stat_below);
       tmp_ba.add_above(stat_above);
 
-      Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ration(entropy_before_split);
+      if(stat_below.get_max_label()!=stat_above.get_max_label())
+      { 
+        Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ration(entropy_before_split);
 
-      bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+        bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
 
-      if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
-      {
-        first_iteration = false;
-        tmp_split_value = mid_point;
-        max_gain_ratio = hsl.gain_ratio;
-        max_gain = hsl.gain;
+        if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
+        {
+          first_iteration = false;
+          tmp_split_value = mid_point;
+          max_gain_ratio = hsl.gain_ratio;
+          max_gain = hsl.gain;
+          max_jml_below = stat_below.get_jml_row();
+          max_jml_above = stat_above.get_jml_row();
+        }
       }
 
 
@@ -606,6 +612,8 @@ void Tdataframe::gen_kombinasi_normal(vector<Tsplit_stat> &v_col_pot_split, int 
       v_split.max_gain_ratio = stof(max_gain_ratio.get_string());
       v_split.max_gain = stof(max_gain.get_string());
       v_split.split_value = tmp_split_value;
+      v_split.jml_below = max_jml_below;
+      v_split.jml_above = max_jml_above;
     }
 
   } else {
@@ -976,11 +984,15 @@ Tmetric_split_value Tdataframe::handle_non_continuous_1(int idx)
 
       gen_kombinasi_normal(v_split_stat, 0, jml_kombinasi - 1, 0, "", tmp_stat, tmp_split);
 
-      if (max_gain_ratio < tmp_split.max_gain_ratio)
+      bool is_pass = global_config.use_credal ? true : (tmp_split.max_gain_ratio > 0.0);
+
+      if ((max_gain_ratio < tmp_split.max_gain_ratio) and is_pass)
       {
         tmp_split_value = tmp_split.split_value;
         max_gain_ratio.set_value(to_string(tmp_split.max_gain_ratio), true);
         max_gain.set_value(to_string(tmp_split.max_gain), true);
+        max_jml_below = tmp_split.jml_below;
+        max_jml_above = tmp_split.jml_above;
       }
       // }
 
