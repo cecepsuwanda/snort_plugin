@@ -137,7 +137,7 @@ float Tbelow_above::get_split_info()
 	return split_info;
 }
 
-Tgain_ratio Tbelow_above::kalkulasi_gain_ration(Tmy_dttype entropy_before_split)
+Tgain_ratio Tbelow_above::kalkulasi_gain_ratio(Tmy_dttype entropy_before_split)
 {
 	Tgain_ratio hsl;
 

@@ -42,7 +42,7 @@ public:
 	void clear();
 	bool cek_valid();
 
-    Tgain_ratio kalkulasi_gain_ration(Tmy_dttype entropy_before_split);
+    Tgain_ratio kalkulasi_gain_ratio(Tmy_dttype entropy_before_split);
 	
 };
 

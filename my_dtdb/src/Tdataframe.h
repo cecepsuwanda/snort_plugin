@@ -26,8 +26,8 @@ struct Tpot_split
 
 struct Tsplit_stat
 {
-   Tmy_dttype split_value;
-   Tlabel_stat label_stat;
+  Tmy_dttype split_value;
+  Tlabel_stat label_stat;
 };
 
 struct Tmetric_split_value
@@ -45,6 +45,71 @@ class Tdataframe : public Tbase_dataframe
 {
 private:
 
+  class Tcari_gain_max
+  {
+  private:
+    bool first_iteration;
+    Tmy_dttype max_gain_ratio;
+    Tmy_dttype max_gain;
+    Tmy_dttype tmp_split_value;
+    int jml_below;
+    int jml_above;
+
+    Tglobal_config global_config;
+
+  public:
+
+
+    Tcari_gain_max()
+    {
+      first_iteration = true;
+      max_gain_ratio.set_value("0.0", true);
+      max_gain.set_value("0.0", true);
+      tmp_split_value.set_value("-1", false);
+      jml_below = 0;
+      jml_above = 0;
+    }
+
+
+    Tmetric_split_value cari_gain_max(int idx_attr,Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split)
+    {
+      Tbelow_above tmp_ba;
+      tmp_ba.add_below(stat_below);
+      tmp_ba.add_above(stat_above);
+
+      Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ratio(entropy_before_split);
+
+      bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+
+      if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
+      {
+        first_iteration = false;
+        tmp_split_value = mid_point;
+        max_gain_ratio = hsl.gain_ratio;
+        max_gain = hsl.gain;
+        jml_below = stat_below.get_jml_row();
+        jml_above = stat_above.get_jml_row();
+      }
+      
+      Tmetric_split_value hsl_split;
+
+      if (max_gain_ratio != "0.0") {
+        hsl_split.idx = idx_attr;
+        hsl_split.max_gain_ratio = stof(hsl.gain_ratio.get_string());
+        hsl_split.max_gain = stof(hsl.gain.get_string());
+        hsl_split.split_value = tmp_split_value;
+        hsl_split.jml_below = jml_below;
+        hsl_split.jml_above = jml_above;
+      }
+
+      return hsl_split;
+
+    }
+
+
+  };
+
+
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
@@ -55,8 +120,8 @@ private:
 
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
-  
-  static bool cmp(Tsplit_stat a,Tsplit_stat b);
+
+  static bool cmp(Tsplit_stat a, Tsplit_stat b);
   Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
