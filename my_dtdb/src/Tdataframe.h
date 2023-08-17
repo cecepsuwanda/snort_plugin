@@ -58,56 +58,32 @@ private:
     Tglobal_config global_config;
 
   public:
-
-
-    Tcari_gain_max()
-    {
-      first_iteration = true;
-      max_gain_ratio.set_value("0.0", true);
-      max_gain.set_value("0.0", true);
-      tmp_split_value.set_value("-1", false);
-      jml_below = 0;
-      jml_above = 0;
-    }
-
-
-    Tmetric_split_value cari_gain_max(int idx_attr,Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split)
-    {
-      Tbelow_above tmp_ba;
-      tmp_ba.add_below(stat_below);
-      tmp_ba.add_above(stat_above);
-
-      Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ratio(entropy_before_split);
-
-      bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
-
-      if ((first_iteration and is_pass) or ((max_gain_ratio < hsl.gain_ratio) and is_pass))
-      {
-        first_iteration = false;
-        tmp_split_value = mid_point;
-        max_gain_ratio = hsl.gain_ratio;
-        max_gain = hsl.gain;
-        jml_below = stat_below.get_jml_row();
-        jml_above = stat_above.get_jml_row();
-      }
-      
-      Tmetric_split_value hsl_split;
-
-      if (max_gain_ratio != "0.0") {
-        hsl_split.idx = idx_attr;
-        hsl_split.max_gain_ratio = stof(hsl.gain_ratio.get_string());
-        hsl_split.max_gain = stof(hsl.gain.get_string());
-        hsl_split.split_value = tmp_split_value;
-        hsl_split.jml_below = jml_below;
-        hsl_split.jml_above = jml_above;
-      }
-
-      return hsl_split;
-
-    }
-
-
+    Tcari_gain_max();
+    Tmetric_split_value cari_gain_max(int idx_attr, Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split);
   };
+
+
+  class Thanlde_split_map
+  {
+  private:
+    vector<Tsplit_stat> _vec_split_stat;
+    Tmy_dttype _entropy_before_split;
+    Tlabel_stat _stat_label;
+    float _rata2;
+    Tcari_gain_max _cari_gain_max;
+
+    static bool cmp(Tsplit_stat a, Tsplit_stat b);
+  public:
+    Thanlde_split_map();
+    ~Thanlde_split_map();
+
+    void set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label);
+    void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
+    Tmetric_split_value gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
+    Tmetric_split_value cari_gain(int idx);
+  };
+
+
 
 
   Tlabel_stat _stat_label;
@@ -121,13 +97,13 @@ private:
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
 
-  static bool cmp(Tsplit_stat a, Tsplit_stat b);
+
   Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 
-  void gen_kombinasi(map<Tmy_dttype, Tlabel_stat> v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
-  void gen_kombinasi_normal(vector<Tsplit_stat> &v_col_pot_split, int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below, Tmetric_split_value& v_split);
+
+
 public:
   Tdataframe();
   ~Tdataframe();
