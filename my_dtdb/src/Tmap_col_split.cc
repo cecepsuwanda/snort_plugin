@@ -55,11 +55,11 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 
 	//(is_continue=0) or
 
-	string tmp = "select * from attr_stat where ((is_continue=1) and (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2)) order by id"; // where (is_continue=0) or ((is_continue=1) and  (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2))
+	string tmp = "select * from attr_stat where ((is_continue=1) and (jml <= round(" + to_string(global_config.ratio_valid_attr) + "*" + to_string(jml_row) + ",2)) and  (jml>=2)) order by id"; // where (is_continue=0) or ((is_continue=1) and  (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2))
 
-	if(!global_config.continue_attr_only)
+	if (!global_config.continue_attr_only)
 	{
-      tmp = "select * from attr_stat where ((is_continue=0)) or ((is_continue=1) and (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2)) order by id";
+		tmp = "select * from attr_stat where ((is_continue=0) and (jml>=2)) or ((is_continue=1) and (jml <= round(" + to_string(global_config.ratio_valid_attr) + "*" + to_string(jml_row) + ",2)) and  (jml>=2)) order by id";
 	}
 
 	if (global_query_builder.query(tmp))
@@ -73,7 +73,17 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 				while (jml_row > 0)
 				{
 					vector<string> data = global_query_builder.fetch_row();
-					_valid_attr.push_back(stoi(data[0]));
+
+					// if (stoi(data[0]) == 1)
+					// {
+					// 	if (stoi(data[3]) == 2)
+					// 	{
+					// 		//_valid_attr.push_back(stoi(data[0]));
+					// 	}
+					// } else {
+						_valid_attr.push_back(stoi(data[0]));
+					//}
+
 					jml_row--;
 				}
 
@@ -81,30 +91,23 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 		}
 	}
 
-	// if(_valid_attr.size()==0)
+	// for (size_t i = 0; i < _valid_attr.size(); ++i)
 	// {
-	// 	_valid_attr.push_back(1);
-	// 	_valid_attr.push_back(2);
-	// 	_valid_attr.push_back(3);
-	// 	_valid_attr.push_back(6);
+	// 	if (_valid_attr[0] == 2)
+	// 	{
+
+	// 	} else {
+	// 		if (_valid_attr[0] == 3)
+	// 		{
+
+	// 		}
+	// 	}
 	// }
+
 
 	global_query_builder.close_connection();
 
-	// for (auto itr = _pot_split.begin(); itr != _pot_split.end(); ++itr)
-	// {
-	// 	auto tmp = itr->second.begin();
-	// 	Tmy_dttype tmp_dttype= tmp->first;
 
-	// 	if (tmp_dttype.is_continue()) {
-	// 		//cout << itr->first << "-" << itr->second.size() << endl;
-	// 		if ( itr->second.size() < (0.3 * jml_row) ) {
-	// 			_valid_attr.push_back(itr->first);
-	// 		}
-	// 	} else {
-	// 		_valid_attr.push_back(itr->first);
-	// 	}
-	// }
 
 }
 
@@ -167,7 +170,7 @@ map<Tmy_dttype, Tlabel_stat> Tmap_col_split::get_pot_split(int idx)
 				while (jml_row > 0)
 				{
 					vector<string> data = global_query_builder.fetch_row();
-					Tmy_dttype tmp_split_value(data[1], tmp_type[1] == "continuous.");					
+					Tmy_dttype tmp_split_value(data[1], tmp_type[1] == "continuous.");
 
 					auto itr = col_split.find(tmp_split_value);
 					if (itr == col_split.end())
@@ -177,7 +180,7 @@ map<Tmy_dttype, Tlabel_stat> Tmap_col_split::get_pot_split(int idx)
 
 						col_split.insert(pair<Tmy_dttype, Tlabel_stat>(tmp_split_value, label_stat));
 					} else {
-						
+
 						itr->second.add(data[2], stoi(data[3]));
 					}
 					jml_row--;

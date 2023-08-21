@@ -80,7 +80,7 @@ private:
     void set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label);
     void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
     Tmetric_split_value gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
-    Tmetric_split_value cari_gain(int idx);
+    Tmetric_split_value cari_gain(int idx,bool flag);
   };
 
 
@@ -96,13 +96,9 @@ private:
 
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
-
-
   Tmetric_split_value handle_non_continuous_1(int idx);
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
-
-
 
 public:
   Tdataframe();
