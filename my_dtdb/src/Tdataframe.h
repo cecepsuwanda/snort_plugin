@@ -55,11 +55,17 @@ private:
     int jml_below;
     int jml_above;
 
+    bool is_multiway;
+    Tmy_dttype multiway_gain_ratio;
+
     Tglobal_config global_config;
 
   public:
     Tcari_gain_max();
+    void set_is_multiway(bool stat);
+    void set_multiway_gain_ratio(Tmy_dttype gain_ratio);
     Tmetric_split_value cari_gain_max(int idx_attr, Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split);
+
   };
 
 
@@ -81,6 +87,24 @@ private:
     void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
     Tmetric_split_value gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
     Tmetric_split_value cari_gain(int idx,bool flag);
+  };
+
+
+  class Tstat_gain_split_holder
+  {
+  private:
+    Tmy_dttype mid_point;
+    Tlabel_stat stat_below,stat_above;
+    int jml;
+  public:
+    Tstat_gain_split_holder();
+    ~Tstat_gain_split_holder();
+    void set_value(Tmy_dttype v_mid_point,Tlabel_stat v_stat_below,Tlabel_stat stat);
+    Tmy_dttype get_mid_point();
+    Tlabel_stat get_stat_below();
+    Tlabel_stat get_stat_above();
+    bool is_empty();
+    int get_jml();
   };
 
 

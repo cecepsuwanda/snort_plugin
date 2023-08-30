@@ -69,7 +69,7 @@ public:
     continue_attr_only = false;
 
     buat_kombinasi = true;
-    gunakan_rata2gain = false;  
+    gunakan_rata2gain = true;  
 
     //cetak_credal = false;
 

@@ -26,7 +26,7 @@ public:
 	map<Tmy_dttype, Tlabel_stat> get_pot_split(int idx);
 	void clear();
 
-	void cek_valid_attr(int jml_row);
+	void cek_valid_attr(int jml_data_cabang,int jml_data_root);
 
 	int get_jml_valid_attr();
 	int get_valid_attr(int idx);
