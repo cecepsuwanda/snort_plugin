@@ -778,10 +778,10 @@ Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx, bool flag)
   //   jml_kombinasi++;
   // }
 
-  // if (!data_svm.is_empty())
-  // {
-  //   tmp_hsl = _cari_gain_max.cari_gain_max(idx, data_svm.get_stat_below(), data_svm.get_stat_above(), data_svm.get_mid_point(), _entropy_before_split);
-  // }
+  if (!data_svm.is_empty())
+  {
+    tmp_hsl = _cari_gain_max.cari_gain_max(idx, data_svm.get_stat_below(), data_svm.get_stat_above(), data_svm.get_mid_point(), _entropy_before_split);
+  }
 
   // if (tmp_hsl.max_gain_ratio != -1)
   // {
