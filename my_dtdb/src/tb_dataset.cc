@@ -616,6 +616,15 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 	return col_split;
 }
 
+void tb_dataset::clear_attr(int idx)
+{
+	string tmp = "truncate attr" + to_string(idx);
+	global_query_builder.query(tmp);
+
+	tmp = "delete from attr_stat where id=" + to_string(idx);
+	global_query_builder.query(tmp);
+}
+
 
 void tb_dataset::update_attr_stat(int idx)
 {

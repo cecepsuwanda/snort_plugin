@@ -91,6 +91,7 @@ public:
 	map<string, map<string, int>> hit_conf_metrik();
 	map<Tmy_dttype, Tlabel_stat> hit_col_split(string group_kolom);
 	void update_attr_stat(int idx);
+	void clear_attr(int idx);
 	void clear_tmp_dataset();
 	void child_to_tmp_dataset();
 	void reset_depth_branch();

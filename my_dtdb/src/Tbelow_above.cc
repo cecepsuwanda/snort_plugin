@@ -144,6 +144,12 @@ Tgain_ratio Tbelow_above::kalkulasi_gain_ratio(Tmy_dttype entropy_before_split)
 	Tmy_dttype entropy_after_split = get_overall_metric();
 	float split_info = get_split_info();
 	hsl.gain = entropy_before_split - entropy_after_split;
+
+	// if ((hsl.gain < 0.0) and (abs(stof(hsl.gain.get_string()))>0.01))
+	// {		
+	// 	 cout << endl << " negatif gain !!! " << entropy_before_split.get_string() << " " << entropy_after_split.get_string() << endl;
+	// }
+
 	if (abs(split_info) > 0) {
 		hsl.gain_ratio = hsl.gain / split_info;
 	}

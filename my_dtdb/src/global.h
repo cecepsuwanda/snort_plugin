@@ -70,13 +70,13 @@ public:
 
     skala_pruning = 0.5;  
 
-    continue_attr_only = false;
+    continue_attr_only = true;
     non_continue_limit = false;
-    buat_kombinasi = true;
-    gunakan_rata2gain = false;
-    binary_gain_ratio_limited_by_non_binary_gain_ratio = true;
+    buat_kombinasi = false;
+    gunakan_rata2gain = true;
+    binary_gain_ratio_limited_by_non_binary_gain_ratio = false;
     one_agains_many_only = false;
-    use_non_binary_gain_ratio = true;  
+    use_non_binary_gain_ratio = false;  
 
     //cetak_credal = false;
 

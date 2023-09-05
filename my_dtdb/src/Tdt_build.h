@@ -16,6 +16,27 @@
 class Tdt_build
 {
 private:
+	
+    class Tcari_pencilan
+    {
+    private:
+    	map<int, double> map_gain,map_z_score;    	
+    	double sum_neg,sum_po;
+    	double rata2;
+    	double sd;
+    	int jml;
+
+        Tglobal_config global_config;
+
+    public:
+    	Tcari_pencilan();
+    	~Tcari_pencilan();
+    	void insert_gain(int idx,double gain);
+    	bool cek_valid(int idx);
+    };
+
+
+
 	vector<Node> tree;
 	vector<Node> prev_tree;
 

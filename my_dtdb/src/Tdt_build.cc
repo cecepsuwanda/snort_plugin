@@ -70,16 +70,18 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	split_column = -1;
 	split_value.set_value("-1", true);
 
+	Tcari_pencilan cari_pencilan;
+
 	vector<future<Tmetric_split_value>> async_worker;
 
 	for (int i = 0; i < df.get_jml_valid_attr(); ++i)
 	{
-		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));
+		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));	
 	}
 
 	vector<Tmetric_split_value> v_hsl;
-	float sum_neg = 0.0, sum_po = 0.0;
-	int jml_hsl = 0;
+	// float sum_neg = 0.0, sum_po = 0.0;
+	// int jml_hsl = 0;
 
 	if (async_worker.size() > 0)
 	{
@@ -89,28 +91,12 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 		{
 			Tmetric_split_value hsl = th.get();
 			if (hsl.split_value != "-1") {
-
-				// cout << df.getjmlrow() << "," << hsl.jml_below << "," << hsl.jml_above << endl;
-
 				v_hsl.push_back(hsl);
-				sum_po += (hsl.max_gain > 0.0) ? hsl.max_gain : 0.0;
-				sum_neg += (hsl.max_gain < 0.0) ? hsl.max_gain : 0.0;
-				jml_hsl++;
-
+				cari_pencilan.insert_gain(hsl.idx, hsl.max_gain);
 			}
-			//pesan.cetak("[%d,%f]\n", hsl.idx, hsl.overall_metric);
+			//
 
-			// if (first_iteration or (max_gain < hsl.max_gain_ratio))
-			// {
-			// 	max_gain = hsl.max_gain_ratio;
-			// 	split_column = hsl.idx;
-			// 	split_value = hsl.split_value;
 
-			// 	first_iteration = false;
-
-			// 	//pesan.cetak("1  [%d,%f]\n", split_column, max_gain);
-
-			// }
 		}
 
 		async_worker.clear();
@@ -120,21 +106,17 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	if (v_hsl.size() > 0)
 	{
-		float rata2_gain = (sum_po - abs(sum_neg)) / jml_hsl;
-
 		for (size_t i = 0; i < v_hsl.size(); ++i)
 		{
-			if ((rata2_gain < v_hsl[i].max_gain) or !global_config.gunakan_rata2gain)
+
+			if (cari_pencilan.cek_valid(v_hsl[i].idx))
 			{
 				bool pass = limit_jml_dt_cabang(df.getjmlrow(), v_hsl[i].jml_below, v_hsl[i].jml_above);
 
 				if (pass or !global_config.limited)
 				{
-
 					if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
 					{
-
-
 						max_gain = v_hsl[i].max_gain_ratio;
 						split_column = v_hsl[i].idx;
 						split_value = v_hsl[i].split_value;
@@ -144,6 +126,13 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 				}
 			}
 		}
+        
+        if(max_gain<0)
+        {
+           split_column = -1;
+	       split_value.set_value("-1", true);
+        }
+
 	}
 
 	df.clear_map_col_split();
@@ -763,7 +752,7 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 			determine_best_split(df, split_column, split_value);
 		}
 
-		pesan.cetak(" [%s %d,%s] ", tmp_posisi.get_id_branch().c_str(), split_column, split_value.get_string().c_str());
+		//pesan.cetak(" [%s %d,%s] ", tmp_posisi.get_id_branch().c_str(), split_column, split_value.get_string().c_str());
 
 		if (split_value != "-1")
 		{
@@ -1984,6 +1973,64 @@ void Tdt_build::build_tree(Tdataframe & df_train)
 	missing_branch.delete_non_missing();
 	save_tree();
 	//df_train.close_file();
+}
+
+
+Tdt_build::Tcari_pencilan::Tcari_pencilan()
+{
+	sum_neg = 0.0;
+	sum_po = 0.0;
+	rata2 = 0.0;
+	sd = 0.0;
+	jml = 0;
+
+	map_gain.clear();
+	map_z_score.clear();
+}
+
+Tdt_build::Tcari_pencilan::~Tcari_pencilan()
+{
+	map_gain.clear();
+	map_z_score.clear();
+}
+
+void Tdt_build::Tcari_pencilan::insert_gain(int idx, double gain)
+{
+	map_gain.insert({idx, gain});
+	sum_po += (gain > 0.0) ? gain : 0.0;
+	sum_neg += (gain < 0.0) ? gain : 0.0;
+	jml++;
+
+	rata2 = (sum_po - abs(sum_neg)) / jml;
+
+	double tmp_sum = 0.0;
+	for (auto itr = map_gain.begin(); itr != map_gain.end(); ++itr)
+	{
+		tmp_sum += pow((itr->second - rata2), 2);
+	}
+
+	sd = sqrt(tmp_sum / (jml - 1));
+
+	map_z_score.clear();
+	for (auto itr = map_gain.begin(); itr != map_gain.end(); ++itr)
+	{
+		map_z_score.insert({itr->first, ((itr->second - rata2) / sd)});
+	}
+
+}
+
+
+bool Tdt_build::Tcari_pencilan::cek_valid(int idx)
+{
+	bool pass = true;
+
+	//pass = ((rata2 < map_gain[idx]) or !global_config.gunakan_rata2gain);
+
+	pass = ((map_z_score[idx] > 0.0) or !global_config.gunakan_rata2gain);
+
+	//cout << " z-score " << to_string(idx) << " " << to_string(map_z_score[idx]) << " " << (pass ? "True" : "False") << endl;
+
+	return pass;
 }
 
 
