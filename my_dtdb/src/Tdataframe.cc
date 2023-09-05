@@ -676,14 +676,14 @@ Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx)
 
   _cari_gain_max.set_idx_attr(idx);
 
-  Tbelow_above_kategori ba;
+  //Tbelow_above_kategori ba;
   Tmy_dttype mid_point("-1", false);
   Tmy_dttype tmp_split_value("-1", false);
 
   Tstat_gain_split_holder data_svm;
-  Tstat_gain_split_holder data_known;
-  Tstat_gain_split_holder data_normal;
-  Tstat_gain_split_holder data_rata2;
+  // Tstat_gain_split_holder data_known;
+  // Tstat_gain_split_holder data_normal;
+  // Tstat_gain_split_holder data_rata2;
 
   Tlabel_stat stat_below;
 
@@ -693,7 +693,7 @@ Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx)
 
     Tlabel_stat stat_below = _vec_split_stat[i].label_stat;
 
-    ba.add_stat(_vec_split_stat[i].label_stat);
+    //ba.add_stat(_vec_split_stat[i].label_stat);
 
     if (idx == 2)
     {
@@ -703,64 +703,80 @@ Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx)
       }
     }
 
-
-    if (stat_below.get_max_label() == "normal")
+    if (idx == 3)
     {
-      data_normal.set_value(mid_point, stat_below, _stat_label);
+       if (mid_point == "SF")
+       {
+          data_svm.set_value(mid_point, stat_below, _stat_label);
+       }
     }
 
-    if (stat_below.get_max_label() == "known")
+    if (idx == 6)
     {
-      data_known.set_value(mid_point, stat_below, _stat_label);
+       if (mid_point == "0")
+       {
+          data_svm.set_value(mid_point, stat_below, _stat_label);
+       }
     }
 
-    if (_rata2 < _vec_split_stat[i].label_stat.get_jml_row())
-    {
-      data_rata2.set_value(mid_point, stat_below, _stat_label);
-    }
+
+    // if (stat_below.get_max_label() == "normal")
+    // {
+    //   data_normal.set_value(mid_point, stat_below, _stat_label);
+    // }
+
+    // if (stat_below.get_max_label() == "known")
+    // {
+    //   data_known.set_value(mid_point, stat_below, _stat_label);
+    // }
+
+    // if (_rata2 < _vec_split_stat[i].label_stat.get_jml_row())
+    // {
+    //   data_rata2.set_value(mid_point, stat_below, _stat_label);
+    // }
 
   }
 
-  Tgain_ratio_kategori hsl_kategori = ba.kalkulasi_gain_ratio(_entropy_before_split);
+  // Tgain_ratio_kategori hsl_kategori = ba.kalkulasi_gain_ratio(_entropy_before_split);
 
-  if (_vec_split_stat.size() > 2)
-  {
-    _cari_gain_max.set_is_multiway(global_config.binary_gain_ratio_limited_by_non_binary_gain_ratio);
-    _cari_gain_max.set_multiway_gain_ratio(hsl_kategori.gain_ratio);
-  } else {
-    _cari_gain_max.set_is_multiway(false);
-  }
+  // if (_vec_split_stat.size() > 2)
+  // {
+  //   _cari_gain_max.set_is_multiway(global_config.binary_gain_ratio_limited_by_non_binary_gain_ratio);
+  //   _cari_gain_max.set_multiway_gain_ratio(hsl_kategori.gain_ratio);
+  // } else {
+  //   _cari_gain_max.set_is_multiway(false);
+  // }
 
-  for (size_t i = 0; i < _vec_split_stat.size(); ++i)
-  {
-    mid_point = _vec_split_stat[i].split_value;
+  // for (size_t i = 0; i < _vec_split_stat.size(); ++i)
+  // {
+  //   mid_point = _vec_split_stat[i].split_value;
 
-    Tlabel_stat stat_below = _vec_split_stat[i].label_stat;
-    Tlabel_stat stat_above = _stat_label - stat_below;
+  //   Tlabel_stat stat_below = _vec_split_stat[i].label_stat;
+  //   Tlabel_stat stat_above = _stat_label - stat_below;
 
-    _cari_gain_max.cari_gain_max(stat_below, stat_above, mid_point, _entropy_before_split);
+  //   _cari_gain_max.cari_gain_max(stat_below, stat_above, mid_point, _entropy_before_split);
 
-  }
+  // }
 
 
   if (!global_config.one_agains_many_only)
   {
-    if (!data_normal.is_empty() and !data_known.is_empty())
-    {
-      if (data_normal.get_jml() < data_known.get_jml())
-      {
-        _cari_gain_max.cari_gain_max(data_normal.get_stat_below(), data_normal.get_stat_above(), data_normal.get_mid_point(), _entropy_before_split);
+    // if (!data_normal.is_empty() and !data_known.is_empty())
+    // {
+    //   if (data_normal.get_jml() < data_known.get_jml())
+    //   {
+    //     _cari_gain_max.cari_gain_max(data_normal.get_stat_below(), data_normal.get_stat_above(), data_normal.get_mid_point(), _entropy_before_split);
 
-      } else {
+    //   } else {
 
-        _cari_gain_max.cari_gain_max(data_known.get_stat_below(), data_known.get_stat_above(), data_known.get_mid_point(), _entropy_before_split);
+    //     _cari_gain_max.cari_gain_max(data_known.get_stat_below(), data_known.get_stat_above(), data_known.get_mid_point(), _entropy_before_split);
 
-      }
-    }
+    //   }
+    // }
 
-    if (!data_rata2.is_empty()) {
-      _cari_gain_max.cari_gain_max(data_rata2.get_stat_below(), data_rata2.get_stat_above(), data_rata2.get_mid_point(), _entropy_before_split);
-    }
+    // if (!data_rata2.is_empty()) {
+    //   _cari_gain_max.cari_gain_max(data_rata2.get_stat_below(), data_rata2.get_stat_above(), data_rata2.get_mid_point(), _entropy_before_split);
+    // }
 
     if (!data_svm.is_empty())
     {
@@ -770,48 +786,44 @@ Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx)
   }
 
 
-  if (global_config.buat_kombinasi and !global_config.one_agains_many_only)
-  {
-    size_t jml_kombinasi = 2;
-    while ((_vec_split_stat.size() > (jml_kombinasi * 2)))
-    {
+  // if (global_config.buat_kombinasi and !global_config.one_agains_many_only)
+  // {
+  //   size_t jml_kombinasi = 2;
+  //   while ((_vec_split_stat.size() > (jml_kombinasi * 2)))
+  //   {
 
-      if (jml_kombinasi < 5)
-      {
-        Tlabel_stat tmp_stat;
-        Tmetric_split_value tmp_split;
+  //     if (jml_kombinasi < 5)
+  //     {
+  //       Tlabel_stat tmp_stat;
+  //       Tmetric_split_value tmp_split;
 
-        gen_kombinasi_normal(0, jml_kombinasi - 1, 0, "", tmp_stat);
-      }
+  //       gen_kombinasi_normal(0, jml_kombinasi - 1, 0, "", tmp_stat);
+  //     }
 
-      jml_kombinasi++;
-    }
-
-
-
-
-  }
+  //     jml_kombinasi++;
+  //   }
+  // }
 
 
   tmp_hsl = _cari_gain_max.get_gain_max();
 
-  if (global_config.use_non_binary_gain_ratio) {
+  // if (global_config.use_non_binary_gain_ratio) {
 
-    if ( (stof(hsl_kategori.gain_ratio.get_string()) != 0.0) and ((tmp_hsl.max_gain_ratio == 0) or (tmp_hsl.max_gain_ratio == -1)))
-    {
-      cout << "[ " << idx << " " << tmp_hsl.max_gain_ratio << " " << hsl_kategori.gain_ratio.get_string();
-      tmp_hsl.split_value.set_value("-1", false);
-      cout << " 1 big problem !!! ";
-      if (_vec_split_stat.size() == 2)
-      {
-        cout << " 2 big problem !!! ";
-      }
-      cout << "]" << endl;
-    } else {
-      tmp_hsl.max_gain_ratio = stof(hsl_kategori.gain_ratio.get_string());
-      tmp_hsl.max_gain = stof(hsl_kategori.gain.get_string());
-    }
-  }
+  //   if ( (stof(hsl_kategori.gain_ratio.get_string()) != 0.0) and ((tmp_hsl.max_gain_ratio == 0) or (tmp_hsl.max_gain_ratio == -1)))
+  //   {
+  //     cout << "[ " << idx << " " << tmp_hsl.max_gain_ratio << " " << hsl_kategori.gain_ratio.get_string();
+  //     tmp_hsl.split_value.set_value("-1", false);
+  //     cout << " 1 big problem !!! ";
+  //     if (_vec_split_stat.size() == 2)
+  //     {
+  //       cout << " 2 big problem !!! ";
+  //     }
+  //     cout << "]" << endl;
+  //   } else {
+  //     tmp_hsl.max_gain_ratio = stof(hsl_kategori.gain_ratio.get_string());
+  //     tmp_hsl.max_gain = stof(hsl_kategori.gain.get_string());
+  //   }
+  // }
 
   return tmp_hsl;
 }

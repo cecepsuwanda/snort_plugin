@@ -70,7 +70,7 @@ public:
 
     skala_pruning = 0.5;  
 
-    continue_attr_only = true;
+    continue_attr_only = false;
     non_continue_limit = false;
     buat_kombinasi = false;
     gunakan_rata2gain = true;
