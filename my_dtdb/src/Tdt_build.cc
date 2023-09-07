@@ -113,7 +113,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 			{
 				bool pass = limit_jml_dt_cabang(df.getjmlrow(), v_hsl[i].jml_below, v_hsl[i].jml_above);
 
-				if (pass or !global_config.limited)
+				if (pass or !global_config.find_other_attr)
 				{
 					if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
 					{

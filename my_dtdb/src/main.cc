@@ -23,12 +23,14 @@ string Tglobal_config::partition_test;
 
 bool Tglobal_config::use_credal;
 double Tglobal_config::credal_s;
-bool Tglobal_config::limited;
 bool Tglobal_config::prunning;
 
 int Tglobal_config::depth;
 int Tglobal_config::min_sample;
+
+bool Tglobal_config::limited;
 double Tglobal_config::threshold;
+bool Tglobal_config::find_other_attr;
 
 time_t Tglobal_config::id_experiment;
 time_t Tglobal_config::id_detail_experiment;

@@ -25,12 +25,14 @@ public:
 
   static bool use_credal;
   static double credal_s;
-  static bool limited;
   static bool prunning;
 
   static int depth;
   static int min_sample;
+
+  static bool limited;
   static double threshold;
+  static bool find_other_attr;
 
   static time_t id_experiment;
   static time_t id_detail_experiment;
@@ -45,7 +47,7 @@ public:
   static bool one_agains_many_only;
   static bool use_non_binary_gain_ratio;
 
-  static bool cetak_credal;  
+  static bool cetak_credal;
 
   static void init()
   {
@@ -59,16 +61,18 @@ public:
 
     use_credal = false;
     credal_s = 0.0;
-    limited = true;
-    prunning = true;
 
+    prunning = true;
     depth = 0;
     min_sample = 0;
+
+    limited = true;
     threshold = 0;
+    find_other_attr = false;
 
     ratio_valid_attr = 0.3;
 
-    skala_pruning = 0.5;  
+    skala_pruning = 0.5;
 
     continue_attr_only = false;
     non_continue_limit = false;
@@ -76,7 +80,7 @@ public:
     gunakan_rata2gain = true;
     binary_gain_ratio_limited_by_non_binary_gain_ratio = false;
     one_agains_many_only = false;
-    use_non_binary_gain_ratio = false;  
+    use_non_binary_gain_ratio = false;
 
     //cetak_credal = false;
 
