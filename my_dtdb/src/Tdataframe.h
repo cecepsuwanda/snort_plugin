@@ -24,12 +24,6 @@ struct Tpot_split
   map<Tmy_dttype, Tlabel_stat> data;
 };
 
-struct Tsplit_stat
-{
-  Tmy_dttype split_value;
-  Tlabel_stat label_stat;
-};
-
 struct Tmetric_split_value
 {
   int idx = 0;
@@ -39,6 +33,100 @@ struct Tmetric_split_value
   int jml_above = 0;
   Tmy_dttype split_value;
 };
+
+// struct Tsplit_stat
+// {
+//   Tmy_dttype split_value;
+//   Tlabel_stat label_stat;
+// };
+
+class Tsplit_stat
+{
+private:
+  Tmy_dttype _split_value, _entropy_before_split;
+  Tlabel_stat _stat_below, _stat_above;
+public:
+  Tsplit_stat();
+  ~Tsplit_stat();
+
+  void set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
+  void set_entropy_before_split(Tmy_dttype entropy_before_split);
+  Tmy_dttype get_split_value();
+  int get_jml_below();
+  int get_jml_above();
+  Tgain_ratio kalkulasi_gain_ratio();
+
+  Tsplit_stat(const Tsplit_stat &t)
+  {
+    _split_value = t._split_value;
+    _stat_below = t._stat_below;
+    _stat_above = t._stat_above;
+    _entropy_before_split = t._entropy_before_split;
+  }
+
+
+  Tsplit_stat& operator = (const Tsplit_stat &t)
+  {
+    this->_split_value = t._split_value;
+    this->_stat_below = t._stat_below;
+    this->_stat_above = t._stat_above;
+    this->_entropy_before_split = t._entropy_before_split;
+
+    return *this;
+  }
+
+
+  const Tsplit_stat operator + (const Tsplit_stat &rhs) const
+  {
+    Tsplit_stat tmp;
+
+    Tmy_dttype separator(";", false);
+
+    tmp._split_value = _split_value + separator + rhs._split_value;
+
+    Tlabel_stat tmp_stat = _stat_below + _stat_above;
+
+    tmp._stat_below = _stat_below + rhs._stat_below;
+    tmp._stat_above = tmp_stat - tmp._stat_below;
+
+    return tmp;
+  }
+
+};
+
+class Tproses_split_stat
+{
+private:
+  vector<Tsplit_stat> _vec_split_stat;
+  vector<Tsplit_stat> _tmp_vec_split_stat;
+  Tmy_dttype _entropy_before_split;
+  double _sum_gain_po, _sum_gain_neg, _rata2, _sd;
+
+  bool _first_iteration;
+  Tmy_dttype _max_gain_ratio;
+  Tmy_dttype _max_gain;
+  Tmy_dttype _tmp_split_value;
+  int _jml_below;
+  int _jml_above;
+
+  Tglobal_config global_config;
+
+public:
+  Tproses_split_stat();
+  ~Tproses_split_stat();
+
+  void set_entropy_before_split(Tmy_dttype entropy_before_split);
+
+  void insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
+  void clear_tmp();
+  void insert_split_stat();
+
+  void kalkulasi_sd();
+
+  Tmetric_split_value get_max_gain_ratio();
+};
+
+
 
 
 class Tdataframe : public Tbase_dataframe
@@ -71,44 +159,63 @@ private:
   };
 
 
-  class Thanlde_split_map
-  {
-  private:
-    vector<Tsplit_stat> _vec_split_stat;
-    Tmy_dttype _entropy_before_split;
-    Tlabel_stat _stat_label;
-    float _rata2;
-    Tcari_gain_max _cari_gain_max;
+  // class Thanlde_split_map
+  // {
+  // private:
+  //   vector<Tsplit_stat> _vec_split_stat;
+  //   Tmy_dttype _entropy_before_split;
+  //   Tlabel_stat _stat_label;
+  //   float _rata2;
+  //   Tcari_gain_max _cari_gain_max;
 
-    Tglobal_config global_config;
+  //   Tglobal_config global_config;
 
-    static bool cmp(Tsplit_stat a, Tsplit_stat b);
-  public:
-    Thanlde_split_map();
-    ~Thanlde_split_map();
+  //   static bool cmp(Tsplit_stat a, Tsplit_stat b);
+  // public:
+  //   Thanlde_split_map();
+  //   ~Thanlde_split_map();
 
-    void set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label);
-    void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
-    void gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
-    Tmetric_split_value cari_gain(int idx);
-  };
+  //   void set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label);
+  //   void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
+  //   void gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
+  //   Tmetric_split_value cari_gain(int idx);
+  // };
 
 
   class Tstat_gain_split_holder
   {
   private:
     Tmy_dttype mid_point;
-    Tlabel_stat stat_below,stat_above;
+    Tlabel_stat stat_below, stat_above;
     int jml;
   public:
     Tstat_gain_split_holder();
     ~Tstat_gain_split_holder();
-    void set_value(Tmy_dttype v_mid_point,Tlabel_stat v_stat_below,Tlabel_stat stat);
+    void set_value(Tmy_dttype v_mid_point, Tlabel_stat v_stat_below, Tlabel_stat stat);
     Tmy_dttype get_mid_point();
     Tlabel_stat get_stat_below();
     Tlabel_stat get_stat_above();
     bool is_empty();
     int get_jml();
+
+    Tgain_ratio kalkulasi_gain_ratio(Tmy_dttype entropy_before_split);
+  };
+
+
+  class Tcari_pencilan
+  {
+  private:
+    map<int, double> map_gain, map_z_score;
+    double sum_neg, sum_po;
+    double rata2;
+    double sd;
+    int jml;
+
+  public:
+    Tcari_pencilan();
+    ~Tcari_pencilan();
+    void insert_gain(int idx, double gain);
+    bool cek_valid(int idx);
   };
 
 
@@ -124,7 +231,7 @@ private:
 
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
-  
+
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 

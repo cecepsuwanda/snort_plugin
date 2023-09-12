@@ -46,7 +46,6 @@ public:
 	}
 
 
-
 	Tmy_dttype& operator = (const Tmy_dttype &t)
 	{
 		this->_value = t._value;

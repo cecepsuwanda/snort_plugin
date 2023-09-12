@@ -39,13 +39,12 @@ public:
 
   static double ratio_valid_attr;
   static double skala_pruning;
-  static bool continue_attr_only;
-  static bool non_continue_limit;
+  static bool continue_attr_only;  
   static bool buat_kombinasi;
   static bool gunakan_rata2gain;
-  static bool binary_gain_ratio_limited_by_non_binary_gain_ratio;
+  
   static bool one_agains_many_only;
-  static bool use_non_binary_gain_ratio;
+  
 
   static bool cetak_credal;
 
@@ -74,13 +73,10 @@ public:
 
     skala_pruning = 0.5;
 
-    continue_attr_only = false;
-    non_continue_limit = false;
+    continue_attr_only = false;    
     buat_kombinasi = false;
-    gunakan_rata2gain = true;
-    binary_gain_ratio_limited_by_non_binary_gain_ratio = false;
-    one_agains_many_only = false;
-    use_non_binary_gain_ratio = false;
+    gunakan_rata2gain = true;    
+    one_agains_many_only = false;   
 
     //cetak_credal = false;
 
