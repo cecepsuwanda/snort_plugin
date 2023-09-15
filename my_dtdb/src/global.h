@@ -67,14 +67,14 @@ public:
 
     limited = true;
     threshold = 0;
-    find_other_attr = false;
+    find_other_attr = true;
 
     ratio_valid_attr = 0.3;
 
     skala_pruning = 0.5;
 
     continue_attr_only = false;    
-    buat_kombinasi = false;
+    buat_kombinasi = true;
     gunakan_rata2gain = true;    
     one_agains_many_only = false;   
 

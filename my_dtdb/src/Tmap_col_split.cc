@@ -55,11 +55,11 @@ void Tmap_col_split::cek_valid_attr(int jml_data_cabang,int jml_data_root)
 
 	//(is_continue=0) or
 
-	string tmp = "select * from attr_stat where is_continue=1 order by id"; // where (is_continue=0) or ((is_continue=1) and  (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2))
+	string tmp = "select * from attr_stat where (is_continue=1) and (jml>=3) order by id"; // where (is_continue=0) or ((is_continue=1) and  (jml <= round("+to_string(global_config.ratio_valid_attr)+"*" + to_string(jml_row) + ",2)) and  (jml>=2))
 
 	if (!global_config.continue_attr_only)
 	{   
-		tmp = "select * from attr_stat where ((is_continue=1) and (jml>=2)) or ((is_continue=0) and (id not in (1)) and (power(2,jml-1) <= round(" + to_string(global_config.ratio_valid_attr) + "*" + to_string(jml_data_cabang) + ",2)) and (jml>=2)) order by id";		
+		tmp = "select * from attr_stat where ((is_continue=1) and (jml>=3)) or ((is_continue=0) and (id not in (1,6)) and (power(2,jml-1) <= round(" + to_string(global_config.ratio_valid_attr) + "*" + to_string(jml_data_cabang) + ",2)) and (jml>=4)) order by id";		
 	}
 
 	if (global_query_builder.query(tmp))

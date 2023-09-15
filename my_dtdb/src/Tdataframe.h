@@ -109,7 +109,11 @@ private:
   int _jml_below;
   int _jml_above;
 
+  size_t _jml_attr;
+
   Tglobal_config global_config;
+
+  void gen_split_attr_rec(int counter, int depth, int geser);
 
 public:
   Tproses_split_stat();
@@ -119,9 +123,12 @@ public:
 
   void insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
   void clear_tmp();
+  void del_last_tmp();
   void insert_split_stat();
 
   void kalkulasi_sd();
+
+  void gen_split_attr();
 
   Tmetric_split_value get_max_gain_ratio();
 };
@@ -202,21 +209,7 @@ private:
   };
 
 
-  class Tcari_pencilan
-  {
-  private:
-    map<int, double> map_gain, map_z_score;
-    double sum_neg, sum_po;
-    double rata2;
-    double sd;
-    int jml;
-
-  public:
-    Tcari_pencilan();
-    ~Tcari_pencilan();
-    void insert_gain(int idx, double gain);
-    bool cek_valid(int idx);
-  };
+  
 
 
 
