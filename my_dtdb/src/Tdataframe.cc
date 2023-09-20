@@ -1108,6 +1108,8 @@ void Tproses_split_stat::gen_split_attr()
 
     int jml_kombinasi = ceil(_jml_attr / 2);
 
+    jml_kombinasi = jml_kombinasi>5 ? 5 : jml_kombinasi;
+
     for (int i = 2; i <= jml_kombinasi; ++i)
     {
       gen_split_attr_rec(0, i - 1, 0);
@@ -1126,7 +1128,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
     double z_score = (stod(hsl.gain.get_string()) - _rata2) / _sd;
 
-    if (((z_score > 0.0) and (z_score < 3.0) ))
+    if ((z_score > 0.0) and (z_score < 3.0)) //and (z_score < 3.0)
     {
       bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
 

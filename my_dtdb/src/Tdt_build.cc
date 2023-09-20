@@ -2026,7 +2026,7 @@ bool Tdt_build::Tcari_pencilan::cek_valid(int idx)
 
 	//pass = ((rata2 < map_gain[idx]) or !global_config.gunakan_rata2gain);
 
-	pass = (((map_z_score[idx] >= 0.0) and (map_z_score[idx] < 3.0))  or !global_config.gunakan_rata2gain);
+	pass = (((map_z_score[idx] > 0.0))  or !global_config.gunakan_rata2gain); //and (map_z_score[idx] < 3.0)
 
 	//cout << " z-score " << to_string(idx) << " " << to_string(map_z_score[idx]) << " " << (pass ? "True" : "False") << endl;
 
