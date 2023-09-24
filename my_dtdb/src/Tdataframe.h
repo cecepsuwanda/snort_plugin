@@ -80,9 +80,9 @@ public:
   {
     Tsplit_stat tmp;
 
-    Tmy_dttype separator(";", false);
+    Tmy_dttype separator(";", false);       
 
-    tmp._split_value = _split_value + separator + rhs._split_value;
+    tmp._split_value = _split_value + separator + rhs._split_value;     
 
     Tlabel_stat tmp_stat = _stat_below + _stat_above;
 

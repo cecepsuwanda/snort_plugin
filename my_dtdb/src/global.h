@@ -74,7 +74,7 @@ public:
     skala_pruning = 0.5;
 
     continue_attr_only = false;    
-    buat_kombinasi = true;
+    buat_kombinasi = false;
     gunakan_rata2gain = true;    
     one_agains_many_only = false;   
 

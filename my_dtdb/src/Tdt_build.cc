@@ -76,7 +76,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	for (int i = 0; i < df.get_jml_valid_attr(); ++i)
 	{
-		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));	
+		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));
 	}
 
 	vector<Tmetric_split_value> v_hsl;
@@ -126,12 +126,12 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 				}
 			}
 		}
-        
-        if(max_gain<0)
-        {
-           split_column = -1;
-	       split_value.set_value("-1", true);
-        }
+
+		if (max_gain < 0)
+		{
+			split_column = -1;
+			split_value.set_value("-1", true);
+		}
 
 	}
 

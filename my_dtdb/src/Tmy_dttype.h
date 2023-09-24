@@ -278,6 +278,11 @@ public:
 			catch (const std::invalid_argument& ia) {
 				cout << _value << "," << rhs._value << " bukan bilangan !!!";
 			}
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{			
+			   tmp.set_value( _value + rhs._value, false);				
+			}
 		}
 
 		return tmp;
