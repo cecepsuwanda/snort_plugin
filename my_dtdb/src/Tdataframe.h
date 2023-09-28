@@ -26,7 +26,7 @@ struct Tpot_split
 
 struct Tmetric_split_value
 {
-  int idx = 0;
+  int idx = -1;
   float max_gain_ratio = -1;
   float max_gain = -1;
   int jml_below = 0;

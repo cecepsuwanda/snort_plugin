@@ -61,8 +61,8 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	df.search_col_split();
 
-	float max_gain = 0;
-	bool  first_iteration = true;
+	// float max_gain = 0;
+	// bool  first_iteration = true;
 
 	string current_split_value = "-1";
 	//float current_overall_metric = -1;
@@ -70,7 +70,9 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 	split_column = -1;
 	split_value.set_value("-1", true);
 
-	Tcari_pencilan cari_pencilan;
+	Tsplit_value cari_split_value;
+
+	cari_split_value.set_jml_root(df.getjmlrow());
 
 	vector<future<Tmetric_split_value>> async_worker;
 
@@ -79,24 +81,15 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 		async_worker.push_back(async(std::launch::async, &Tdt_build::get_split_value, ref(df), df.get_valid_attr(i)));
 	}
 
-	vector<Tmetric_split_value> v_hsl;
-	// float sum_neg = 0.0, sum_po = 0.0;
-	// int jml_hsl = 0;
-
 	if (async_worker.size() > 0)
 	{
-		//pesan.cetak("\n");
-		//Tmetric_split_value hsl;
+
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
 			Tmetric_split_value hsl = th.get();
 			if (hsl.split_value != "-1") {
-				v_hsl.push_back(hsl);
-				cari_pencilan.insert_gain(hsl.idx, hsl.max_gain);
+				cari_split_value.insert(hsl);
 			}
-			//
-
-
 		}
 
 		async_worker.clear();
@@ -104,35 +97,13 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 
 	}
 
-	if (v_hsl.size() > 0)
+	if (!cari_split_value.is_empty())
 	{
-		for (size_t i = 0; i < v_hsl.size(); ++i)
-		{
+		cari_split_value.hitung_sd();
+		cari_split_value.kalkulasi_id_max();
 
-			if (cari_pencilan.cek_valid(v_hsl[i].idx))
-			{
-				bool pass = limit_jml_dt_cabang(df.getjmlrow(), v_hsl[i].jml_below, v_hsl[i].jml_above);
-
-				if (pass or !global_config.find_other_attr)
-				{
-					if (first_iteration or (max_gain < v_hsl[i].max_gain_ratio))
-					{
-						max_gain = v_hsl[i].max_gain_ratio;
-						split_column = v_hsl[i].idx;
-						split_value = v_hsl[i].split_value;
-
-						first_iteration = false;
-					}
-				}
-			}
-		}
-
-		if (max_gain < 0)
-		{
-			split_column = -1;
-			split_value.set_value("-1", true);
-		}
-
+		split_column = cari_split_value.get_split_column();
+		split_value = cari_split_value.get_split_value();
 	}
 
 	df.clear_map_col_split();
@@ -1976,61 +1947,174 @@ void Tdt_build::build_tree(Tdataframe & df_train)
 }
 
 
-Tdt_build::Tcari_pencilan::Tcari_pencilan()
-{
-	sum_neg = 0.0;
-	sum_po = 0.0;
-	rata2 = 0.0;
-	sd = 0.0;
-	jml = 0;
 
-	map_gain.clear();
-	map_z_score.clear();
+
+Tdt_build::Tsplit_value::Tsplit_value()
+{
+	_sum_neg = 0.0;
+	_sum_po = 0.0;
+	_rata2 = 0.0;
+	_sd = 0.0;
+	_jml = 0;
+	_jml_root = 0;
+
+	_split_column = -1;
+	_split_value.set_value("-1", true);
+
+	_list_split_value.clear();
+	_idx_max_split_value.clear();
 }
 
-Tdt_build::Tcari_pencilan::~Tcari_pencilan()
+Tdt_build::Tsplit_value::~Tsplit_value()
 {
-	map_gain.clear();
-	map_z_score.clear();
+	_list_split_value.clear();
+	_idx_max_split_value.clear();
 }
 
-void Tdt_build::Tcari_pencilan::insert_gain(int idx, double gain)
+void Tdt_build::Tsplit_value::set_jml_root(int jml)
 {
-	map_gain.insert({idx, gain});
-	sum_po += (gain > 0.0) ? gain : 0.0;
-	sum_neg += (gain < 0.0) ? gain : 0.0;
-	jml++;
+	_jml_root = jml;
+}
 
-	rata2 = (sum_po - abs(sum_neg)) / jml;
+void Tdt_build::Tsplit_value::insert(Tmetric_split_value value)
+{
+	_list_split_value.push_back(value);
 
+	_sum_po += (value.max_gain > 0.0) ? value.max_gain : 0.0;
+	_sum_neg += (value.max_gain < 0.0) ? value.max_gain : 0.0;
+	_jml++;
+
+	_rata2 = (_sum_po - abs(_sum_neg)) / _jml;
+}
+
+void Tdt_build::Tsplit_value::hitung_sd()
+{
 	double tmp_sum = 0.0;
-	for (auto itr = map_gain.begin(); itr != map_gain.end(); ++itr)
+	for (auto itr = _list_split_value.begin(); itr != _list_split_value.end(); ++itr)
 	{
-		tmp_sum += pow((itr->second - rata2), 2);
+		tmp_sum += pow((itr->max_gain - _rata2), 2);
 	}
 
-	sd = sqrt(tmp_sum / (jml - 1));
-
-	map_z_score.clear();
-	for (auto itr = map_gain.begin(); itr != map_gain.end(); ++itr)
+	if (_jml > 1)
 	{
-		map_z_score.insert({itr->first, ((itr->second - rata2) / sd)});
+		_sd = sqrt(tmp_sum / (_jml - 1));
 	}
-
 }
 
-
-bool Tdt_build::Tcari_pencilan::cek_valid(int idx)
+bool Tdt_build::Tsplit_value::limit_jml_dt_cabang(int jml_below, int jml_above)
 {
-	bool pass = true;
+	int jml_row = _jml_root;
+	float prosen = 1;
+	float prosen1 = 0;
 
-	//pass = ((rata2 < map_gain[idx]) or !global_config.gunakan_rata2gain);
+	float jml_row_prosen = jml_row;
+	float jml_row_prosen1 = 0;
 
-	pass = (((map_z_score[idx] > 0.0))  or !global_config.gunakan_rata2gain); //and (map_z_score[idx] < 3.0)
+	if (global_config.threshold < 1)
+	{
+		prosen = 1 - global_config.threshold;
+		prosen1 = global_config.threshold;
 
-	//cout << " z-score " << to_string(idx) << " " << to_string(map_z_score[idx]) << " " << (pass ? "True" : "False") << endl;
+		jml_row_prosen = ceil(prosen * jml_row);
+		jml_row_prosen1 =  ceil(prosen1 * jml_row);
+	} else {
+		jml_row_prosen = jml_row - global_config.threshold;
+		jml_row_prosen1 =  global_config.threshold;
+	}
 
-	return pass;
+	return ((jml_below >= jml_row_prosen1 ) and (jml_below <= jml_row_prosen));
 }
 
+bool Tdt_build::Tsplit_value::is_empty()
+{
+	return _jml == 0;
+}
 
+void Tdt_build::Tsplit_value::kalkulasi_id_max()
+{
+	bool first_iteration = true;
+	float max_gain_ratio = 0.0;
+
+	for (size_t i = 0; i < _list_split_value.size(); ++i)
+	{
+		double z_score = 0.0;
+
+		if (_sd != 0)
+		{
+			z_score = ((_list_split_value[i].max_gain - _rata2) / _sd);
+		}
+
+		bool pass = (((z_score > 0.0))  or !global_config.gunakan_rata2gain); //and (z_score < 3.0)
+
+		if (pass)
+		{
+			if (first_iteration or (max_gain_ratio < _list_split_value[i].max_gain_ratio))
+			{
+				_idx_max_split_value.push_back(i);
+				max_gain_ratio = _list_split_value[i].max_gain_ratio;
+				first_iteration = false;
+			}
+		}
+	}
+
+	if (_idx_max_split_value.size() > 0)
+	{
+		size_t idx_gain_ratio_max = _idx_max_split_value[_idx_max_split_value.size() - 1];
+
+		bool pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
+
+		if (pass)
+		{
+			_split_column = _list_split_value[idx_gain_ratio_max].idx;
+			_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+		} else {
+			if (global_config.find_other_attr)
+			{
+				_split_column = -1;
+				_split_value.set_value("-1", true);
+
+				if (_idx_max_split_value.size()>1)
+				{
+					
+					size_t i = 0;
+					while ((i<(_idx_max_split_value.size()-1)) and !pass )
+					{
+						idx_gain_ratio_max = _idx_max_split_value[_idx_max_split_value.size() - (i+1)];
+
+						pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
+						if (pass)
+						{
+							_split_column = _list_split_value[idx_gain_ratio_max].idx;
+							_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+						}
+
+						i++;
+					}
+				}
+
+
+			}
+		}
+
+		max_gain_ratio = _list_split_value[idx_gain_ratio_max].max_gain_ratio;
+
+		if (max_gain_ratio < 0)
+		{
+			_split_column = -1;
+			_split_value.set_value("-1", true);
+		}
+
+
+	}
+
+}
+
+int Tdt_build::Tsplit_value::get_split_column()
+{
+	return _split_column;
+}
+
+Tmy_dttype Tdt_build::Tsplit_value::get_split_value()
+{
+	return _split_value;
+}

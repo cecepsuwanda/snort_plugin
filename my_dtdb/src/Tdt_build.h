@@ -16,24 +16,39 @@
 class Tdt_build
 {
 private:
-	
-    class Tcari_pencilan
-    {
-    private:
-    	map<int, double> map_gain,map_z_score;    	
-    	double sum_neg,sum_po;
-    	double rata2;
-    	double sd;
-    	int jml;
 
-        Tglobal_config global_config;
+	class Tsplit_value
+	{
+	private:
+		vector<Tmetric_split_value> _list_split_value;
+		vector<int> _idx_max_split_value;
+		double _sum_neg, _sum_po;
+		double _rata2;
+		double _sd;
+		int _jml;
+		int _jml_root;
 
-    public:
-    	Tcari_pencilan();
-    	~Tcari_pencilan();
-    	void insert_gain(int idx,double gain);
-    	bool cek_valid(int idx);
-    };
+		int _split_column;
+        Tmy_dttype _split_value;
+
+		Tglobal_config global_config;
+
+		bool limit_jml_dt_cabang(int jml_below, int jml_above);
+
+	public:
+		Tsplit_value();
+		~Tsplit_value();
+
+		void set_jml_root(int jml);
+		void insert(Tmetric_split_value value);
+		void hitung_sd();
+		void kalkulasi_id_max();
+
+		bool is_empty();
+
+		int get_split_column();
+		Tmy_dttype get_split_value();
+	};
 
 
 
@@ -63,11 +78,11 @@ private:
 	bool check_purity(Tdataframe &df);
 
 
-	void subtree_stat(tree_node* parent_node,bool is_pruning,int &jml_leaf,int &sum_min);
+	void subtree_stat(tree_node* parent_node, bool is_pruning, int &jml_leaf, int &sum_min);
 
-	void pruning_method_2(tree_node* parent_node,Tposisi_cabang& posisi);
+	void pruning_method_2(tree_node* parent_node, Tposisi_cabang& posisi);
 	void pruning_method_1(tree_node* parent_node, Tdataframe &df_train);
-    void pruning_method_3(tree_node* parent_node,Tposisi_cabang& posisi);
+	void pruning_method_3(tree_node* parent_node, Tposisi_cabang& posisi);
 
 
 	//void pruning_dfs(int node_index , Tdataframe &df_train, int counter);
