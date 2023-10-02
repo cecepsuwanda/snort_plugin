@@ -33,18 +33,20 @@ public:
   static bool limited;
   static double threshold;
   static bool find_other_attr;
+  static bool find_other_pot_split;
 
   static time_t id_experiment;
   static time_t id_detail_experiment;
 
   static double ratio_valid_attr;
   static double skala_pruning;
-  static bool continue_attr_only;  
+  static bool continue_attr_only;
   static bool buat_kombinasi;
   static bool gunakan_rata2gain;
-  
+  static bool gunakan_rata2gain_pot_split;
+
   static bool one_agains_many_only;
-  
+
 
   static bool cetak_credal;
 
@@ -68,15 +70,17 @@ public:
     limited = true;
     threshold = 0;
     find_other_attr = true;
+    find_other_pot_split = false;
 
     ratio_valid_attr = 0.3;
 
     skala_pruning = 0.5;
 
-    continue_attr_only = false;    
+    continue_attr_only = false;
     buat_kombinasi = false;
-    gunakan_rata2gain = true;    
-    one_agains_many_only = false;   
+    gunakan_rata2gain = true;
+    gunakan_rata2gain_pot_split = true;
+    one_agains_many_only = false;
 
     //cetak_credal = false;
 

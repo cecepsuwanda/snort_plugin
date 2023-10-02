@@ -1962,13 +1962,15 @@ Tdt_build::Tsplit_value::Tsplit_value()
 	_split_value.set_value("-1", true);
 
 	_list_split_value.clear();
-	_idx_max_split_value.clear();
+	_idx_max_gain_ratio.clear();
+	_idx_rata2.clear();
 }
 
 Tdt_build::Tsplit_value::~Tsplit_value()
 {
 	_list_split_value.clear();
-	_idx_max_split_value.clear();
+	_idx_max_gain_ratio.clear();
+	_idx_rata2.clear();
 }
 
 void Tdt_build::Tsplit_value::set_jml_root(int jml)
@@ -2035,67 +2037,132 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 	bool first_iteration = true;
 	float max_gain_ratio = 0.0;
 
+	//cout << " max_gain_ratio " << endl;
 	for (size_t i = 0; i < _list_split_value.size(); ++i)
 	{
-		double z_score = 0.0;
-
-		if (_sd != 0)
+		if (first_iteration or (max_gain_ratio < _list_split_value[i].max_gain_ratio))
 		{
-			z_score = ((_list_split_value[i].max_gain - _rata2) / _sd);
+			//cout << _list_split_value[i].idx << "," << _list_split_value[i].split_value.get_string() << endl;
+			_idx_max_gain_ratio.push_back(i);
+			max_gain_ratio = _list_split_value[i].max_gain_ratio;
+			first_iteration = false;
+		}
+	}
+
+	int idx_gain_ratio_max = -1;
+
+	_split_column = -1;
+	_split_value.set_value("-1", true);
+
+	if (_idx_max_gain_ratio.size() > 0)
+	{
+		idx_gain_ratio_max = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - 1];
+
+		_split_column = _list_split_value[idx_gain_ratio_max].idx;
+		_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+	}
+
+	if (global_config.gunakan_rata2gain)
+	{
+		//cout << " rata2 " << endl;
+
+		for (size_t i = 0; i < _idx_max_gain_ratio.size(); ++i)
+		{
+			size_t tmp_idx = _idx_max_gain_ratio[i];
+			double z_score = 0.0;
+
+			if (_sd != 0)
+			{
+				z_score = ((_list_split_value[tmp_idx].max_gain - _rata2) / _sd);
+			}
+
+			bool pass = (z_score > 0.0); //and (z_score < 3.0)
+			if (pass)
+			{
+				//cout << _list_split_value[tmp_idx].idx << "," << _list_split_value[tmp_idx].split_value.get_string() << endl;
+				_idx_rata2.push_back(tmp_idx);
+			}
 		}
 
-		bool pass = (((z_score > 0.0))  or !global_config.gunakan_rata2gain); //and (z_score < 3.0)
+		idx_gain_ratio_max = -1;
 
-		if (pass)
+		_split_column = -1;
+		_split_value.set_value("-1", true);
+
+		if (_idx_rata2.size() > 0)
 		{
-			if (first_iteration or (max_gain_ratio < _list_split_value[i].max_gain_ratio))
+			idx_gain_ratio_max = _idx_rata2[_idx_rata2.size() - 1];
+
+			_split_column = _list_split_value[idx_gain_ratio_max].idx;
+			_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+		}
+
+	}
+
+	bool pass = true;
+
+	if (idx_gain_ratio_max != -1)
+	{
+		pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
+	}
+
+	if (!pass)
+	{
+		if (global_config.find_other_attr)
+		{
+			idx_gain_ratio_max = -1;
+
+			_split_column = -1;
+			_split_value.set_value("-1", true);
+
+			if (global_config.gunakan_rata2gain)
 			{
-				_idx_max_split_value.push_back(i);
-				max_gain_ratio = _list_split_value[i].max_gain_ratio;
-				first_iteration = false;
+				if (_idx_rata2.size() > 0)
+				{
+					int tmp_idx = -1;
+					size_t i = 0;
+					while ( (i < (_idx_rata2.size() - 1)) and (i<4) and !pass)
+					{
+						tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
+						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);
+						i++;
+					}
+
+					if (pass and (tmp_idx != -1))
+					{
+						idx_gain_ratio_max = tmp_idx;
+						_split_column = _list_split_value[idx_gain_ratio_max].idx;
+						_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+					}
+				}
+
+			} else {
+
+				if (_idx_max_gain_ratio.size() > 0)
+				{
+					int tmp_idx = -1;
+					size_t i = 0;
+					while ( (i < (_idx_max_gain_ratio.size() - 1)) and (i<4) and !pass)
+					{
+						tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
+						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);
+						i++;
+					}
+
+					if (pass and (tmp_idx != -1))
+					{
+						idx_gain_ratio_max = tmp_idx;
+						_split_column = _list_split_value[idx_gain_ratio_max].idx;
+						_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+					}
+				}
 			}
 		}
 	}
 
-	if (_idx_max_split_value.size() > 0)
+
+	if (idx_gain_ratio_max != -1)
 	{
-		size_t idx_gain_ratio_max = _idx_max_split_value[_idx_max_split_value.size() - 1];
-
-		bool pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
-
-		if (pass)
-		{
-			_split_column = _list_split_value[idx_gain_ratio_max].idx;
-			_split_value = _list_split_value[idx_gain_ratio_max].split_value;
-		} else {
-			if (global_config.find_other_attr)
-			{
-				_split_column = -1;
-				_split_value.set_value("-1", true);
-
-				if (_idx_max_split_value.size()>1)
-				{
-					
-					size_t i = 0;
-					while ((i<(_idx_max_split_value.size()-1)) and !pass )
-					{
-						idx_gain_ratio_max = _idx_max_split_value[_idx_max_split_value.size() - (i+1)];
-
-						pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
-						if (pass)
-						{
-							_split_column = _list_split_value[idx_gain_ratio_max].idx;
-							_split_value = _list_split_value[idx_gain_ratio_max].split_value;
-						}
-
-						i++;
-					}
-				}
-
-
-			}
-		}
-
 		max_gain_ratio = _list_split_value[idx_gain_ratio_max].max_gain_ratio;
 
 		if (max_gain_ratio < 0)
@@ -2103,8 +2170,6 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 			_split_column = -1;
 			_split_value.set_value("-1", true);
 		}
-
-
 	}
 
 }

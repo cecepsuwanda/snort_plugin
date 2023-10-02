@@ -31,6 +31,7 @@ int Tglobal_config::min_sample;
 bool Tglobal_config::limited;
 double Tglobal_config::threshold;
 bool Tglobal_config::find_other_attr;
+bool Tglobal_config::find_other_pot_split;
 
 time_t Tglobal_config::id_experiment;
 time_t Tglobal_config::id_detail_experiment;
@@ -40,6 +41,7 @@ double Tglobal_config::skala_pruning;
 bool Tglobal_config::continue_attr_only;
 bool Tglobal_config::buat_kombinasi;
 bool Tglobal_config::gunakan_rata2gain;
+bool Tglobal_config::gunakan_rata2gain_pot_split;
 bool Tglobal_config::one_agains_many_only;
 
 

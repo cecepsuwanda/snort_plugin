@@ -505,6 +505,9 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
       }
     }
 
+    // proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    // proses_split_stat.insert_split_stat();
+    // proses_split_stat.clear_tmp();
 
     itr++;
   }
@@ -514,7 +517,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   _col_pot_split.clear();
 
-  proses_split_stat.gen_split_attr();
+  //proses_split_stat.gen_split_attr();
 
   proses_split_stat.kalkulasi_sd();
 
@@ -573,398 +576,6 @@ Tmy_dttype Tdataframe::get_entropy()
 }
 
 
-Tdataframe::Tcari_gain_max::Tcari_gain_max()
-{
-  first_iteration = true;
-  max_gain_ratio.set_value("0.0", true);
-  max_gain.set_value("0.0", true);
-  tmp_split_value.set_value("-1", false);
-  idx_attr = 0;
-  jml_below = 0;
-  jml_above = 0;
-
-  is_multiway = false;
-  multiway_gain_ratio.set_value("0.0", true);
-}
-
-void Tdataframe::Tcari_gain_max::set_idx_attr(int idx)
-{
-  idx_attr = idx;
-}
-
-void Tdataframe::Tcari_gain_max::set_is_multiway(bool stat)
-{
-  is_multiway = stat;
-}
-
-void Tdataframe::Tcari_gain_max::set_multiway_gain_ratio(Tmy_dttype gain_ratio)
-{
-  multiway_gain_ratio = gain_ratio;
-}
-
-
-void Tdataframe::Tcari_gain_max::cari_gain_max(Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split)
-{
-  Tbelow_above tmp_ba;
-  tmp_ba.add_below(stat_below);
-  tmp_ba.add_above(stat_above);
-
-  Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ratio(entropy_before_split);
-
-  bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
-
-  if ((first_iteration and is_pass) or (( max_gain_ratio < hsl.gain_ratio) and is_pass))
-  {
-    bool is_pass1 = true;
-
-    if (is_multiway) {
-      is_pass1 = hsl.gain_ratio <= multiway_gain_ratio;
-    }
-
-    if (is_pass1)
-    {
-      first_iteration = false;
-      tmp_split_value = mid_point;
-      max_gain_ratio = hsl.gain_ratio;
-      max_gain = hsl.gain;
-      jml_below = stat_below.get_jml_row();
-      jml_above = stat_above.get_jml_row();
-    }
-
-
-  }
-
-
-
-}
-
-Tmetric_split_value Tdataframe::Tcari_gain_max::get_gain_max()
-{
-  Tmetric_split_value hsl_split;
-
-  hsl_split.idx = idx_attr;
-  hsl_split.max_gain_ratio = stof(max_gain_ratio.get_string());
-  hsl_split.max_gain = stof(max_gain.get_string());
-  hsl_split.split_value = tmp_split_value;
-  hsl_split.jml_below = jml_below;
-  hsl_split.jml_above = jml_above;
-
-  return hsl_split;
-}
-
-// Tdataframe::Thanlde_split_map::Thanlde_split_map()
-// {
-//   _rata2 = 0.0;
-// }
-
-
-// Tdataframe::Thanlde_split_map::~Thanlde_split_map()
-// {
-//   _vec_split_stat.clear();
-// }
-
-// void Tdataframe::Thanlde_split_map::set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label)
-// {
-//   _entropy_before_split = entropy_before_split;
-//   _stat_label = stat_label;
-// }
-
-// bool Tdataframe::Thanlde_split_map::cmp(Tsplit_stat a, Tsplit_stat b)
-// {
-//   return a.label_stat.get_jml_row() > b.label_stat.get_jml_row();
-// }
-
-// void Tdataframe::Thanlde_split_map::konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat)
-// {
-//   for (auto itr = map_split_stat.begin(); itr != map_split_stat.end(); ++itr)
-//   {
-//     Tsplit_stat tmp;
-//     tmp.split_value = ((Tmy_dttype) (*itr).first);
-//     tmp.label_stat = (*itr).second;
-//     _vec_split_stat.push_back(tmp);
-//   }
-
-//   sort(_vec_split_stat.begin(), _vec_split_stat.end(), Thanlde_split_map::cmp);
-
-//   int jml_total = _stat_label.get_jml_row();
-//   for (size_t i = 0; i < _vec_split_stat.size(); ++i)
-//   {
-//     _rata2 = _rata2 + ((float) _vec_split_stat[i].label_stat.get_jml_row() / jml_total);
-//   }
-// }
-
-// void Tdataframe::Thanlde_split_map::gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below)
-// {
-
-//   if (counter == depth)
-//   {
-
-//     Tcari_gain_max cari_gain_max;
-
-//     for (size_t i = geser; i < _vec_split_stat.size(); ++i)
-//     {
-//       Tlabel_stat tmp_stat = _vec_split_stat[i].label_stat;
-
-//       Tmy_dttype mid_point;
-//       mid_point.set_value(v_mid_point + ';' + _vec_split_stat[i].split_value.get_string(), false);
-
-//       Tlabel_stat stat_below = v_stat_below + tmp_stat;
-//       Tlabel_stat stat_above = _stat_label - stat_below;
-
-//       _cari_gain_max.cari_gain_max(stat_below, stat_above, mid_point, _entropy_before_split);
-
-//     }
-
-//   } else {
-
-//     counter++;
-
-//     for (size_t i = geser; i < (_vec_split_stat.size() - 1); ++i)
-//     {
-//       Tlabel_stat tmp_stat = _vec_split_stat[i].label_stat;
-//       Tlabel_stat tmp_v_stat_below = v_stat_below + tmp_stat;
-//       string tmp_v_mid_point = _vec_split_stat[i].split_value.get_string();
-//       if (v_mid_point != "") {
-//         tmp_v_mid_point = v_mid_point + ';' + _vec_split_stat[i].split_value.get_string();
-//       }
-//       gen_kombinasi_normal(counter, depth, i + 1, tmp_v_mid_point, tmp_v_stat_below);
-//     }
-
-
-//   }
-
-
-// }
-
-// Tmetric_split_value Tdataframe::Thanlde_split_map::cari_gain(int idx)
-// {
-//   Tmetric_split_value tmp_hsl;
-//   tmp_hsl.split_value.set_value("-1", false);
-
-//_cari_gain_max.set_idx_attr(idx);
-
-//Tbelow_above_kategori ba;
-// Tmy_dttype mid_point("-1", false);
-// Tmy_dttype tmp_split_value("-1", false);
-
-//Tstat_gain_split_holder data_svm;
-// Tstat_gain_split_holder data_known;
-// Tstat_gain_split_holder data_normal;
-// Tstat_gain_split_holder data_rata2;
-
-//Tlabel_stat stat_below;
-
-// for (size_t i = 0; i < _vec_split_stat.size(); ++i)
-// {
-//   mid_point = _vec_split_stat[i].split_value;
-
-//   Tlabel_stat stat_below = _vec_split_stat[i].label_stat;
-
-//ba.add_stat(_vec_split_stat[i].label_stat);
-
-// if (idx == 2)
-// {
-//   if ((mid_point == "private") or (mid_point == "ecri") or (mid_point == "ecr_i") or (mid_point == "http"))
-//   {
-//     data_svm.set_value(mid_point, stat_below, _stat_label);
-//   }
-// }
-
-// if (idx == 3)
-// {
-//   if (mid_point == "SF")
-//   {
-//     data_svm.set_value(mid_point, stat_below, _stat_label);
-//   }
-// }
-
-// if (idx == 6)
-// {
-//   if (mid_point == "0")
-//   {
-//     data_svm.set_value(mid_point, stat_below, _stat_label);
-//   }
-// }
-
-// if (_vec_split_stat.size() > 3)
-// {
-//   if (stat_below.get_max_label() == "normal")
-//   {
-//     data_normal.set_value(mid_point, stat_below, _stat_label);
-//   }
-
-//   if (stat_below.get_max_label() == "known")
-//   {
-//     data_known.set_value(mid_point, stat_below, _stat_label);
-//   }
-
-//   if (_rata2 < _vec_split_stat[i].label_stat.get_jml_row())
-//   {
-//     data_rata2.set_value(mid_point, stat_below, _stat_label);
-//   }
-// }
-
-// }
-
-// Tgain_ratio_kategori hsl_kategori = ba.kalkulasi_gain_ratio(_entropy_before_split);
-
-// if (_vec_split_stat.size() > 2)
-// {
-//   _cari_gain_max.set_is_multiway(global_config.binary_gain_ratio_limited_by_non_binary_gain_ratio);
-//   _cari_gain_max.set_multiway_gain_ratio(hsl_kategori.gain_ratio);
-// } else {
-//   _cari_gain_max.set_is_multiway(false);
-// }
-
-// if (_vec_split_stat.size() == 2)
-// {
-//   for (size_t i = 0; i < _vec_split_stat.size(); ++i)
-//   {
-//     mid_point = _vec_split_stat[i].split_value;
-
-//     Tlabel_stat stat_below = _vec_split_stat[i].label_stat;
-//     Tlabel_stat stat_above = _stat_label - stat_below;
-
-//     _cari_gain_max.cari_gain_max(stat_below, stat_above, mid_point, _entropy_before_split);
-
-//   }
-// }
-
-
-// if (!global_config.one_agains_many_only)
-// {
-// if (!data_normal.is_empty() and !data_known.is_empty())
-// {
-//   if (data_normal.get_jml() < data_known.get_jml())
-//   {
-//     _cari_gain_max.cari_gain_max(data_normal.get_stat_below(), data_normal.get_stat_above(), data_normal.get_mid_point(), _entropy_before_split);
-
-//   } else {
-
-//     _cari_gain_max.cari_gain_max(data_known.get_stat_below(), data_known.get_stat_above(), data_known.get_mid_point(), _entropy_before_split);
-
-//   }
-// }
-
-// if (!data_rata2.is_empty()) {
-//   _cari_gain_max.cari_gain_max(data_rata2.get_stat_below(), data_rata2.get_stat_above(), data_rata2.get_mid_point(), _entropy_before_split);
-// }
-
-// if (!data_svm.is_empty())
-// {
-//   _cari_gain_max.cari_gain_max(data_svm.get_stat_below(), data_svm.get_stat_above(), data_svm.get_mid_point(), _entropy_before_split);
-// }
-
-// }
-
-
-// if (global_config.buat_kombinasi and !global_config.one_agains_many_only)
-// {
-//   size_t jml_kombinasi = 2;
-//   while ((_vec_split_stat.size() > (jml_kombinasi * 2)))
-//   {
-//     if (jml_kombinasi < 5)
-//     {
-//       Tlabel_stat tmp_stat;
-//       Tmetric_split_value tmp_split;
-
-//       gen_kombinasi_normal(0, jml_kombinasi - 1 , 0, "", tmp_stat);
-
-//     }
-//     jml_kombinasi++;
-//   }
-// }
-
-
-//tmp_hsl = _cari_gain_max.get_gain_max();
-
-// if (global_config.use_non_binary_gain_ratio) {
-
-//   if ( (stof(hsl_kategori.gain_ratio.get_string()) != 0.0) and ((tmp_hsl.max_gain_ratio == 0) or (tmp_hsl.max_gain_ratio == -1)))
-//   {
-//     cout << "[ " << idx << " " << tmp_hsl.max_gain_ratio << " " << hsl_kategori.gain_ratio.get_string();
-//     tmp_hsl.split_value.set_value("-1", false);
-//     cout << " 1 big problem !!! ";
-//     if (_vec_split_stat.size() == 2)
-//     {
-//       cout << " 2 big problem !!! ";
-//     }
-//     cout << "]" << endl;
-//   } else {
-//     tmp_hsl.max_gain_ratio = stof(hsl_kategori.gain_ratio.get_string());
-//     tmp_hsl.max_gain = stof(hsl_kategori.gain.get_string());
-//   }
-// }
-
-//   return tmp_hsl;
-// }
-
-
-
-
-Tdataframe::Tstat_gain_split_holder::Tstat_gain_split_holder()
-{
-  mid_point.set_value("", false);
-  jml = 0;
-}
-
-Tdataframe::Tstat_gain_split_holder::~Tstat_gain_split_holder()
-{
-
-}
-
-void Tdataframe::Tstat_gain_split_holder::set_value(Tmy_dttype v_mid_point, Tlabel_stat v_stat_below, Tlabel_stat stat)
-{
-  if (mid_point == "")
-  {
-    mid_point = v_mid_point;
-  } else {
-    Tmy_dttype separator(";", false);
-    mid_point = mid_point + separator + v_mid_point;
-  }
-
-  stat_below = stat_below + v_stat_below;
-  stat_above = stat - stat_below;
-
-  jml++;
-}
-
-Tmy_dttype Tdataframe::Tstat_gain_split_holder::get_mid_point()
-{
-  return mid_point;
-}
-
-Tlabel_stat Tdataframe::Tstat_gain_split_holder::get_stat_below()
-{
-  return stat_below;
-}
-
-Tlabel_stat Tdataframe::Tstat_gain_split_holder::get_stat_above()
-{
-  return stat_above;
-}
-
-bool Tdataframe::Tstat_gain_split_holder::is_empty()
-{
-  return jml == 0;
-}
-
-int Tdataframe::Tstat_gain_split_holder::get_jml()
-{
-  return jml;
-}
-
-Tgain_ratio Tdataframe::Tstat_gain_split_holder::kalkulasi_gain_ratio(Tmy_dttype entropy_before_split)
-{
-  Tbelow_above tmp_ba;
-  tmp_ba.add_below(stat_below);
-  tmp_ba.add_above(stat_above);
-
-  Tgain_ratio hsl = tmp_ba.kalkulasi_gain_ratio(entropy_before_split);
-
-  return hsl;
-}
-
 
 Tsplit_stat::Tsplit_stat()
 {
@@ -988,6 +599,15 @@ void Tsplit_stat::set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlab
 void Tsplit_stat::set_entropy_before_split(Tmy_dttype entropy_before_split)
 {
   _entropy_before_split = entropy_before_split;
+}
+
+bool Tsplit_stat::cek_valid()
+{
+  Tbelow_above tmp_ba;
+  tmp_ba.add_below(_stat_below);
+  tmp_ba.add_above(_stat_above);
+
+  return tmp_ba.cek_valid();
 }
 
 Tgain_ratio Tsplit_stat::kalkulasi_gain_ratio()
@@ -1034,12 +654,21 @@ Tproses_split_stat::Tproses_split_stat()
   _jml_above = 0.0;
 
   _jml_attr = 0;
+
+  _vec_split_stat.clear();
+  _tmp_vec_split_stat.clear();
+
+  _idx_max_gain_ratio.clear();
+  _idx_rata2.clear();
 }
 
 Tproses_split_stat::~Tproses_split_stat()
 {
   _vec_split_stat.clear();
   _tmp_vec_split_stat.clear();
+
+  _idx_max_gain_ratio.clear();
+  _idx_rata2.clear();
 }
 
 void Tproses_split_stat::insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above)
@@ -1166,12 +795,14 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
     // double z_score = (stod(hsl.gain.get_string()) - _rata2) / _sd;
 
-    // if ((z_score > 0.0) and (z_score < 3.0)) //and (z_score < 3.0)
+    // if ((z_score >= 0.0) and (z_score < 3.0)) //and (z_score < 3.0)
     // {
-    bool is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+    bool is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
 
-    if ((_first_iteration and is_pass) or (( _max_gain_ratio < hsl.gain_ratio) and is_pass))
+    if ((_first_iteration and is_pass) or (( _max_gain < hsl.gain) and is_pass))
     {
+      _idx_max_gain_ratio.push_back(i);
+
       _first_iteration = false;
       _tmp_split_value = tmp_split_stat.get_split_value();
       _max_gain_ratio = hsl.gain_ratio;
@@ -1183,6 +814,121 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
     //}
 
   }
+
+  int idx_gain_ratio_max = -1;
+  if (_idx_max_gain_ratio.size() > 0)
+  {
+    idx_gain_ratio_max = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - 1];
+  }
+
+  if (global_config.gunakan_rata2gain_pot_split)
+  {
+
+    for (size_t i = 0; i < _idx_max_gain_ratio.size(); ++i)
+    {
+      size_t tmp_idx = _idx_max_gain_ratio[i];
+
+      Tsplit_stat tmp_split_stat = _vec_split_stat[i];
+      Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+      double z_score = 0.0;
+
+      if (_sd != 0)
+      {
+        z_score = (stod(hsl.gain.get_string()) - _rata2) / _sd;
+      }
+
+      bool pass = (z_score > 0.0) and (z_score < 3.0); //and (z_score < 3.0)
+      if (pass)
+      {
+        _idx_rata2.push_back(tmp_idx);
+      }
+    }
+
+
+    if (_idx_rata2.size() > 0)
+    {
+      idx_gain_ratio_max = _idx_rata2[_idx_rata2.size() - 1];
+      Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+      Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+      _tmp_split_value = tmp_split_stat.get_split_value();
+      _max_gain_ratio = hsl.gain_ratio;
+      _max_gain = hsl.gain;
+      _jml_below = tmp_split_stat.get_jml_below();
+      _jml_above = tmp_split_stat.get_jml_above();
+
+    }
+
+  }
+
+  bool pass = true;
+
+  if (idx_gain_ratio_max != -1)
+  {
+    pass = _vec_split_stat[idx_gain_ratio_max].cek_valid();
+  }
+
+  if (!pass)
+  {
+    if (global_config.find_other_pot_split)
+    {
+      if (global_config.gunakan_rata2gain_pot_split and (_idx_rata2.size() > 0))
+      {        
+          int tmp_idx = -1;
+          size_t i = 0;
+          while ((i < (_idx_rata2.size() - 1))and (i<4) and !pass)
+          {
+            tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
+            pass = _vec_split_stat[tmp_idx].cek_valid();
+            i++;
+          }
+
+          if (pass and (tmp_idx != -1))
+          {
+            idx_gain_ratio_max = tmp_idx;
+            Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+            Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+            _tmp_split_value = tmp_split_stat.get_split_value();
+            _max_gain_ratio = hsl.gain_ratio;
+            _max_gain = hsl.gain;
+            _jml_below = tmp_split_stat.get_jml_below();
+            _jml_above = tmp_split_stat.get_jml_above();
+          }
+        
+
+      } else {
+
+        if (_idx_max_gain_ratio.size() > 0)
+        {
+          int tmp_idx = -1;
+          size_t i = 0;
+          while ( (i < (_idx_max_gain_ratio.size() - 1)) and (i<4) and !pass)
+          {
+            tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
+            pass = _vec_split_stat[tmp_idx].cek_valid();
+            i++;
+          }
+
+          if (pass and (tmp_idx != -1))
+          {
+            idx_gain_ratio_max = tmp_idx;
+            Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+            Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+            _tmp_split_value = tmp_split_stat.get_split_value();
+            _max_gain_ratio = hsl.gain_ratio;
+            _max_gain = hsl.gain;
+            _jml_below = tmp_split_stat.get_jml_below();
+            _jml_above = tmp_split_stat.get_jml_above();
+          }
+        }
+      }
+    }
+  }
+
+
 
   Tmetric_split_value hsl_split;
 

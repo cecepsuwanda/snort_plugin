@@ -54,6 +54,7 @@ public:
   Tmy_dttype get_split_value();
   int get_jml_below();
   int get_jml_above();
+  bool cek_valid();
   Tgain_ratio kalkulasi_gain_ratio();
 
   Tsplit_stat(const Tsplit_stat &t)
@@ -99,6 +100,10 @@ class Tproses_split_stat
 private:
   vector<Tsplit_stat> _vec_split_stat;
   vector<Tsplit_stat> _tmp_vec_split_stat;
+  
+  vector<int> _idx_max_gain_ratio;
+  vector<int> _idx_rata2;
+
   Tmy_dttype _entropy_before_split;
   double _sum_gain_po, _sum_gain_neg, _rata2, _sd;
 
@@ -138,80 +143,7 @@ public:
 
 class Tdataframe : public Tbase_dataframe
 {
-private:
-
-  class Tcari_gain_max
-  {
-  private:
-    bool first_iteration;
-    Tmy_dttype max_gain_ratio;
-    Tmy_dttype max_gain;
-    Tmy_dttype tmp_split_value;
-    int idx_attr;
-    int jml_below;
-    int jml_above;
-
-    bool is_multiway;
-    Tmy_dttype multiway_gain_ratio;
-
-    Tglobal_config global_config;
-
-  public:
-    Tcari_gain_max();
-    void set_idx_attr(int idx);
-    void set_is_multiway(bool stat);
-    void set_multiway_gain_ratio(Tmy_dttype gain_ratio);
-    void cari_gain_max(Tlabel_stat stat_below, Tlabel_stat stat_above, Tmy_dttype mid_point, Tmy_dttype entropy_before_split);
-    Tmetric_split_value get_gain_max();
-  };
-
-
-  // class Thanlde_split_map
-  // {
-  // private:
-  //   vector<Tsplit_stat> _vec_split_stat;
-  //   Tmy_dttype _entropy_before_split;
-  //   Tlabel_stat _stat_label;
-  //   float _rata2;
-  //   Tcari_gain_max _cari_gain_max;
-
-  //   Tglobal_config global_config;
-
-  //   static bool cmp(Tsplit_stat a, Tsplit_stat b);
-  // public:
-  //   Thanlde_split_map();
-  //   ~Thanlde_split_map();
-
-  //   void set_value(Tmy_dttype entropy_before_split, Tlabel_stat stat_label);
-  //   void konversi_map_vec(map<Tmy_dttype, Tlabel_stat> &map_split_stat);
-  //   void gen_kombinasi_normal(int counter, int depth, int geser, string v_mid_point, Tlabel_stat v_stat_below);
-  //   Tmetric_split_value cari_gain(int idx);
-  // };
-
-
-  class Tstat_gain_split_holder
-  {
-  private:
-    Tmy_dttype mid_point;
-    Tlabel_stat stat_below, stat_above;
-    int jml;
-  public:
-    Tstat_gain_split_holder();
-    ~Tstat_gain_split_holder();
-    void set_value(Tmy_dttype v_mid_point, Tlabel_stat v_stat_below, Tlabel_stat stat);
-    Tmy_dttype get_mid_point();
-    Tlabel_stat get_stat_below();
-    Tlabel_stat get_stat_above();
-    bool is_empty();
-    int get_jml();
-
-    Tgain_ratio kalkulasi_gain_ratio(Tmy_dttype entropy_before_split);
-  };
-
-
-  
-
-
+private: 
 
 
   Tlabel_stat _stat_label;

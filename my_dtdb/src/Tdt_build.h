@@ -21,7 +21,9 @@ private:
 	{
 	private:
 		vector<Tmetric_split_value> _list_split_value;
-		vector<int> _idx_max_split_value;
+		vector<int> _idx_max_gain_ratio;
+		vector<int> _idx_rata2;
+		
 		double _sum_neg, _sum_po;
 		double _rata2;
 		double _sd;
