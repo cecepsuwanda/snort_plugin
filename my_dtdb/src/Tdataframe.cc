@@ -396,6 +396,7 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
 
     Tproses_split_stat proses_split_stat;
     proses_split_stat.set_entropy_before_split(entropy_before_split);
+    proses_split_stat.set_continue(true);
 
     auto itr_next = _col_pot_split.begin();
     itr_next++;
@@ -426,7 +427,7 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
 
     _col_pot_split.clear();
 
-    proses_split_stat.kalkulasi_sd();
+    //proses_split_stat.kalkulasi_sd();
 
     Tmetric_split_value tmp_hsl;
 
@@ -464,6 +465,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   Tproses_split_stat proses_split_stat;
   proses_split_stat.set_entropy_before_split(entropy_before_split);
+  proses_split_stat.set_continue(false);
 
   auto itr = _col_pot_split.begin();
   while ((itr != _col_pot_split.end()))
@@ -519,7 +521,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   //proses_split_stat.gen_split_attr();
 
-  proses_split_stat.kalkulasi_sd();
+  //proses_split_stat.kalkulasi_sd();
 
   Tmetric_split_value tmp_hsl;
 
@@ -596,6 +598,8 @@ void Tsplit_stat::set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlab
   _stat_above = stat_above;
 }
 
+
+
 void Tsplit_stat::set_entropy_before_split(Tmy_dttype entropy_before_split)
 {
   _entropy_before_split = entropy_before_split;
@@ -649,7 +653,10 @@ Tproses_split_stat::Tproses_split_stat()
   _first_iteration = true;
   _max_gain_ratio.set_value("0.0", true);
   _max_gain.set_value("0.0", true);
-  _tmp_split_value.set_value("-1", false);
+
+  _is_continue = false;
+  _tmp_split_value.set_value("-1", _is_continue);
+
   _jml_below = 0.0;
   _jml_above = 0.0;
 
@@ -815,118 +822,149 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
   }
 
-  int idx_gain_ratio_max = -1;
-  if (_idx_max_gain_ratio.size() > 0)
-  {
-    idx_gain_ratio_max = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - 1];
-  }
+  // int idx_gain_ratio_max = -1;
 
-  if (global_config.gunakan_rata2gain_pot_split)
-  {
+  // _max_gain_ratio.set_value("0.0", true);
+  // _max_gain.set_value("0.0", true);
+  // _tmp_split_value.set_value("-1", _is_continue);
+  // _jml_below = 0.0;
+  // _jml_above = 0.0;
 
-    for (size_t i = 0; i < _idx_max_gain_ratio.size(); ++i)
-    {
-      size_t tmp_idx = _idx_max_gain_ratio[i];
+  // if (_idx_max_gain_ratio.size() > 0)
+  // {
+  //   idx_gain_ratio_max = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - 1];
 
-      Tsplit_stat tmp_split_stat = _vec_split_stat[i];
-      Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+  //   Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+  //   Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+  //   _tmp_split_value = tmp_split_stat.get_split_value();
+  //   _max_gain_ratio = hsl.gain_ratio;
+  //   _max_gain = hsl.gain;
+  //   _jml_below = tmp_split_stat.get_jml_below();
+  //   _jml_above = tmp_split_stat.get_jml_above();
+  // }
 
-      double z_score = 0.0;
+  // if (global_config.gunakan_rata2gain_pot_split and (_vec_split_stat.size() > 1))
+  // {
 
-      if (_sd != 0)
-      {
-        z_score = (stod(hsl.gain.get_string()) - _rata2) / _sd;
-      }
+  //   for (size_t i = 0; i < _idx_max_gain_ratio.size(); ++i)
+  //   {
+  //     size_t tmp_idx = _idx_max_gain_ratio[i];
 
-      bool pass = (z_score > 0.0) and (z_score < 3.0); //and (z_score < 3.0)
-      if (pass)
-      {
-        _idx_rata2.push_back(tmp_idx);
-      }
-    }
+  //     Tsplit_stat tmp_split_stat = _vec_split_stat[i];
+  //     Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+  //     double z_score = 0.0;
+
+  //     if (_sd != 0)
+  //     {
+  //       z_score = (stod(hsl.gain.get_string()) - _rata2) / _sd;
+  //     }
+
+  //     bool pass = (z_score > 0.0); //and (z_score < 3.0)
+  //     if (pass)
+  //     {
+  //       _idx_rata2.push_back(tmp_idx);
+  //     }
+  //   }
+
+  //   idx_gain_ratio_max = -1;
+
+  //   _max_gain_ratio.set_value("0.0", true);
+  //   _max_gain.set_value("0.0", true);
+  //   _tmp_split_value.set_value("-1", _is_continue);
+  //   _jml_below = 0.0;
+  //   _jml_above = 0.0;
+
+  //   if (_idx_rata2.size() > 0)
+  //   {
+  //     idx_gain_ratio_max = _idx_rata2[_idx_rata2.size() - 1];
+  //     Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+  //     Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+  //     _tmp_split_value = tmp_split_stat.get_split_value();
+  //     _max_gain_ratio = hsl.gain_ratio;
+  //     _max_gain = hsl.gain;
+  //     _jml_below = tmp_split_stat.get_jml_below();
+  //     _jml_above = tmp_split_stat.get_jml_above();
+
+  //   }
+
+  // }
+
+  // bool pass = true;
+
+  // if (idx_gain_ratio_max != -1)
+  // {
+  //   pass = _vec_split_stat[idx_gain_ratio_max].cek_valid();
+  // }
+
+  // if (!pass)
+  // {
+  //   if (global_config.find_other_pot_split)
+  //   {
+
+  //     idx_gain_ratio_max = -1;
+
+  //     _max_gain_ratio.set_value("0.0", true);
+  //     _max_gain.set_value("0.0", true);
+  //     _tmp_split_value.set_value("-1", _is_continue);
+  //     _jml_below = 0.0;
+  //     _jml_above = 0.0;
+
+  //     if (global_config.gunakan_rata2gain_pot_split and (_idx_rata2.size() > 0))
+  //     {
+  //       int tmp_idx = -1;
+  //       size_t i = 0;
+  //       while ((i < (_idx_rata2.size() - 1)) and !pass)
+  //       {
+  //         tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
+  //         pass = _vec_split_stat[tmp_idx].cek_valid();
+  //         i++;
+  //       }
+
+  //       if (pass and (tmp_idx != -1))
+  //       {
+  //         idx_gain_ratio_max = tmp_idx;
+  //         Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+  //         Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+  //         _tmp_split_value = tmp_split_stat.get_split_value();
+  //         _max_gain_ratio = hsl.gain_ratio;
+  //         _max_gain = hsl.gain;
+  //         _jml_below = tmp_split_stat.get_jml_below();
+  //         _jml_above = tmp_split_stat.get_jml_above();
+  //       }
 
 
-    if (_idx_rata2.size() > 0)
-    {
-      idx_gain_ratio_max = _idx_rata2[_idx_rata2.size() - 1];
-      Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
-      Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+  //     } else {
 
-      _tmp_split_value = tmp_split_stat.get_split_value();
-      _max_gain_ratio = hsl.gain_ratio;
-      _max_gain = hsl.gain;
-      _jml_below = tmp_split_stat.get_jml_below();
-      _jml_above = tmp_split_stat.get_jml_above();
+  //       if (_idx_max_gain_ratio.size() > 0)
+  //       {
+  //         int tmp_idx = -1;
+  //         size_t i = 0;
+  //         while ( (i < (_idx_max_gain_ratio.size() - 1)) and !pass)
+  //         {
+  //           tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
+  //           pass = _vec_split_stat[tmp_idx].cek_valid();
+  //           i++;
+  //         }
 
-    }
+  //         if (pass and (tmp_idx != -1))
+  //         {
+  //           idx_gain_ratio_max = tmp_idx;
+  //           Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
+  //           Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
 
-  }
-
-  bool pass = true;
-
-  if (idx_gain_ratio_max != -1)
-  {
-    pass = _vec_split_stat[idx_gain_ratio_max].cek_valid();
-  }
-
-  if (!pass)
-  {
-    if (global_config.find_other_pot_split)
-    {
-      if (global_config.gunakan_rata2gain_pot_split and (_idx_rata2.size() > 0))
-      {        
-          int tmp_idx = -1;
-          size_t i = 0;
-          while ((i < (_idx_rata2.size() - 1))and (i<4) and !pass)
-          {
-            tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
-            pass = _vec_split_stat[tmp_idx].cek_valid();
-            i++;
-          }
-
-          if (pass and (tmp_idx != -1))
-          {
-            idx_gain_ratio_max = tmp_idx;
-            Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
-            Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
-
-            _tmp_split_value = tmp_split_stat.get_split_value();
-            _max_gain_ratio = hsl.gain_ratio;
-            _max_gain = hsl.gain;
-            _jml_below = tmp_split_stat.get_jml_below();
-            _jml_above = tmp_split_stat.get_jml_above();
-          }
-        
-
-      } else {
-
-        if (_idx_max_gain_ratio.size() > 0)
-        {
-          int tmp_idx = -1;
-          size_t i = 0;
-          while ( (i < (_idx_max_gain_ratio.size() - 1)) and (i<4) and !pass)
-          {
-            tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
-            pass = _vec_split_stat[tmp_idx].cek_valid();
-            i++;
-          }
-
-          if (pass and (tmp_idx != -1))
-          {
-            idx_gain_ratio_max = tmp_idx;
-            Tsplit_stat tmp_split_stat = _vec_split_stat[idx_gain_ratio_max];
-            Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
-
-            _tmp_split_value = tmp_split_stat.get_split_value();
-            _max_gain_ratio = hsl.gain_ratio;
-            _max_gain = hsl.gain;
-            _jml_below = tmp_split_stat.get_jml_below();
-            _jml_above = tmp_split_stat.get_jml_above();
-          }
-        }
-      }
-    }
-  }
+  //           _tmp_split_value = tmp_split_stat.get_split_value();
+  //           _max_gain_ratio = hsl.gain_ratio;
+  //           _max_gain = hsl.gain;
+  //           _jml_below = tmp_split_stat.get_jml_below();
+  //           _jml_above = tmp_split_stat.get_jml_above();
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
 
 
@@ -940,6 +978,12 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
   return hsl_split;
 
+}
+
+void Tproses_split_stat::set_continue(bool is_continue)
+{
+  _is_continue = is_continue;
+  _tmp_split_value.set_value("-1", _is_continue);
 }
 
 void Tproses_split_stat::set_entropy_before_split(Tmy_dttype entropy_before_split)

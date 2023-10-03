@@ -87,7 +87,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
 			Tmetric_split_value hsl = th.get();
-			if (hsl.split_value != "-1") {
+			if ((hsl.split_value != "-1")) {
 				cari_split_value.insert(hsl);
 			}
 		}
@@ -2121,7 +2121,7 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 				{
 					int tmp_idx = -1;
 					size_t i = 0;
-					while ( (i < (_idx_rata2.size() - 1)) and (i<4) and !pass)
+					while ( (i < (_idx_rata2.size() - 1)) and !pass)
 					{
 						tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
 						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);
@@ -2142,7 +2142,7 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 				{
 					int tmp_idx = -1;
 					size_t i = 0;
-					while ( (i < (_idx_max_gain_ratio.size() - 1)) and (i<4) and !pass)
+					while ( (i < (_idx_max_gain_ratio.size() - 1)) and !pass)
 					{
 						tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
 						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);

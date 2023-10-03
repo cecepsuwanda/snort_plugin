@@ -120,9 +120,13 @@ private:
 
   void gen_split_attr_rec(int counter, int depth, int geser);
 
+  bool _is_continue;
+
 public:
   Tproses_split_stat();
   ~Tproses_split_stat();
+
+  void set_continue(bool is_continue);
 
   void set_entropy_before_split(Tmy_dttype entropy_before_split);
 

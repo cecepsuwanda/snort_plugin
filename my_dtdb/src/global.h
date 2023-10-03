@@ -79,7 +79,7 @@ public:
     continue_attr_only = false;
     buat_kombinasi = false;
     gunakan_rata2gain = true;
-    gunakan_rata2gain_pot_split = true;
+    gunakan_rata2gain_pot_split = false;
     one_agains_many_only = false;
 
     //cetak_credal = false;
