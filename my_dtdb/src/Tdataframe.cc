@@ -467,6 +467,8 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
   proses_split_stat.set_entropy_before_split(entropy_before_split);
   proses_split_stat.set_continue(false);
 
+  //Tbelow_above_kategori ba;
+
   auto itr = _col_pot_split.begin();
   while ((itr != _col_pot_split.end()))
   {
@@ -475,51 +477,57 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
     Tlabel_stat stat_below = (*itr).second;
     Tlabel_stat stat_above = _stat_label - stat_below;
 
-    if (idx == 2)
-    {
-      if ((mid_point == "private") or (mid_point == "ecri") or (mid_point == "ecr_i") or (mid_point == "http"))
-      {
-        proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-      }
-    }
+    //ba.add_stat(stat_below);
 
-    if (idx == 3)
-    {
-      if (mid_point == "SF")
-      {
-        proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-      }
-    }
+    // if (idx == 2)
+    // {
+    //   if ((mid_point == "private") or (mid_point == "ecri") or (mid_point == "ecr_i") or (mid_point == "http"))
+    //   {
+    //     proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    //   }
+    // }
 
-    if (idx == 6)
-    {
-      if (mid_point == "0")
-      {
-        proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-      }
-    }
+    // if (idx == 3)
+    // {
+    //   if (mid_point == "SF")
+    //   {
+    //     proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    //   }
+    // }
 
-    if (idx == 1)
-    {
-      if ((mid_point == "tcp") or (mid_point == "icmp") or (mid_point == "udp"))
-      {
-        proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-      }
-    }
+    // if (idx == 6)
+    // {
+    //   if (mid_point == "0")
+    //   {
+    //     proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    //   }
+    // }
 
-    // proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-    // proses_split_stat.insert_split_stat();
-    // proses_split_stat.clear_tmp();
+    // if (idx == 1)
+    // {
+    //   if ((mid_point == "tcp")  or (mid_point == "udp")) //or (mid_point == "icmp")
+    //   {
+    //     proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    //   }
+    // } else {
+      proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+      proses_split_stat.insert_split_stat();
+      proses_split_stat.clear_tmp();
+    // }
 
     itr++;
   }
 
-  proses_split_stat.insert_split_stat();
-  proses_split_stat.clear_tmp();
+  // if (idx == 1)
+  // {
+  //   proses_split_stat.insert_split_stat();
+  //   proses_split_stat.clear_tmp();
+  // }
+
 
   _col_pot_split.clear();
 
-  //proses_split_stat.gen_split_attr();
+  proses_split_stat.gen_split_attr();
 
   //proses_split_stat.kalkulasi_sd();
 
@@ -527,9 +535,11 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   tmp_hsl = proses_split_stat.get_max_gain_ratio();
 
+  //Tgain_ratio_kategori hsl = ba.kalkulasi_gain_ratio(entropy_before_split);
+
   hsl_split.idx = idx;
-  hsl_split.max_gain_ratio = tmp_hsl.max_gain_ratio;
-  hsl_split.max_gain = tmp_hsl.max_gain;
+  hsl_split.max_gain_ratio = tmp_hsl.max_gain_ratio;//stof(hsl.gain_ratio.get_string());
+  hsl_split.max_gain = tmp_hsl.max_gain;//stof(hsl.gain.get_string());
   hsl_split.split_value = tmp_hsl.split_value;
   hsl_split.jml_below = tmp_hsl.jml_below;
   hsl_split.jml_above = tmp_hsl.jml_above;
@@ -782,12 +792,27 @@ void Tproses_split_stat::gen_split_attr()
 
     int jml_kombinasi = ceil(_jml_attr / 2);
 
-    //jml_kombinasi = jml_kombinasi>5 ? 5 : jml_kombinasi;
+    jml_kombinasi = jml_kombinasi>5 ? 5 : jml_kombinasi;
 
     for (int i = 2; i <= jml_kombinasi; ++i)
     {
       gen_split_attr_rec(0, i - 1, 0);
     }
+
+    // for (int i = 0; i < _jml_attr; ++i)
+    // {
+    //   Tsplit_stat tmp_split_stat = _vec_split_stat[0];
+    //   Tgain_ratio hsl = tmp_split_stat.kalkulasi_gain_ratio();
+
+    //   _sum_gain_po -= (stod(hsl.gain.get_string()) > 0.0) ? stod(hsl.gain.get_string()) : 0.0;
+    //   _sum_gain_neg -= (stod(hsl.gain.get_string()) < 0.0) ? stod(hsl.gain.get_string()) : 0.0;
+    // }
+
+    // auto itr1 = _vec_split_stat.begin();
+    // auto itr2 = _vec_split_stat.begin() + (_jml_attr - 1);
+    // _vec_split_stat.erase(itr1, itr2);
+
+    // _rata2 = (_sum_gain_po - abs(_sum_gain_neg)) / _vec_split_stat.size();
 
   }
 }
