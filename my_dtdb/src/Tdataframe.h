@@ -122,13 +122,15 @@ private:
 
   bool _is_continue;
 
+  int _idx_attr;
+
 public:
   Tproses_split_stat();
   ~Tproses_split_stat();
 
   void set_continue(bool is_continue);
-
   void set_entropy_before_split(Tmy_dttype entropy_before_split);
+  void set_idx_attr(int idx);
 
   void insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
   void clear_tmp();
