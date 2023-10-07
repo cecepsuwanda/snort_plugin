@@ -64,14 +64,14 @@ void Tbase_dataframe::switch_parent_branch()
 	_data.switch_parent_child();
 }
 
-void Tbase_dataframe::set_label_idx_svm(int idx_svm,string label)
+void Tbase_dataframe::set_label_idx_svm(int idx_svm, string label)
 {
-	_data.set_label_idx_svm(idx_svm,label);
+	_data.set_label_idx_svm(idx_svm, label);
 }
 
-void Tbase_dataframe::set_label_svm(string id_row,string label)
+void Tbase_dataframe::set_label_svm(string id_row, string label)
 {
-	_data.set_label_svm(id_row,label);
+	_data.set_label_svm(id_row, label);
 }
 
 
@@ -84,50 +84,62 @@ string Tbase_dataframe::filter_to_query(bool is_last)
 
 		if (is_last)
 		{
-			string tmp1 = "(";
+			string tmp1 = _filter[_filter.size() - 1].to_query(_data_header);
 
-			switch (_filter[_filter.size() - 1].idx_opt)
-			{
-			case 0 :
-				tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "<=" + _filter[_filter.size() - 1].value + ")" ;
-				break;
-			case 1 :
-				tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] +  ">" + _filter[_filter.size() - 1].value + ")";
-				break;
-			case 2 :
-				tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "='" + _filter[_filter.size() - 1].value + "')";
-				break;
-			case 3 :
-				tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "!='" + _filter[_filter.size() - 1].value + "')";;
-				break;
-			}
+			// string tmp1 = "(";
+
+			// switch (_filter[_filter.size() - 1].idx_opt)
+			// {
+			// case 0 :
+			// 	tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "<=" + _filter[_filter.size() - 1].value + ")" ;
+			// 	break;
+			// case 1 :
+			// 	tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] +  ">" + _filter[_filter.size() - 1].value + ")";
+			// 	break;
+			// case 2 :
+			// 	tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "='" + _filter[_filter.size() - 1].value + "')";
+			// 	break;
+			// case 3 :
+			// 	tmp1 = tmp1 + " a." + _data_header[_filter[_filter.size() - 1].idx_col] + "!='" + _filter[_filter.size() - 1].value + "')";;
+			// 	break;
+			// }
 
 			tmp = tmp1;
 		} else {
 			size_t i = 0;
 			while ((i < _filter.size()))
 			{
-				string tmp1 = "(";
+
+				string tmp1 = "";
+
 				if (tmp != "")
 				{
-					tmp1 = " and (";
+					tmp1 = " and ";
 				}
 
-				switch (_filter[i].idx_opt)
-				{
-				case 0 :
-					tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "<=" + _filter[i].value + ")" ;
-					break;
-				case 1 :
-					tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col]  + ">" + _filter[i].value + ")";
-					break;
-				case 2 :
-					tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "='" + _filter[i].value  + "')";
-					break;
-				case 3 :
-					tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "!='" + _filter[i].value  + "')";
-					break;
-				}
+				tmp1 = tmp1 + _filter[i].to_query(_data_header);
+
+				// string tmp1 = "(";
+				// if (tmp != "")
+				// {
+				// 	tmp1 = " and (";
+				// }
+
+				// switch (_filter[i].idx_opt)
+				// {
+				// case 0 :
+				// 	tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "<=" + _filter[i].value + ")" ;
+				// 	break;
+				// case 1 :
+				// 	tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col]  + ">" + _filter[i].value + ")";
+				// 	break;
+				// case 2 :
+				// 	tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "='" + _filter[i].value  + "')";
+				// 	break;
+				// case 3 :
+				// 	tmp1 = tmp1 + " a." + _data_header[_filter[i].idx_col] + "!='" + _filter[i].value  + "')";
+				// 	break;
+				// }
 
 				tmp = tmp + tmp1;
 				i++;
@@ -308,7 +320,7 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 }
 
 
-void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
+void Tbase_dataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last)
 {
 	field_filter f;
 	f.idx_col = idx_col;
@@ -316,25 +328,30 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
 	f.value = value;
 	_filter.push_back(f);
 
-	string sql = filter_to_query(false);
-	_data.filter(sql, false);
+	if (is_filter) {
+		string sql = filter_to_query(is_last);
+		_data.filter(sql, !is_last);
+	}
+
 
 }
 
-void Tbase_dataframe::add_filter(field_filter filter)
+void Tbase_dataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
 {
 
 	_filter.push_back(filter);
 
-	string sql = filter_to_query(false);
-	_data.filter(sql, false);
+	if (is_filter) {
+		string sql = filter_to_query(is_last);
+		_data.filter(sql, !is_last);
+	}
 }
 
-void Tbase_dataframe::ReFilter()
+void Tbase_dataframe::ReFilter(bool is_last)
 {
-	string sql = filter_to_query(false);
+	string sql = filter_to_query(is_last);
 	if (sql != "") {
-		_data.filter(sql, false);
+		_data.filter(sql, !is_last);
 	}
 }
 
@@ -451,7 +468,7 @@ posisi_cabang Tbase_dataframe::get_posisi()
 
 vector<int> Tbase_dataframe::get_idx_svm()
 {
-  return _data.get_idx_svm(); 
+	return _data.get_idx_svm();
 }
 
 

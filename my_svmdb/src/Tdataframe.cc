@@ -121,11 +121,11 @@ vector<string> Tdataframe::get_record_svm()
     return _data.get_record();
 
   } else {
-            
+
     vector<string> vec;//, tmp_data = _data.get_record();
 
     for (int i = 0; i < _jml_col; ++i)
-    {      
+    {
       switch (i) {
       case 1:
         vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
@@ -141,11 +141,11 @@ vector<string> Tdataframe::get_record_svm()
         vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
         break;
       default:
-        vec.push_back(_data.get_col_val(i));        
+        vec.push_back(_data.get_col_val(i));
         break;
       }
 
-    }    
+    }
 
     //tmp_data.clear();
     //tmp_data.shrink_to_fit();
@@ -228,18 +228,11 @@ map<string, vector<string>> Tdataframe::get_all_record_svm_map()
 //   _map_col_split.set_config(config);
 // }
 
-void Tdataframe::add_filter(int idx_col, int idx_opt, string value, bool is_filter, bool is_last)
+void Tdataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last)
 {
-  field_filter f;
-  f.idx_col = idx_col;
-  f.idx_opt = idx_opt;
-  f.value = value;
-  _filter.push_back(f);
-
+  Tbase_dataframe::add_filter(idx_col, idx_opt, value, is_filter, is_last);
 
   if (is_filter) {
-    string sql = filter_to_query(is_last);
-    _data.filter(sql, !is_last);
     stat_tabel(false, is_last, true);
   }
 
@@ -247,11 +240,7 @@ void Tdataframe::add_filter(int idx_col, int idx_opt, string value, bool is_filt
 
 void Tdataframe::ReFilter(bool is_last)
 {
-  string sql = filter_to_query(is_last);
-  if (sql != "") {
-    _data.filter(sql, !is_last);
-  }
-
+  Tbase_dataframe::ReFilter(is_last);
   stat_tabel(false, is_last, true);
 }
 
@@ -259,11 +248,9 @@ void Tdataframe::ReFilter(bool is_last)
 
 void Tdataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
 {
-  _filter.push_back(filter);
+  Tbase_dataframe::add_filter(filter, is_filter, is_last);
 
-  if (is_filter) {
-    string sql = filter_to_query(is_last);
-    _data.filter(sql, !is_last);
+  if (is_filter) {    
     stat_tabel(false, is_last, true);
   }
 
@@ -298,19 +285,19 @@ int Tdataframe::get_opt(int idx_col, int is_below)
   }
 }
 
-void Tdataframe::dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt)
+void Tdataframe::dtsvm_stat(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt)
 {
-  _data.dtsvm_stat(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt);
+  _data.dtsvm_stat(id_experiment, id_detail_experiment, id_experiment_dt, id_detail_experiment_dt);
 }
 
-void Tdataframe::detail_dtsvm_stat(time_t id_experiment,time_t id_detail_experiment,time_t id_more_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,int no_svm)
+void Tdataframe::detail_dtsvm_stat(time_t id_experiment, time_t id_detail_experiment, time_t id_more_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt, int no_svm)
 {
-  _data.detail_dtsvm_stat(id_experiment,id_detail_experiment,id_more_detail_experiment,id_experiment_dt,id_detail_experiment_dt,no_svm);
+  _data.detail_dtsvm_stat(id_experiment, id_detail_experiment, id_more_detail_experiment, id_experiment_dt, id_detail_experiment_dt, no_svm);
 }
 
-void Tdataframe::dtsvm_conf_metrix(time_t id_experiment,time_t id_detail_experiment,time_t id_experiment_dt,time_t id_detail_experiment_dt,Tconf_metrix &tmp_conf_metrix)
+void Tdataframe::dtsvm_conf_metrix(time_t id_experiment, time_t id_detail_experiment, time_t id_experiment_dt, time_t id_detail_experiment_dt, Tconf_metrix &tmp_conf_metrix)
 {
-  _data.dtsvm_conf_metrix(id_experiment,id_detail_experiment,id_experiment_dt,id_detail_experiment_dt,tmp_conf_metrix); 
+  _data.dtsvm_conf_metrix(id_experiment, id_detail_experiment, id_experiment_dt, id_detail_experiment_dt, tmp_conf_metrix);
 }
 
 

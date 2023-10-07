@@ -54,6 +54,8 @@ public:
   Tmy_dttype get_split_value();
   int get_jml_below();
   int get_jml_above();
+  bool is_normal();
+  bool is_known();
   bool cek_valid();
   Tgain_ratio kalkulasi_gain_ratio();
 
@@ -103,6 +105,8 @@ private:
   
   vector<int> _idx_max_gain_ratio;
   vector<int> _idx_rata2;
+  vector<int> _idx_normal;
+  vector<int> _idx_known;
 
   Tmy_dttype _entropy_before_split;
   double _sum_gain_po, _sum_gain_neg, _rata2, _sd;
@@ -138,8 +142,8 @@ public:
   void insert_split_stat();
 
   void kalkulasi_sd();
-
   void gen_split_attr();
+  void split_by_label();
 
   Tmetric_split_value get_max_gain_ratio();
 };

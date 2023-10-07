@@ -15,7 +15,49 @@ struct field_filter
 {
 	int idx_col;
 	int idx_opt;
-	string value;
+	Tmy_dttype value;
+
+	string to_query(vector<string> data_header)
+	{
+		vector<string> opt_arr{ "<=", ">", "=", "!="};
+
+		string tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + value.get_string() + ")";
+
+		if ((idx_opt == 2) or (idx_opt == 3))
+		{
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+				string tmp = "";
+				for (size_t i = 0; i < v_tmp.size(); ++i)
+				{
+					tmp = tmp + "'" + v_tmp[i] + "'";
+					if (i < (v_tmp.size()-1))
+					{
+						tmp = tmp + ",";
+					}
+				}
+				if (idx_opt == 2)
+				{
+					tmp_str = "(a." + data_header[idx_col] + " in (" + tmp + "))";
+				} else {
+					if (idx_opt == 3)
+					{
+						tmp_str = "(a." + data_header[idx_col] + " not in (" + tmp + "))";
+					}
+				}
+				//cout << tmp_str << endl;
+
+			} else {
+				tmp_str = "(a." + data_header[idx_col] + opt_arr[idx_opt] + "'" + value.get_string() + "')";
+			}
+
+
+		}
+
+		return tmp_str;
+	}
+
 };
 
 class Tbase_dataframe
@@ -140,9 +182,10 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-	void add_filter(int idx_col, int idx_opt, string value);
-	void add_filter(field_filter filter);
-	void ReFilter();
+	void add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last);
+	void add_filter(field_filter filter, bool is_filter, bool is_last);
+	void ReFilter(bool is_last);
+
 	vector<field_filter> get_filter();
 	void filter_by_idx_svm(int idx_svm);
 

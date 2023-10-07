@@ -130,16 +130,16 @@ tree_node* Tdt_learn_svm::vec_tree_to_dec_tree(int node_index)
     int right = tree[node_index].children[1];
 
     if (left != -1) {
-      tree_node* left_node = vec_tree_to_dec_tree(left);
-      left_node->attrValue = tree[left].attrValue;
+      tree_node* left_node = vec_tree_to_dec_tree(left);      
       left_node->opt = tree[left].opt;
+      left_node->attrValue.set_value(tree[left].attrValue.get_string(), (left_node->opt == 0) or (left_node->opt == 1));
       parent_node->left = left_node;
     }
 
     if (right != -1) {
       tree_node* right_node = vec_tree_to_dec_tree(right);
-      right_node->attrValue = tree[right].attrValue;
       right_node->opt = tree[right].opt;
+      right_node->attrValue.set_value(tree[right].attrValue.get_string(), (right_node->opt == 0) or (right_node->opt == 1));
       parent_node->right = right_node;
     }
   }
@@ -163,7 +163,7 @@ void Tdt_learn_svm::read_tree()
     Node newnode;
     //cout << tmp_data[0] << endl;
     newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-    newnode.attrValue = tmp_data[1];
+    newnode.attrValue.set_value(tmp_data[1], false);
     newnode.label = tmp_data[2];
     //cout << tmp_data[2] << endl;
     newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);

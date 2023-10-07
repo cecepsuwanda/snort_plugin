@@ -142,8 +142,8 @@ public:
 
   void info();
 
-  void add_filter(int idx_col, int idx_opt, string value,bool is_filter,bool is_last);
-  void add_filter(field_filter filter,bool is_filter,bool is_last);
+  void add_filter(int idx_col, int idx_opt, Tmy_dttype value, bool is_filter, bool is_last);
+  void add_filter(field_filter filter, bool is_filter, bool is_last);
   void ReFilter(bool is_last);
   
   string get_nm_header(int idx_col);

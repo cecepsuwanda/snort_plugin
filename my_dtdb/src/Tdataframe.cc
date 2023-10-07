@@ -470,7 +470,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
   proses_split_stat.set_idx_attr(idx);
 
 
-  //Tbelow_above_kategori ba;
+  Tbelow_above_kategori ba;
 
   auto itr = _col_pot_split.begin();
   while ((itr != _col_pot_split.end()))
@@ -480,7 +480,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
     Tlabel_stat stat_below = (*itr).second;
     Tlabel_stat stat_above = _stat_label - stat_below;
 
-    //ba.add_stat(stat_below);
+    ba.add_stat(stat_below);
 
     if (idx == 2)
     {
@@ -512,12 +512,12 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
       {
         proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
       }
-    } 
+    }
 
     //else {
-      // proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
-      // proses_split_stat.insert_split_stat();
-      // proses_split_stat.clear_tmp();
+    // proses_split_stat.insert_tmp_split_stat(mid_point, stat_below, stat_above);
+    // proses_split_stat.insert_split_stat();
+    // proses_split_stat.clear_tmp();
     //}
 
     itr++;
@@ -525,14 +525,14 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   // if (idx == 1)
   // {
-    proses_split_stat.insert_split_stat();
-    proses_split_stat.clear_tmp();
+  proses_split_stat.insert_split_stat();
+  proses_split_stat.clear_tmp();
   // }
-
 
   _col_pot_split.clear();
 
-  proses_split_stat.gen_split_attr();
+  //proses_split_stat.split_by_label();
+  //proses_split_stat.gen_split_attr();
 
   //proses_split_stat.kalkulasi_sd();
 
@@ -540,9 +540,9 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   tmp_hsl = proses_split_stat.get_max_gain_ratio();
 
-  //Tgain_ratio_kategori hsl = ba.kalkulasi_gain_ratio(entropy_before_split);
+  Tgain_ratio_kategori hsl = ba.kalkulasi_gain_ratio(entropy_before_split);
 
-  //cout << " [" <<idx<<","<< tmp_hsl.split_value.get_string() << "] ";
+  //cout << " [" << idx << "," << hsl.gain.get_string() << "," << tmp_hsl.max_gain << "," << tmp_hsl.split_value.get_string() << "] ";
 
   hsl_split.idx = idx;
   hsl_split.max_gain_ratio = tmp_hsl.max_gain_ratio;//stof(hsl.gain_ratio.get_string());
@@ -622,6 +622,16 @@ void Tsplit_stat::set_entropy_before_split(Tmy_dttype entropy_before_split)
   _entropy_before_split = entropy_before_split;
 }
 
+bool Tsplit_stat::is_normal()
+{
+  return (_stat_below.get_max_label() == "normal") and _stat_below.is_single_label();
+}
+
+bool Tsplit_stat::is_known()
+{
+  return (_stat_below.get_max_label() == "known") and _stat_below.is_single_label();
+}
+
 bool Tsplit_stat::cek_valid()
 {
   Tbelow_above tmp_ba;
@@ -686,6 +696,9 @@ Tproses_split_stat::Tproses_split_stat()
 
   _idx_max_gain_ratio.clear();
   _idx_rata2.clear();
+
+  _idx_normal.clear();
+  _idx_known.clear();
 }
 
 Tproses_split_stat::~Tproses_split_stat()
@@ -695,6 +708,9 @@ Tproses_split_stat::~Tproses_split_stat()
 
   _idx_max_gain_ratio.clear();
   _idx_rata2.clear();
+
+  _idx_normal.clear();
+  _idx_known.clear();
 }
 
 void Tproses_split_stat::insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above)
@@ -791,13 +807,13 @@ void Tproses_split_stat::gen_split_attr_rec(int counter, int depth, int geser)
 
 void Tproses_split_stat::gen_split_attr()
 {
-  _jml_attr = 0;
+  //_jml_attr = 0;
   clear_tmp();
 
   if ( (_vec_split_stat.size() > 3) and global_config.buat_kombinasi )
   {
 
-    _jml_attr = _vec_split_stat.size();
+    //_jml_attr = _vec_split_stat.size();
 
     size_t jml_kombinasi = ceil(_jml_attr / 2);
 
@@ -826,6 +842,95 @@ void Tproses_split_stat::gen_split_attr()
   }
 }
 
+void Tproses_split_stat::split_by_label()
+{
+  _jml_attr = _vec_split_stat.size();
+
+  if (_vec_split_stat.size() > 2)
+  {
+    for (size_t i = 0; i < _vec_split_stat.size(); ++i)
+    {
+      if (_vec_split_stat[i].is_normal())
+      {
+        _idx_normal.push_back(i);
+      }
+
+      if (_vec_split_stat[i].is_known())
+      {
+        _idx_known.push_back(i);
+      }
+    }
+
+    if (_idx_normal.size() > 1)
+    {
+      Tsplit_stat tmp_split_stat = _vec_split_stat[_idx_normal[0]];
+
+      for (size_t i = 1; i < _idx_normal.size(); ++i)
+      {
+        tmp_split_stat = tmp_split_stat + _vec_split_stat[_idx_normal[i]];
+      }
+
+      _vec_split_stat.push_back(tmp_split_stat);
+
+      for (size_t i = _idx_normal.size() - 1; i > 0 ; --i)
+      {
+        auto itr = _vec_split_stat.begin() + _idx_normal[i];
+        _vec_split_stat.erase(itr);
+        _jml_attr--;
+      }
+
+      auto itr = _vec_split_stat.begin() + _idx_normal[0];
+      _vec_split_stat.erase(itr);
+      _jml_attr--;
+
+    }
+
+    if (_idx_known.size() > 1)
+    {
+      Tsplit_stat tmp_split_stat = _vec_split_stat[_idx_known[0]];
+
+      for (size_t i = 1; i < _idx_known.size(); ++i)
+      {
+        tmp_split_stat = tmp_split_stat + _vec_split_stat[_idx_known[i]];
+      }
+
+      _vec_split_stat.push_back(tmp_split_stat);
+
+      for (size_t i = _idx_known.size() - 1; i > 0 ; --i)
+      {
+        auto itr = _vec_split_stat.begin() + _idx_known[i];
+        _vec_split_stat.erase(itr);
+        _jml_attr--;
+      }
+
+      auto itr = _vec_split_stat.begin() + _idx_known[0];
+      _vec_split_stat.erase(itr);
+      _jml_attr--;
+    }
+
+    if ((_idx_normal.size() > 1) or (_idx_known.size() > 1))
+    {
+      Tsplit_stat tmp_split_stat = _vec_split_stat[0];
+
+      for (size_t i = 1; i < _jml_attr; ++i)
+      {
+        tmp_split_stat = tmp_split_stat + _vec_split_stat[i];
+      }
+
+      _vec_split_stat.push_back(tmp_split_stat);
+
+      for (size_t i = _jml_attr; i > 0 ; --i)
+      {
+        auto itr = _vec_split_stat.begin() + i;
+        _vec_split_stat.erase(itr);
+      }
+
+      auto itr = _vec_split_stat.begin() + 0;
+      _vec_split_stat.erase(itr);
+    }
+  }
+}
+
 Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 {
 
@@ -840,7 +945,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
     // {
     bool is_pass = true;
 
-    is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
+    is_pass = global_config.use_credal ? true : (hsl.gain > 0.0); //global_config.use_credal ? true :
 
     if ((_first_iteration and is_pass) or (( _max_gain < hsl.gain) and is_pass))
     {

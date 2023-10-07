@@ -5,6 +5,8 @@
 #include <cmath>
 #include <ctime>
 
+#include "Tmy_dttype.h"
+
 using namespace std;
 
 #ifndef Included_global_H
@@ -62,7 +64,7 @@ struct Tmetric_split_value
 class Node {
 public:
   int criteriaAttrIndex;
-  string attrValue;
+  Tmy_dttype attrValue;
   string label;
 
   int treeIndex;
@@ -74,7 +76,7 @@ public:
 
   Node() {
     criteriaAttrIndex = -1;
-    attrValue = "-1";
+    attrValue.set_value("-1", true);
     label = "-1";
     treeIndex = -1;
     isLeaf = false;
@@ -86,7 +88,7 @@ public:
 struct tree_node
 {
   int criteriaAttrIndex;
-  string attrValue;
+  Tmy_dttype attrValue;
   string label;
 
   int treeIndex;
@@ -98,11 +100,15 @@ struct tree_node
   int branch;
   int branch_number;
 
+  int jml_normal;
+  int jml_known;
+
   bool is_pure;
   bool is_min_sample;
   bool is_depth_limit;
   bool is_same_label;
   bool is_pruning;
+  bool is_pruning_1;
   bool is_not_split;
   bool is_lanjut;
 
@@ -112,7 +118,7 @@ struct tree_node
   tree_node()
   {
     criteriaAttrIndex = -1;
-    attrValue = "-1";
+    attrValue.set_value("-1", true);
     label = "-1";
 
     treeIndex = -1;
@@ -124,11 +130,15 @@ struct tree_node
     branch = 0;
     branch_number = 0;
 
+    jml_normal = 0;
+    jml_known = 0;
+
     is_pure = false;
     is_min_sample = false;
     is_depth_limit = false;
     is_same_label = false;
     is_pruning = false;
+    is_pruning_1 = false;
     is_not_split = false;
     is_lanjut = true;
 
