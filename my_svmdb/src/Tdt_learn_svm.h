@@ -6,6 +6,8 @@
 #include "Tmy_svm.h"
 #include "tb_tree.h"
 
+#include<unistd.h>
+
 #ifndef Included_Tdt_learn_svm_H
 
 #define Included_Tdt_learn_svm_H
@@ -28,14 +30,15 @@ private:
 	int idx_svm;
 	int id_df;
 
-	Tconfig *config;
+	Tpesan pesan;
+	Tglobal_config global_config;
 
 	vector<thread> worker;
 
-	static void thread_save_train(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm);
-	static void thread_train_svm(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm,tb_experiment &experiment);
+	static void thread_save_train(vector<vector<string>> table, int v_idx_svm);
+	static void thread_train_svm(vector<vector<string>> table, int v_idx_svm);
 
-    void f_train_svm(Tdataframe &df, int v_idx_svm,tb_experiment &experiment);
+    void f_train_svm(Tdataframe &df, int v_idx_svm);
 	
 	void clear_worker(int limit);
 	
@@ -47,13 +50,13 @@ private:
 	void svm_datatset_dfs(tree_node* parent_node , Tdataframe &df,int counter);
 
 public:
-	Tdt_learn_svm(Tconfig *v_config);
+	Tdt_learn_svm();
 	~Tdt_learn_svm();
 
 	void set_svm_dataset(Tdataframe &df);
 
 	void read_tree();	
-	void learn_svm(Tdataframe &df,tb_experiment &experiment);
+	void learn_svm(Tdataframe &df);
 	
 };
 

@@ -5,25 +5,13 @@ Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
 	_max_value = 0;
-	config = NULL;
+	
 }
 
-Tlabel_stat::Tlabel_stat(Tconfig* v_config)
-{
-	_jml_row = 0;
-	_max_value = 0;
-
-	config = v_config;
-}
 
 Tlabel_stat::~Tlabel_stat()
 {
 	clear();
-}
-
-void Tlabel_stat::set_config(Tconfig* v_config)
-{
-	config = v_config;
 }
 
 

@@ -6,16 +6,8 @@
 Tdataframe::Tdataframe()
 {
   _idx_label = -1;
-  config = NULL;
 }
 
-Tdataframe::Tdataframe(Tconfig* v_config)
-{
-  _idx_label = -1;
-  config = v_config;
-  _stat_label.set_config(config);
-
-}
 
 Tdataframe::~Tdataframe()
 {
@@ -41,10 +33,7 @@ void Tdataframe::read_header_type()
   }
 }
 
-void Tdataframe::set_config(Tconfig* v_config)
-{
-  config = v_config;
-}
+
 
 void Tdataframe::clone_dataset()
 {
@@ -70,8 +59,7 @@ void Tdataframe::stat_tabel(bool is_filter, bool is_last, bool is_stat_label)
 
   if (is_stat_label) {
     _stat_label.clear();
-    _stat_label = _data.hit_label_stat();
-    _stat_label.set_config(config);
+    _stat_label = _data.hit_label_stat();    
   }
 
 }
@@ -106,7 +94,7 @@ int Tdataframe::getjmlcol_svm()
 
 int Tdataframe::getjmlrow_svm()
 {
-  if (config->normal_only)
+  if (global_config.normal_only)
   {
     return _stat_label.get_value("normal");
   } else {
@@ -128,9 +116,13 @@ vector<string> Tdataframe::get_record_svm()
     {
       switch (i) {
       case 1:
-        vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
-        vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
-        vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
+
+        vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "0" : "1");
+        vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
+
         break;
       case 2:
         vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
@@ -172,10 +164,10 @@ vector<vector<string>> Tdataframe::get_all_record_svm()
     //cout << " get_all_record_svm get_record_svm " << endl;
     vector<string> tmp_data = get_record_svm();
 
-    //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
-    //if (is_pass) {
-    Table.push_back(tmp_data);
-    //}
+    bool is_pass = (global_config.normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
+    if (is_pass) {
+      Table.push_back(tmp_data);
+    }
     //cout << " get_all_record_svm next_record " << endl;
     _data.next_record();
   }
@@ -205,7 +197,7 @@ map<string, vector<string>> Tdataframe::get_all_record_svm_map()
     if (itr == Table.end()) {
       Table.insert({record_id, tmp_data});
     } else {
-      cetak(" record ganda !!! \n ");
+      pesan.cetak(" record ganda !!! \n ");
     }
 
     //bool is_pass = (config->normal_only ? (tmp_data[tmp_data.size() - 1].compare("normal") == 0) : true);
@@ -250,7 +242,7 @@ void Tdataframe::add_filter(field_filter filter, bool is_filter, bool is_last)
 {
   Tbase_dataframe::add_filter(filter, is_filter, is_last);
 
-  if (is_filter) {    
+  if (is_filter) {
     stat_tabel(false, is_last, true);
   }
 

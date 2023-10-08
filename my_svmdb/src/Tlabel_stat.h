@@ -21,13 +21,10 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
-	Tconfig* config;
+	Tglobal_config global_config;
 public:
-	Tlabel_stat();
-	Tlabel_stat(Tconfig* v_config);
-	~Tlabel_stat();
-	
-	void set_config(Tconfig* v_config);
+	Tlabel_stat();	
+	~Tlabel_stat();	
 	
 	void add(string value);
 	void add(string value,int count);
@@ -57,8 +54,7 @@ public:
 
 		this->_max_value = t._max_value;
 		this->_max_label = t._max_label;
-		this->_min_value = t._min_value;
-		this->config = t.config;
+		this->_min_value = t._min_value;		
 
 		return *this;
 	}

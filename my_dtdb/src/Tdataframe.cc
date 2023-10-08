@@ -470,7 +470,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
   proses_split_stat.set_idx_attr(idx);
 
 
-  Tbelow_above_kategori ba;
+  //Tbelow_above_kategori ba;
 
   auto itr = _col_pot_split.begin();
   while ((itr != _col_pot_split.end()))
@@ -480,7 +480,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
     Tlabel_stat stat_below = (*itr).second;
     Tlabel_stat stat_above = _stat_label - stat_below;
 
-    ba.add_stat(stat_below);
+    //ba.add_stat(stat_below);
 
     if (idx == 2)
     {
@@ -540,7 +540,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   tmp_hsl = proses_split_stat.get_max_gain_ratio();
 
-  Tgain_ratio_kategori hsl = ba.kalkulasi_gain_ratio(entropy_before_split);
+  //Tgain_ratio_kategori hsl = ba.kalkulasi_gain_ratio(entropy_before_split);
 
   //cout << " [" << idx << "," << hsl.gain.get_string() << "," << tmp_hsl.max_gain << "," << tmp_hsl.split_value.get_string() << "] ";
 

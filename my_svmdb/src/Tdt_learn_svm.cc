@@ -1,11 +1,10 @@
 #include "Tdt_learn_svm.h"
 
-Tdt_learn_svm::Tdt_learn_svm(Tconfig *v_config)
+Tdt_learn_svm::Tdt_learn_svm()
 {
   idx_svm = 0;
   id_df = 1;
 
-  config = v_config;
 }
 
 Tdt_learn_svm::~Tdt_learn_svm()
@@ -151,7 +150,7 @@ void Tdt_learn_svm::read_tree()
 {
   vector<string> tmp_data;
   tb_tree dbtree;
-  dbtree.baca_tree(config->id_experiment_dt, config->id_detail_experiment_dt);
+  dbtree.baca_tree(global_config.id_experiment_dt, global_config.id_detail_experiment_dt);
 
   dbtree.reset_file();
   while (!dbtree.is_eof()) {
@@ -192,10 +191,12 @@ void Tdt_learn_svm::read_tree()
 
 }
 
-void Tdt_learn_svm::thread_save_train(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm)
+void Tdt_learn_svm::thread_save_train(vector<vector<string>> table, int v_idx_svm)
 {
+  Tglobal_config global_config;
+   
   Twrite_file tmp_wf;
-  tmp_wf.setnm_f(v_config->path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
+  tmp_wf.setnm_f(global_config.path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
 
 
   for (int i = 0; i < table.size(); ++i)
@@ -215,19 +216,23 @@ void Tdt_learn_svm::thread_save_train(Tconfig* v_config, vector<vector<string>> 
 
 }
 
-void Tdt_learn_svm::thread_train_svm(Tconfig* v_config, vector<vector<string>> table, int v_idx_svm, tb_experiment &experiment)
+void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm)
 {
-  experiment.insert_more_detail_experiment(v_config->id_experiment_dt, v_config->id_detail_experiment_dt, v_idx_svm, v_config->gamma, v_config->nu);
-  Tmy_svm my_svm(v_config);
+  sleep(30);
+  Tglobal_config global_config;
+  tb_experiment experiment;
+
+  experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, v_idx_svm, global_config.gamma, global_config.nu);
+  Tmy_svm my_svm;
   my_svm.train(table);
-  my_svm.save_model(v_config->svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
+  my_svm.save_model(global_config.svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
   table.clear();
   // sleep(5);
   // time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(v_idx_svm);
   // experiment.end_train_more_detail(id_more_detail_experiment, v_idx_svm);
 }
 
-void Tdt_learn_svm::f_train_svm(Tdataframe &df, int v_idx_svm, tb_experiment &experiment)
+void Tdt_learn_svm::f_train_svm(Tdataframe &df, int v_idx_svm)
 {
   vector<vector<string>> table = df.get_all_record_svm();
 
@@ -237,7 +242,7 @@ void Tdt_learn_svm::f_train_svm(Tdataframe &df, int v_idx_svm, tb_experiment &ex
   //   //thread_save_test(config,table,v_idx_svm);
 
   // }
-  worker.push_back(thread(&Tdt_learn_svm::thread_train_svm, ref(config), table, v_idx_svm, ref(experiment)));
+  worker.push_back(thread(&Tdt_learn_svm::thread_train_svm, table, v_idx_svm));
   table.clear();
 }
 
@@ -249,7 +254,7 @@ void Tdt_learn_svm::clear_worker(int limit)
   if (pass)
   {
     if (limit == 0) {
-      cetak("{clear worker} \n");
+      pesan.cetak("{clear worker} \n");
     }
     for (std::thread & th : worker)
     {
@@ -322,17 +327,19 @@ void Tdt_learn_svm::svm_dfs(int depth , int node_index , Tdataframe & df_train)
 
 }
 
-void Tdt_learn_svm::learn_svm(Tdataframe &df, tb_experiment &experiment)
+void Tdt_learn_svm::learn_svm(Tdataframe &df)
 {
+   
+  tb_experiment experiment;
 
   time_t id_detail_experiment = 0, id_experiment = 0, id_detail_experiment_dt = 0, id_experiment_dt = 0;
-  bool ada = experiment.cari_detail_experiment(config->gamma, config->nu, id_detail_experiment, id_experiment, id_detail_experiment_dt, id_experiment_dt);
+  bool ada = experiment.cari_detail_experiment(global_config.gamma, global_config.nu, id_detail_experiment, id_experiment, id_detail_experiment_dt, id_experiment_dt);
 
 
   vector<int> idx_svm = df.get_idx_svm();
   for (auto i = idx_svm.begin(); i != idx_svm.end(); ++i)
   {
-    cetak("---- Train no svm %d \n", *i);
+    pesan.cetak("---- Train no svm %d \n", *i);
     if (ada)
     {
       string str_id_experiment_dt = to_string(id_experiment_dt);
@@ -345,43 +352,43 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df, tb_experiment &experiment)
       path v_path(tmp_str);
       if (exists(v_path))
       {
-        str_id_experiment_dt = to_string(config->id_experiment_dt);
-        str_id_detail_experiment_dt = to_string(config->id_detail_experiment_dt);
-        str_id_experiment = to_string(config->id_experiment);
-        str_id_detail_experiment = to_string(config->id_detail_experiment);
+        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+        str_id_experiment = to_string(global_config.id_experiment);
+        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
         string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
-        experiment.insert_more_detail_experiment(config->id_experiment_dt, config->id_detail_experiment_dt, *i, config->gamma, config->nu);
+        experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
         fs::copy(tmp_str, tmp_str1);
-        time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
-        experiment.end_train_more_detail(id_more_detail_experiment, *i);
+        //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+        experiment.end_train_more_detail();
 
       } else {
 
         string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
-        str_id_experiment_dt = to_string(config->id_experiment_dt);
-        str_id_detail_experiment_dt = to_string(config->id_detail_experiment_dt);
-        str_id_experiment = to_string(config->id_experiment);
-        str_id_detail_experiment = to_string(config->id_detail_experiment);
+        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+        str_id_experiment = to_string(global_config.id_experiment);
+        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
         string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
         path v_path(tmp_str);
         if (exists(v_path)) {
-          experiment.insert_more_detail_experiment(config->id_experiment_dt, config->id_detail_experiment_dt, *i, config->gamma, config->nu);
+          experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
           fs::copy(tmp_str, tmp_str1);
-          time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
-          experiment.end_train_more_detail(id_more_detail_experiment, *i);
+          //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+          experiment.end_train_more_detail();
         } else {
-          cetak(" tidak ada \n");
+          pesan.cetak(" tidak ada \n");
         }
       }
 
     } else {
       df.filter_by_idx_svm(*i);
-      f_train_svm(df, *i, experiment);
+      f_train_svm(df, *i);
       clear_worker(2);
     }
   }

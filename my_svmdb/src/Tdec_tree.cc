@@ -1,10 +1,9 @@
 #include "Tdec_tree.h"
 
 
-Tdec_tree::Tdec_tree(Tconfig *v_config)
+Tdec_tree::Tdec_tree()
 {
-
-  config = v_config;
+  
 }
 
 Tdec_tree::~Tdec_tree()
@@ -27,14 +26,14 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
   vector<int> idx_svm = df_test.get_idx_svm();
   for (auto i = idx_svm.begin(); i != idx_svm.end(); ++i)
   {
-    cetak("---- Test no svm %d \n",*i);
+    pesan.cetak("---- Test no svm %d \n",*i);
     df_test.filter_by_idx_svm(*i);
     map<string,vector<string>> _table_svm = df_test.get_all_record_svm_map();
 
-    Tmy_svm my_svm(config);
+    Tmy_svm my_svm;
     Tconf_metrix svm_conf_metrix;
 
-    string nm_model = config->svm_path + "/svm_model_" + to_string(*i) + ".csv";
+    string nm_model = global_config.svm_path + "/svm_model_" + to_string(*i) + ".csv";
     my_svm.load_model(nm_model);
 
     experiment.start_test_more_detail(*i);
@@ -60,7 +59,7 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
     float f1 = svm_conf_metrix.get_F1("normal");
 
     experiment.hsl_more_detail(jml_FP, jml_FN, jml_TP, jml_TN, f1, *i);
-    df_test.detail_dtsvm_stat(config->id_experiment,config->id_detail_experiment,id_more_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt,*i);
+    df_test.detail_dtsvm_stat(global_config.id_experiment,global_config.id_detail_experiment,id_more_detail_experiment,global_config.id_experiment_dt,global_config.id_detail_experiment_dt,*i);
 
     experiment.end_test_more_detail(*i);
 
@@ -75,10 +74,10 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
 
   experiment.hsl_svm(jml_FP, jml_FN, jml_TP, jml_TN, f1); 
 
-  df_test.dtsvm_stat(config->id_experiment,config->id_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt);
+  df_test.dtsvm_stat(global_config.id_experiment,global_config.id_detail_experiment,global_config.id_experiment_dt,global_config.id_detail_experiment_dt);
   
   Tconf_metrix tmp_conf_metrix; 
-  df_test.dtsvm_conf_metrix(config->id_experiment,config->id_detail_experiment,config->id_experiment_dt,config->id_detail_experiment_dt,tmp_conf_metrix);
+  df_test.dtsvm_conf_metrix(global_config.id_experiment,global_config.id_detail_experiment,global_config.id_experiment_dt,global_config.id_detail_experiment_dt,tmp_conf_metrix);
 
   jml_FN = tmp_conf_metrix.get_FN("normal");
   jml_FP = tmp_conf_metrix.get_FP("normal");

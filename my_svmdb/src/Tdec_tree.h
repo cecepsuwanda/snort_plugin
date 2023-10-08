@@ -27,7 +27,8 @@ class Tdec_tree
 
 private:
 	
-	Tconfig *config;
+	Tpesan pesan;
+	Tglobal_config global_config;
 
 	vector<thread> worker;
 	
@@ -39,7 +40,7 @@ private:
 	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);	
 
 public:
-	Tdec_tree(Tconfig *v_config);
+	Tdec_tree();
 	~Tdec_tree();
 
 	//void set_config(Tconfig v_config);

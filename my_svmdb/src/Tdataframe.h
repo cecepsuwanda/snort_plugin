@@ -35,12 +35,13 @@ private:
   int _idx_label;
   bool is_non_continuous = false;
   bool is_42 = false;
-  Tconfig* config;
+  
+  Tpesan pesan;
+  Tglobal_config global_config;
 
 
 public:
-  Tdataframe();
-  Tdataframe(Tconfig* v_config);
+  Tdataframe();  
   ~Tdataframe();
 
   Tdataframe(const Tdataframe &t)
@@ -73,10 +74,7 @@ public:
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
-    _jml_total_row = t._jml_total_row;
-    config = t.config;
-
-    _stat_label.set_config(config);   
+    _jml_total_row = t._jml_total_row;     
 
   }
 
@@ -108,10 +106,7 @@ public:
 
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
-    this->_jml_total_row = t._jml_total_row;
-    this->config = t.config;
-
-    this->_stat_label.set_config(this->config);
+    this->_jml_total_row = t._jml_total_row;    
     
     return *this;
   }
@@ -149,7 +144,7 @@ public:
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
  
-  void set_config(Tconfig* v_config);  
+   
 
 };
 

@@ -33,11 +33,10 @@ private:
 	
 	int _idx_svm;
 	
-	Tconfig* config;
+	Tglobal_config global_config;
 
 public:
 	Tmy_svm();
-	Tmy_svm(Tconfig* v_config);
 	~Tmy_svm();
 	void train(vector<vector<string>> table);
 	void save_model(string nm_file);

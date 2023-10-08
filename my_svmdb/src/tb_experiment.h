@@ -25,10 +25,14 @@ class tb_experiment
 {
 private:
     Tquery_builder global_query_builder;
-    time_t _id_experiment;
-    time_t _id_detail_experiment;
     
+    static time_t _id_experiment;
+    static time_t _id_detail_experiment;
 
+    time_t _id_more_detail_experiment;
+    int _no_svm; 
+    double _gamma; 
+    double _nu;
 
 public:
     tb_experiment();
@@ -42,7 +46,7 @@ public:
 
     void end_train_start_test();
     void end_test();
-    void end_train_more_detail(time_t id_more_detail_experiment,int no_svm);
+    void end_train_more_detail();
     void start_test_more_detail(int no_svm);
     void end_test_more_detail(int no_svm);
 

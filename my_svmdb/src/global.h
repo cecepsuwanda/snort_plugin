@@ -13,43 +13,48 @@ using namespace std;
 
 #define Included_global_H
 
-struct Tconfig
+struct Tglobal_config
 {
-  string f_datatype = "";
-  string f_train = "";
-  string f_test = "";  
+  static string f_datatype;
+  static string f_train;
+  static string f_test;
 
-  string path_model = "";
-  string svm_path = "";
+  static string path_model;
+  static string svm_path;
 
-  
-  time_t id_experiment_dt;
-  time_t id_detail_experiment_dt;
+  static time_t id_experiment_dt;
+  static time_t id_detail_experiment_dt;
 
+  static time_t id_experiment;
+  static time_t id_detail_experiment;
 
-  bool save_train = false;
-  bool save_test = false;
-  bool use_credal = false;
-  double credal_s = 0.0;
-  bool limited = false;
-  bool prunning = false;
+  static bool save_train;
+  static bool save_test;
 
-  bool train_svm = false;
+  static bool train_svm;
+  static bool normal_only;
 
-  bool normal_only = false;
+  static double gamma;
+  static double nu;
 
+  static void init()
+  {
+    f_datatype = "";
+    f_train = "";
+    f_test = "";
 
-  double gamma = 0.0;
-  double nu = 0.0;
+    path_model = "";
+    svm_path = "";
 
-  int depth = 0;
-  int min_sample = 0;
-  int threshold = 0;
+    save_train = false;
+    save_test = false;
 
-  //bool search_uniqe_val = false;
+    train_svm = false;
+    normal_only = false;
 
-  time_t id_experiment;
-  time_t id_detail_experiment;
+    gamma = 0.0;
+    nu = 0.0;
+  }
 
 };
 
@@ -183,38 +188,43 @@ struct posisi_cabang
   }
 };
 
-static void cetak_stdout(const char *s)
+class Tpesan
 {
-  fputs(s, stdout);
-  fflush(stdout);
-}
-
-static void cetak ( const char * format, ... )
-{
-  char buffer[256];
-  va_list args;
-  va_start (args, format);
-  vsprintf (buffer, format, args);
-  //perror (buffer);
-  va_end (args);
-  cetak_stdout(buffer);
-}
-
-static double bulat_nol(double val, double tolerance, int digit)
-{
-  double tmp = val;
-
-  if (abs(val) < tolerance)
+public:
+  static void cetak_stdout(const char *s)
   {
-    tmp = 0.0;
+    fputs(s, stdout);
+    fflush(stdout);
   }
-  else
+
+  static void cetak ( const char * format, ... )
   {
-    const double multiplier = std::pow(10.0, digit);
-    tmp = ceil(val * multiplier) / multiplier;
+    char buffer[256];
+    va_list args;
+    va_start (args, format);
+    vsprintf (buffer, format, args);
+    //perror (buffer);
+    va_end (args);
+    cetak_stdout(buffer);
   }
-  // double tmp = val;
-  return tmp;
-}
+
+};
+
+// static double bulat_nol(double val, double tolerance, int digit)
+// {
+//   double tmp = val;
+
+//   if (abs(val) < tolerance)
+//   {
+//     tmp = 0.0;
+//   }
+//   else
+//   {
+//     const double multiplier = std::pow(10.0, digit);
+//     tmp = ceil(val * multiplier) / multiplier;
+//   }
+//   // double tmp = val;
+//   return tmp;
+// }
 
 #endif
