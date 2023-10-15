@@ -26,35 +26,10 @@ Tmy_svm::Tmy_svm()
 
 	is_read_problem = false;
 
-	config=NULL;
+	
 }
 
-Tmy_svm::Tmy_svm(Tconfig* v_config)
-{
-	param.svm_type = ONE_CLASS;
-	param.kernel_type = RBF;
-	param.degree = 3;
-	param.gamma = 0.0001;    // 1/num_features
-	param.coef0 = 0;
-	param.nu = 0.01;
-	param.cache_size = 1024; //100
-	param.C = 1;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
 
-	void (*print_func)(const char*) = NULL;	// default printing to stdout
-	print_func = &print_null;
-	svm_set_print_string_function(print_func);
-
-	is_read_problem = false;
-
-	config = v_config;
-}
 
 
 Tmy_svm::~Tmy_svm()
@@ -112,7 +87,7 @@ void Tmy_svm::read_problem(vector<vector<string>> table)
 	i = 0;
 	vector<string> tmp;
 	// while (!df.is_eof())
-	for (int l = 0; l < prm1; ++l)
+	for (size_t l = 0; l < prm1; ++l)
 	 {
 		tmp =  table[l];//df.get_record_svm();
 
@@ -171,8 +146,8 @@ void Tmy_svm::read_problem(vector<vector<string>> table)
 
 void Tmy_svm::train(vector<vector<string>> table)
 {
-	param.gamma = config->gamma;
-	param.nu = config->nu;
+	param.gamma = global_config.gamma;
+	param.nu = global_config.nu;
 
 	read_problem(table);
 

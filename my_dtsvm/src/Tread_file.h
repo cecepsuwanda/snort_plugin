@@ -50,7 +50,7 @@ private:
 	void clear_data();
 	bool open_file();
 
-	int _idx_col = 0;
+	size_t _idx_col = 0;
 
 	int _jml_row = 0;
 	int _jml_col = 0;

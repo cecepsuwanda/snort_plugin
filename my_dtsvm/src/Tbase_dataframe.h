@@ -15,7 +15,7 @@ struct field_filter
 {
 	int idx_col;
 	int idx_opt;
-	string value;
+	Tmy_dttype value;
 };
 
 class Tbase_dataframe
@@ -100,7 +100,7 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-	void add_filter(int idx_col, int idx_opt, string value);
+	void add_filter(int idx_col, int idx_opt, Tmy_dttype value);
 	void add_filter(field_filter filter);
 	void ReFilter();
 	vector<field_filter> get_filter();

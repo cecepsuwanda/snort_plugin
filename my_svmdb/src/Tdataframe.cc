@@ -116,19 +116,24 @@ vector<string> Tdataframe::get_record_svm()
     {
       switch (i) {
       case 1:
-        // vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
-        // vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
-        // vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
 
-        vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "0" : "1");
-        vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
+        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "0" : "1");
+        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
+
+        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
 
         break;
       case 2:
+        //vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "1" : "0");
+        
         vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
         vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
         break;
       case 3:
+        //vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
         vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
         vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
         break;

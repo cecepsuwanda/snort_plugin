@@ -658,24 +658,24 @@ void tb_dataset::clear_tb_index1()
 void tb_dataset::child_to_tmp_dataset()
 {
 
-	// string query = "call sp_child_to_tmp_dataset('" + _tmp_dataset_tb + "','" + _partition + "')";
+	string query = "call sp_child_to_tmp_dataset('" + _tmp_dataset_tb + "','" + _tmp_attr_dataset_tb + "','" + _partition + "','" + to_string(_id_dt) + "','" + to_string(_jns_dt) + "')";
+	global_query_builder.query(query);
+
+	// clear_tmp_dataset();
+
+	// string query = "insert into " + _tmp_dataset_tb + " (select id,0,0,0,0,0,0,0,'-1' from dataset_10f where id_dt=" + to_string(_id_dt) + " and jns_dt=" + to_string(_jns_dt) + " order by id)";
 	// global_query_builder.query(query);
 
-	clear_tmp_dataset();
+	// clear_tb_index();
 
-	string query = "insert into " + _tmp_dataset_tb + " (select id,0,0,0,0,0,0,0,'-1' from dataset_10f where id_dt=" + to_string(_id_dt) + " and jns_dt=" + to_string(_jns_dt) + " order by id)";
-	global_query_builder.query(query);
+	// query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where child_depth=0 and child_branch=0 and child_branch_number=0 order by id_row)";
+	// global_query_builder.query(query);
 
-	clear_tb_index();
+	// query = "truncate " + _tmp_attr_dataset_tb;
+	// global_query_builder.query(query);
 
-	query = "insert into tb_index(idx_row) (select id_row from " + _tmp_dataset_tb + " where child_depth=0 and child_branch=0 and child_branch_number=0 order by id_row)";
-	global_query_builder.query(query);
-
-	query = "truncate " + _tmp_attr_dataset_tb;
-	global_query_builder.query(query);
-
-	query = "insert into " + _tmp_attr_dataset_tb + " (select id,duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count, dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,a.label from dataset partition(" + _partition + ") a inner join tb_index b on a.id=b.idx_row order by a.id)";
-	global_query_builder.query(query);
+	// query = "insert into " + _tmp_attr_dataset_tb + " (select id,duration,protocol_type,service,flag,src_bytes,dst_bytes,land,wrong_fragment,urgent,count,srv_count,serror_rate,srv_serror_rate,rerror_rate,srv_rerror_rate,same_srv_rate,diff_srv_rate,srv_diff_host_rate,dst_host_count, dst_host_srv_count,dst_host_same_srv_rate,dst_host_diff_srv_rate,dst_host_same_src_port_rate,dst_host_srv_diff_host_rate,dst_host_serror_rate,dst_host_srv_serror_rate,dst_host_rerror_rate,dst_host_srv_rerror_rate,a.label from dataset partition(" + _partition + ") a inner join tb_index b on a.id=b.idx_row order by a.id)";
+	// global_query_builder.query(query);
 }
 
 void tb_dataset::reset_depth_branch()

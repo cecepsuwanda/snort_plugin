@@ -12,6 +12,46 @@ Tmy_dttype::~Tmy_dttype()
 
 }
 
+double Tmy_dttype::bulat_nol(double val, double tolerance, int digit)
+{
+	double tmp = val;
+
+	if (abs(val) < tolerance)
+	{
+		tmp = 0.0;
+	}
+	else
+	{
+		const double multiplier = std::pow(10.0, digit);
+		tmp = ceil(val * multiplier) / multiplier;
+	}
+	// double tmp = val;
+	return tmp;
+}
+
+bool Tmy_dttype::delimiter_exist()
+{
+	size_t found = _value.find(';');
+	return found != string::npos;
+}
+
+vector<string> Tmy_dttype::str_split(string delimiter)
+{
+	vector<string> tmp;
+	const int length = _value.length();
+	char* char_array = new char[length + 1];
+	strcpy(char_array, _value.c_str());
+	char *token = strtok(char_array, delimiter.c_str());	
+	while (token != NULL)
+	{
+		string tmp_str(token);
+		tmp.push_back(tmp_str);
+		token = strtok(NULL, delimiter.c_str());
+	}
+
+	return tmp;
+}
+
 Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 {
 	_value = value;
@@ -19,7 +59,15 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		to_lower(_lower_value);
+		// cout<<"1 "<<_lower_value<<endl;
+		// _lower_value = to_lower(_lower_value);
+		// cout<<"2 "<<_lower_value<<endl;
+
+	} else {
+		// char *endptr;
+		// double tmp = strtod(value.c_str(), &endptr);
+		// _value = to_string(bulat_nol(tmp, 1e-4, 4));
+		//_lower_value = value;
 	}
 }
 
@@ -30,7 +78,14 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	_is_continue = is_continue;
 	if (!_is_continue)
 	{
-		to_lower(_lower_value);
+		// cout<<"1 "<<_lower_value<<endl;
+		// _lower_value = to_lower(_lower_value);
+		// cout<<"2 "<<_lower_value<<endl;
+	} else {
+		// char *endptr;
+		// double tmp = strtod(value.c_str(), &endptr);
+		// _value = to_string(bulat_nol(tmp, 1e-4, 4));
+		//_lower_value = value;
 	}
 }
 
@@ -44,7 +99,9 @@ string Tmy_dttype::to_lower(const string str)
 	string tmp_str;
 	for (size_t i = 0; i < str.length(); ++i)
 	{
-		tmp_str[i] = toupper(str[i]);
+		char tmp_chr = toupper(str[i]);
+		cout << tmp_chr << endl;
+		//tmp_str[i] =
 	}
 	return tmp_str;
 }

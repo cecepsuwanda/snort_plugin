@@ -16,6 +16,124 @@ using namespace std;
 
 #define Included_Tdataframe_H
 
+struct Tmetric_split_value
+{
+  int idx = -1;
+  float max_gain_ratio = -1;
+  float max_gain = -1;
+  int jml_below = 0;
+  int jml_above = 0;
+  Tmy_dttype split_value;
+};
+
+
+class Tsplit_stat
+{
+private:
+  Tmy_dttype _split_value, _entropy_before_split;
+  Tlabel_stat _stat_below, _stat_above;
+public:
+  Tsplit_stat();
+  ~Tsplit_stat();
+
+  void set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
+  void set_entropy_before_split(Tmy_dttype entropy_before_split);
+  Tmy_dttype get_split_value();
+  int get_jml_below();
+  int get_jml_above();
+  bool is_normal();
+  bool is_known();
+  bool cek_valid();
+  Tgain_ratio kalkulasi_gain_ratio();
+
+  Tsplit_stat(const Tsplit_stat &t)
+  {
+    _split_value = t._split_value;
+    _stat_below = t._stat_below;
+    _stat_above = t._stat_above;
+    _entropy_before_split = t._entropy_before_split;
+  }
+
+
+  Tsplit_stat& operator = (const Tsplit_stat &t)
+  {
+    this->_split_value = t._split_value;
+    this->_stat_below = t._stat_below;
+    this->_stat_above = t._stat_above;
+    this->_entropy_before_split = t._entropy_before_split;
+
+    return *this;
+  }
+
+
+  const Tsplit_stat operator + (const Tsplit_stat &rhs) const
+  {
+    Tsplit_stat tmp;
+
+    Tmy_dttype separator(";", false);       
+
+    tmp._split_value = _split_value + separator + rhs._split_value;     
+
+    Tlabel_stat tmp_stat = _stat_below + _stat_above;
+
+    tmp._stat_below = _stat_below + rhs._stat_below;
+    tmp._stat_above = tmp_stat - tmp._stat_below;
+
+    return tmp;
+  }
+
+};
+
+class Tproses_split_stat
+{
+private:
+  vector<Tsplit_stat> _vec_split_stat;
+  vector<Tsplit_stat> _tmp_vec_split_stat;
+  
+  vector<int> _idx_max_gain_ratio;
+  vector<int> _idx_rata2;
+  vector<int> _idx_normal;
+  vector<int> _idx_known;
+
+  Tmy_dttype _entropy_before_split;
+  double _sum_gain_po, _sum_gain_neg, _rata2, _sd;
+
+  bool _first_iteration;
+  Tmy_dttype _max_gain_ratio;
+  Tmy_dttype _max_gain;
+  Tmy_dttype _tmp_split_value;
+  int _jml_below;
+  int _jml_above;
+
+  size_t _jml_attr;
+
+  Tglobal_config global_config;  
+
+  bool _is_continue;
+
+  int _idx_attr;
+
+public:
+  Tproses_split_stat();
+  ~Tproses_split_stat();
+
+  void set_continue(bool is_continue);
+  void set_entropy_before_split(Tmy_dttype entropy_before_split);
+  void set_idx_attr(int idx);
+
+  void insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
+  void clear_tmp();
+  void del_last_tmp();
+  void insert_split_stat();
+
+  void kalkulasi_sd();
+  
+  void split_by_label();
+
+  Tmetric_split_value get_max_gain_ratio();
+};
+
+
 class Tdataframe : public Tbase_dataframe
 {
 private:
@@ -27,16 +145,15 @@ private:
   bool is_non_continuous = false;
   bool is_42 = false;
   //bool _search_uniqe_val_on = true;
-  Tconfig* config;
+  Tglobal_config global_config;
 
   void calculate_metric(map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, string & split_value, Tlabel_stat & stat_label);
 
-  void handle_continuous(int idx, float & current_overall_metric, string & split_value);
-  void handle_non_continuous(int idx, float & current_overall_metric, string & split_value);
+  Tmetric_split_value handle_continuous(int idx);
+  Tmetric_split_value handle_non_continuous(int idx);
 
 public:
-  Tdataframe();
-  Tdataframe(Tconfig* v_config);
+  Tdataframe();  
   ~Tdataframe();
 
   Tdataframe(const Tdataframe &t)
@@ -59,12 +176,8 @@ public:
 
     is_non_continuous = t.is_non_continuous;
     is_42 = t.is_42;
-    _jml_total_row = t._jml_total_row;
-    config = t.config;
+    _jml_total_row = t._jml_total_row;        
      
-     _stat_label.set_config(config);
-     _map_col_split.set_config(config);
-
   }
 
 
@@ -83,11 +196,8 @@ public:
     this->_nm_file = t._nm_file;
     this->is_non_continuous = t.is_non_continuous;
     this->is_42 = t.is_42;
-    this->_jml_total_row = t._jml_total_row;
-    this->config = t.config;
-
-    this->_stat_label.set_config(this->config);
-    this->_map_col_split.set_config(this->config);
+    this->_jml_total_row = t._jml_total_row;   
+    
 
     return *this;
   }
@@ -113,6 +223,7 @@ public:
 
   map<Tmy_dttype, Tlabel_stat>* get_col_split(int idx);
   void clear_col_split();
+  int get_jml_stat(string label);
 
   // void set_config(Tconfig v_config);
 
@@ -121,19 +232,19 @@ public:
 
   void info();
 
-  void add_filter(int idx_col, int idx_opt, string value);
+  void add_filter(int idx_col, int idx_opt, Tmy_dttype value);
   void add_filter(field_filter filter);
   void ReFilter();
 
   void clear_map_col_split();
 
-  void split_data(int split_column, string split_value, Tdataframe &data_below, Tdataframe &data_above);
-  float get_entropy();
+  void split_data(int split_column, Tmy_dttype split_value, Tdataframe &data_below, Tdataframe &data_above);
+  Tmy_dttype get_entropy();
 
   string get_nm_header(int idx_col);
   int get_opt(int idx_col, int is_below);
   void get_col_pot_split(int idx);
-  void calculate_overall_metric(int idx, float &current_overall_metric, string &split_value);
+  Tmetric_split_value calculate_overall_metric(int idx);
 
 };
 

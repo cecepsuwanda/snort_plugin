@@ -1,4 +1,4 @@
-
+#include "Tmy_dttype.h"
 #include <map>
 #include <cmath>
 #include <iterator>
@@ -22,30 +22,33 @@ private:
 	string _max_label;
 	int _max_value;
 	int _min_value;
-	Tconfig* config;
+	Tglobal_config global_config;
+
+
+
 public:
 	Tlabel_stat();
-	Tlabel_stat(Tconfig* v_config);
 	~Tlabel_stat();
-	
-	void set_config(Tconfig* v_config);
-	
+
 	void add(string value);
+	void add(string value, int count);
 	void clear();
-    int get_jml_row();
+	int get_jml_row();
 
-    double get_entropy();
-    double get_credal_entropy();
-    
-    float get_estimate_error();
-    map<string, int> get_map();
-    int get_value(string key);
+	Tmy_dttype get_entropy();
+	Tmy_dttype get_credal_entropy();
 
-    int get_jml_row_in_map();
-    string get_first_value_in_map();
+	float get_estimate_error();
+	map<string, int> get_map();
+	int get_value(string key);
 
-    string get_max_label();
-    bool is_single_label();
+	int get_jml_row_in_map();
+	string get_first_value_in_map();
+
+	void cari_max_label();
+	string get_max_label();
+	bool is_single_label();
+	int get_jml_stat(string label);
 
 	Tlabel_stat& operator = (const Tlabel_stat &t)
 	{
@@ -61,7 +64,6 @@ public:
 		this->_max_value = t._max_value;
 		this->_max_label = t._max_label;
 		this->_min_value = t._min_value;
-		this->config = t.config;
 
 		return *this;
 	}
@@ -70,18 +72,20 @@ public:
 	{
 		Tlabel_stat tmp;
 
-		tmp._jml_row =  this->_jml_row + t._jml_row;
+		//tmp._jml_row =  this->_jml_row + t._jml_row;
 
-		tmp._map.clear();
+		//tmp._map.clear();
 
 		for (auto it = t._map.begin(); it != t._map.end(); it++)
 		{
 			auto it1 = this->_map.find(it->first);
 			if (it1 == this->_map.end())
 			{
-				tmp._map.insert(pair<string, int>(it->first, it->second));
+				//tmp._map.insert(pair<string, int>(it->first, it->second));
+				tmp.add(it->first, it->second);
 			} else {
-				tmp._map.insert(pair<string, int>(it->first, it->second + it1->second));
+				//tmp._map.insert(pair<string, int>(it->first, it->second + it1->second));
+				tmp.add(it->first, it->second + it1->second);
 			}
 		}
 
@@ -90,9 +94,12 @@ public:
 			auto it1 = tmp._map.find(it->first);
 			if (it1 == tmp._map.end())
 			{
-				tmp._map.insert(pair<string, int>(it->first, it->second));
+				//tmp._map.insert(pair<string, int>(it->first, it->second));
+				tmp.add(it->first, it->second);
 			}
 		}
+
+		//tmp.cari_max_label();
 
 		return tmp;
 	}
@@ -101,19 +108,23 @@ public:
 	{
 		Tlabel_stat tmp;
 
-		tmp._jml_row =  this->_jml_row - t._jml_row;
+		// tmp._jml_row =  this->_jml_row - t._jml_row;
 
-		tmp._map.clear();
+		// tmp._map.clear();
 
-        
-        for (auto it = this->_map.begin(); it != this->_map.end(); it++)
+
+		for (auto it = this->_map.begin(); it != this->_map.end(); it++)
 		{
 			auto it1 = t._map.find(it->first);
 			if (it1 == t._map.end())
 			{
-				tmp._map.insert(pair<string, int>(it->first, it->second));
+				//tmp._map.insert(pair<string, int>(it->first, it->second));
+				tmp.add(it->first, it->second);
 			} else {
-				tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
+				if (it->second > it1->second) {
+					//tmp._map.insert(pair<string, int>(it->first, it->second - it1->second));
+					tmp.add(it->first, it->second - it1->second);
+				}
 			}
 		}
 
@@ -122,17 +133,18 @@ public:
 			auto it1 = tmp._map.find(it->first);
 			if (it1 == tmp._map.end())
 			{
-				tmp._map.insert(pair<string, int>(it->first, -it->second));
+				//cout<<"kacau !!! "<< it->first << " " << it->second <<endl;
+				//tmp._map.insert(pair<string, int>(it->first, -1*it->second));
 			}
-		}		  
+		}
 
-		
+		//tmp.cari_max_label();
 
 		return tmp;
 	}
 
 
-    friend ostream & operator << (ostream & out, const Tlabel_stat & tc);
+	friend ostream & operator << (ostream & out, const Tlabel_stat & tc);
 
 };
 

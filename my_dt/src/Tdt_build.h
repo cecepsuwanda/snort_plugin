@@ -19,7 +19,7 @@ private:
 	int id_df;
 	int prev_tree_depth;
 
-	Tconfig *config;
+	Tglobal_config global_config;
 
 	vector<thread> worker;
 
@@ -38,7 +38,7 @@ private:
 	void save_tree();
 
 public:
-	Tdt_build(Tconfig *v_config);
+	Tdt_build();
 	~Tdt_build();
 
 	void build_tree(Tdataframe &df_train);

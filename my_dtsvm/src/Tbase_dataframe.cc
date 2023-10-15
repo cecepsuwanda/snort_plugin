@@ -72,22 +72,22 @@ bool Tbase_dataframe::is_pass(vector<string> &data)
 		size_t i = 0;
 		while ((i < _filter.size()) and pass)
 		{
-			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+			//Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
 			Tmy_dttype tmp2(data[_filter[i].idx_col], _data_type[_filter[i].idx_col] == "continuous.");
 
 			switch (_filter[i].idx_opt)
 			{
 			case 0 :
-				pass = tmp2 <= tmp1 ;
+				pass = tmp2 <= _filter[i].value;
 				break;
 			case 1 :
-				pass = tmp1  < tmp2;
+				pass = _filter[i].value < tmp2;
 				break;
 			case 2 :
-				pass = tmp1 == tmp2;
+				pass = _filter[i].value == tmp2;
 				break;
 			case 3 :
-				pass = tmp1 != tmp2;
+				pass = _filter[i].value != tmp2;
 				break;
 			}
 			i++;
@@ -106,22 +106,22 @@ bool Tbase_dataframe::is_pass()
 		size_t i = 0;
 		while ((i < _filter.size()) and pass)
 		{
-			Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
+			//Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
 			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
 
 			switch (_filter[i].idx_opt)
 			{
 			case 0 :
-				pass = tmp2 <= tmp1 ;
+				pass = tmp2 <= _filter[i].value;
 				break;
 			case 1 :
-				pass = tmp1  < tmp2;
+				pass = _filter[i].value < tmp2;
 				break;
 			case 2 :
-				pass = tmp1 == tmp2;
+				pass = _filter[i].value == tmp2;
 				break;
 			case 3 :
-				pass = tmp1 != tmp2;
+				pass = _filter[i].value != tmp2;
 				break;
 			}
 			i++;
@@ -263,7 +263,7 @@ vector<vector<string>> Tbase_dataframe::get_all_record()
 
 
 
-void Tbase_dataframe::add_filter(int idx_col, int idx_opt, string value)
+void Tbase_dataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value)
 {
 	
 	field_filter f;
@@ -347,7 +347,7 @@ void Tbase_dataframe::head()
 		while ((!_data.is_eof()) and (i < 5))
 		{
 			tmp_data = _data.get_record();
-			for (int idx = 0; idx < tmp_data.size(); ++idx)
+			for (size_t idx = 0; idx < tmp_data.size(); ++idx)
 			{
 				cout << setw(tmp_data[idx].length() + 2) << tmp_data[idx];
 			}

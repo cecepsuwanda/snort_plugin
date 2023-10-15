@@ -4,55 +4,95 @@
 #include <vector>
 #include <cmath>
 
+#include "Tmy_dttype.h"
+
 using namespace std;
 
 #ifndef Included_global_H
 
 #define Included_global_H
 
-struct Tconfig
+struct Tglobal_config
 {
-  string f_datatype = "";
-  string f_train = "";
-  string f_test = "";
-  string path_model = "";
-  string svm_path = "";
+public:
 
-  bool save_train = false;
-  bool save_test = false;
-  bool use_credal = false;
-  double credal_s = 0.0;
-  bool limited = false;
-  bool prunning = false;
+  static string f_datatype;
+  static string f_train;
+  static string f_test;
+  static string path_model;
+  static string svm_path;
 
-  bool train_svm = false;
-  bool feature_selection = false;
-  bool normal_only = false;
+  static bool save_train;
+  static bool save_test;
+
+  static bool use_credal;
+  static double credal_s;
+  static bool limited;
+  static bool prunning;
+
+  static bool train_svm;
+  static bool feature_selection;
+  static bool normal_only;
+
+  static double gamma;
+  static double nu;
+
+  static int depth;
+  static int min_sample;
+  static int threshold;
+
+  static bool search_uniqe_val;
+
+  static bool gunakan_rata2gain;
+  static bool find_other_attr;
+  static double skala_pruning;
+  static int jml_thread;
+
+  static void init()
+  {
+    f_datatype = "";
+    f_train = "";
+    f_test = "";
+    path_model = "";
+    svm_path = "";
+
+    save_train = false;
+    save_test = false;
+
+    use_credal = false;
+    credal_s = 0.0;
+    limited = false;
+    prunning = false;
+
+    train_svm = false;
+    feature_selection = false;
+    normal_only = false;
 
 
-  double gamma = 0.0;
-  double nu = 0.0;
+    gamma = 0.0;
+    nu = 0.0;
 
-  int depth = 0;
-  int min_sample = 0;
-  int threshold = 0;
+    depth = 0;
+    min_sample = 0;
+    threshold = 0;
 
-  bool search_uniqe_val = false;
+    search_uniqe_val = false;
+
+    gunakan_rata2gain = true;
+    find_other_attr = true;
+    skala_pruning = 0.5;
+    jml_thread = 2;
+  }
 
 };
 
 
-struct Tmetric_split_value
-{
-  int idx = 0;
-  float overall_metric = -1;
-  string split_value = "-1";
-};
+
 
 class Node {
 public:
   int criteriaAttrIndex;
-  string attrValue;
+  Tmy_dttype attrValue;
   string label;
 
   int treeIndex;
@@ -64,7 +104,7 @@ public:
 
   Node() {
     criteriaAttrIndex = -1;
-    attrValue = "-1";
+    attrValue.set_value("-1", true);
     label = "-1";
     treeIndex = -1;
     isLeaf = false;
@@ -73,38 +113,98 @@ public:
   }
 };
 
-static void cetak_stdout(const char *s)
+struct tree_node
 {
-  fputs(s, stdout);
-  fflush(stdout);
-}
+  int criteriaAttrIndex;
+  Tmy_dttype attrValue;
+  string label;
 
-static void cetak ( const char * format, ... )
-{
-  char buffer[256];
-  va_list args;
-  va_start (args, format);
-  vsprintf (buffer, format, args);
-  //perror (buffer);
-  va_end (args);
-  cetak_stdout(buffer);
-}
+  int treeIndex;
+  bool isLeaf;
+  int opt;
+  int idx_svm;
 
-static double bulat_nol(double val, double tolerance, int digit)
-{
-  double tmp = val;
+  int depth;
+  int branch;
+  int branch_number;
 
-  if (abs(val) < tolerance)
+  int jml_normal;
+  int jml_known;
+
+  bool is_pure;
+  bool is_min_sample;
+  bool is_depth_limit;
+  bool is_same_label;
+  bool is_pruning;
+  bool is_pruning_1;
+  bool is_not_split;
+  bool is_lanjut;
+
+  tree_node *left;
+  tree_node *right;
+
+  tree_node()
   {
-    tmp = 0.0;
+    criteriaAttrIndex = -1;
+    attrValue.set_value("-1", true);
+    label = "-1";
+
+    treeIndex = -1;
+    isLeaf = false;
+    opt = -1;
+    idx_svm = -1;
+
+    depth = 0;
+    branch = 0;
+    branch_number = 0;
+
+    jml_normal = 0;
+    jml_known = 0;  
+
+    left = NULL;
+    right = NULL;
+
   }
-  else
+
+};
+
+class Tpesan
+{
+public:
+  static void cetak_stdout(const char *s)
   {
-    const double multiplier = std::pow(10.0, digit);
-    tmp = ceil(val * multiplier) / multiplier;
+    fputs(s, stdout);
+    fflush(stdout);
   }
-  // double tmp = val;
-  return tmp;
-}
+
+  static void cetak ( const char * format, ... )
+  {
+    char buffer[256];
+    va_list args;
+    va_start (args, format);
+    vsprintf (buffer, format, args);
+    //perror (buffer);
+    va_end (args);
+    cetak_stdout(buffer);
+  }
+
+};
+
+// static double bulat_nol(double val, double tolerance, int digit)
+// {
+//   double tmp = val;
+
+//   if (abs(val) < tolerance)
+//   {
+//     tmp = 0.0;
+//   }
+//   else
+//   {
+//     const double multiplier = std::pow(10.0, digit);
+//     tmp = ceil(val * multiplier) / multiplier;
+//   }
+//   // double tmp = val;
+//   return tmp;
+// }
 
 #endif

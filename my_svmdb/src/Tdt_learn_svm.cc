@@ -218,7 +218,7 @@ void Tdt_learn_svm::thread_save_train(vector<vector<string>> table, int v_idx_sv
 
 void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm)
 {
-  sleep(30);
+  sleep(10);
   Tglobal_config global_config;
   tb_experiment experiment;
 
@@ -227,9 +227,9 @@ void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm
   my_svm.train(table);
   my_svm.save_model(global_config.svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
   table.clear();
-  // sleep(5);
+  sleep(5);
   // time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(v_idx_svm);
-  // experiment.end_train_more_detail(id_more_detail_experiment, v_idx_svm);
+  experiment.end_train_more_detail();
 }
 
 void Tdt_learn_svm::f_train_svm(Tdataframe &df, int v_idx_svm)
@@ -358,7 +358,8 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
         str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
         string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
-
+        
+        sleep(10);
         experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
         fs::copy(tmp_str, tmp_str1);
         //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
@@ -377,6 +378,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
 
         path v_path(tmp_str);
         if (exists(v_path)) {
+          sleep(10);  
           experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
           fs::copy(tmp_str, tmp_str1);
           //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);

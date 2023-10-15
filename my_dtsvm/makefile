@@ -9,4 +9,4 @@ INC_FLAGS=$(addprefix -I,$(INC_DIRS))
 CFLAGS=-pthread -g $(INC_FLAGS)
 
 my_dtsvm : $(SRCS)
-	       $(CC) $(CFLAGS) -o my_dtsvm $(SRCS) -std=c++17 -lstdc++fs
+	       $(CC) $(CFLAGS) -o my_dtsvm $(SRCS) -Wall -std=c++17 -lstdc++fs
