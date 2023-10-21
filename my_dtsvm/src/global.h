@@ -159,7 +159,16 @@ struct tree_node
     branch_number = 0;
 
     jml_normal = 0;
-    jml_known = 0;  
+    jml_known = 0; 
+
+    is_pure = false;
+    is_min_sample = false;
+    is_depth_limit = false;
+    is_same_label = false;
+    is_pruning = false;
+    is_pruning_1 = false;
+    is_not_split = false;
+    is_lanjut = true; 
 
     left = NULL;
     right = NULL;

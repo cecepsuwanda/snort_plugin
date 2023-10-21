@@ -587,6 +587,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tdataframe &df_train)
 			int branch_false_predic = sum_min;
 
 			float branch_error_left = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
 
 			float se = sqrt((branch_error_left * (jml_sample - branch_error_left)) / jml_sample);
 
@@ -610,6 +611,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tdataframe &df_train)
 
 			int branch_false_predic = sum_min;
 			float branch_error_right = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
 
 			float se = sqrt((branch_error_right * (jml_sample - branch_error_right)) / jml_sample);
 
@@ -636,7 +638,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tdataframe &df_train)
 	}
 	if (del_branch) {
 		del_branch = false;
-		pesan.cetak("*");
+		//pesan.cetak("*");
 
 		if ((parent_node->left != NULL) and cut_left) {
 			cut_left = false;
@@ -860,10 +862,10 @@ void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 
 void Tdt_build::post_pruning(Tdataframe & df_train)
 {
-	pruning_method_2(dec_tree, df_train);
-	clear_worker(0);
-	pruning_method_3(dec_tree, df_train);
-	clear_worker(0);
+	 pruning_method_2(dec_tree, df_train);
+	 clear_worker(0);
+	 pruning_method_3(dec_tree, df_train);
+	 clear_worker(0);
 	//pruning_dfs(0, df_train);
 }
 

@@ -86,7 +86,7 @@ bool Tread_file::open_file()
 void Tread_file::memory_map_file()
 {
 
-  _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);//MAP_SHARED
+  _file_in_memory = (char*) mmap(NULL, _sb.st_size, PROT_READ, MAP_PRIVATE, _fd, 0);//MAP_SHARED 
 
   if (_file_in_memory == MAP_FAILED)
   {

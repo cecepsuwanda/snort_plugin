@@ -272,6 +272,8 @@ void Tbase_dataframe::add_filter(int idx_col, int idx_opt, Tmy_dttype value)
 	f.value = value;
 	_filter.push_back(f);
 
+	
+
 	stat_tabel();
 }
 

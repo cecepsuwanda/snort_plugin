@@ -1185,6 +1185,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 			int branch_false_predic = sum_min;
 
 			float branch_error_left = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
 
 			float se = sqrt((branch_error_left * (jml_sample - branch_error_left)) / jml_sample);
 
@@ -1208,6 +1209,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 
 			int branch_false_predic = sum_min;
 			float branch_error_right = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
 
 			float se = sqrt((branch_error_right * (jml_sample - branch_error_right)) / jml_sample);
 
@@ -1234,7 +1236,7 @@ void Tdt_build::pruning_method_3(tree_node * parent_node, Tposisi_cabang & posis
 	}
 	if (del_branch) {
 		del_branch = false;
-		pesan.cetak("*");
+		//pesan.cetak("*");
 
 		if ((parent_node->left != NULL) and cut_left) {
 			cut_left = false;
@@ -1936,7 +1938,7 @@ void Tdt_build::build_tree(Tdataframe & df_train)
 	if (global_config.prunning) {
 		pesan.cetak("Start Prunning Decission Tree : \n");
 		post_pruning(df_train);
-		//cetak("\nEnd Prunning Decission Tree : \n");
+		pesan.cetak("\nEnd Prunning Decission Tree : \n");
 	}
 
 	pesan.cetak("\n");
