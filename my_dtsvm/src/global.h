@@ -81,7 +81,7 @@ public:
     gunakan_rata2gain = true;
     find_other_attr = true;
     skala_pruning = 0.5;
-    jml_thread = 2;
+    jml_thread = 20;
   }
 
 };

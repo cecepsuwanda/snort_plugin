@@ -75,21 +75,23 @@ bool Tbase_dataframe::is_pass(vector<string> &data)
 			//Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
 			Tmy_dttype tmp2(data[_filter[i].idx_col], _data_type[_filter[i].idx_col] == "continuous.");
 
-			switch (_filter[i].idx_opt)
-			{
-			case 0 :
-				pass = tmp2 <= _filter[i].value;
-				break;
-			case 1 :
-				pass = _filter[i].value < tmp2;
-				break;
-			case 2 :
-				pass = _filter[i].value == tmp2;
-				break;
-			case 3 :
-				pass = _filter[i].value != tmp2;
-				break;
-			}
+			pass = _filter[i].is_pass(tmp2);
+
+			// switch (_filter[i].idx_opt)
+			// {
+			// case 0 :
+			// 	pass = tmp2 <= _filter[i].value;
+			// 	break;
+			// case 1 :
+			// 	pass = _filter[i].value < tmp2;
+			// 	break;
+			// case 2 :
+			// 	pass = _filter[i].value == tmp2;
+			// 	break;
+			// case 3 :
+			// 	pass = _filter[i].value != tmp2;
+			// 	break;
+			// }
 			i++;
 		}
 	}
@@ -109,21 +111,24 @@ bool Tbase_dataframe::is_pass()
 			//Tmy_dttype tmp1(_filter[i].value, _data_type[_filter[i].idx_col] == "continuous.");
 			Tmy_dttype tmp2(_data.get_col_val(_filter[i].idx_col), _data_type[_filter[i].idx_col] == "continuous.");
 
-			switch (_filter[i].idx_opt)
-			{
-			case 0 :
-				pass = tmp2 <= _filter[i].value;
-				break;
-			case 1 :
-				pass = _filter[i].value < tmp2;
-				break;
-			case 2 :
-				pass = _filter[i].value == tmp2;
-				break;
-			case 3 :
-				pass = _filter[i].value != tmp2;
-				break;
-			}
+			pass = _filter[i].is_pass(tmp2);
+
+			// switch (_filter[i].idx_opt)
+			// {
+			// case 0 :
+			// 	pass = tmp2 <= _filter[i].value;
+			// 	break;
+			// case 1 :
+			// 	pass = _filter[i].value < tmp2;
+			// 	break;
+			// case 2 :
+			// 	pass = _filter[i].value == tmp2;
+			// 	break;
+			// case 3 :
+			// 	pass = _filter[i].value != tmp2;
+			// 	break;
+			// }
+
 			i++;
 		}
 	}

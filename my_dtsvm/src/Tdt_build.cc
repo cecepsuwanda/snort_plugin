@@ -63,6 +63,8 @@ void Tdt_build::del_dec_tree(tree_node* parent_node)
 
 void Tdt_build::del_model_train(int idx)
 {
+	clear_worker(0);
+
 	string filename = global_config.svm_path + "/svm_model_" + to_string(idx) + ".csv";
 	remove(filename.c_str());
 
@@ -547,6 +549,9 @@ void Tdt_build::pruning_method_2(tree_node* parent_node, Tdataframe &df_train)
 					}
 
 				}
+
+
+
 
 			}
 

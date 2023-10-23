@@ -16,6 +16,74 @@ struct field_filter
 	int idx_col;
 	int idx_opt;
 	Tmy_dttype value;
+
+	bool is_pass(Tmy_dttype rhs)
+	{
+		bool pass = true;
+		switch (idx_opt)
+		{
+		case 0 :
+			pass = rhs <= value;
+			break;
+		case 1 :
+			pass = value < rhs;
+			break;
+		case 2 :
+
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+
+				Tmy_dttype tmp(v_tmp[0], false);
+
+				pass = tmp == rhs;
+
+				size_t i = 1;
+
+				while ((i < v_tmp.size()) and pass)
+				{
+					Tmy_dttype tmp(v_tmp[i], false);
+					pass = tmp == rhs;
+
+					i++;
+				}
+
+			} else {
+				pass = value == rhs;
+			}
+			break;
+		case 3 :
+
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+
+				Tmy_dttype tmp(v_tmp[0], false);
+				pass = tmp != rhs;
+
+				size_t i = 1;
+
+				while ((i < v_tmp.size()) and pass)
+				{
+					Tmy_dttype tmp(v_tmp[i], false);
+					pass = tmp != rhs;
+
+					i++;
+				}
+
+			} else {
+				pass = value != rhs;
+			}
+
+
+
+			break;
+		}
+
+		return pass;
+	}
+
+
 };
 
 class Tbase_dataframe
@@ -45,12 +113,12 @@ public:
 		_data = t._data;
 		_data_header = t._data_header;
 		_data_type = t._data_type;
-		_filter = t._filter;		
+		_filter = t._filter;
 
 		_jml_col = t._jml_col;
-		_jml_row = t._jml_row;		
+		_jml_row = t._jml_row;
 
-		_nm_file = t._nm_file;		
+		_nm_file = t._nm_file;
 		_jml_total_row = t._jml_total_row;
 	}
 
@@ -60,16 +128,16 @@ public:
 		this->_data = t._data;
 		this->_data_header = t._data_header;
 		this->_data_type = t._data_type;
-		this->_filter = t._filter;		
+		this->_filter = t._filter;
 		this->_jml_col = t._jml_col;
-		this->_jml_row = t._jml_row;		
-		this->_nm_file = t._nm_file;		
+		this->_jml_row = t._jml_row;
+		this->_nm_file = t._nm_file;
 		this->_jml_total_row = t._jml_total_row;
 		return *this;
 	}
 
 	void set_id(int id);
-	int get_id();	
+	int get_id();
 
 	void read_data(string nm_f);
 	void read_data_type(string nm_f);
@@ -80,7 +148,7 @@ public:
 	bool is_pass();
 
 	void stat_tabel();
-	
+
 	int getjmlcol();
 	int getjmlrow();
 	void setjmltotalrow();
