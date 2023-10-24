@@ -3,23 +3,8 @@
 
 Tbelow_above::Tbelow_above()
 {
-	config = NULL;
+
 }
-
-Tbelow_above::Tbelow_above(Tconfig* v_config)
-{
-	config = v_config;
-	_below.set_config(config);
-	_above.set_config(config);
-}
-
-
-/*void Tbelow_above::set_config(Tconfig* v_config)
-{
-	config = v_config;
-	_below.set_config(config);
-	_above.set_config(config);
-}*/
 
 Tbelow_above::~Tbelow_above()
 {
@@ -36,23 +21,22 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid()
 {
-	// int jml = _below.get_jml_row() + _above.get_jml_row();
+	int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
-	if (config->limited)
+	if (global_config.limited)
 	{
-		pass = (_below.get_jml_row() >= config->threshold) and  (_above.get_jml_row() >= config->threshold);
-		// if (!pass) {
-		// 	pass = (_below.get_jml_row() <= config.min_sample) and (_below.get_jml_row() >= 2) and (_below.get_jml_row() >= (0.1 * config.min_sample));
-		// }
-
-		// if (!pass) {
-		// 	pass = (_above.get_jml_row() <= config.min_sample) and (_above.get_jml_row() >= 2) and (_above.get_jml_row() >= (0.1 * config.min_sample));
-		// }
+		if (global_config.threshold >= 1) {
+			pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
+		} else {
+			//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
+			pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
+		}
 	}
 
 	return pass;
 }
+
 
 void Tbelow_above::set_value(Tmy_dttype value)
 {
@@ -85,26 +69,34 @@ Tlabel_stat Tbelow_above::get_above()
 	return _above;
 }
 
-float Tbelow_above::get_overall_metric()
+Tmy_dttype Tbelow_above::get_overall_metric()
 {
 	float overall_metric = 0.0;
 
-	_below.set_config(config);
-	_above.set_config(config);
 
-	if (!config->use_credal) {
+	if (!global_config.use_credal) {
 		int jml = _below.get_jml_row() + _above.get_jml_row();
 		float p_dt_below = (float) _below.get_jml_row() / jml;
 		float p_dt_above = (float) _above.get_jml_row() / jml;
 
-		double entropy_below = _below.get_entropy();
-		double entropy_above = _above.get_entropy();
-
+		double entropy_below = stof(_below.get_entropy().get_value());
+		double entropy_above = stof(_above.get_entropy().get_value());
 
 		overall_metric = (p_dt_below * entropy_below) + (p_dt_above * entropy_above);
+
+		// if (global_config.cetak_credal)
+		// {
+		// 	cout << "jml = " << jml << endl;
+		// 	cout << "p_dt_below = " << p_dt_below << endl;
+		// 	cout << "p_dt_above = " << p_dt_above << endl;
+		// 	cout << "entropy_below = " << entropy_below << endl;
+		// 	cout << "entropy_above = " << entropy_above << endl;
+		// 	cout << "overall_metric = " << overall_metric << endl;
+		// }
+
 	} else {
 
-		credal crd(config->credal_s);
+		credal crd(global_config.credal_s);
 
 		vector<int> freq;
 		vector<double> ent, max_ent;
@@ -114,15 +106,19 @@ float Tbelow_above::get_overall_metric()
 
 		crd.input_frec(freq);
 
-		ent.push_back(_below.get_entropy());
-		ent.push_back(_above.get_entropy());
+		ent.push_back(stof(_below.get_entropy().get_value()));
+		ent.push_back(stof(_above.get_entropy().get_value()));
 
-		max_ent.push_back(_below.get_credal_entropy());
-		max_ent.push_back(_above.get_credal_entropy());
+		max_ent.push_back(stof(_below.get_credal_entropy().get_value()));
+		max_ent.push_back(stof(_above.get_credal_entropy().get_value()));
 
 		overall_metric = crd.get_overall_metric(ent, max_ent);
 	}
-	return overall_metric;
+
+	Tmy_dttype tmp;
+	tmp.set_value(to_string(overall_metric), true);
+
+	return tmp;
 }
 
 float Tbelow_above::get_split_info()
@@ -131,7 +127,7 @@ float Tbelow_above::get_split_info()
 	float p_dt_below = (float) _below.get_jml_row() / jml;
 	float p_dt_above = (float) _above.get_jml_row() / jml;
 
-	float split_info = 0;
+	float split_info = 0.0;
 	if (p_dt_below > 0) {
 		split_info += (p_dt_below  * (-1 * log2(p_dt_below)));
 	}
@@ -141,4 +137,22 @@ float Tbelow_above::get_split_info()
 	return split_info;
 }
 
+Tgain_ratio Tbelow_above::kalkulasi_gain_ratio(Tmy_dttype entropy_before_split)
+{
+	Tgain_ratio hsl;
 
+	Tmy_dttype entropy_after_split = get_overall_metric();
+	float split_info = get_split_info();
+	hsl.gain = entropy_before_split - entropy_after_split;
+
+	// if ((hsl.gain < 0.0) and (abs(stof(hsl.gain.get_string()))>0.01))
+	// {		
+	// 	 cout << endl << " negatif gain !!! " << entropy_before_split.get_string() << " " << entropy_after_split.get_string() << endl;
+	// }
+
+	if (abs(split_info) > 0) {
+		hsl.gain_ratio = hsl.gain / split_info;
+	}
+
+	return hsl;
+}

@@ -3,22 +3,12 @@
 
 Tmap_col_split::Tmap_col_split()
 {
-	config = NULL;
-}
 
-Tmap_col_split::Tmap_col_split(Tconfig* v_config)
-{
-	config = v_config;
 }
 
 Tmap_col_split::~Tmap_col_split()
 {
 
-}
-
-void Tmap_col_split::set_config(Tconfig* v_config)
-{
-	config = v_config;
 }
 
 void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data, string label)
@@ -28,7 +18,7 @@ void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data,
 	auto itr = _pot_split.find(idx_col);
 	if (itr == _pot_split.end())
 	{
-		Tlabel_stat p(config);
+		Tlabel_stat p;
 		p.add(label);
 		map<Tmy_dttype, Tlabel_stat> col_pot_split;
 		col_pot_split.insert(pair<Tmy_dttype, Tlabel_stat>(tmp_split_value, p));
@@ -38,7 +28,7 @@ void Tmap_col_split::add_data(int idx_col, string split_value, string tipe_data,
 		auto itr1 = itr->second.find(tmp_split_value);
 		if (itr1 == itr->second.end())
 		{
-			Tlabel_stat p(config);
+			Tlabel_stat p;
 			p.add(label);
 			itr->second.insert(pair<Tmy_dttype, Tlabel_stat>(tmp_split_value, p));
 		} else {
@@ -56,14 +46,14 @@ void Tmap_col_split::cek_valid_attr(int jml_row)
 		auto tmp = itr->second.begin();
 		Tmy_dttype tmp_dttype = tmp->first;
 
-		if (tmp_dttype.is_continue()) {
-			//cout << itr->first << "-" << itr->second.size() << endl;
-			if ( (itr->second.size() < (0.3 * jml_row)) and (itr->second.size() > 1)) {
-				_valid_attr.push_back(itr->first);
-			}
-		} else {
+		// if (tmp_dttype.is_continue()) {
+		//cout << itr->first << "-" << itr->second.size() << endl;
+		if ((itr->second.size() >= 2) and  (tmp_dttype.is_continue() or (itr->second.size() < (0.3 * jml_row)))) {
 			_valid_attr.push_back(itr->first);
 		}
+		// } else {
+		// 	_valid_attr.push_back(itr->first);
+		// }
 	}
 
 }

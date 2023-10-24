@@ -15,7 +15,75 @@ struct field_filter
 {
 	int idx_col;
 	int idx_opt;
-	string value;
+	Tmy_dttype value;
+
+	bool is_pass(Tmy_dttype rhs)
+	{
+		bool pass = true;
+		switch (idx_opt)
+		{
+		case 0 :
+			pass = rhs <= value;
+			break;
+		case 1 :
+			pass = value < rhs;
+			break;
+		case 2 :
+
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+
+				Tmy_dttype tmp(v_tmp[0], false);
+
+				pass = tmp == rhs;
+
+				size_t i = 1;
+
+				while ((i < v_tmp.size()) and pass)
+				{
+					Tmy_dttype tmp(v_tmp[i], false);
+					pass = tmp == rhs;
+
+					i++;
+				}
+
+			} else {
+				pass = value == rhs;
+			}
+			break;
+		case 3 :
+
+			if (value.delimiter_exist())
+			{
+				vector<string> v_tmp = value.str_split(";");
+
+				Tmy_dttype tmp(v_tmp[0], false);
+				pass = tmp != rhs;
+
+				size_t i = 1;
+
+				while ((i < v_tmp.size()) and pass)
+				{
+					Tmy_dttype tmp(v_tmp[i], false);
+					pass = tmp != rhs;
+
+					i++;
+				}
+
+			} else {
+				pass = value != rhs;
+			}
+
+
+
+			break;
+		}
+
+		return pass;
+	}
+
+
 };
 
 class Tbase_dataframe
@@ -100,7 +168,7 @@ public:
 	string get_col_val(int idx_col);
 	int get_idx_col();
 
-	void add_filter(int idx_col, int idx_opt, string value);
+	void add_filter(int idx_col, int idx_opt, Tmy_dttype value);
 	void add_filter(field_filter filter);
 	void ReFilter();
 	vector<field_filter> get_filter();

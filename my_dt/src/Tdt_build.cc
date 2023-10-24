@@ -1,12 +1,12 @@
 #include "Tdt_build.h"
 
 
-Tdt_build::Tdt_build(Tconfig *v_config)
+Tdt_build::Tdt_build()
 {
 	idx_svm = 0;
 	id_df = 1;
 
-	config = v_config;
+
 }
 
 Tdt_build::~Tdt_build()
@@ -16,41 +16,32 @@ Tdt_build::~Tdt_build()
 
 void Tdt_build::del_model_train(int idx)
 {
-	string filename = config->svm_path + "/svm_model_" + to_string(idx) + ".csv";
+	string filename = global_config.svm_path + "/svm_model_" + to_string(idx) + ".csv";
 	remove(filename.c_str());
 
-	filename = config->path_model + "/train/train_model_" + to_string(idx) + ".csv";
+	filename = global_config.path_model + "/train/train_model_" + to_string(idx) + ".csv";
 	remove(filename.c_str());
 }
 
 Tmetric_split_value Tdt_build::get_split_value(Tdataframe &df, int idx)
 {
 	Tmetric_split_value hsl;
-
-	string current_split_value = "-1";
-	float current_overall_metric = -1;
-
-	df.calculate_overall_metric(idx, current_overall_metric, current_split_value);
-
-	hsl.idx = idx;
-	hsl.overall_metric = current_overall_metric;
-	hsl.split_value = current_split_value;
+	hsl = df.calculate_overall_metric(idx);
 	return hsl;
 }
 
 
-void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &split_value)
+void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dttype &split_value)
 {
 	//cout << "determine_best_split " << endl;
-	float max_attr = df.getjmlrow();
-	float max_gain = 0;
-	bool  first_iteration = true;
-
 	string current_split_value = "-1";
-	float current_overall_metric = -1;
 
 	split_column = -1;
-	split_value = "-1";
+	split_value.set_value("-1", true);
+
+	Tsplit_value cari_split_value;
+
+	cari_split_value.set_jml_root(df.getjmlrow());
 
 	vector<future<Tmetric_split_value>> async_worker;
 
@@ -62,17 +53,11 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 	if (async_worker.size() > 0)
 	{
 
-		Tmetric_split_value hsl;
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
-			hsl = th.get();
-			if (first_iteration or (max_gain < hsl.overall_metric))
-			{
-				first_iteration = false;
-				max_gain = hsl.overall_metric;
-
-				split_column = hsl.idx;
-				split_value = hsl.split_value;
+			Tmetric_split_value hsl = th.get();
+			if ((hsl.split_value != "-1")) {
+				cari_split_value.insert(hsl);
 			}
 		}
 
@@ -81,21 +66,14 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, string &
 
 	}
 
-	/*for (int i = 0; i < df.get_jml_valid_attr(); ++i)
+	if (!cari_split_value.is_empty())
 	{
+		cari_split_value.hitung_sd();
+		cari_split_value.kalkulasi_id_max();
 
-	  //df.get_col_pot_split(i);
-	  df.calculate_overall_metric(df.get_valid_attr(i), current_overall_metric, current_split_value);
-
-	  if (first_iteration or (max_gain < current_overall_metric))
-	  {
-	    first_iteration = false;
-	    max_gain = current_overall_metric;
-
-	    split_column = df.get_valid_attr(i);
-	    split_value = current_split_value;
-	  }
-	}*/
+		split_column = cari_split_value.get_split_column();
+		split_value = cari_split_value.get_split_value();
+	}
 
 	df.clear_map_col_split();
 }
@@ -134,251 +112,254 @@ bool Tdt_build::check_purity(Tdataframe &df)
 
 void Tdt_build::train(Tdataframe &df, int prev_tree_node_index, int node_index , int counter)
 {
-	if (node_index == 0)
-	{
-		Node root;
-		root.treeIndex = 0;
-		tree.push_back(root);
-	}
+	// if (node_index == 0)
+	// {
+	// 	Node root;
+	// 	root.treeIndex = 0;
+	// 	tree.push_back(root);
+	// }
 
-	//cout << counter;
-	//cetak("[%d %d]", counter, df.getjmlrow());
-	//cetak("%d|%d ",counter,prev_tree_node_index);
-	cetak(".");
+	// //cout << counter;
+	// //cetak("[%d %d]", counter, df.getjmlrow());
+	// //cetak("%d|%d ",counter,prev_tree_node_index);
+	// pesan.cetak(".");
 
-	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
-	{
-		string tmp_str = create_leaf(df);
-		//cetak("* ");
+	// if (check_purity(df) or (df.getjmlrow() < global_config.min_sample) or (counter >= global_config.depth) )
+	// {
+	// 	string tmp_str = create_leaf(df);
+	// 	//cetak("* ");
 
-		if (tmp_str == "normal") {
-			idx_svm++;
-			tree[node_index].idx_svm = idx_svm;
-			cetak("{N}");
+	// 	if (tmp_str == "normal") {
+	// 		idx_svm++;
+	// 		tree[node_index].idx_svm = idx_svm;
+	// 		pesan.cetak("{N}");
 
-		} else {
-			cetak("{A}");
-		}
+	// 	} else {
+	// 		pesan.cetak("{A}");
+	// 	}
 
-		tree[node_index].isLeaf = true;
-		tree[node_index].label = tmp_str;
-
-
-		df.clear_memory();
-		df.clear_col_split();
-
-		cetak("\n");
-
-	} else {
-
-		//cetak("?");
-		//cetak("? ");
-
-		counter++;
-
-		int split_column = -1;
-		string split_value = "-1";
-
-		int left = -1;
-		int right = -1;
-
-		if (counter < prev_tree_depth)
-		{
-			if ((prev_tree_node_index != -1) and (prev_tree[prev_tree_node_index].isLeaf != true))
-			{
-				split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
-				left = prev_tree[prev_tree_node_index].children[0];
-				right = prev_tree[prev_tree_node_index].children[1];
-				if (left != -1) {
-					split_value = prev_tree[left].attrValue;
-				} else {
-					if (right != -1) {
-						split_value = prev_tree[right].attrValue;
-					}
-				}
-			} else {
-				config->search_uniqe_val = true;
-				df.stat_tabel();
-				determine_best_split(df, split_column, split_value);
-				config->search_uniqe_val = false;
-				//cetak("%d+%d ",split_column,split_value);
-			}
-
-		} else {
-			config->search_uniqe_val = true;
-			df.stat_tabel();
-			determine_best_split(df, split_column, split_value);
-			config->search_uniqe_val = false;
-		}
-
-		Tdataframe df_below, df_above;
-		if (split_value != "-1")
-		{
-			df_below = df;
-			df_below.set_id(id_df++);
-			df_above = df;
-			df_above.set_id(id_df++);
-
-		}
-		df.split_data(split_column, split_value, df_below, df_above);
-
-		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
-			string tmp_str = create_leaf(df);
-
-			//cetak("-");
-
-			if (tmp_str == "normal") {
-
-				idx_svm++;
-				tree[node_index].idx_svm = idx_svm;
-				cetak("{N}");
-			} else {
-				cetak("{A}");
-			}
-
-			tree[node_index].isLeaf = true;
-			tree[node_index].label = tmp_str;
+	// 	tree[node_index].isLeaf = true;
+	// 	tree[node_index].label = tmp_str;
 
 
-			df_below.clear_memory();
-			df_above.clear_memory();
+	// 	df.clear_memory();
+	// 	df.clear_col_split();
 
-			df_below.clear_col_split();
-			df_above.clear_col_split();
+	// 	pesan.cetak("\n");
 
-			cetak("\n");
+	// } else {
 
-		} else {
-			if (split_value != "-1")
-			{
+	// 	//cetak("?");
+	// 	//cetak("? ");
 
-				//cetak("|");
+	// 	counter++;
 
-				tree[node_index].criteriaAttrIndex = split_column;
+	// 	int split_column = -1;
+	// 	string split_value = "-1";
 
-				int treeIndex_yes, treeIndex_no;
+	// 	int left = -1;
+	// 	int right = -1;
 
-				Node nextNode;
-				nextNode.treeIndex = (int)tree.size();
-				nextNode.attrValue = split_value;
-				nextNode.opt = df.get_opt(split_column, 1);
-				treeIndex_yes = nextNode.treeIndex;
-				tree[node_index].children.push_back(nextNode.treeIndex);
-				tree.push_back(nextNode);
+	// 	if (counter < prev_tree_depth)
+	// 	{
+	// 		if ((prev_tree_node_index != -1) and (prev_tree[prev_tree_node_index].isLeaf != true))
+	// 		{
+	// 			split_column = prev_tree[prev_tree_node_index].criteriaAttrIndex;
+	// 			left = prev_tree[prev_tree_node_index].children[0];
+	// 			right = prev_tree[prev_tree_node_index].children[1];
+	// 			if (left != -1) {
+	// 				split_value = prev_tree[left].attrValue;
+	// 			} else {
+	// 				if (right != -1) {
+	// 					split_value = prev_tree[right].attrValue;
+	// 				}
+	// 			}
+	// 		} else {
+	// 			global_config.search_uniqe_val = true;
+	// 			df.stat_tabel();
+	// 			determine_best_split(df, split_column, split_value);
+	// 			global_config.search_uniqe_val = false;
+	// 			//cetak("%d+%d ",split_column,split_value);
+	// 		}
 
-				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-				//cetak("->");
+	// 	} else {
+	// 		global_config.search_uniqe_val = true;
+	// 		df.stat_tabel();
+	// 		determine_best_split(df, split_column, split_value);
+	// 		global_config.search_uniqe_val = false;
+	// 	}
 
-				train(df_below, left, nextNode.treeIndex, counter);
+	// 	Tdataframe df_below, df_above;
+	// 	if (split_value != "-1")
+	// 	{
+	// 		df_below = df;
+	// 		df_below.set_id(id_df++);
+	// 		df_above = df;
+	// 		df_above.set_id(id_df++);
+
+	// 	}
+	// 	df.split_data(split_column, split_value, df_below, df_above);
+
+	// 	if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
+	// 		string tmp_str = create_leaf(df);
+
+	// 		//cetak("-");
+
+	// 		if (tmp_str == "normal") {
+
+	// 			idx_svm++;
+	// 			tree[node_index].idx_svm = idx_svm;
+	// 			pesan.cetak("{N}");
+	// 		} else {
+	// 			pesan.cetak("{A}");
+	// 		}
+
+	// 		tree[node_index].isLeaf = true;
+	// 		tree[node_index].label = tmp_str;
 
 
-				Node nextNode1;
-				nextNode1.treeIndex = (int)tree.size();
-				nextNode1.attrValue = split_value;
-				nextNode1.opt = df.get_opt(split_column, 0);
-				treeIndex_no = nextNode1.treeIndex;
-				tree[node_index].children.push_back(nextNode1.treeIndex);
-				tree.push_back(nextNode1);
+	// 		df_below.clear_memory();
+	// 		df_above.clear_memory();
 
-				// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
+	// 		df_below.clear_col_split();
+	// 		df_above.clear_col_split();
 
-				if (counter == 1)
-				{
-					//cetak("\n");
-				}
+	// 		pesan.cetak("\n");
+
+	// 	} else {
+	// 		if (split_value != "-1")
+	// 		{
+
+	// 			//cetak("|");
+
+	// 			tree[node_index].criteriaAttrIndex = split_column;
+
+	// 			int treeIndex_yes, treeIndex_no;
+
+	// 			Node nextNode;
+	// 			nextNode.treeIndex = (int)tree.size();
+	// 			nextNode.attrValue = split_value;
+	// 			nextNode.opt = df.get_opt(split_column, 1);
+	// 			treeIndex_yes = nextNode.treeIndex;
+	// 			tree[node_index].children.push_back(nextNode.treeIndex);
+	// 			tree.push_back(nextNode);
+
+	// 			// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
+	// 			//cetak("->");
+
+	// 			train(df_below, left, nextNode.treeIndex, counter);
 
 
-				//cetak("<-");
-				train(df_above, right, nextNode1.treeIndex, counter);
+	// 			Node nextNode1;
+	// 			nextNode1.treeIndex = (int)tree.size();
+	// 			nextNode1.attrValue = split_value;
+	// 			nextNode1.opt = df.get_opt(split_column, 0);
+	// 			treeIndex_no = nextNode1.treeIndex;
+	// 			tree[node_index].children.push_back(nextNode1.treeIndex);
+	// 			tree.push_back(nextNode1);
 
-				if (config->prunning) {
+	// 			// cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
 
-					if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
-					{
+	// 			if (counter == 1)
+	// 			{
+	// 				//cetak("\n");
+	// 			}
 
-						tree[node_index].isLeaf = true;
 
-						string tmp_str = tree[treeIndex_yes].label;
+	// 			//cetak("<-");
+	// 			train(df_above, right, nextNode1.treeIndex, counter);
 
-						//cetak("+");
+	// 			if (global_config.prunning) {
 
-						if (tmp_str == "normal") {
+	// 				if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+	// 				{
 
-							idx_svm++;
-							tree[node_index].idx_svm = idx_svm;
-							cetak("{N}");
-						} else {
-							cetak("{A}");
-						}
+	// 					tree[node_index].isLeaf = true;
 
-						tree[node_index].label = tree[treeIndex_yes].label;
-						tree[node_index].children.clear();
-						tree[node_index].children.shrink_to_fit();
-						tree.erase(tree.begin() + treeIndex_no);
-						tree.erase(tree.begin() + treeIndex_yes);
-						tree.shrink_to_fit();
-						//cetak("\n");
-					}
-				}
-			}
+	// 					string tmp_str = tree[treeIndex_yes].label;
 
-		}
+	// 					//cetak("+");
 
-	}
+	// 					if (tmp_str == "normal") {
 
-	if (node_index == 0)
-	{
-		clear_worker(0);
-	}
+	// 						idx_svm++;
+	// 						tree[node_index].idx_svm = idx_svm;
+	// 						pesan.cetak("{N}");
+	// 					} else {
+	// 						pesan.cetak("{A}");
+	// 					}
+
+	// 					tree[node_index].label = tree[treeIndex_yes].label;
+	// 					tree[node_index].children.clear();
+	// 					tree[node_index].children.shrink_to_fit();
+	// 					tree.erase(tree.begin() + treeIndex_no);
+	// 					tree.erase(tree.begin() + treeIndex_yes);
+	// 					tree.shrink_to_fit();
+	// 					//cetak("\n");
+	// 				}
+	// 			}
+	// 		}
+
+	// 	}
+
+	// }
+
+	// if (node_index == 0)
+	// {
+	// 	clear_worker(0);
+	// }
 
 }
 
-void Tdt_build::train(Tdataframe & df, int node_index , int counter)
+tree_node* Tdt_build::train(Tdataframe &df , int counter)
 {
-	if (node_index == 0)
-	{
-		Node root;
-		root.treeIndex = 0;
-		tree.push_back(root);
-	}
+	tree_node* parent_node = new tree_node;
 
 	//cout << counter;
-	cetak("[%d %d]", counter, df.getjmlrow());
+	pesan.cetak("[%d %d]", counter, df.getjmlrow());
 	//cetak(".");
 
-	if (check_purity(df) or (df.getjmlrow() < config->min_sample) or (counter >= config->depth) )
+	int split_column = -1;
+	Tmy_dttype split_value;
+
+	if (check_purity(df) or (df.getjmlrow() < global_config.min_sample) or (counter >= (global_config.depth-1)) )
 	{
 		string tmp_str = create_leaf(df);
-		cetak("*");
+		pesan.cetak("*");
 
 		if (tmp_str == "normal") {
 			idx_svm++;
-			tree[node_index].idx_svm = idx_svm;
-			cetak("{N}");
+			parent_node->idx_svm = idx_svm;
+			pesan.cetak("{N}");
 
 		} else {
-			cetak("{A}");
+			pesan.cetak("{A}");
 		}
 
-		tree[node_index].isLeaf = true;
-		tree[node_index].label = tmp_str;
+		parent_node->isLeaf = true;
+		parent_node->label = tmp_str;
+
+		parent_node->jml_known = df.get_jml_stat("known");
+		parent_node->jml_normal = df.get_jml_stat("normal");
 
 
 		df.clear_memory();
 		df.clear_col_split();
 
-		cetak("\n");
+		pesan.cetak("\n");
 
 	} else {
 
-		cetak("?");
+		pesan.cetak("?");
 
 		counter++;
 
-		int split_column = -1;
-		string split_value = "-1";
+		parent_node->label = df.get_max_label();
+		parent_node->jml_known = df.get_jml_stat("known");
+		parent_node->jml_normal = df.get_jml_stat("normal");
 
 		determine_best_split(df, split_column, split_value);
+
 
 		Tdataframe df_below, df_above;
 		if (split_value != "-1")
@@ -389,24 +370,28 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			df_above.set_id(id_df++);
 
 		}
+		
 		df.split_data(split_column, split_value, df_below, df_above);
 
 		if (((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))  or (split_value == "-1")) { //or ((df_below.getjmlrow() < limit) or (df_above.getjmlrow() < limit))
 			string tmp_str = create_leaf(df);
 
-			cetak("-");
+			pesan.cetak("-");
 
 			if (tmp_str == "normal") {
 
 				idx_svm++;
-				tree[node_index].idx_svm = idx_svm;
-				cetak("{N}");
+				parent_node->idx_svm = idx_svm;
+				pesan.cetak("{N}");
 			} else {
-				cetak("{A}");
+				pesan.cetak("{A}");
 			}
 
-			tree[node_index].isLeaf = true;
-			tree[node_index].label = tmp_str;
+			parent_node->isLeaf = true;
+			parent_node->label = tmp_str;
+
+			parent_node->jml_known = df.get_jml_stat("known");
+			parent_node->jml_normal = df.get_jml_stat("normal");
 
 
 			df_below.clear_memory();
@@ -415,80 +400,65 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 			df_below.clear_col_split();
 			df_above.clear_col_split();
 
-			cetak("\n");
+			pesan.cetak("\n");
 
 		} else {
 			if (split_value != "-1")
 			{
 
-				cetak("|");
+				pesan.cetak("|");
 
-				tree[node_index].criteriaAttrIndex = split_column;
+				parent_node->criteriaAttrIndex = split_column;
 
-				int treeIndex_yes, treeIndex_no;
-
-				Node nextNode;
-				nextNode.treeIndex = (int)tree.size();
-				nextNode.attrValue = split_value;
-				nextNode.opt = df.get_opt(split_column, 1);
-				treeIndex_yes = nextNode.treeIndex;
-				tree[node_index].children.push_back(nextNode.treeIndex);
-				tree.push_back(nextNode);
-
-				//cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode.opt == 0 ? "<=" : "==") << nextNode.attrValue << endl;
-				cetak("->");
-				train(df_below, nextNode.treeIndex, counter);
-
-
-				Node nextNode1;
-				nextNode1.treeIndex = (int)tree.size();
-				nextNode1.attrValue = split_value;
-				nextNode1.opt = df.get_opt(split_column, 0);
-				treeIndex_no = nextNode1.treeIndex;
-				tree[node_index].children.push_back(nextNode1.treeIndex);
-				tree.push_back(nextNode1);
-
+				pesan.cetak("->");
+				tree_node* yes_node = train(df_below, counter);
+				yes_node->attrValue = split_value;
+				yes_node->opt = df.get_opt(split_column, 1);			
 
 
 				if (counter == 1)
 				{
-					cetak("\n");
+					pesan.cetak("\n");
 				}
 
-				//cout << tree[node_index].criteriaAttrIndex << " " << df.get_nm_header(tree[node_index].criteriaAttrIndex) << (nextNode1.opt == 1 ? ">" : "!=") << nextNode1.attrValue << endl;
-				cetak("<-");
-				train(df_above, nextNode1.treeIndex, counter);
+				pesan.cetak("<-");
+				tree_node* no_node = train(df_above, counter);
+				no_node->attrValue = split_value;
+				no_node->opt = df.get_opt(split_column, 0);
 
-				if (config->prunning) {
 
-					if (((tree[treeIndex_yes].isLeaf == true) and (tree[treeIndex_no].isLeaf == true)) and (tree[treeIndex_yes].label == tree[treeIndex_no].label))
+				if (global_config.prunning) {
+
+					if (((yes_node->isLeaf == true) and (no_node->isLeaf == true)) and (yes_node->label == no_node->label))
 					{
 
-						tree[node_index].isLeaf = true;
+						parent_node->isLeaf = true;
 
-						string tmp_str = tree[treeIndex_yes].label;
+						string tmp_str = yes_node->label;
 
-						cetak("+");
+						pesan.cetak("+");
 
 						if (tmp_str == "normal") {
 
 							idx_svm++;
-							tree[node_index].idx_svm = idx_svm;
-							cetak("{N}");
+							parent_node->idx_svm = idx_svm;
+							pesan.cetak("{N}");
 						} else {
-							cetak("{A}");
+							pesan.cetak("{A}");
 						}
 
-						tree[node_index].criteriaAttrIndex = -1;
-						tree[node_index].label = tree[treeIndex_yes].label;
-						tree[node_index].children.clear();
-						tree[node_index].children.shrink_to_fit();
-						tree.erase(tree.begin() + treeIndex_no);
-						tree.erase(tree.begin() + treeIndex_yes);
-						tree.shrink_to_fit();
+						parent_node->criteriaAttrIndex = -1;
+						parent_node->label = yes_node->label;
+						delete yes_node;
+						delete no_node;
+						yes_node = NULL;
+						no_node = NULL;
 						//cetak("\n");
 					}
 				}
+
+				parent_node->left = yes_node;
+				parent_node->right = no_node;
 			}
 
 
@@ -497,124 +467,488 @@ void Tdt_build::train(Tdataframe & df, int node_index , int counter)
 
 	}
 
-	if (node_index == 0)
+	if (counter == 0)
 	{
 		clear_worker(0);
 	}
+
+	return parent_node;
 
 }
 
 void Tdt_build::pruning_dfs(int node_index , Tdataframe & df_train)
 {
-	cetak(".");
+	// pesan.cetak(".");
 
-	int left = tree[node_index].children[0];
-	int right = tree[node_index].children[1];
+	// int left = tree[node_index].children[0];
+	// int right = tree[node_index].children[1];
 
-	Tdataframe df_left;
-	df_left = df_train;
+	// Tdataframe df_left;
+	// df_left = df_train;
 
-	Tdataframe df_right;
-	df_right = df_train;
+	// Tdataframe df_right;
+	// df_right = df_train;
 
 
-	if (left != -1) {
-		df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-		df_left.clear_col_split();
-		if (!tree[left].isLeaf) {
-			pruning_dfs(left, df_left);
-		}
-		df_left.clear_memory();
+	// if (left != -1) {
+	// 	df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+	// 	df_left.clear_col_split();
+	// 	if (!tree[left].isLeaf) {
+	// 		pruning_dfs(left, df_left);
+	// 	}
+	// 	df_left.clear_memory();
+	// }
+	// if (right != -1) {
+	// 	df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+	// 	df_right.clear_col_split();
+	// 	if (!tree[right].isLeaf) {
+	// 		pruning_dfs(right, df_right);
+	// 	}
+	// 	df_right.clear_memory();
+
+	// }
+
+
+	// if ((left != -1) and (right != -1) ) {
+	// 	if ((tree[left].isLeaf) and (tree[right].isLeaf))
+	// 	{
+
+	// 		pesan.cetak("+");
+
+	// 		float error_node, error_left, error_right, sum_error;
+
+	// 		string left_label = tree[left].label;
+	// 		string right_label = tree[right].label;
+
+	// 		error_node = df_train.get_estimate_error();
+	// 		string node_label = df_train.get_max_label();
+
+	// 		// Tdataframe df_left, df_right;
+	// 		// df_left = df_train;
+	// 		// df_right = df_train;
+
+	// 		// df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+	// 		error_left = df_left.get_estimate_error();
+
+	// 		// df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+	// 		error_right = df_right.get_estimate_error();
+
+	// 		sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
+
+	// 		df_left.clear_memory();
+	// 		df_right.clear_memory();
+	// 		df_train.clear_memory();
+
+	// 		pesan.cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n", tree[node_index].criteriaAttrIndex, df_train.getjmlrow(), df_left.getjmlrow(), df_right.getjmlrow(), error_node, sum_error);
+
+	// 		if (error_node < sum_error)
+	// 		{
+	// 			pesan.cetak("*");
+	// 			tree[node_index].criteriaAttrIndex = -1;
+	// 			tree[node_index].children[0] = -1;
+	// 			tree[node_index].children[1] = -1;
+	// 			tree[node_index].isLeaf = true;
+	// 			tree[node_index].label = node_label;
+
+	// 			if (node_label == "normal")
+	// 			{
+	// 				idx_svm++;
+	// 				tree[node_index].idx_svm = idx_svm;
+	// 			}
+
+	// 			tree[left].idx_svm = -1;
+	// 			tree[right].idx_svm = -1;
+	// 		}
+
+	// 	}
+
+	// }
+
+	// if (node_index == 0)
+	// {
+	// 	clear_worker(0);
+	// }
+
+}
+
+void Tdt_build::subtree_stat(tree_node * parent_node, bool is_pruning, int &jml_leaf, int &sum_min)
+{
+	bool is_pass = parent_node->isLeaf;
+	if (is_pruning)
+	{
+		is_pass = is_pass or parent_node->is_pruning_1;
 	}
-	if (right != -1) {
-		df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-		df_right.clear_col_split();
-		if (!tree[right].isLeaf) {
-			pruning_dfs(right, df_right);
+
+	if (is_pass)
+	{
+		jml_leaf = jml_leaf + 1;
+		sum_min = sum_min + min(parent_node->jml_known, parent_node->jml_normal);
+	} else {
+		if (parent_node->left != NULL) {
+			subtree_stat(parent_node->left, is_pruning, jml_leaf, sum_min);
 		}
-		df_right.clear_memory();
+
+		if (parent_node->right != NULL) {
+			subtree_stat(parent_node->right, is_pruning, jml_leaf, sum_min);
+		}
 
 	}
+}
 
+void Tdt_build::pruning_method_2(tree_node* parent_node)
+{
+	pesan.cetak(".");
 
-	if ((left != -1) and (right != -1) ) {
-		if ((tree[left].isLeaf) and (tree[right].isLeaf))
+	
+
+	if (parent_node->left != NULL)
+	{
+		if (!parent_node->left->isLeaf)
+		{
+			
+			pruning_method_2(parent_node->left);
+		}
+	}
+
+	if (parent_node->right != NULL)
+	{
+		if (!parent_node->right->isLeaf)
+		{
+			
+			pruning_method_2(parent_node->right);
+		}
+	}
+
+	if ((parent_node->left != NULL) and (parent_node->right != NULL) ) {
+		if ((parent_node->left->isLeaf) and (parent_node->right->isLeaf))
 		{
 
-			cetak("+");
+			int jml_sample = parent_node->jml_known + parent_node->jml_normal;
+			int root_false_predic = min(parent_node->jml_known, parent_node->jml_normal);
 
-			float error_node, error_left, error_right, sum_error;
+			float root_error = root_false_predic + global_config.skala_pruning;
 
-			string left_label = tree[left].label;
-			string right_label = tree[right].label;
+			int branch_false_predic = min(parent_node->left->jml_known, parent_node->left->jml_normal) + min(parent_node->right->jml_known, parent_node->right->jml_normal);
 
-			error_node = df_train.get_estimate_error();
-			string node_label = df_train.get_max_label();
+			float branch_error = branch_false_predic + (2 * global_config.skala_pruning) ;
 
-			// Tdataframe df_left, df_right;
-			// df_left = df_train;
-			// df_right = df_train;
+			float se = sqrt((branch_error * (jml_sample - branch_error)) / jml_sample);
 
-			// df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
-			error_left = df_left.get_estimate_error();
+			branch_error = branch_error + se;
+			//cout << "[" << root_error << " " << branch_error << "]";
 
-			// df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
-			error_right = df_right.get_estimate_error();
-
-			sum_error = (((float) df_left.getjmlrow() / df_train.getjmlrow()) * error_left) + (((float) df_right.getjmlrow() / df_train.getjmlrow()) * error_right);
-
-			df_left.clear_memory();
-			df_right.clear_memory();
-			df_train.clear_memory();
-
-			cetak("[AttrIndex : %d train jml row : %d left jml row : %d right jml row : %d  error_node : %f sum_error : %f]\n", tree[node_index].criteriaAttrIndex, df_train.getjmlrow(), df_left.getjmlrow(), df_right.getjmlrow(), error_node, sum_error);
-
-			if (error_node < sum_error)
+			if (root_error <= branch_error)
 			{
-				cetak("*");
-				tree[node_index].criteriaAttrIndex = -1;
-				tree[node_index].children[0] = -1;
-				tree[node_index].children[1] = -1;
-				tree[node_index].isLeaf = true;
-				tree[node_index].label = node_label;
+				cout << " cut off " << parent_node->criteriaAttrIndex << " " << parent_node->left->attrValue.get_string() << " ";
 
-				if (node_label == "normal")
+				parent_node->is_lanjut = parent_node->left->is_lanjut or parent_node->right->is_lanjut;
+
+				
+
+				delete parent_node->left;
+				delete parent_node->right;
+
+				parent_node->left = NULL;
+				parent_node->right = NULL;
+
+				parent_node->isLeaf = true;
+
+
+				if (parent_node->label == "normal")
 				{
 					idx_svm++;
-					tree[node_index].idx_svm = idx_svm;
+					parent_node->idx_svm = idx_svm;
 				}
 
-				tree[left].idx_svm = -1;
-				tree[right].idx_svm = -1;
 			}
 
 		}
 
 	}
 
-	if (node_index == 0)
+}
+
+void Tdt_build::del_dec_tree(tree_node* parent_node)
+{
+	if (parent_node->left != NULL)
 	{
-		clear_worker(0);
+		if (parent_node->left->isLeaf)
+		{
+			if (parent_node->left->label == "normal")
+			{
+				del_model_train(parent_node->left->idx_svm);
+			}
+
+			delete parent_node->left;
+			parent_node->left = NULL;
+		} else {
+			del_dec_tree(parent_node->left);
+		}
+
 	}
+
+	if (parent_node->right != NULL)
+	{
+		if (parent_node->right->isLeaf)
+		{
+			if (parent_node->right->label == "normal")
+			{
+				del_model_train(parent_node->right->idx_svm);
+			}
+
+			delete parent_node->right;
+			parent_node->right = NULL;
+		} else {
+			del_dec_tree(parent_node->right);
+		}
+	}
+
+	if ( (parent_node->left == NULL) and (parent_node->right == NULL) )
+	{
+
+		if (parent_node->label == "normal")
+		{
+			del_model_train(parent_node->idx_svm);
+		}
+
+		delete parent_node;
+		parent_node = NULL;
+	}
+
+}
+
+void Tdt_build::pruning_method_3(tree_node * parent_node)
+{
+	pesan.cetak(".");
+
+	//pesan.cetak("[%d %s %d %d]", parent_node->depth, parent_node->label.c_str(), parent_node->jml_known, parent_node->jml_normal);
+
+	Tlabel_stat root_stat, left_stat, right_stat;
+	float root_error = 0.0;
+	
+	bool del_branch = false, cut_left = false, cut_right = false;
+
+	if ((parent_node->left != NULL) or (parent_node->right != NULL)) {
+		//pesan.cetak("+");
+
+		int jml_sample = parent_node->jml_known + parent_node->jml_normal;
+		int root_false_predic = min(parent_node->jml_known, parent_node->jml_normal);
+
+		root_error = root_false_predic + global_config.skala_pruning;
+
+		if (parent_node->left != NULL)
+		{
+			int jml_leaf = 0;
+			int sum_min = 0;
+
+			parent_node->left->is_pruning_1 = true;
+			subtree_stat(parent_node, true, jml_leaf, sum_min);
+			parent_node->left->is_pruning_1 = false;
+
+			int branch_false_predic = sum_min;
+
+			float branch_error_left = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
+
+			float se = sqrt((branch_error_left * (jml_sample - branch_error_left)) / jml_sample);
+
+			branch_error_left = branch_error_left + se;
+			//cout << "[" << root_error << " " << branch_error_left << "]" << endl;
+
+			if (root_error >= branch_error_left)
+			{
+				cut_left = true;
+			}
+		}
+
+		if (parent_node->right != NULL)
+		{
+			int jml_leaf = 0;
+			int sum_min = 0;
+
+			parent_node->right->is_pruning_1 = true;
+			subtree_stat(parent_node, true, jml_leaf, sum_min);
+			parent_node->right->is_pruning_1 = false;
+
+			int branch_false_predic = sum_min;
+			float branch_error_right = branch_false_predic + (jml_leaf * global_config.skala_pruning) ;
+			//cout << "[" << branch_false_predic << " " << jml_leaf << "]" << endl;
+
+			float se = sqrt((branch_error_right * (jml_sample - branch_error_right)) / jml_sample);
+
+			branch_error_right = branch_error_right + se;
+			//cout << "[" << root_error << " " << branch_error_right << "]" << endl;
+
+			if (root_error >= branch_error_right)
+			{
+				cut_right = true;
+			}
+		}
+
+		if (cut_right and cut_left)
+		{
+			del_branch = false;
+		} else {
+			if (cut_right or cut_left)
+			{
+				del_branch = true;
+			}
+		}
+
+
+	}
+	if (del_branch) {
+		del_branch = false;
+		//pesan.cetak("*");
+
+		if ((parent_node->left != NULL) and cut_left) {
+			cut_left = false;			
+			cout << " cut off left " << parent_node->criteriaAttrIndex << " " << parent_node->left->attrValue.get_string() << " ";
+
+			if (parent_node->left->left != NULL)
+			{
+				del_dec_tree(parent_node->left->left);
+				parent_node->left->left = NULL;
+			}
+
+			if (parent_node->left->right != NULL)
+			{
+				del_dec_tree(parent_node->left->right);
+				parent_node->left->right = NULL;
+			}
+
+			
+			parent_node->left->isLeaf = true;
+
+			if (parent_node->left->label == "normal")
+			{
+				idx_svm++;
+				parent_node->left->idx_svm = idx_svm;
+			}
+		}
+
+		if ((parent_node->right != NULL) and cut_right) {
+			cut_right = false;
+			
+			cout << " cut off right " << parent_node->criteriaAttrIndex << " " << parent_node->right->attrValue.get_string()  << " ";
+
+			if (parent_node->right->left != NULL)
+			{
+				del_dec_tree(parent_node->right->left);
+				parent_node->right->left = NULL;
+			}
+
+			if (parent_node->right->right != NULL)
+			{
+				del_dec_tree(parent_node->right->right);
+				parent_node->right->right = NULL;
+			}
+
+			
+			parent_node->right->isLeaf = true;
+			if (parent_node->right->label == "normal")
+			{
+				idx_svm++;
+				parent_node->right->idx_svm = idx_svm;
+			}
+		}
+
+
+	}
+
+	if (parent_node->left != NULL) {
+		//pesan.cetak("->");		
+		pruning_method_3(parent_node->left);
+	}
+
+	// if (parent_node->depth == 1)
+	// {
+	// 	pesan.cetak("\n");
+	// }
+
+	if (parent_node->right != NULL) {
+		//pesan.cetak("<-");		
+		pruning_method_3(parent_node->right);
+	}
+
+
 
 }
 
 void Tdt_build::post_pruning(Tdataframe & df_train)
 {
-	pruning_dfs(0, df_train);
+	pruning_method_2(dec_tree);
+    pruning_method_3(dec_tree);
+	//pruning_dfs(0, df_train);
+}
+
+void Tdt_build::dec_tree_to_vec_tree(tree_node * parent_node, int node_index)
+{
+	if (node_index == 0)
+	{
+		Node root;
+		root.treeIndex = 0;
+		tree.push_back(root);
+	}
+
+	if (parent_node->isLeaf)
+	{
+		if (parent_node->label == "normal")
+		{
+			idx_svm++;
+			tree[node_index].idx_svm = parent_node->idx_svm;
+			if (idx_svm != parent_node->idx_svm)
+			{
+				tree[node_index].idx_svm = idx_svm;
+			}
+
+		}
+
+		tree[node_index].isLeaf = parent_node->isLeaf;
+		tree[node_index].label = parent_node->label;
+
+	} else {
+
+		tree[node_index].criteriaAttrIndex = parent_node->criteriaAttrIndex;
+
+		Node nextNode;
+		nextNode.treeIndex = (int)tree.size();
+		nextNode.attrValue = parent_node->left->attrValue;
+		nextNode.opt = parent_node->left->opt;
+		tree[node_index].children.push_back(nextNode.treeIndex);
+		tree.push_back(nextNode);
+
+		dec_tree_to_vec_tree(parent_node->left, nextNode.treeIndex);
+
+
+		Node nextNode1;
+		nextNode1.treeIndex = (int)tree.size();
+		nextNode1.attrValue = parent_node->right->attrValue;
+		nextNode1.opt = parent_node->right->opt;
+		tree[node_index].children.push_back(nextNode1.treeIndex);
+		tree.push_back(nextNode1);
+
+		dec_tree_to_vec_tree(parent_node->right, nextNode1.treeIndex);
+
+	}
+
 }
 
 void Tdt_build::save_tree()
 {
+	idx_svm = 0;
+
+	dec_tree_to_vec_tree(dec_tree, 0);
+
 	Twrite_file tmp_wf;
-	tmp_wf.setnm_f(config->path_model + "/dtsvm_model_" + to_string(config->depth) + "_" + to_string(config->min_sample) + "_" + to_string(config->threshold) + ".csv");
+	tmp_wf.setnm_f(global_config.path_model + "/dtsvm_model_" + to_string(global_config.depth) + "_" + to_string(global_config.min_sample) + "_" + to_string(global_config.threshold) + ".csv");
 
 	string tmp_str = "";
 	vector<string> vec;
 
 	for (size_t i = 0; i < tree.size(); ++i)
 	{
-		tmp_str = to_string(tree[i].criteriaAttrIndex) + "," + tree[i].attrValue + "," + tree[i].label + "," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
+		tmp_str = to_string(tree[i].criteriaAttrIndex) + "," + tree[i].attrValue.get_string() + "," + tree[i].label + "," + to_string(tree[i].treeIndex) + "," + (tree[i].isLeaf == true ? "1" : "0") + "," + to_string(tree[i].opt) ;
 
 		if (tree[i].children.size() > 0)
 		{
@@ -640,51 +974,51 @@ void Tdt_build::save_tree()
 
 void Tdt_build::read_tree(string nm_file)
 {
-	vector<string> tmp_data;
-	Tdataframe df;
-	df.read_data(nm_file);
+	// vector<string> tmp_data;
+	// Tdataframe df;
+	// df.read_data(nm_file);
 
-	df.reset_file();
-	while (!df.is_eof()) {
+	// df.reset_file();
+	// while (!df.is_eof()) {
 
-		tmp_data = df.get_record();
+	// 	tmp_data = df.get_record();
 
-		//cout << tmp_data.size() << endl;
+	// 	//cout << tmp_data.size() << endl;
 
-		Node newnode;
-		//cout << tmp_data[0] << endl;
-		newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
-		newnode.attrValue = tmp_data[1];
-		newnode.label = tmp_data[2];
-		//cout << tmp_data[2] << endl;
-		newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
-		newnode.isLeaf = tmp_data[4] == "1";
-		//cout << tmp_data[4] << endl;
-		newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
-		//cout << tmp_data[5] << endl;
-		newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
-		//cout << tmp_data[6] << endl;
-		newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
+	// 	Node newnode;
+	// 	//cout << tmp_data[0] << endl;
+	// 	newnode.criteriaAttrIndex = tmp_data[0] == "-1" ?  -1 : stoi(tmp_data[0]);
+	// 	newnode.attrValue = tmp_data[1];
+	// 	newnode.label = tmp_data[2];
+	// 	//cout << tmp_data[2] << endl;
+	// 	newnode.treeIndex = tmp_data[3] == "-1" ? -1 : stoi(tmp_data[3]);
+	// 	newnode.isLeaf = tmp_data[4] == "1";
+	// 	//cout << tmp_data[4] << endl;
+	// 	newnode.opt = tmp_data[5] == "-1" ? -1 : stoi(tmp_data[5]);
+	// 	//cout << tmp_data[5] << endl;
+	// 	newnode.children.push_back(tmp_data[6] == "-1" ? -1 :  stoi(tmp_data[6]));
+	// 	//cout << tmp_data[6] << endl;
+	// 	newnode.children.push_back(tmp_data[7] == "-1" ? -1 :  stoi(tmp_data[7]));
 
-		newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
+	// 	newnode.idx_svm = tmp_data[8] == "-1" ? -1 : stoi(tmp_data[8]);
 
-		// if (idx_svm < newnode.idx_svm)
-		// {
-		// 	idx_svm = newnode.idx_svm;
-		// }
+	// 	// if (idx_svm < newnode.idx_svm)
+	// 	// {
+	// 	// 	idx_svm = newnode.idx_svm;
+	// 	// }
 
-		prev_tree.push_back(newnode);
+	// 	prev_tree.push_back(newnode);
 
-		df.next_record();
-	}
+	// 	df.next_record();
+	// }
 
-	df.close_file();
+	// df.close_file();
 
 }
 
 void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 {
-	config->search_uniqe_val = false;
+	global_config.search_uniqe_val = false;
 
 	df_train.set_id(0);
 	df_train.setjmltotalrow();
@@ -696,9 +1030,9 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 	}
 	//cetak("\n");
 
-	config->search_uniqe_val = false;
+	global_config.search_uniqe_val = false;
 
-	if (config->prunning) {
+	if (global_config.prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
 		post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
@@ -710,7 +1044,7 @@ void Tdt_build::build_from_prev_tree(Tdataframe &df_train, int prev_tree_depth)
 
 void Tdt_build::build_tree(Tdataframe &df_train)
 {
-	config->search_uniqe_val = true;
+	global_config.search_uniqe_val = true;
 
 	// Tdataframe df_train(config);
 	// df_train.read_data(config->f_train);
@@ -720,18 +1054,257 @@ void Tdt_build::build_tree(Tdataframe &df_train)
 	df_train.setjmltotalrow();
 
 	{
-		train(df_train, 0, 0);
+	  dec_tree = train(df_train, 0);
 	}
 
-	config->search_uniqe_val = false;
+	global_config.search_uniqe_val = false;
 
-	if (config->prunning) {
+	if (global_config.prunning) {
 		//cetak("Start Prunning Decission Tree : \n");
 		post_pruning(df_train);
 		//cetak("\nEnd Prunning Decission Tree : \n");
 	}
 	save_tree();
 	//df_train.close_file();
+}
+
+
+
+
+
+Tdt_build::Tsplit_value::Tsplit_value()
+{
+	_sum_neg = 0.0;
+	_sum_po = 0.0;
+	_rata2 = 0.0;
+	_sd = 0.0;
+	_jml = 0;
+	_jml_root = 0;
+
+	_split_column = -1;
+	_split_value.set_value("-1", true);
+
+	_list_split_value.clear();
+	_idx_max_gain_ratio.clear();
+	_idx_rata2.clear();
+}
+
+Tdt_build::Tsplit_value::~Tsplit_value()
+{
+	_list_split_value.clear();
+	_idx_max_gain_ratio.clear();
+	_idx_rata2.clear();
+}
+
+void Tdt_build::Tsplit_value::set_jml_root(int jml)
+{
+	_jml_root = jml;
+}
+
+void Tdt_build::Tsplit_value::insert(Tmetric_split_value value)
+{
+	_list_split_value.push_back(value);
+
+	_sum_po += (value.max_gain > 0.0) ? value.max_gain : 0.0;
+	_sum_neg += (value.max_gain < 0.0) ? value.max_gain : 0.0;
+	_jml++;
+
+	_rata2 = (_sum_po - abs(_sum_neg)) / _jml;
+}
+
+void Tdt_build::Tsplit_value::hitung_sd()
+{
+	double tmp_sum = 0.0;
+	for (auto itr = _list_split_value.begin(); itr != _list_split_value.end(); ++itr)
+	{
+		tmp_sum += pow((itr->max_gain - _rata2), 2);
+	}
+
+	if (_jml > 1)
+	{
+		_sd = sqrt(tmp_sum / (_jml - 1));
+	}
+}
+
+bool Tdt_build::Tsplit_value::limit_jml_dt_cabang(int jml_below, int jml_above)
+{
+	int jml_row = _jml_root;
+	float prosen = 1;
+	float prosen1 = 0;
+
+	float jml_row_prosen = jml_row;
+	float jml_row_prosen1 = 0;
+
+	if (global_config.threshold < 1)
+	{
+		prosen = 1 - global_config.threshold;
+		prosen1 = global_config.threshold;
+
+		jml_row_prosen = ceil(prosen * jml_row);
+		jml_row_prosen1 =  ceil(prosen1 * jml_row);
+	} else {
+		jml_row_prosen = jml_row - global_config.threshold;
+		jml_row_prosen1 =  global_config.threshold;
+	}
+
+	return ((jml_below >= jml_row_prosen1 ) and (jml_below <= jml_row_prosen));
+}
+
+bool Tdt_build::Tsplit_value::is_empty()
+{
+	return _jml == 0;
+}
+
+void Tdt_build::Tsplit_value::kalkulasi_id_max()
+{
+	bool first_iteration = true;
+	float max_gain_ratio = 0.0;
+
+	//cout << " max_gain_ratio " << endl;
+	for (size_t i = 0; i < _list_split_value.size(); ++i)
+	{
+		if (first_iteration or (max_gain_ratio < _list_split_value[i].max_gain_ratio))
+		{
+			//cout << _list_split_value[i].idx << "," << _list_split_value[i].split_value.get_string() << endl;
+			_idx_max_gain_ratio.push_back(i);
+			max_gain_ratio = _list_split_value[i].max_gain_ratio;
+			first_iteration = false;
+		}
+	}
+
+	int idx_gain_ratio_max = -1;
+
+	_split_column = -1;
+	_split_value.set_value("-1", true);
+
+	if (_idx_max_gain_ratio.size() > 0)
+	{
+		idx_gain_ratio_max = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - 1];
+
+		_split_column = _list_split_value[idx_gain_ratio_max].idx;
+		_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+	}
+
+	if (global_config.gunakan_rata2gain)
+	{
+		//cout << " rata2 " << endl;
+
+		for (size_t i = 0; i < _idx_max_gain_ratio.size(); ++i)
+		{
+			size_t tmp_idx = _idx_max_gain_ratio[i];
+			double z_score = 0.0;
+
+			if (_sd != 0)
+			{
+				z_score = ((_list_split_value[tmp_idx].max_gain - _rata2) / _sd);
+			}
+
+			bool pass = (z_score > 0.0); //and (z_score < 3.0)
+			if (pass)
+			{
+				//cout << _list_split_value[tmp_idx].idx << "," << _list_split_value[tmp_idx].split_value.get_string() << endl;
+				_idx_rata2.push_back(tmp_idx);
+			}
+		}
+
+		idx_gain_ratio_max = -1;
+
+		_split_column = -1;
+		_split_value.set_value("-1", true);
+
+		if (_idx_rata2.size() > 0)
+		{
+			idx_gain_ratio_max = _idx_rata2[_idx_rata2.size() - 1];
+
+			_split_column = _list_split_value[idx_gain_ratio_max].idx;
+			_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+		}
+
+	}
+
+	bool pass = true;
+
+	if (idx_gain_ratio_max != -1)
+	{
+		pass = limit_jml_dt_cabang(_list_split_value[idx_gain_ratio_max].jml_below, _list_split_value[idx_gain_ratio_max].jml_above);
+	}
+
+	if (!pass)
+	{
+		if (global_config.find_other_attr)
+		{
+			idx_gain_ratio_max = -1;
+
+			_split_column = -1;
+			_split_value.set_value("-1", true);
+
+			if (global_config.gunakan_rata2gain)
+			{
+				if (_idx_rata2.size() > 0)
+				{
+					int tmp_idx = -1;
+					size_t i = 0;
+					while ( (i < (_idx_rata2.size() - 1)) and !pass)
+					{
+						tmp_idx = _idx_rata2[_idx_rata2.size() - (i + 1)];
+						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);
+						i++;
+					}
+
+					if (pass and (tmp_idx != -1))
+					{
+						idx_gain_ratio_max = tmp_idx;
+						_split_column = _list_split_value[idx_gain_ratio_max].idx;
+						_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+					}
+				}
+
+			} else {
+
+				if (_idx_max_gain_ratio.size() > 0)
+				{
+					int tmp_idx = -1;
+					size_t i = 0;
+					while ( (i < (_idx_max_gain_ratio.size() - 1)) and !pass)
+					{
+						tmp_idx = _idx_max_gain_ratio[_idx_max_gain_ratio.size() - (i + 1)];
+						pass = limit_jml_dt_cabang(_list_split_value[tmp_idx].jml_below, _list_split_value[tmp_idx].jml_above);
+						i++;
+					}
+
+					if (pass and (tmp_idx != -1))
+					{
+						idx_gain_ratio_max = tmp_idx;
+						_split_column = _list_split_value[idx_gain_ratio_max].idx;
+						_split_value = _list_split_value[idx_gain_ratio_max].split_value;
+					}
+				}
+			}
+		}
+	}
+
+
+	if (idx_gain_ratio_max != -1)
+	{
+		max_gain_ratio = _list_split_value[idx_gain_ratio_max].max_gain_ratio;
+
+		if (max_gain_ratio < 0)
+		{
+			_split_column = -1;
+			_split_value.set_value("-1", true);
+		}
+	}
+
+}
+
+int Tdt_build::Tsplit_value::get_split_column()
+{
+	return _split_column;
+}
+
+Tmy_dttype Tdt_build::Tsplit_value::get_split_value()
+{
+	return _split_value;
 }
 
 

@@ -1,5 +1,3 @@
-
-#include "Tmy_dttype.h"
 #include "Tlabel_stat.h"
 #include "global.h"
 #include <string>
@@ -11,6 +9,12 @@ using namespace std;
 
 #define Included_Tbelow_above_H
 
+struct Tgain_ratio
+{
+	Tmy_dttype gain;
+	Tmy_dttype gain_ratio;
+};
+
 class Tbelow_above
 {
  private: 
@@ -18,14 +22,11 @@ class Tbelow_above
   Tlabel_stat _below;
   Tlabel_stat _above;
  
-  Tconfig* config;
+  Tglobal_config global_config;
 
 public:
-	Tbelow_above();
-	Tbelow_above(Tconfig* v_config);
-	~Tbelow_above();
-	
-    //void set_config(Tconfig* v_config); 
+	Tbelow_above();	
+	~Tbelow_above();    
 
 	void set_value(Tmy_dttype value);
 	Tmy_dttype get_value();
@@ -35,13 +36,13 @@ public:
 	void add_above(Tlabel_stat stat);
 	Tlabel_stat get_above();
 
-	float get_overall_metric();
+	Tmy_dttype get_overall_metric();
 	float get_split_info();
 
 	void clear();
-
 	bool cek_valid();
-	
+
+    Tgain_ratio kalkulasi_gain_ratio(Tmy_dttype entropy_before_split);
 	
 };
 

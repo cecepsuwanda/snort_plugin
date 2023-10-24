@@ -2,7 +2,7 @@
 
 Tconf_metrix::Tconf_metrix()
 {
-	
+
 	failed = 0;
 	tepat = 0;
 	tdk_tepat = 0;
@@ -11,7 +11,7 @@ Tconf_metrix::Tconf_metrix()
 
 Tconf_metrix::~Tconf_metrix()
 {
-	
+
 	map<string, map<string, int>>::iterator it, it1;
 
 	if (matrik.size() > 0)
@@ -51,19 +51,19 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 
 	if ((tebakan.compare("dfs_failed.") != 0))
 	{
-		
-        auto itr = label.find(asli);
-        if (itr == label.end())
-        {
-          label.insert(pair<string, int>(asli, 0));	
-        }
 
-        auto itr1 = label.find(tebakan);
-        if (itr1 == label.end())
-        {
-          label.insert(pair<string, int>(tebakan, 0));	
-        }
-				
+		auto itr = label.find(asli);
+		if (itr == label.end())
+		{
+			label.insert(pair<string, int>(asli, 0));
+		}
+
+		auto itr1 = label.find(tebakan);
+		if (itr1 == label.end())
+		{
+			label.insert(pair<string, int>(tebakan, 0));
+		}
+
 
 		jml_data++;
 		if (asli == tebakan)
@@ -95,13 +95,13 @@ void Tconf_metrix::add_jml(string asli, string tebakan, int jml)
 		failed++;
 	}
 
-   
+
 
 }
 
 void Tconf_metrix::kalkulasi()
 {
-	
+
 	if (matrik.size() > 0) {
 
 		int TP = 0;
@@ -123,7 +123,7 @@ void Tconf_metrix::kalkulasi()
 			tmp_data.jml = tmp_data.TP + tmp_data.FN;
 			tmp_data.accuracy = 0;
 			if ((tmp_data.TP + tmp_data.FP) > 0) {
-			 	 tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
+				tmp_data.accuracy =  (tmp_data.TP + tmp_data.TN) / (double)(tmp_data.TP + tmp_data.FP + tmp_data.TN + tmp_data.FN);
 			}
 			tmp_data.recall = 0;
 			if ((tmp_data.jml) > 0) {
@@ -131,8 +131,8 @@ void Tconf_metrix::kalkulasi()
 			}
 
 			tmp_data.precision = 0;
-			if ((tmp_data.TP+tmp_data.FP) > 0) {
-				tmp_data.precision =  tmp_data.TP / ((double) (tmp_data.TP+tmp_data.FP));
+			if ((tmp_data.TP + tmp_data.FP) > 0) {
+				tmp_data.precision =  tmp_data.TP / ((double) (tmp_data.TP + tmp_data.FP));
 			}
 
 			// tmp_data.specificity = 0;
@@ -142,22 +142,41 @@ void Tconf_metrix::kalkulasi()
 
 			tmp_data.f1 = 0;
 			if ((tmp_data.recall + tmp_data.precision) > 0) {
-			  	tmp_data.f1 =  (2*tmp_data.recall*tmp_data.precision) / (double)(tmp_data.recall + tmp_data.precision);
+				tmp_data.f1 =  (2 * tmp_data.recall * tmp_data.precision) / (double)(tmp_data.recall + tmp_data.precision);
 			}
 
 			matrik1.insert(pair<string, Tdata> (it->first, tmp_data));
 		}
 
-		accuracy = (TP + TN) / (double)(TP + TN + FP + FN);
-		precision = TP / (double)(TP + FP);
-		recall = TP / (double)(TP + FN);
-		f1 = (2*recall*precision)/(double)(recall+precision);
+		accuracy_total = 0.00;
+
+		if ((TP + TN + FP + FN) > 0)
+		{
+			accuracy_total = (TP + TN) / (double)(TP + TN + FP + FN);
+		}
+
+		precision_total = 0.00;
+		if ((TP + FP) > 0) {
+			precision_total = TP / (double)(TP + FP);
+		}
+
+		recall_total = 0.00;
+		if ((TP + FN) > 0)
+		{
+			recall_total = TP / (double)(TP + FN);
+		}
+
+		f1_total = 0.00;
+		if ((recall_total + precision_total) > 0)
+		{
+			f1_total = (2 * recall_total * precision_total) / (double)(recall_total + precision_total);
+		}
 	}
 }
 
 int Tconf_metrix::get_TP(string kelas)
 {
-	
+
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -177,7 +196,7 @@ int Tconf_metrix::get_TP(string kelas)
 
 int Tconf_metrix::get_TN(string kelas)
 {
-	
+
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -200,7 +219,7 @@ int Tconf_metrix::get_TN(string kelas)
 
 int Tconf_metrix::get_FP(string kelas)
 {
-	
+
 	int total = 0;
 
 	if (matrik.size() > 0) {
@@ -240,9 +259,15 @@ int Tconf_metrix::get_FN(string kelas)
 	return total;
 }
 
+
+float Tconf_metrix::get_F1(string kelas)
+{
+	return matrik1[kelas].f1;
+}
+
 float Tconf_metrix::get_F1()
 {
-	return f1;
+	return f1_total;
 }
 
 ostream & operator << (ostream &out, const Tconf_metrix &tc)
@@ -252,14 +277,14 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 	out << " Prediksi Tidak Tepat: " << tc.tdk_tepat;
 	out << " Prediksi Failed: " << tc.failed;
 	//out << " Prosentase: " << ((tc.tepat / (double) tc.jml_data) * 100);
-	out << " Akurasi: " << tc.accuracy ;
-	out << " Precision: " << tc.precision ;
-	out << " Recall: " << tc.recall ;
-	out << " F1 : " << tc.f1 << endl;
+	out << " Akurasi: " << tc.accuracy_total ;
+	out << " Precision: " << tc.precision_total ;
+	out << " Recall: " << tc.recall_total ;
+	out << " F1 : " << tc.f1_total << endl;
 
 	if (tc.matrik1.size() > 0) {
 		out << "   Confusion Metrik     : " << endl;
-		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10)  << "recall" << setw(13) << "precision" << setw(13) << "f1" << endl; 
+		out << setw(30) << "kelas" << setw(10) << "TP" << setw(10) << "FN" << setw(10) << "jml" << setw(10) << "FP" << setw(10) << "TN" << setw(10) << "accuracy" << setw(10)  << "recall" << setw(13) << "precision" << setw(13) << "f1" << endl;
 		for (auto it = tc.matrik1.begin(); it != tc.matrik1.end(); ++it)
 		{
 			out << setw(30) << it->first;
@@ -299,11 +324,11 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 					out << setw(10) << 0;
 				} else {
 					auto it3 = it2->second.find(it1->first);
-                    if(it3==it2->second.end()){
-					   out << setw(10) << 0;
-                    }else{
-                       out << setw(10) << it3->second;	
-                    }
+					if (it3 == it2->second.end()) {
+						out << setw(10) << 0;
+					} else {
+						out << setw(10) << it3->second;
+					}
 				}
 			}
 
@@ -321,29 +346,29 @@ ostream & operator << (ostream &out, const Tconf_metrix &tc)
 
 void Tconf_metrix::save(string nm_file, string param_nm_file, int param_depth, int param_min_sample, double param_gamma, double param_nu, double param_credal_s)
 {
-	
-	Twrite_file tmp_wf;
-	tmp_wf.setnm_f(nm_file);
 
-	for (auto it = matrik.begin(); it != matrik.end(); ++it)
-	{
-		string tmp_str = "";
-		for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++)
-		{
-			string tmp_str = param_nm_file + "," + to_string(param_depth) + "," + to_string(param_min_sample) + "," + to_string(param_gamma) + "," + to_string(param_nu) + "," + to_string(param_credal_s) +  "," + it->first + "," + it1->first + "," + to_string(it1->second);
-			tmp_wf.write_file(tmp_str);
-		}
-	}
+	// Twrite_file tmp_wf;
+	// tmp_wf.setnm_f(nm_file);
 
-	tmp_wf.close_file();
+	// for (auto it = matrik.begin(); it != matrik.end(); ++it)
+	// {
+	// 	string tmp_str = "";
+	// 	for (auto it1 = it->second.begin(); it1 != it->second.end(); it1++)
+	// 	{
+	// 		string tmp_str = param_nm_file + "," + to_string(param_depth) + "," + to_string(param_min_sample) + "," + to_string(param_gamma) + "," + to_string(param_nu) + "," + to_string(param_credal_s) +  "," + it->first + "," + it1->first + "," + to_string(it1->second);
+	// 		tmp_wf.write_file(tmp_str);
+	// 	}
+	// }
+
+	// tmp_wf.close_file();
 }
 
 void Tconf_metrix::add_konversi_asli(string dari, string ke)
-{	
+{
 	konversi_asli.insert(pair<string, string>(dari, ke));
 }
 
 void Tconf_metrix::add_konversi_tebakan(string dari, string ke)
-{	
+{
 	konversi_tebakan.insert(pair<string, string>(dari, ke));
 }

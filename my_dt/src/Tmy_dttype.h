@@ -1,6 +1,8 @@
+#include <cmath>
+#include <cstring>
 #include <string>
 #include <iostream>
-#include "global.h"
+#include <vector>
 using namespace std;
 
 
@@ -16,6 +18,8 @@ private:
 	bool _is_continue;
 
 	string to_lower(const string str);
+	double bulat_nol(double val, double tolerance, int digit);
+
 
 public:
 	Tmy_dttype();
@@ -29,6 +33,17 @@ public:
 	string get_string();
 
 	bool is_continue();
+
+	bool delimiter_exist();
+	vector<string> str_split(string delimiter);
+
+	Tmy_dttype(const Tmy_dttype &t)
+	{
+		//cout << "Copy Constructor" << endl;
+		_value = t._value;
+		_lower_value = t._lower_value;
+		_is_continue = t._is_continue;
+	}
 
 
 	Tmy_dttype& operator = (const Tmy_dttype &t)
@@ -87,7 +102,7 @@ public:
 	{
 		if (_is_continue)
 		{
-			
+
 			return  (stof(_value) <= stof(rhs));
 
 		} else {
@@ -127,6 +142,36 @@ public:
 			} else {
 				return false;
 			}
+		}
+	}
+
+	bool operator >(const float rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) > rhs);
+		} else {
+			return false;
+		}
+	}
+
+	bool operator <(const float rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) < rhs);
+		} else {
+			return false;
+		}
+	}
+
+	bool operator >=(const float rhs) const
+	{
+		if (_is_continue)
+		{
+			return  (stof(_value) >= rhs);
+		} else {
+			return false;
 		}
 	}
 
@@ -218,6 +263,58 @@ public:
 				return false;
 			}
 		}
+	}
+
+
+	const Tmy_dttype operator + (const Tmy_dttype &rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue and rhs._is_continue)
+		{
+			try {
+				tmp.set_value( to_string(stof(_value) + stof(rhs._value)), true);
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";
+			}
+		} else {
+			if (!_is_continue and !rhs._is_continue)
+			{			
+			   tmp.set_value( _value + rhs._value, false);				
+			}
+		}
+
+		return tmp;
+	}
+
+	const Tmy_dttype operator - (const Tmy_dttype &rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue and rhs._is_continue)
+		{
+			try {
+				tmp.set_value( to_string(stof(_value) - stof(rhs._value)), true);
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "," << rhs._value << " bukan bilangan !!!";
+			}
+		}
+
+		return tmp;
+	}
+
+	const Tmy_dttype operator / (const float rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue)
+		{
+			tmp.set_value(to_string(stof(_value) / rhs), true);
+		}
+
+		return tmp;
 	}
 
 };

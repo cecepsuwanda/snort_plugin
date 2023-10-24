@@ -30,7 +30,7 @@ double credal::entropy(std::vector<double> x) const {
 
 	std::transform(x.begin(), x.end(), x.begin(),
 	[](double d) -> double {
-		return ((d > 0.0) ? bulat_nol((d * std::log2(d)),1e-7,7) : 0.0);
+		return ((d > 0.0) ? (d * std::log2(d)) : 0.0);
 	});
 	return -std::accumulate(x.begin(), x.end(), 0.0);
 }
@@ -75,10 +75,10 @@ vector<double> credal::maxEntropyDist(const ProbInterval &probint, const bool /*
 	vector<double> lower = probint.lower;
 	int lsize = lower.size();
 
-	double nmin, minval, sminval;
+	double nmin=0, minval=0, sminval=0;
 
 	// Due to the nature of IDM the intial free mass is s/(N+s)
-	double assignMass, freeMass = bulat_nol(_s / (static_cast<double>(probint.obs) + _s),1e-7,7);
+	double assignMass=0, freeMass = _s / (static_cast<double>(probint.obs) + _s);
 
 	bool hasFree = true;
 
@@ -90,18 +90,18 @@ vector<double> credal::maxEntropyDist(const ProbInterval &probint, const bool /*
 		sminval = minvals[1];
 		nmin = minvals[2];
 
-		if (minval == sminval || !(bulat_nol((sminval - minval),1e-7,7) < bulat_nol((freeMass / nmin),1e-7,7))) {
+		if (minval == sminval || !((sminval - minval) < (freeMass / nmin))) {
 			// All values in lower have the same value
 			//   OR
 			// not enough free mass to lift the minimum value(s) to the second minimal value
-			assignMass = bulat_nol((freeMass / nmin),1e-7,7);
+			assignMass = (freeMass / nmin);
 			// We have used up all free mass, so signal end
 			hasFree = false;
 		} else {
 			// assign as much mass to lift the minimum value(s) to the second minimal value
-			assignMass = bulat_nol((sminval - minval),1e-7,7);
+			assignMass = (sminval - minval);
 			// substract the lifts from the free mass
-			freeMass -= bulat_nol((assignMass * nmin),1e-7,7);
+			freeMass -= (assignMass * nmin);
 		}
 		// Update lower
 		for (int i = 0; i < lsize; ++i) {
@@ -149,9 +149,9 @@ ProbInterval credal::probabilityInterval(const vector<int>& classtable) {
 	double dobs = static_cast<double>(prob.obs);
 	for (int classObs : classtable) {
 		prob.freq.push_back(classObs);
-		prob.prob.push_back(bulat_nol(classObs / dobs,1e-7,7));
-		prob.upper.push_back(bulat_nol((classObs + _s) / (dobs + _s),1e-7,7));
-		prob.lower.push_back(bulat_nol(static_cast<double>(classObs) / (dobs + _s),1e-7,7));
+		prob.prob.push_back(classObs / dobs);
+		prob.upper.push_back((classObs + _s) / (dobs + _s));
+		prob.lower.push_back(static_cast<double>(classObs) / (dobs + _s));
 	}
 	return prob;
 }
@@ -170,7 +170,7 @@ void credal::input_frec(vector<int> frec)
 
 void credal::cetak_vec(vector<double> &vec)
 {
-	for (int i = 0; i < vec.size(); ++i)
+	for (size_t i = 0; i < vec.size(); ++i)
 	{
 		cout << vec[i];
 		if (i < (vec.size() - 1))
@@ -188,7 +188,7 @@ void credal::info()
 
 	vector<int> freq = _prob_int.freq;
 
-	for (int i = 0; i < freq.size(); ++i)
+	for (size_t i = 0; i < freq.size(); ++i)
 	{
 		cout << freq[i];
 		if (i < (freq.size() - 1))
@@ -246,16 +246,16 @@ double credal::get_overall_metric(vector<double> ent,vector<double> max_ent)
   double max = *std::max_element(ent.begin(),ent.end());
 
   double sum = 0.0;
-  for (int i = 0; i < max_ent.size(); ++i)
+  for (size_t i = 0; i < max_ent.size(); ++i)
   {
   	if(ent[i]<max)
   	{
-       sum+=bulat_nol((_prob_int.lower[i]*max_ent[i]),1e-7,7);
+       sum+=(_prob_int.lower[i]*max_ent[i]);
        //cout << _prob_int.lower[i]<<","<<max_ent[i] << endl;
   	}else{
   		if(ent[i]==max)
   		{
-          sum+=bulat_nol((_prob_int.upper[i]*max_ent[i]),1e-7,7);
+          sum+=(_prob_int.upper[i]*max_ent[i]);
           //cout << _prob_int.upper[i]<<","<<max_ent[i] << endl;
   		}
   	}

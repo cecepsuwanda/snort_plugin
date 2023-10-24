@@ -5,15 +5,8 @@ Tlabel_stat::Tlabel_stat()
 {
 	_jml_row = 0;
 	_max_value = 0;
-	config = NULL;
-}
-
-Tlabel_stat::Tlabel_stat(Tconfig* v_config)
-{
-	_jml_row = 0;
-	_max_value = 0;
-
-	config = v_config;
+	_min_value = 0;
+	_max_label = "undefined";
 }
 
 Tlabel_stat::~Tlabel_stat()
@@ -21,15 +14,13 @@ Tlabel_stat::~Tlabel_stat()
 	clear();
 }
 
-void Tlabel_stat::set_config(Tconfig* v_config)
-{
-	config = v_config;
-}
-
 
 void Tlabel_stat::clear()
 {
 	_jml_row = 0;
+	_max_value = 0;
+	_min_value = 0;
+	_max_label = "undefined";
 	_map.clear();
 }
 
@@ -51,10 +42,10 @@ string Tlabel_stat::get_first_value_in_map()
 }
 
 
-double Tlabel_stat::get_entropy()
+Tmy_dttype Tlabel_stat::get_entropy()
 {
 	double entropy = 0;
-	credal crd(config->credal_s);
+	credal crd(global_config.credal_s);
 
 	vector<int> freq;
 
@@ -66,8 +57,12 @@ double Tlabel_stat::get_entropy()
 
 
 	crd.input_frec(freq);
-
 	entropy = crd.get_ent();
+
+	// if(global_config.cetak_credal)
+	// {
+	//   crd.info();
+	// }
 
 	/*auto it = _map.begin();
 	while (it != _map.end())
@@ -79,13 +74,16 @@ double Tlabel_stat::get_entropy()
 		it++;
 	}*/
 
-	return entropy;
+	Tmy_dttype tmp;
+	tmp.set_value(to_string(entropy), true);
+
+	return tmp;
 }
 
-double Tlabel_stat::get_credal_entropy()
+Tmy_dttype Tlabel_stat::get_credal_entropy()
 {
 	double entropy = 0;
-	credal crd(config->credal_s);
+	credal crd(global_config.credal_s);
 
 	vector<int> freq;
 
@@ -98,9 +96,12 @@ double Tlabel_stat::get_credal_entropy()
 
 	crd.input_frec(freq);
 
-	entropy = crd.get_max_ent();	
+	entropy = crd.get_max_ent();
 
-	return entropy;
+	Tmy_dttype tmp;
+	tmp.set_value(to_string(entropy), true);
+
+	return tmp;
 }
 
 float Tlabel_stat::get_estimate_error()
@@ -115,6 +116,24 @@ float Tlabel_stat::get_estimate_error()
 	return estimate_error;
 }
 
+void Tlabel_stat::add(string value, int count)
+{
+	_jml_row += count;
+	map<string, int>::iterator it;
+
+	it = _map.find(value);
+	if (it == _map.end())
+	{
+		_map.insert(pair<string, int>(value, count));
+	} else {
+		it->second += count;
+	}
+
+	cari_max_label();
+
+}
+
+
 void Tlabel_stat::add(string value)
 {
 	_jml_row += 1;
@@ -128,6 +147,17 @@ void Tlabel_stat::add(string value)
 		it->second += 1;
 	}
 
+   cari_max_label();
+
+}
+
+bool Tlabel_stat::is_single_label()
+{
+	return _map.size() == 1;
+}
+
+void Tlabel_stat::cari_max_label()
+{
 	auto itr = _map.begin();
 	_max_label = itr->first;
 	_max_value = itr->second;
@@ -147,17 +177,16 @@ void Tlabel_stat::add(string value)
 	}
 
 	_min_value = _jml_row - _max_value;
-
-}
-
-bool Tlabel_stat::is_single_label()
-{
-	return _map.size() == 1;
 }
 
 string Tlabel_stat::get_max_label()
 {
 	return _max_label;
+}
+
+int Tlabel_stat::get_jml_stat(string label)
+{
+	return _map[label];
 }
 
 map<string, int> Tlabel_stat::get_map()
@@ -179,6 +208,7 @@ ostream & operator << (ostream &out, const Tlabel_stat &tc)
 		for (auto it = tc._map.begin(); it != tc._map.end(); ++it) {
 			out << std::setw(30) << (*it).first << std::setw(10) << (*it).second << endl;
 		}
+		out << std::setw(30) << "total" << std::setw(10) << tc._jml_row << endl;
 	}
 	return out;
 }
