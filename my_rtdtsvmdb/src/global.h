@@ -35,21 +35,21 @@ public:
   }
 };
 
-static double bulat_nol(double val, double tolerance, int digit)
-{
-  double tmp = val;
+// static double bulat_nol(double val, double tolerance, int digit)
+// {
+//   double tmp = val;
 
-  if (abs(val) < tolerance)
-  {
-    tmp = 0.0;
-  }
-  else
-  {
-    const double multiplier = std::pow(10.0, digit);
-    tmp = ceil(val * multiplier) / multiplier;
-  }
-  // double tmp = val;
-  return tmp;
-}
+//   if (abs(val) < tolerance)
+//   {
+//     tmp = 0.0;
+//   }
+//   else
+//   {
+//     const double multiplier = std::pow(10.0, digit);
+//     tmp = ceil(val * multiplier) / multiplier;
+//   }
+//   // double tmp = val;
+//   return tmp;
+// }
 
 #endif

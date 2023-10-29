@@ -183,13 +183,13 @@ void Tdec_tree::thread_test_attack(string label, vector<vector<string>> table, T
 
 
 
-void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix)
+void Tdec_tree::test_dfs(tree_node* parent_node,int counter, Tdataframe &df_test, Tconf_metrix &dt_conf_metrix)
 {
   //cetak("%d", node_index);
-  if (tree[node_index].isLeaf)
+  if (parent_node->isLeaf)
   {
 
-    string label = tree[node_index].label;
+    string label = parent_node->label;
       //clear_worker(1);
       //cetak("+{A { %d }}", df_test.getjmlrow());
       _table_attack = df_test.get_all_record();
@@ -200,10 +200,11 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
     df_test.clear_memory();
     //cetak("\n");
   } else {
+    counter++;
     //cetak("|?");
 
-    int left = tree[node_index].children[0];
-    int right = tree[node_index].children[1];
+    tree_node* left = parent_node->left;
+    tree_node* right = parent_node->right;
 
     vector<string> opt;
     opt.push_back("<=");
@@ -218,17 +219,17 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 
     //clear_worker(0);
 
-    if (left != -1) {
+    if (left != NULL) {
 
       //cetak("->");
-      //cetak("[%d %d %s %s ", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
-      df_left.add_filter(tree[node_index].criteriaAttrIndex, tree[left].opt, tree[left].attrValue);
+      //cetak("[%d %d %s %s ", node_index , parent_node->criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
+      df_left.add_filter(parent_node->criteriaAttrIndex, left->opt, left->attrValue);
 
       //cetak("%d ]", df_left.getjmlrow());
       if (df_left.getjmlrow() > 0) {
         //cetak("->");
-        //cetak("[%d %d %s %s]", node_index , tree[node_index].criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
-        test_dfs(left, df_left, dt_conf_metrix);
+        //cetak("[%d %d %s %s]", node_index , parent_node->criteriaAttrIndex, opt[tree[left].opt].c_str(), tree[left].attrValue.c_str());
+        test_dfs(left,counter, df_left, dt_conf_metrix);
       } else {
         //cetak("\n");
       }
@@ -237,15 +238,15 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 
     //clear_worker(0);
 
-    if (right != -1) {
+    if (right != NULL) {
       //cetak("<-");
       //cetak("[%d %d %s %s ", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
-      df_right.add_filter(tree[node_index].criteriaAttrIndex, tree[right].opt, tree[right].attrValue);
+      df_right.add_filter(parent_node->criteriaAttrIndex, right->opt, right->attrValue);
       //cetak("%d ]", df_right.getjmlrow());
       if (df_right.getjmlrow() > 0) {
         //cetak("<-");
         //cetak("[%d %d %s %s]", node_index, tree[node_index].criteriaAttrIndex, opt[tree[right].opt].c_str(), tree[right].attrValue.c_str());
-        test_dfs(right, df_right, dt_conf_metrix);
+        test_dfs(right,counter, df_right, dt_conf_metrix);
       } else {
         //cetak("\n");
       }
@@ -256,7 +257,7 @@ void Tdec_tree::test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_
 
   }
 
-  if (node_index == 0)
+  if (counter == 0)
   {
     clear_worker(0);
   }
@@ -275,7 +276,8 @@ void Tdec_tree::test(Tdataframe &df,Tconf_metrix &dt_conf_metrix)
   
   {
     Timer timer;
-    test_dfs(0, df, dt_conf_metrix);
+    test_dfs(dec_tree,0, df, dt_conf_metrix);
+    clear_worker(0);
     //double elapsed_time = double(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
   }
   

@@ -43,6 +43,8 @@ public:
 	Tquery_builder& operator = (const Tquery_builder &t)
 	{
          this->_con =t._con;
+
+         return *this;
 	}
 };
 

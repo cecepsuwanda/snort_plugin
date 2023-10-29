@@ -43,7 +43,7 @@ private:
 
 	void clear_worker(int limit);
 	int dfs(vector<string> &data, int treeIndex);
-	void test_dfs(int node_index , Tdataframe &df_test, Tconf_metrix &dt_conf_metrix);
+	void test_dfs(tree_node* parent_node,int counter, Tdataframe &df_test, Tconf_metrix &dt_conf_metrix);
 
 	bool is_pass(int opt, string value1, string value2);
 

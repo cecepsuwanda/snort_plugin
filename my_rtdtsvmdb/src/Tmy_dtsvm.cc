@@ -17,7 +17,7 @@ void Tmy_dtsvm::read_tree()
 	tb_tree dbtree;
 	dbtree.baca_tree();
 
-	int i = 0;
+	//int i = 0;
 	dbtree.reset_file();
 	while (!dbtree.is_eof()) {
 

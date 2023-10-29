@@ -11,6 +11,82 @@ using namespace std;
 
 #define Included_tkddcup_attr_H
 
+
+struct field_filter
+{
+  int idx_col;
+  int idx_opt;
+  Tmy_dttype value;
+
+  bool is_pass(Tmy_dttype rhs)
+  {
+    bool pass = true;
+    switch (idx_opt)
+    {
+    case 0 :
+      pass = rhs <= value;
+      break;
+    case 1 :
+      pass = value < rhs;
+      break;
+    case 2 :
+
+      if (value.delimiter_exist())
+      {
+        vector<string> v_tmp = value.str_split(";");
+
+        Tmy_dttype tmp(v_tmp[0], false);
+
+        pass = tmp == rhs;
+
+        size_t i = 1;
+
+        while ((i < v_tmp.size()) and pass)
+        {
+          Tmy_dttype tmp(v_tmp[i], false);
+          pass = tmp == rhs;
+
+          i++;
+        }
+
+      } else {
+        pass = value == rhs;
+      }
+      break;
+    case 3 :
+
+      if (value.delimiter_exist())
+      {
+        vector<string> v_tmp = value.str_split(";");
+
+        Tmy_dttype tmp(v_tmp[0], false);
+        pass = tmp != rhs;
+
+        size_t i = 1;
+
+        while ((i < v_tmp.size()) and pass)
+        {
+          Tmy_dttype tmp(v_tmp[i], false);
+          pass = tmp != rhs;
+
+          i++;
+        }
+
+      } else {
+        pass = value != rhs;
+      }
+
+
+
+      break;
+    }
+
+    return pass;
+  }
+
+
+};
+
 class Tkddcup_attr
 {
 
@@ -27,7 +103,9 @@ private:
 
   string _label;
   string _dataset_file;
-  string _svm_file; 
+  string _svm_file;
+
+  double bulat_nol(double val, double tolerance, int digit); 
 
 public:
 	Tkddcup_attr();

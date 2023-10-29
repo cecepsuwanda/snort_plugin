@@ -53,29 +53,37 @@ bool Tkddcup_attr::is_pass(int idx_attr, int idx_opt, string value)
 
    bool pass = false;
 
-   Tmy_dttype tmp(value, ((idx_opt == 0) or (idx_opt == 1)));
+   field_filter tmp;
 
-   switch (idx_opt)
-   {
-   case 0 : {
-      //cout << value1 << " " << value2 << endl;
-      pass = _attr[idx_attr] <= tmp;
-      break;
-   }
-   case 1 : {
-      //cout << value1 << " " << value2 << endl;
-      pass = tmp < _attr[idx_attr];
-      break;
-   }
-   case 2 : {
-      pass = tmp == _attr[idx_attr];
-      break;
-   }
-   case 3 : {
-      pass = tmp != _attr[idx_attr];
-      break;
-   }
-   }
+   tmp.idx_col = idx_attr;
+   tmp.idx_opt = idx_opt;
+   tmp.value.set_value(value,((idx_opt == 0) or (idx_opt == 1)));
+
+   pass = tmp.is_pass(_attr[idx_attr]);
+
+   // Tmy_dttype tmp(value, ((idx_opt == 0) or (idx_opt == 1)));
+
+   // switch (idx_opt)
+   // {
+   // case 0 : {
+   //    //cout << value1 << " " << value2 << endl;
+   //    pass = _attr[idx_attr] <= tmp;
+   //    break;
+   // }
+   // case 1 : {
+   //    //cout << value1 << " " << value2 << endl;
+   //    pass = tmp < _attr[idx_attr];
+   //    break;
+   // }
+   // case 2 : {
+   //    pass = tmp == _attr[idx_attr];
+   //    break;
+   // }
+   // case 3 : {
+   //    pass = tmp != _attr[idx_attr];
+   //    break;
+   // }
+   // }
 
    return pass;
 
@@ -131,7 +139,7 @@ vector<string> Tkddcup_attr::get_svm_attr()
 {
    vector<string> vec;
 
-   for (int i = 0; i < _attr.size(); ++i)
+   for (size_t i = 0; i < _attr.size(); ++i)
    {
       switch (i) {
       case 1:
@@ -155,5 +163,23 @@ vector<string> Tkddcup_attr::get_svm_attr()
    }
 
    return vec;
+}
+
+
+double Tkddcup_attr::bulat_nol(double val, double tolerance, int digit)
+{
+  double tmp = val;
+
+  if (abs(val) < tolerance)
+  {
+    tmp = 0.0;
+  }
+  else
+  {
+    const double multiplier = std::pow(10.0, digit);
+    tmp = ceil(val * multiplier) / multiplier;
+  }
+  // double tmp = val;
+  return tmp;
 }
 
