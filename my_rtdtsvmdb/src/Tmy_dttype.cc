@@ -60,7 +60,7 @@ Tmy_dttype::Tmy_dttype(string value, bool is_continue)
 	if (!_is_continue)
 	{
 		// cout<<"1 "<<_lower_value<<endl;
-		// _lower_value = to_lower(_lower_value);
+		//_lower_value = to_lower(_lower_value);
 		// cout<<"2 "<<_lower_value<<endl;
 
 	} else {
@@ -79,7 +79,7 @@ void Tmy_dttype::set_value(string value, bool is_continue)
 	if (!_is_continue)
 	{
 		// cout<<"1 "<<_lower_value<<endl;
-		// _lower_value = to_lower(_lower_value);
+		//_lower_value = to_lower(_lower_value);
 		// cout<<"2 "<<_lower_value<<endl;
 	} else {
 		// char *endptr;

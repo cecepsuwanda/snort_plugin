@@ -43,9 +43,12 @@ public:
   static bool continue_attr_only;
   static bool buat_kombinasi;
   static bool gunakan_rata2gain;
-  static bool gunakan_rata2gain_pot_split;
+  
 
   static bool one_agains_many_only;
+  static bool unique_rule;
+  static bool use_gain_ratio;
+  static bool use_gain_ratio_1;
 
 
   static bool cetak_credal;
@@ -69,7 +72,7 @@ public:
 
     limited = true;
     threshold = 0;
-    find_other_attr = true;
+    find_other_attr = false;
     find_other_pot_split = false;
 
     ratio_valid_attr = 0.3;
@@ -78,9 +81,15 @@ public:
 
     continue_attr_only = false;
     buat_kombinasi = false;
-    gunakan_rata2gain = true;
-    gunakan_rata2gain_pot_split = false;
+    gunakan_rata2gain = true;    
     one_agains_many_only = false;
+    unique_rule = false;
+    
+    use_gain_ratio = false;
+    use_gain_ratio_1 = false;
+
+
+
 
     //cetak_credal = false;
 

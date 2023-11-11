@@ -29,6 +29,7 @@ struct Tmetric_split_value
   int idx = -1;
   float max_gain_ratio = -1;
   float max_gain = -1;
+  float split_info = 0.0;
   int jml_below = 0;
   int jml_above = 0;
   Tmy_dttype split_value;
@@ -51,11 +52,19 @@ public:
 
   void set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
   void set_entropy_before_split(Tmy_dttype entropy_before_split);
+  
   Tmy_dttype get_split_value();
+  
   int get_jml_below();
   int get_jml_above();
-  bool is_normal();
-  bool is_known();
+  
+  string get_max_label_below();
+  bool is_below_single_label();
+  string get_max_label_above();
+  bool is_above_single_label();
+
+  Tlabel_stat get_stat_below();
+  
   bool cek_valid();
   Tgain_ratio kalkulasi_gain_ratio();
 
@@ -83,9 +92,9 @@ public:
   {
     Tsplit_stat tmp;
 
-    Tmy_dttype separator(";", false);       
+    Tmy_dttype separator(";", false);
 
-    tmp._split_value = _split_value + separator + rhs._split_value;     
+    tmp._split_value = _split_value + separator + rhs._split_value;
 
     Tlabel_stat tmp_stat = _stat_below + _stat_above;
 
@@ -102,27 +111,28 @@ class Tproses_split_stat
 private:
   vector<Tsplit_stat> _vec_split_stat;
   vector<Tsplit_stat> _tmp_vec_split_stat;
-  
-  vector<int> _idx_max_gain_ratio;
-  vector<int> _idx_rata2;
-  vector<int> _idx_normal;
-  vector<int> _idx_known;
+  map<string, vector<int>> _label;
 
   Tmy_dttype _entropy_before_split;
-  double _sum_gain_po, _sum_gain_neg, _rata2, _sd;
 
   bool _first_iteration;
   Tmy_dttype _max_gain_ratio;
   Tmy_dttype _max_gain;
   Tmy_dttype _tmp_split_value;
+  float _max_split_info;
   int _jml_below;
   int _jml_above;
+
+  Tmy_dttype _best_gain_ratio;
+  Tmy_dttype _best_gain;
+  float _best_split_info;
+  Tmy_dttype _min_gain; 
+
+  Tmetric_split_value get_gain_ratio_kategori(size_t idx1,size_t idx2); 
 
   size_t _jml_attr;
 
   Tglobal_config global_config;
-
-  void gen_split_attr_rec(int counter, int depth, int geser);
 
   bool _is_continue;
 
@@ -141,11 +151,14 @@ public:
   void del_last_tmp();
   void insert_split_stat();
 
-  void kalkulasi_sd();
-  void gen_split_attr();
-  void split_by_label();
+  size_t get_block_size();
+  void merge_single_label();
+  bool merge_block();
+  void cetak_block();
 
   Tmetric_split_value get_max_gain_ratio();
+  Tmetric_split_value get_max_gain_ratio_1();
+  Tmetric_split_value get_gain_ratio_kategori();
 };
 
 
@@ -153,7 +166,7 @@ public:
 
 class Tdataframe : public Tbase_dataframe
 {
-private: 
+private:
 
 
   Tlabel_stat _stat_label;
@@ -162,11 +175,8 @@ private:
 
   Tglobal_config global_config;
 
-  void calculate_metric(int idx, map<Tmy_dttype, Tlabel_stat>* _col_pot_split, float & current_overall_metric, Tmy_dttype & split_value, Tlabel_stat & stat_label);
-
   Tmetric_split_value handle_continuous(int idx);
   Tmetric_split_value handle_non_continuous(int idx);
-
 
   static Tpot_split get_pot_split(int id_dt, int jns_dt, string partition, Tposisi_cabang posisi_cabang, int idx);
 

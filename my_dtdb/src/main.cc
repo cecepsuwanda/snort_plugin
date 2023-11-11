@@ -41,8 +41,11 @@ double Tglobal_config::skala_pruning;
 bool Tglobal_config::continue_attr_only;
 bool Tglobal_config::buat_kombinasi;
 bool Tglobal_config::gunakan_rata2gain;
-bool Tglobal_config::gunakan_rata2gain_pot_split;
 bool Tglobal_config::one_agains_many_only;
+bool Tglobal_config::unique_rule;
+
+bool Tglobal_config::use_gain_ratio;
+bool Tglobal_config::use_gain_ratio_1;
 
 
 //bool Tglobal_config::cetak_credal;

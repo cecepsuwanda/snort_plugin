@@ -288,6 +288,23 @@ public:
 		return tmp;
 	}
 
+	const Tmy_dttype operator + (const double &rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue )
+		{
+			try {
+				tmp.set_value( to_string(stof(_value) + rhs), true);
+			}
+			catch (const std::invalid_argument& ia) {
+				cout << _value << "," << rhs << " bukan bilangan !!!";
+			}
+		} 
+
+		return tmp;
+	}
+
 	const Tmy_dttype operator - (const Tmy_dttype &rhs) const
 	{
 		Tmy_dttype tmp;
@@ -300,6 +317,18 @@ public:
 			catch (const std::invalid_argument& ia) {
 				cout << _value << "," << rhs._value << " bukan bilangan !!!";
 			}
+		}
+
+		return tmp;
+	}
+
+	const Tmy_dttype operator - (const double rhs) const
+	{
+		Tmy_dttype tmp;
+
+		if (_is_continue )
+		{
+			tmp.set_value( to_string(stof(_value) - rhs), true);			
 		}
 
 		return tmp;
