@@ -14,6 +14,13 @@ struct Tgain_ratio_kategori
 	Tmy_dttype gain;
 	Tmy_dttype gain_ratio;
 	float split_info = 0.0;
+
+	Tgain_ratio_kategori()
+	{
+        gain.set_value("0.0",true);
+        gain_ratio.set_value("0.0",true);
+		split_info = 0.0;
+	}
 };
 
 class Tbelow_above_kategori

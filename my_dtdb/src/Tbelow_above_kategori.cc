@@ -20,18 +20,25 @@ bool Tbelow_above_kategori::cek_valid()
 {
 	bool pass = true;
 
-	if (global_config.limited)
-	{
-		// if (global_config.threshold >= 1) {
+	// if (global_config.limited)
+	// {
+	// 	int jml_pass = 0;
+	// 	// if (global_config.threshold >= 1) {
+	// 	for (size_t i = 0; i < _stat.size(); ++i)
+	// 	{
+	// 		if (_stat[i].get_jml_row() >= global_config.threshold)
+	// 		{
+	// 			jml_pass++;
+	// 		}
+	// 	}
 
-		// 	pass = (_stat[0].get_jml_row() >= global_config.threshold) and (_stat[0].get_jml_row()<= (_jml_row-global_config.threshold));
+	// 	pass = jml_pass >= 2;
+	// 	// } else {
 
-		// } else {
+	// 	// 	pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
 
-		// 	pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
-
-		// }
-	}
+	// 	// }
+	// }
 
 	return pass;
 }
@@ -131,12 +138,15 @@ Tgain_ratio_kategori Tbelow_above_kategori::kalkulasi_gain_ratio(Tmy_dttype entr
 {
 	Tgain_ratio_kategori hsl;
 
-	Tmy_dttype entropy_after_split = get_overall_metric();
-	hsl.split_info = get_split_info();
-	hsl.gain = entropy_before_split - entropy_after_split;
-	
-	if (abs(hsl.split_info) > 0) {
-		hsl.gain_ratio = hsl.gain / hsl.split_info;
+	if (cek_valid())
+	{
+		Tmy_dttype entropy_after_split = get_overall_metric();
+		hsl.split_info = get_split_info();
+		hsl.gain = entropy_before_split - entropy_after_split;
+
+		if (abs(hsl.split_info) > 0) {
+			hsl.gain_ratio = hsl.gain / hsl.split_info;
+		}
 	}
 
 	return hsl;

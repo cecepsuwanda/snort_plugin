@@ -13,7 +13,14 @@ struct Tgain_ratio
 {
 	Tmy_dttype gain;
 	Tmy_dttype gain_ratio;
-	float split_info = 0.0;
+	float split_info;
+
+	Tgain_ratio()
+	{
+		gain_ratio.set_value("0.0",true);
+		gain.set_value("0.0",true);
+		split_info = 0.0;
+	}
 };
 
 class Tbelow_above

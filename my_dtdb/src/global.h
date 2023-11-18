@@ -72,7 +72,7 @@ public:
 
     limited = true;
     threshold = 0;
-    find_other_attr = false;
+    find_other_attr = true;
     find_other_pot_split = false;
 
     ratio_valid_attr = 0.3;
@@ -80,16 +80,13 @@ public:
     skala_pruning = 0.5;
 
     continue_attr_only = false;
-    buat_kombinasi = false;
+    buat_kombinasi = true;
     gunakan_rata2gain = true;    
     one_agains_many_only = false;
     unique_rule = false;
     
     use_gain_ratio = false;
-    use_gain_ratio_1 = false;
-
-
-
+    use_gain_ratio_1 = true;
 
     //cetak_credal = false;
 

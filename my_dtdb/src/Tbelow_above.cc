@@ -21,18 +21,18 @@ void Tbelow_above::clear()
 
 bool Tbelow_above::cek_valid()
 {
-	int jml = _below.get_jml_row() + _above.get_jml_row();
+	//int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
-	if (global_config.limited)
-	{
-		if (global_config.threshold >= 1) {
-			pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
-		} else {
-			//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
-			pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
-		}
-	}
+	// if (global_config.limited)
+	// {
+	// 	if (global_config.threshold >= 1) {
+	// 		pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));
+	// 	} else {
+	// 		//pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_above.get_jml_row() <= ceil((1-global_config.threshold) * jml) ));
+	// 		pass = ((_below.get_jml_row() >= ceil(global_config.threshold * jml) ) and (_below.get_jml_row() <= ceil((1 - global_config.threshold) * jml) ));
+	// 	}
+	// }
 
 	return pass;
 }
@@ -141,18 +141,23 @@ Tgain_ratio Tbelow_above::kalkulasi_gain_ratio(Tmy_dttype entropy_before_split)
 {
 	Tgain_ratio hsl;
 
-	Tmy_dttype entropy_after_split = get_overall_metric();
-	hsl.split_info = get_split_info();
-	hsl.gain = entropy_before_split - entropy_after_split;
+	if (cek_valid())
+	{
+		Tmy_dttype entropy_after_split = get_overall_metric();
+		hsl.split_info = get_split_info();
+		hsl.gain = entropy_before_split - entropy_after_split;
+
+		if (abs(hsl.split_info) > 0) {
+			hsl.gain_ratio = hsl.gain / hsl.split_info;
+		}
+	}
 
 	// if ((hsl.gain < 0.0) and (abs(stof(hsl.gain.get_string()))>0.01))
-	// {		
+	// {
 	// 	 cout << endl << " negatif gain !!! " << entropy_before_split.get_string() << " " << entropy_after_split.get_string() << endl;
 	// }
 
-	if (abs(hsl.split_info) > 0) {
-		hsl.gain_ratio = hsl.gain / hsl.split_info;
-	}
+
 
 	return hsl;
 }

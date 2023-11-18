@@ -84,24 +84,24 @@ void Tdataframe::search_col_split()
   for (size_t i = 0; i < (_data_header.size() - 1); ++i)
   {
 
-    //bool pass = true;
+    bool pass = true;
 
-    // if (global_config.unique_rule)
-    // {
-    // if (_data_type[i] != "continuous.")
-    // {
-    // auto itr = _map_filter.find(i);
-    // pass = (itr == _map_filter.end());
-    // }
-    // }
+    if (global_config.unique_rule)
+    {
+      if (_data_type[i] == "continuous.")
+      {
+        auto itr = _map_filter.find(i);
+        pass = (itr == _map_filter.end());
+      }
+    }
 
 
-    // if (pass)
-    // {
-    async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, global_config.id_dt_train, global_config.jns_dt_train, global_config.partition_train, _posisi_cabang, i));
-    // } else {
-    //   _data.clear_attr(i);
-    // }
+    if (pass)
+    {
+      async_worker.push_back(async(std::launch::async, &Tdataframe::get_pot_split, global_config.id_dt_train, global_config.jns_dt_train, global_config.partition_train, _posisi_cabang, i));
+    } else {
+      _data.clear_attr(i);
+    }
 
   }
 
@@ -293,11 +293,11 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
         Tmy_dttype mid_point = tmp;
 
 
-        if (tmp1 < (tmp2 - 1e-5)) {
-          proses_split_stat.insert_tmp_split_stat(mid_point, stat_label_below, stat_label_above);
-          proses_split_stat.insert_split_stat();
-          proses_split_stat.clear_tmp();
-        }
+        //if (tmp1 < (tmp2 - 1e-5)) {
+        proses_split_stat.insert_tmp_split_stat(mid_point, stat_label_below, stat_label_above);
+        proses_split_stat.insert_split_stat();
+        proses_split_stat.clear_tmp();
+        //}
 
 
       }
@@ -307,7 +307,6 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
     }
 
     _col_pot_split.clear();
-
 
 
     Tmetric_split_value tmp_hsl;
@@ -377,27 +376,36 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
     _col_pot_split.clear();
 
-    proses_split_stat.merge_single_label();
+    Tmetric_split_value tmp_hsl1;
+
+    //tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
 
     // cout << " attr idx sebelum " << idx << endl;
     // proses_split_stat.cetak_block();
 
-    bool is_lanjut = true;
-
-    while ( (proses_split_stat.get_block_size() > 2) and is_lanjut)
+    if (global_config.buat_kombinasi)
     {
-      is_lanjut = proses_split_stat.merge_block();
+      proses_split_stat.merge_single_label();
+
+      bool is_lanjut = true;
+
+      while ( (proses_split_stat.get_block_size() > 2) and is_lanjut)
+      {
+        is_lanjut = proses_split_stat.merge_block();
+      }
     }
 
     // cout << " attr idx sesudah " << idx << endl;
     // proses_split_stat.cetak_block();
 
-    Tmetric_split_value tmp_hsl, tmp_hsl1;
+    Tmetric_split_value tmp_hsl;
 
     tmp_hsl = proses_split_stat.get_max_gain_ratio_1();
 
-    tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
-
+    if (!global_config.one_agains_many_only)
+    {
+      tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
+    }
     //cout << " [" << idx << "," << hsl.gain.get_string() << "," << tmp_hsl.max_gain << "," << tmp_hsl.split_value.get_string() << "] ";
 
     hsl_split.idx = idx;
@@ -660,7 +668,7 @@ void Tproses_split_stat::cetak_block()
 {
   for (size_t j = 0; j < _vec_split_stat.size(); ++j)
   {
-    cout <<"          "<< j << " " << _vec_split_stat[j].get_split_value().get_string() << endl;
+    cout << "          " << j << " " << _vec_split_stat[j].get_split_value().get_string() << endl;
   }
 }
 
@@ -673,39 +681,68 @@ bool Tproses_split_stat::merge_block()
   float max_split_info = 0.0;
   int max_idx1 = -1, max_idx2 = -1;
 
+  int ReasonableSubsets = 0;
+  size_t Barred = 0;
+
+
+  for (size_t i = 0; i < _vec_split_stat.size(); ++i)
+  {
+    if (_vec_split_stat[i].get_jml_below() >= 2 ) //global_config.threshold
+    {
+      ReasonableSubsets++;
+    }
+
+    if (_vec_split_stat[i].get_jml_below() > _vec_split_stat[Barred].get_jml_below())
+    {
+      Barred = i;
+    }
+
+  }
+
+  if (ReasonableSubsets >= 3)
+  {
+    Barred = -1;
+  }
+
+
   for (size_t i = 0; i < _vec_split_stat.size() - 1; ++i)
   {
     for (size_t j = i + 1; j < _vec_split_stat.size(); ++j)
     {
-      Tmetric_split_value tmp_hsl = get_gain_ratio_kategori(i, j);
 
-      Tmy_dttype tmp_best_gain_ratio(to_string(tmp_hsl.max_gain_ratio), true);
-      Tmy_dttype tmp_best_gain(to_string(tmp_hsl.max_gain), true);
-      float tmp_split_info = tmp_hsl.split_info;
-
-      bool is_pass = (tmp_best_gain >= _min_gain) and ((max_best_gain < _min_gain) or (tmp_best_gain_ratio >= max_best_gain_ratio));
-
-      if (is_pass)
+      if ((i != Barred) or (j != Barred))
       {
-        max_best_gain_ratio = tmp_best_gain_ratio;
-        max_best_gain = tmp_best_gain;
-        max_split_info = tmp_split_info;
-        max_idx1 = i;
-        max_idx2 = j;
+        Tmetric_split_value tmp_hsl = get_gain_ratio_kategori(i, j);
+
+        Tmy_dttype tmp_best_gain_ratio(to_string(tmp_hsl.max_gain_ratio), true);
+        Tmy_dttype tmp_best_gain(to_string(tmp_hsl.max_gain), true);
+        float tmp_split_info = tmp_hsl.split_info;
+
+        bool is_pass = (tmp_best_gain >= _min_gain) and ((max_best_gain < _min_gain) or (tmp_best_gain_ratio >= max_best_gain_ratio));
+
+        if (is_pass)
+        {
+          max_best_gain_ratio = tmp_best_gain_ratio;
+          max_best_gain = tmp_best_gain;
+          max_split_info = tmp_split_info;
+          max_idx1 = i;
+          max_idx2 = j;
+        }
       }
+
 
     }
   }
 
 
-  if ((max_idx1==-1) or (((max_best_gain_ratio < (_best_gain_ratio + 1e-5)) or (max_best_gain_ratio == _best_gain_ratio)) and (max_best_gain < _best_gain)))
+  if ((max_idx1 == -1) or (((max_best_gain_ratio < (_best_gain_ratio + 1e-5)) or (max_best_gain_ratio == _best_gain_ratio)) and (max_best_gain < _best_gain)))
   {
     lanjut = false;
   } else {
     lanjut = true;
   }
 
-  if ((lanjut) and (max_idx1!=max_idx2) and (max_idx1!=-1) and (max_idx2!=-1))
+  if ((lanjut) and (max_idx1 != max_idx2) and (max_idx1 != -1) and (max_idx2 != -1))
   {
     _best_gain_ratio = max_best_gain_ratio;
     _best_gain = max_best_gain;
@@ -784,84 +821,6 @@ void Tproses_split_stat::merge_single_label()
     _best_gain.set_value(to_string(hsl.max_gain), true);;
     _best_split_info = hsl.split_info;
     _min_gain = _best_gain / 2.0;
-
-
-
-    // Tsplit_stat tmp_split_stat;
-    // bool first = true;
-    // int jml = 0;
-
-    // for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-    // {
-    //   vector<int> tmp_v = itr->second;
-
-    //   for (size_t i = 0; i < tmp_v.size(); ++i)
-    //   {
-
-    //     if (_idx_attr == 2)
-    //     {
-    //       if ((_vec_split_stat[tmp_v[i]].get_split_value() == "private") or (_vec_split_stat[tmp_v[i]].get_split_value() == "ecri") or (_vec_split_stat[tmp_v[i]].get_split_value() == "ecr_i") or (_vec_split_stat[tmp_v[i]].get_split_value() == "http"))
-    //       {
-    //         if (first) {
-    //           tmp_split_stat = _vec_split_stat[tmp_v[i]];
-    //           first = false;
-    //         } else {
-    //           tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-    //         }
-    //         jml++;
-
-    //       }
-    //     }
-
-    //     if (_idx_attr == 3)
-    //     {
-    //       if (_vec_split_stat[tmp_v[i]].get_split_value() == "SF")
-    //       {
-    //         if (first) {
-    //           tmp_split_stat = _vec_split_stat[tmp_v[i]];
-    //           first = false;
-    //         } else {
-    //           tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-    //         }
-    //         jml++;
-    //       }
-    //     }
-
-    //     if (_idx_attr == 6)
-    //     {
-    //       if (_vec_split_stat[tmp_v[i]].get_split_value() == "0")
-    //       {
-    //         if (first) {
-    //           tmp_split_stat = _vec_split_stat[tmp_v[i]];
-    //           first = false;
-    //         } else {
-    //           tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-    //         }
-    //         jml++;
-    //       }
-    //     }
-
-    //     if (_idx_attr == 1)
-    //     {
-    //       if ((_vec_split_stat[tmp_v[i]].get_split_value() == "tcp")  or (_vec_split_stat[tmp_v[i]].get_split_value() == "udp")) //or (mid_point == "icmp")
-    //       {
-    //         if (first) {
-    //           tmp_split_stat = _vec_split_stat[tmp_v[i]];
-    //           first = false;
-    //         } else {
-    //           tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-    //         }
-    //         jml++;
-    //       }
-    //     }
-
-    //   }
-    // }
-
-    // if (jml > 0)
-    // {
-    //   _vec_split_stat.push_back(tmp_split_stat);
-    // }
 
     _label.clear();
 
