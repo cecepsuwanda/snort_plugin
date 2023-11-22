@@ -128,7 +128,8 @@ private:
   float _best_split_info;
   Tmy_dttype _min_gain; 
 
-  Tmetric_split_value get_gain_ratio_kategori(size_t idx1,size_t idx2); 
+  Tmetric_split_value get_gain_ratio_kategori(size_t idx1,size_t idx2);
+  bool is_equal(int attrindex,string attrvalue); 
 
   size_t _jml_attr;
 

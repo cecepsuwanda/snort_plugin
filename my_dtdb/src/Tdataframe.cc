@@ -380,12 +380,12 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
     //tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
 
-    // cout << " attr idx sebelum " << idx << endl;
-    // proses_split_stat.cetak_block();
-
     if (global_config.buat_kombinasi)
     {
       proses_split_stat.merge_single_label();
+
+      // cout << " attr idx sebelum " << idx << endl;
+      // proses_split_stat.cetak_block();
 
       bool is_lanjut = true;
 
@@ -393,10 +393,13 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
       {
         is_lanjut = proses_split_stat.merge_block();
       }
+
+      // cout << " attr idx sesudah " << idx << endl;
+      // proses_split_stat.cetak_block();
+
     }
 
-    // cout << " attr idx sesudah " << idx << endl;
-    // proses_split_stat.cetak_block();
+
 
     Tmetric_split_value tmp_hsl;
 
@@ -631,6 +634,25 @@ void Tproses_split_stat::del_last_tmp()
 }
 
 
+bool Tproses_split_stat::is_equal(int attrindex, string attrvalue)
+{
+  bool hsl = false;
+
+  if (attrindex == 2)
+  {
+    hsl = (attrvalue == "private") or (attrvalue == "ecri") or (attrvalue == "ecr_i") or (attrvalue == "http");
+  }
+
+  if (attrindex == 3)
+  {
+    hsl = (attrvalue == "SF");
+  }
+
+
+  return hsl;
+}
+
+
 Tmetric_split_value Tproses_split_stat::get_gain_ratio_kategori(size_t idx1, size_t idx2)
 {
   Tbelow_above_kategori ba;
@@ -781,6 +803,37 @@ void Tproses_split_stat::merge_single_label()
       {
         if (_vec_split_stat[tmp_v[i]].is_below_single_label())
         {
+          if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+          {
+            if (jml == 0) {
+              tmp_split_stat = _vec_split_stat[tmp_v[i]];
+            } else {
+              tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+            }
+            jml++;
+          }
+        }
+      }
+
+      if (jml > 0)
+      {
+        _vec_split_stat.push_back(tmp_split_stat);
+      }
+    }
+
+
+
+    Tsplit_stat tmp_split_stat;
+    int jml = 0;
+
+    for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+    {
+      vector<int> tmp_v = itr->second;
+
+      for (size_t i = 0; i < tmp_v.size(); ++i)
+      {
+        if (is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+        {
           if (jml == 0) {
             tmp_split_stat = _vec_split_stat[tmp_v[i]];
           } else {
@@ -790,10 +843,11 @@ void Tproses_split_stat::merge_single_label()
         }
       }
 
-      if (jml > 0)
-      {
-        _vec_split_stat.push_back(tmp_split_stat);
-      }
+    }
+
+    if (jml > 0)
+    {
+      _vec_split_stat.push_back(tmp_split_stat);
     }
 
 
@@ -805,10 +859,12 @@ void Tproses_split_stat::merge_single_label()
       {
         if (!_vec_split_stat[tmp_v[i]].is_below_single_label())
         {
-          _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
+          if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+          {
+            _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
+          }
         }
       }
-
     }
 
     _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
