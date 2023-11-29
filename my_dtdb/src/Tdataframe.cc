@@ -88,11 +88,11 @@ void Tdataframe::search_col_split()
 
     if (global_config.unique_rule)
     {
-      if (_data_type[i] == "continuous.")
-      {
-        auto itr = _map_filter.find(i);
-        pass = (itr == _map_filter.end());
-      }
+      // if (_data_type[i] != "continuous.")
+      // {
+      auto itr = _map_filter.find(i);
+      pass = (itr == _map_filter.end());
+      //}
     }
 
 
@@ -378,7 +378,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
     Tmetric_split_value tmp_hsl1;
 
-    //tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
+    tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
 
     if (global_config.buat_kombinasi)
     {
@@ -397,6 +397,11 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
       // cout << " attr idx sesudah " << idx << endl;
       // proses_split_stat.cetak_block();
 
+      if (!global_config.one_agains_many_only)
+      {
+        tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
+      }
+
     }
 
 
@@ -405,10 +410,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
     tmp_hsl = proses_split_stat.get_max_gain_ratio_1();
 
-    if (!global_config.one_agains_many_only)
-    {
-      tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
-    }
+
     //cout << " [" << idx << "," << hsl.gain.get_string() << "," << tmp_hsl.max_gain << "," << tmp_hsl.split_value.get_string() << "] ";
 
     hsl_split.idx = idx;
@@ -648,6 +650,11 @@ bool Tproses_split_stat::is_equal(int attrindex, string attrvalue)
     hsl = (attrvalue == "SF");
   }
 
+  // if (attrindex == 1)
+  // {
+  //   hsl = (attrvalue == "tcp") or (attrvalue == "udp");
+  // }
+
 
   return hsl;
 }
@@ -709,7 +716,7 @@ bool Tproses_split_stat::merge_block()
 
   for (size_t i = 0; i < _vec_split_stat.size(); ++i)
   {
-    if (_vec_split_stat[i].get_jml_below() >= 2 ) //global_config.threshold
+    if (_vec_split_stat[i].get_jml_below() >= global_config.threshold ) //global_config.threshold
     {
       ReasonableSubsets++;
     }
@@ -723,7 +730,7 @@ bool Tproses_split_stat::merge_block()
 
   if (ReasonableSubsets >= 3)
   {
-    Barred = -1;
+    Barred = 0;
   }
 
 
@@ -792,6 +799,36 @@ void Tproses_split_stat::merge_single_label()
   if ((_label.size() > 0))
   {
 
+    // Tsplit_stat tmp_split_stat;
+    // int jml = 0;
+
+    // for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+    // {
+    //   vector<int> tmp_v = itr->second;
+
+    //   for (size_t i = 0; i < tmp_v.size(); ++i)
+    //   {
+    //     if (is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+    //     {
+    //       if (jml == 0) {
+    //         tmp_split_stat = _vec_split_stat[tmp_v[i]];
+    //       } else {
+    //         tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+    //       }
+    //       jml++;
+    //     }
+    //   }
+
+    // }
+
+    // if (jml > 0)
+    // {
+    //   _vec_split_stat.push_back(tmp_split_stat);
+    // }
+
+
+    // if(jml==0)
+    // {
     for (auto itr = _label.begin(); itr != _label.end(); ++itr)
     {
       vector<int> tmp_v = itr->second;
@@ -803,15 +840,15 @@ void Tproses_split_stat::merge_single_label()
       {
         if (_vec_split_stat[tmp_v[i]].is_below_single_label())
         {
-          if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-          {
+          // if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+          // {
             if (jml == 0) {
               tmp_split_stat = _vec_split_stat[tmp_v[i]];
             } else {
               tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
             }
             jml++;
-          }
+          //}
         }
       }
 
@@ -823,34 +860,6 @@ void Tproses_split_stat::merge_single_label()
 
 
 
-    Tsplit_stat tmp_split_stat;
-    int jml = 0;
-
-    for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-    {
-      vector<int> tmp_v = itr->second;
-
-      for (size_t i = 0; i < tmp_v.size(); ++i)
-      {
-        if (is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-        {
-          if (jml == 0) {
-            tmp_split_stat = _vec_split_stat[tmp_v[i]];
-          } else {
-            tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-          }
-          jml++;
-        }
-      }
-
-    }
-
-    if (jml > 0)
-    {
-      _vec_split_stat.push_back(tmp_split_stat);
-    }
-
-
     for (auto itr = _label.begin(); itr != _label.end(); ++itr)
     {
       vector<int> tmp_v = itr->second;
@@ -859,19 +868,20 @@ void Tproses_split_stat::merge_single_label()
       {
         if (!_vec_split_stat[tmp_v[i]].is_below_single_label())
         {
-          if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-          {
+          // if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+          // {
             _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
-          }
+          //}
         }
       }
     }
+    //}
+
+
 
     _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
 
-
     Tmetric_split_value hsl = get_gain_ratio_kategori();
-
 
     _best_gain_ratio.set_value(to_string(hsl.max_gain_ratio), true);
     _best_gain.set_value(to_string(hsl.max_gain), true);;
