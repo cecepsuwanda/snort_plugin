@@ -155,6 +155,7 @@ public:
   size_t get_block_size();
   void merge_single_label();
   bool merge_block();
+  void merge_block1();
   void cetak_block();
 
   Tmetric_split_value get_max_gain_ratio();

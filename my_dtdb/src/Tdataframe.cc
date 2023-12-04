@@ -88,11 +88,11 @@ void Tdataframe::search_col_split()
 
     if (global_config.unique_rule)
     {
-      // if (_data_type[i] != "continuous.")
-      // {
-      auto itr = _map_filter.find(i);
-      pass = (itr == _map_filter.end());
-      //}
+      //if ( global_config.use_credal ) //( !global_config.use_credal and (_data_type[i] != "continuous.")) or
+      {
+        auto itr = _map_filter.find(i);
+        pass = (itr == _map_filter.end());
+      }
     }
 
 
@@ -340,7 +340,7 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   bool is_pass = true;
 
-  if (_col_pot_split.size() == 2)
+  if (_col_pot_split.size() <= 2)
   {
     auto itr = _map_filter.find(idx);
     is_pass = (itr == _map_filter.end());
@@ -404,7 +404,10 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
     }
 
+    proses_split_stat.merge_block1();
 
+    // cout << " attr idx sesudah " << idx << endl;
+    // proses_split_stat.cetak_block();
 
     Tmetric_split_value tmp_hsl;
 
@@ -730,7 +733,7 @@ bool Tproses_split_stat::merge_block()
 
   if (ReasonableSubsets >= 3)
   {
-    Barred = 0;
+    Barred = -1;
   }
 
 
@@ -792,39 +795,95 @@ bool Tproses_split_stat::merge_block()
   return lanjut;
 }
 
+void Tproses_split_stat::merge_block1()
+{
+  _jml_attr = _vec_split_stat.size();
+
+  _label.clear();
+
+  if ((_vec_split_stat.size() > 2))
+  {
+    for (size_t i = 0; i != _vec_split_stat.size(); ++i)
+    {
+      Tsplit_stat tmp_split_stat = _vec_split_stat[0];
+
+      auto itr = _label.find(tmp_split_stat.get_max_label_below());
+      if (itr == _label.end())
+      {
+        vector<int> tmp_idx;
+        tmp_idx.push_back(i);
+        _label.insert(pair<string, vector<int>>(tmp_split_stat.get_max_label_below(), tmp_idx));
+      } else {
+        _label[tmp_split_stat.get_max_label_below()].push_back(i);
+      }
+    }
+
+    if (_label.size() > 0)
+    {
+      for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+      {
+        vector<int> tmp_v = itr->second;
+
+        Tsplit_stat tmp_split_stat;
+        int jml = 0;
+
+        for (size_t i = 0; i < tmp_v.size(); ++i)
+        {
+          if (jml == 0) {
+            tmp_split_stat = _vec_split_stat[tmp_v[i]];
+          } else {
+            tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+          }
+          jml++;
+        }
+
+        if (jml > 0)
+        {
+          _vec_split_stat.push_back(tmp_split_stat);
+        }
+      }
+
+      _label.clear();
+
+    }
+
+    _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
+  }
+}
+
 void Tproses_split_stat::merge_single_label()
 {
   _jml_attr = _vec_split_stat.size();
 
-  if ((_label.size() > 0))
+  if ((_vec_split_stat.size() > 2))
   {
 
-    // Tsplit_stat tmp_split_stat;
-    // int jml = 0;
+    Tsplit_stat tmp_split_stat;
+    int jml = 0;
 
-    // for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-    // {
-    //   vector<int> tmp_v = itr->second;
+    for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+    {
+      vector<int> tmp_v = itr->second;
 
-    //   for (size_t i = 0; i < tmp_v.size(); ++i)
-    //   {
-    //     if (is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-    //     {
-    //       if (jml == 0) {
-    //         tmp_split_stat = _vec_split_stat[tmp_v[i]];
-    //       } else {
-    //         tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-    //       }
-    //       jml++;
-    //     }
-    //   }
+      for (size_t i = 0; i < tmp_v.size(); ++i)
+      {
+        if (is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
+        {
+          if (jml == 0) {
+            tmp_split_stat = _vec_split_stat[tmp_v[i]];
+          } else {
+            tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+          }
+          jml++;
+        }
+      }
 
-    // }
+    }
 
-    // if (jml > 0)
-    // {
-    //   _vec_split_stat.push_back(tmp_split_stat);
-    // }
+    if (jml > 0)
+    {
+      _vec_split_stat.push_back(tmp_split_stat);
+    }
 
 
     // if(jml==0)
@@ -838,17 +897,21 @@ void Tproses_split_stat::merge_single_label()
 
       for (size_t i = 0; i < tmp_v.size(); ++i)
       {
-        if (_vec_split_stat[tmp_v[i]].is_below_single_label())
+
+        bool is_pass = true;
+
+        is_pass = _vec_split_stat[tmp_v[i]].is_below_single_label();
+
+        is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
+
+        if (is_pass)
         {
-          // if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-          // {
-            if (jml == 0) {
-              tmp_split_stat = _vec_split_stat[tmp_v[i]];
-            } else {
-              tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-            }
-            jml++;
-          //}
+          if (jml == 0) {
+            tmp_split_stat = _vec_split_stat[tmp_v[i]];
+          } else {
+            tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+          }
+          jml++;
         }
       }
 
@@ -866,18 +929,19 @@ void Tproses_split_stat::merge_single_label()
 
       for (size_t i = 0; i < tmp_v.size(); ++i)
       {
-        if (!_vec_split_stat[tmp_v[i]].is_below_single_label())
+        bool is_pass = true;
+
+        is_pass = !_vec_split_stat[tmp_v[i]].is_below_single_label();
+
+        is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
+
+        if (is_pass)
         {
-          // if (!is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string()))
-          // {
-            _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
-          //}
+          _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
         }
       }
     }
     //}
-
-
 
     _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
 
@@ -888,9 +952,9 @@ void Tproses_split_stat::merge_single_label()
     _best_split_info = hsl.split_info;
     _min_gain = _best_gain / 2.0;
 
-    _label.clear();
-
   }
+
+  _label.clear();
 
 }
 

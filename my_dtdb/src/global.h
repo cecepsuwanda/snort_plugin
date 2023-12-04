@@ -86,7 +86,7 @@ public:
     unique_rule = false;
     
     use_gain_ratio = false;
-    use_gain_ratio_1 = true;
+    use_gain_ratio_1 = false;
 
     //cetak_credal = false;
 
