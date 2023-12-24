@@ -108,7 +108,7 @@ public:
 	{
 		Tlabel_stat tmp;
 
-		// tmp._jml_row =  this->_jml_row - t._jml_row;
+		//tmp._jml_row =  this->_jml_row - t._jml_row;
 
 		// tmp._map.clear();
 

@@ -265,6 +265,17 @@ public:
 		}
 	}
 
+	// bool operator !=(const float rhs) const
+	// {
+
+	// 	if (_is_continue)
+	// 	{
+	// 		return  (stof(_value) != rhs);
+	// 	} else {			
+	// 		return false;			
+	// 	}
+	// }
+
 
 	const Tmy_dttype operator + (const Tmy_dttype &rhs) const
 	{

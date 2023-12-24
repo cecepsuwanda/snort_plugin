@@ -50,7 +50,6 @@ public:
   static bool use_gain_ratio;
   static bool use_gain_ratio_1;
 
-
   static bool cetak_credal;
 
   static void init()
@@ -73,7 +72,7 @@ public:
     limited = true;
     threshold = 0;
     find_other_attr = false;
-    find_other_pot_split = false;
+    find_other_pot_split = true;
 
     ratio_valid_attr = 0.3;
 
@@ -83,10 +82,10 @@ public:
     buat_kombinasi = true;
     gunakan_rata2gain = true;    
     one_agains_many_only = false;
-    unique_rule = false;
+    unique_rule = true;
     
     use_gain_ratio = false;
-    use_gain_ratio_1 = false;
+    use_gain_ratio_1 = false;    
 
     //cetak_credal = false;
 

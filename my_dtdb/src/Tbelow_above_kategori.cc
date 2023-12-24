@@ -20,10 +20,10 @@ bool Tbelow_above_kategori::cek_valid()
 {
 	bool pass = true;
 
-	if (global_config.limited)
+	if (global_config.limited and global_config.find_other_pot_split)
 	{
 		int jml_pass = 0;
-		if (global_config.threshold >= 1) {
+		// if (global_config.threshold >= 1) {
 			for (size_t i = 0; i < _stat.size(); ++i)
 			{
 				if (_stat[i].get_jml_row() >= global_config.threshold)
@@ -33,11 +33,11 @@ bool Tbelow_above_kategori::cek_valid()
 			}
 
 			pass = jml_pass >= 2;
-		} else {
+		// } else {
 
-			pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
+		// 	pass = ((_stat[0].get_jml_row() >= ceil(global_config.threshold * _jml_row) ) and (_stat[0].get_jml_row() <= ceil((1 - global_config.threshold) * _jml_row) ));
 
-		}
+		// }
 	}
 
 	return pass;

@@ -24,7 +24,7 @@ bool Tbelow_above::cek_valid()
 	int jml = _below.get_jml_row() + _above.get_jml_row();
 	bool pass = true;
 
-	if (global_config.limited)
+	if (global_config.limited and global_config.find_other_pot_split)
 	{
 		if (global_config.threshold >= 1) {
 			pass = ((_below.get_jml_row() >= global_config.threshold) and (_above.get_jml_row() >= global_config.threshold));

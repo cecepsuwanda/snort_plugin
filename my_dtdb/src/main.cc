@@ -48,6 +48,8 @@ bool Tglobal_config::use_gain_ratio;
 bool Tglobal_config::use_gain_ratio_1;
 
 
+
+
 //bool Tglobal_config::cetak_credal;
 
 int main(int argc, const char **argv)

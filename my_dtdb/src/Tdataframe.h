@@ -126,7 +126,8 @@ private:
   Tmy_dttype _best_gain_ratio;
   Tmy_dttype _best_gain;
   float _best_split_info;
-  Tmy_dttype _min_gain; 
+  Tmy_dttype _min_gain;
+  float _threshCost; 
 
   Tmetric_split_value get_gain_ratio_kategori(size_t idx1,size_t idx2);
   bool is_equal(int attrindex,string attrvalue); 
@@ -146,6 +147,7 @@ public:
   void set_continue(bool is_continue);
   void set_entropy_before_split(Tmy_dttype entropy_before_split);
   void set_idx_attr(int idx);
+  void set_threshCost(int jml_sample);
 
   void insert_tmp_split_stat(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
   void clear_tmp();

@@ -87,7 +87,7 @@ void Tdt_build::determine_best_split(Tdataframe &df, int &split_column, Tmy_dtty
 		for (future<Tmetric_split_value> & th : async_worker)
 		{
 			Tmetric_split_value hsl = th.get();
-			if ((hsl.split_value != "-1")) {
+			if ((hsl.split_value != "-1")) { //and (hsl.max_gain > -1e-3)
 				cari_split_value.insert(hsl);
 			}
 		}
@@ -419,7 +419,7 @@ tree_node* Tdt_build::train(Tdataframe &df, int counter)
 		parent_node->jml_known = df.get_jml_stat("known");
 		parent_node->jml_normal = df.get_jml_stat("normal");
 
-		cout<<" ["<<split_column<<","<<split_value.get_string()<<"] ";
+		cout << " [" << split_column << "," << split_value.get_string() << "] ";
 		//pesan.cetak(" [%d,%s] ", split_column, split_value.get_string().c_str());
 
 
@@ -763,9 +763,9 @@ tree_node* Tdt_build::train_prev_tree(Tdataframe &df, int counter, tree_node* pr
 
 			df.split_data(split_column, split_value, df_below, df_above);
 
-			bool is_pass = limit_jml_dt_cabang(df.getjmlrow(), df_below.getjmlrow(), df_above.getjmlrow());
+			//bool is_pass = limit_jml_dt_cabang(df.getjmlrow(), df_below.getjmlrow(), df_above.getjmlrow());
 
-			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0)) or (!is_pass) ) { //or (!is_pass)
+			if ( ((df_below.getjmlrow() == 0) or (df_above.getjmlrow() == 0))) { //or (!is_pass)
 				string tmp_str = create_leaf(df);
 
 				pesan.cetak("-");
@@ -1990,6 +1990,7 @@ void Tdt_build::Tsplit_value::insert(Tmetric_split_value value)
 	_jml++;
 
 	_rata2 = (_sum_po - abs(_sum_neg)) / _jml;
+	_rata2 -= 1e-3;
 }
 
 void Tdt_build::Tsplit_value::hitung_sd()
@@ -2057,13 +2058,22 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 			pass = (z_score > 0.0); //and (z_score < 3.0)
 		}
 
-		//pass = pass and (_list_split_value[i].split_info > 1e-3);
+		pass = pass and (_list_split_value[i].split_info > 1e-3);
 
-		if ((first_iteration and pass) or ((max_gain_ratio < _list_split_value[i].max_gain_ratio) and pass))
+		float tmp_gain_ratio = -1e-3;
+
+		//float tmp_gain_ratio = _list_split_value[i].max_gain_ratio;
+
+		if (pass)
+		{
+			tmp_gain_ratio = _list_split_value[i].max_gain / _list_split_value[i].split_info;
+		}
+
+		if ((first_iteration and pass) or ((max_gain_ratio < tmp_gain_ratio) and pass))
 		{
 			//cout << _list_split_value[i].idx << "," << _list_split_value[i].split_value.get_string() << endl;
 			_idx_max_gain_ratio.push_back(i);
-			max_gain_ratio = _list_split_value[i].max_gain_ratio;
+			max_gain_ratio = tmp_gain_ratio;//_list_split_value[i].max_gain_ratio;
 			first_iteration = false;
 		}
 	}
