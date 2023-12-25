@@ -998,7 +998,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
     if (global_config.use_gain_ratio)
     {
-      is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+      //is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
       is_pass = (_first_iteration and is_pass)  or ( (_max_gain_ratio < hsl.gain_ratio) and is_pass);
 
     } else {
@@ -1010,7 +1010,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
         tmp = hsl.gain + _threshCost;
       }
 
-      is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
+      //is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
       is_pass = (_first_iteration and is_pass)  or ( (_max_gain < tmp) and is_pass);
 
     }
