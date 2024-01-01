@@ -71,7 +71,7 @@ public:
 
     limited = true;
     threshold = 0;
-    find_other_attr = false;
+    find_other_attr = true;
     find_other_pot_split = true;
 
     ratio_valid_attr = 0.3;

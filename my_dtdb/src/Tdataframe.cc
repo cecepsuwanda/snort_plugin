@@ -671,6 +671,11 @@ bool Tproses_split_stat::is_equal(int attrindex, string attrvalue)
     hsl = (attrvalue == "tcp") or (attrvalue == "udp") or (attrvalue == "icmp");
   }
 
+  if (attrindex == 6)
+  {
+    hsl = (attrvalue == "0");
+  }
+
 
   return hsl;
 }
@@ -831,8 +836,8 @@ void Tproses_split_stat::merge_block1()
       }
     }
 
-    if (_label.size() > 1)
-    {
+    // if (_label.size() > 1)
+    // {
       for (auto itr = _label.begin(); itr != _label.end(); ++itr)
       {
         vector<int> tmp_v = itr->second;
@@ -858,7 +863,7 @@ void Tproses_split_stat::merge_block1()
 
       _label.clear();
 
-    }
+    //}
 
     if (_jml_attr < _vec_split_stat.size()) {
       _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
@@ -871,8 +876,8 @@ void Tproses_split_stat::merge_single_label()
 {
   _jml_attr = _vec_split_stat.size();
 
-   if ((_vec_split_stat.size() > 2))
-   {
+   // if ((_vec_split_stat.size() > 2))
+   // {
 
     Tsplit_stat tmp_split_stat,tmp_split_stat1;
     int jml = 0,jml1 = 0;
@@ -912,12 +917,6 @@ void Tproses_split_stat::merge_single_label()
     {
       _vec_split_stat.push_back(tmp_split_stat1);
     }
-
-
-    
-    
-
-
 
     // if (jml == 0)
     // {
@@ -983,12 +982,12 @@ void Tproses_split_stat::merge_single_label()
   //   }
 
 
-  }
-
-  // if (_jml_attr < _vec_split_stat.size())
-  // {
-    _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
   //}
+
+    if (_jml_attr < _vec_split_stat.size())
+    {
+      _vec_split_stat.erase(_vec_split_stat.begin(), _vec_split_stat.begin() + _jml_attr);
+    }
 
   //}
 
@@ -1017,7 +1016,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
     if (global_config.use_gain_ratio)
     {
-      //is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+      is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
       is_pass = (_first_iteration and is_pass)  or ( (_max_gain_ratio < hsl.gain_ratio) and is_pass);
 
     } else {
@@ -1029,7 +1028,7 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
         tmp = hsl.gain + _threshCost;
       }
 
-      //is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
+      is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
       is_pass = (_first_iteration and is_pass)  or ( (_max_gain < tmp) and is_pass);
 
     }
