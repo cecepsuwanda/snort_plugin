@@ -874,8 +874,8 @@ void Tproses_split_stat::merge_single_label()
    if ((_vec_split_stat.size() > 2))
    {
 
-    Tsplit_stat tmp_split_stat;
-    int jml = 0;
+    Tsplit_stat tmp_split_stat,tmp_split_stat1;
+    int jml = 0,jml1 = 0;
 
     for (auto itr = _label.begin(); itr != _label.end(); ++itr)
     {
@@ -891,6 +891,13 @@ void Tproses_split_stat::merge_single_label()
             tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
           }
           jml++;
+        }else{
+          if (jml1 == 0) {
+            tmp_split_stat1 = _vec_split_stat[tmp_v[i]];
+          } else {
+            tmp_split_stat1 = tmp_split_stat1 + _vec_split_stat[tmp_v[i]];
+          }
+          jml1++;
         }
       }
 
@@ -901,65 +908,77 @@ void Tproses_split_stat::merge_single_label()
       _vec_split_stat.push_back(tmp_split_stat);
     }
 
+    if (jml1 > 0)
+    {
+      _vec_split_stat.push_back(tmp_split_stat1);
+    }
+
+
+    
+    
+
+
 
     // if (jml == 0)
     // {
 
   //   if (_label.size() > 1) {
 
-  //     for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-  //     {
-  //       vector<int> tmp_v = itr->second;
+      // for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+      // {
+      //   vector<int> tmp_v = itr->second;
 
-  //       Tsplit_stat tmp_split_stat;
-  //       int jml = 0;
+      //   Tsplit_stat tmp_split_stat;
+      //   int jml = 0;
 
-  //       for (size_t i = 0; i < tmp_v.size(); ++i)
-  //       {
+      //   for (size_t i = 0; i < tmp_v.size(); ++i)
+      //   {
 
-  //         bool is_pass = true;
+      //     bool is_pass = true;
 
-  //         is_pass = _vec_split_stat[tmp_v[i]].is_below_single_label();
+      //     is_pass = _vec_split_stat[tmp_v[i]].is_below_single_label();
 
-  //         //is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
+      //     //is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
 
-  //         if (is_pass)
-  //         {
-  //           if (jml == 0) {
-  //             tmp_split_stat = _vec_split_stat[tmp_v[i]];
-  //           } else {
-  //             tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
-  //           }
-  //           jml++;
-  //         }
-  //       }
+      //     if (is_pass)
+      //     {
+      //       if (jml == 0) {
+      //         tmp_split_stat = _vec_split_stat[tmp_v[i]];
+      //       } else {
+      //         tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+      //       }
+      //       jml++;
+      //     }
+      //   }
 
-  //       if (jml > 0)
-  //       {
-  //         _vec_split_stat.push_back(tmp_split_stat);
-  //       }
-  //     }
+      //   if (jml > 0)
+      //   {
+      //     _vec_split_stat.push_back(tmp_split_stat);
+      //   }
+      // }
 
 
 
-      for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-      {
-        vector<int> tmp_v = itr->second;
+      // for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+      // {
+      //   vector<int> tmp_v = itr->second;
 
-        for (size_t i = 0; i < tmp_v.size(); ++i)
-        {
-          bool is_pass = true;
+      //   for (size_t i = 0; i < tmp_v.size(); ++i)
+      //   {
+      //     bool is_pass = true;
 
-          //is_pass = !_vec_split_stat[tmp_v[i]].is_below_single_label();
+      //     is_pass = !_vec_split_stat[tmp_v[i]].is_below_single_label();
 
-          is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
+      //     //is_pass = is_pass and !is_equal(_idx_attr, _vec_split_stat[tmp_v[i]].get_split_value().get_string());
 
-          if (is_pass)
-          {
-            _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
-          }
-        }
-      }
+      //     if (is_pass)
+      //     {
+      //       _vec_split_stat.push_back(_vec_split_stat[tmp_v[i]]);
+      //     }
+      //   }
+      // }
+
+
 
   //   }
 
