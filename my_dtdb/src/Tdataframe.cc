@@ -81,11 +81,11 @@ void Tdataframe::search_col_split()
 
     if (global_config.unique_rule)
     {
-      // if ((!global_config.use_credal and (_data_type[i] != "continuous.")) or global_config.use_credal) //( !global_config.use_credal and (_data_type[i] != "continuous.")) or
-      // {
+      if (_data_type[i] != "continuous.") //( !global_config.use_credal and (_data_type[i] != "continuous.")) or
+      {
         auto itr = _map_filter.find(i);
         pass = (itr == _map_filter.end());
-      // }
+      }
     }
 
     if (pass)
@@ -790,55 +790,111 @@ void Tproses_split_stat::merge_block1()
 {
   _jml_attr = _vec_split_stat.size();
 
-  _label.clear();
+  // _label.clear();
 
-  if(_vec_split_stat.size()>2)
-  {
-    for (size_t i = 0; i != _vec_split_stat.size(); ++i)
-    {
-      Tsplit_stat tmp_split_stat = _vec_split_stat[i];
+  // if(_vec_split_stat.size()>2)
+  // {
+    // for (size_t i = 0; i != _vec_split_stat.size(); ++i)
+    // {
+    //   Tsplit_stat tmp_split_stat = _vec_split_stat[i];
   
-      auto itr = _label.find(tmp_split_stat.get_max_label_below());
-      if (itr == _label.end())
+    //   auto itr = _label.find(tmp_split_stat.get_max_label_below());
+    //   if (itr == _label.end())
+    //   {
+    //     vector<int> tmp_idx;
+    //     tmp_idx.push_back(i);
+    //     _label.insert(pair<string, vector<int>>(tmp_split_stat.get_max_label_below(), tmp_idx));
+    //   }
+    //   else
+    //   {
+    //     _label[tmp_split_stat.get_max_label_below()].push_back(i);
+    //   }
+    // }
+    if(label.size()>1)
+    {  
+      for (auto itr = _label.begin(); itr != _label.end(); ++itr)
       {
-        vector<int> tmp_idx;
-        tmp_idx.push_back(i);
-        _label.insert(pair<string, vector<int>>(tmp_split_stat.get_max_label_below(), tmp_idx));
-      }
-      else
-      {
-        _label[tmp_split_stat.get_max_label_below()].push_back(i);
-      }
-    }
-  
-    for (auto itr = _label.begin(); itr != _label.end(); ++itr)
-    {
-      vector<int> tmp_v = itr->second;
-  
-      Tsplit_stat tmp_split_stat;
-      int jml = 0;
-  
-      for (size_t i = 0; i < tmp_v.size(); ++i)
-      {
-        if (jml == 0)
+        vector<int> tmp_v = itr->second;
+    
+        Tsplit_stat tmp_split_stat;
+        int jml = 0;
+    
+        for (size_t i = 0; i < tmp_v.size(); ++i)
         {
-          tmp_split_stat = _vec_split_stat[tmp_v[i]];
+          if (jml == 0)
+          {
+            tmp_split_stat = _vec_split_stat[tmp_v[i]];
+          }
+          else
+          {
+            tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+          }
+          jml++;
         }
-        else
+    
+        if (jml > 0)
         {
-          tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+          _vec_split_stat.push_back(tmp_split_stat);
         }
-        jml++;
       }
-  
-      if (jml > 0)
-      {
-        _vec_split_stat.push_back(tmp_split_stat);
-      }
-    }
+     }else{
+          
+          Tsplit_stat tmp_split_stat;
+          int jml = 0;
+          Tsplit_stat tmp_split_stat1;
+          int jml1 = 0;
+          
+          for (auto itr = _label.begin(); itr != _label.end(); ++itr)
+          {
+            vector<int> tmp_v = itr->second;     
+
+            for (size_t i = 0; i < tmp_v.size(); ++i)
+            {
+
+              bool is_pass = true;
+
+              is_pass = _vec_split_stat[tmp_v[i]].is_below_single_label();              
+
+              if (is_pass)
+              {
+                if (jml == 0)
+                {
+                  tmp_split_stat = _vec_split_stat[tmp_v[i]];
+                }
+                else
+                {
+                  tmp_split_stat = tmp_split_stat + _vec_split_stat[tmp_v[i]];
+                }
+                jml++;
+              }else{
+                  if (jml1 == 0)
+                  {
+                    tmp_split_stat1 = _vec_split_stat[tmp_v[i]];
+                  }
+                  else
+                  {
+                    tmp_split_stat1 = tmp_split_stat1 + _vec_split_stat[tmp_v[i]];
+                  }
+                  jml1++;
+              }
+            }            
+          }
+
+            if (jml > 0)
+            {
+              _vec_split_stat.push_back(tmp_split_stat);
+            }
+
+            if (jml1 > 0)
+            {
+              _vec_split_stat.push_back(tmp_split_stat1);
+            }
+
+
+     } 
   
     _label.clear();
-  }
+  //}
 
   if (_jml_attr < _vec_split_stat.size())
   {
