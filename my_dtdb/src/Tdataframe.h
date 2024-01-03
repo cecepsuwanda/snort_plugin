@@ -46,25 +46,26 @@ class Tsplit_stat
 private:
   Tmy_dttype _split_value, _entropy_before_split;
   Tlabel_stat _stat_below, _stat_above;
+
 public:
   Tsplit_stat();
   ~Tsplit_stat();
 
   void set_value(Tmy_dttype split_value, Tlabel_stat stat_below, Tlabel_stat stat_above);
   void set_entropy_before_split(Tmy_dttype entropy_before_split);
-  
+
   Tmy_dttype get_split_value();
-  
+
   int get_jml_below();
   int get_jml_above();
-  
+
   string get_max_label_below();
   bool is_below_single_label();
   string get_max_label_above();
   bool is_above_single_label();
 
   Tlabel_stat get_stat_below();
-  
+
   bool cek_valid();
   Tgain_ratio kalkulasi_gain_ratio();
 
@@ -76,8 +77,7 @@ public:
     _entropy_before_split = t._entropy_before_split;
   }
 
-
-  Tsplit_stat& operator = (const Tsplit_stat &t)
+  Tsplit_stat &operator=(const Tsplit_stat &t)
   {
     this->_split_value = t._split_value;
     this->_stat_below = t._stat_below;
@@ -87,8 +87,7 @@ public:
     return *this;
   }
 
-
-  const Tsplit_stat operator + (const Tsplit_stat &rhs) const
+  const Tsplit_stat operator+(const Tsplit_stat &rhs) const
   {
     Tsplit_stat tmp;
 
@@ -103,7 +102,6 @@ public:
 
     return tmp;
   }
-
 };
 
 class Tproses_split_stat
@@ -127,10 +125,10 @@ private:
   Tmy_dttype _best_gain;
   float _best_split_info;
   Tmy_dttype _min_gain;
-  float _threshCost; 
+  float _threshCost;
 
-  Tmetric_split_value get_gain_ratio_kategori(size_t idx1,size_t idx2);
-  bool is_equal(int attrindex,string attrvalue); 
+  Tmetric_split_value get_gain_ratio_kategori(size_t idx1, size_t idx2);
+  bool is_equal(int attrindex, string attrvalue);
 
   size_t _jml_attr;
 
@@ -165,14 +163,9 @@ public:
   Tmetric_split_value get_gain_ratio_kategori();
 };
 
-
-
-
 class Tdataframe : public Tbase_dataframe
 {
 private:
-
-
   Tlabel_stat _stat_label;
   Tmap_col_split _map_col_split;
   int _idx_label;
@@ -190,20 +183,18 @@ public:
 
   Tdataframe(const Tdataframe &t)
   {
-    //cout << "Copy Constructor" << endl;
+    // cout << "Copy Constructor" << endl;
     _data = t._data;
     _data_header = t._data_header;
     _data_type = t._data_type;
     _filter = t._filter;
     _map_filter = t._map_filter;
 
-
     _jml_col = t._jml_col;
     _jml_row = t._jml_row;
 
     _stat_label = t._stat_label;
     _idx_label = t._idx_label;
-
 
     _id_dt = t._id_dt;
     _jns_dt = t._jns_dt;
@@ -212,16 +203,12 @@ public:
     _posisi_cabang = t._posisi_cabang;
     _is_train = t._is_train;
 
-
     _jml_total_row = t._jml_total_row;
-
-
   }
 
-
-  Tdataframe& operator = (const Tdataframe &t)
+  Tdataframe &operator=(const Tdataframe &t)
   {
-    //cout << "operator =" << endl;
+    // cout << "operator =" << endl;
     this->_data = t._data;
     this->_data_header = t._data_header;
     this->_data_type = t._data_type;
@@ -239,7 +226,6 @@ public:
 
     this->_posisi_cabang = t._posisi_cabang;
     this->_is_train = t._is_train;
-
 
     this->_jml_total_row = t._jml_total_row;
 
@@ -262,7 +248,6 @@ public:
   string get_max_label();
   bool is_single_label();
 
-
   map<Tmy_dttype, Tlabel_stat> get_col_split(int idx);
   void clear_col_split();
 
@@ -284,9 +269,6 @@ public:
   int get_opt(int idx_col, int is_below);
 
   Tmetric_split_value calculate_overall_metric(int idx);
-
-
-
 };
 
 #endif

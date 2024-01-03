@@ -1990,6 +1990,7 @@ void Tdt_build::Tsplit_value::insert(Tmetric_split_value value)
 	_jml++;
 
 	_rata2 = (_sum_po - abs(_sum_neg)) / _jml;
+	
 	if(!global_config.use_credal){
 	 _rata2 -= 1e-3;
 	}
