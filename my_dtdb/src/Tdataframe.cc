@@ -790,11 +790,11 @@ void Tproses_split_stat::merge_block1()
 {
   _jml_attr = _vec_split_stat.size();
 
-  _label.clear();
+  //_label.clear();
 
   if(_vec_split_stat.size()>2)
   {
-    for (size_t i = 0; i != _vec_split_stat.size(); ++i)
+   /* for (size_t i = 0; i != _vec_split_stat.size(); ++i)
     {
       Tsplit_stat tmp_split_stat = _vec_split_stat[i];
   
@@ -809,7 +809,7 @@ void Tproses_split_stat::merge_block1()
       {
         _label[tmp_split_stat.get_max_label_below()].push_back(i);
       }
-    }
+    }*/
     
     if(_label.size()>1)
     {  
@@ -890,12 +890,10 @@ void Tproses_split_stat::merge_block1()
             {
               _vec_split_stat.push_back(tmp_split_stat1);
             }
-
-
      } 
   
     _label.clear();
-  }
+  //}
 
   if (_jml_attr < _vec_split_stat.size())
   {
