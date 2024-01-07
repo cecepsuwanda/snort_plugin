@@ -82,7 +82,7 @@ public:
     buat_kombinasi = false;
     gunakan_rata2gain = true;    
     one_agains_many_only = false;
-    unique_rule = true;
+    unique_rule = false;
     
     use_gain_ratio = false;
     use_gain_ratio_1 = false;    

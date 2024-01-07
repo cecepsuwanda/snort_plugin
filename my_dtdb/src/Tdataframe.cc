@@ -893,7 +893,7 @@ void Tproses_split_stat::merge_block1()
      } 
   
     _label.clear();
-  //}
+  }
 
   if (_jml_attr < _vec_split_stat.size())
   {
