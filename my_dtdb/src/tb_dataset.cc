@@ -601,7 +601,6 @@ map<Tmy_dttype, Tlabel_stat> tb_dataset::hit_col_split(string group_kolom)
 
 		if (_data_type[i] == "continuous.")
 		{
-
 			tmp = "call sp_hit_stat('attr" + to_string(i) + "','" + _tmp_attr_dataset_tb + "','" + group_kolom + "')";
 			global_query_builder.query(tmp);
 

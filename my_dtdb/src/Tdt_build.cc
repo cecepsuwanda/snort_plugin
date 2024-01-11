@@ -1991,9 +1991,9 @@ void Tdt_build::Tsplit_value::insert(Tmetric_split_value value)
 
 	_rata2 = (_sum_po - abs(_sum_neg)) / _jml;
 	
-	if(!global_config.use_credal){
-	 _rata2 -= 1e-3;
-	}
+	// if(!global_config.use_credal){
+	//  _rata2 -= 1e-3;
+	// }
 	//else{
  //     _rata2 += 1e-3;
 	// }
@@ -2065,16 +2065,16 @@ void Tdt_build::Tsplit_value::kalkulasi_id_max()
 			pass = (z_score > 0.0); //and (z_score < 3.0)
 		}
 
-		pass = pass and (_list_split_value[i].split_info > 1e-3);
+		// pass = pass and (_list_split_value[i].split_info > 1e-3);
 
-		float tmp_gain_ratio = -1e-3;
+		// float tmp_gain_ratio = -1e-3;
 
-		//float tmp_gain_ratio = _list_split_value[i].max_gain_ratio;
+		float tmp_gain_ratio = _list_split_value[i].max_gain_ratio;
 
-		if (pass)
-		{
-			tmp_gain_ratio = _list_split_value[i].max_gain / _list_split_value[i].split_info;
-		}
+		// if (pass)
+		// {
+		// 	tmp_gain_ratio = _list_split_value[i].max_gain / _list_split_value[i].split_info;
+		// }
 
 		if ((first_iteration and pass) or ((max_gain_ratio < tmp_gain_ratio) and pass))
 		{

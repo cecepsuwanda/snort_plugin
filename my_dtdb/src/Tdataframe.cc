@@ -260,11 +260,11 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
     proses_split_stat.set_continue(true);
     proses_split_stat.set_idx_attr(idx);
 
-    float MinSplit = (0.10 * _stat_label.get_jml_row()) / 2;
-    if (MinSplit <= global_config.threshold)
-      MinSplit = global_config.threshold;
-    else if (MinSplit > 25)
-      MinSplit = 25;
+    // float MinSplit = (0.10 * _stat_label.get_jml_row()) / 2;
+    // if (MinSplit <= global_config.threshold)
+    //   MinSplit = global_config.threshold;
+    // else if (MinSplit > 25)
+    //   MinSplit = 25;
 
     auto itr_next = _col_pot_split.begin();
     itr_next++;
@@ -286,17 +286,17 @@ Tmetric_split_value Tdataframe::handle_continuous(int idx)
 
         bool is_pass = true;
 
-        if (stat_label_below.get_jml_row() < MinSplit)
-        {
-          is_pass = true;
-        }
-        else
-        {
-          if (stat_label_below.get_jml_row() > (_stat_label.get_jml_row() - MinSplit))
-          {
-            is_pass = false;
-          }
-        }
+        // if (stat_label_below.get_jml_row() < MinSplit)
+        // {
+        //   is_pass = true;
+        // }
+        // else
+        // {
+        //   if (stat_label_below.get_jml_row() > (_stat_label.get_jml_row() - MinSplit))
+        //   {
+        //     is_pass = false;
+        //   }
+        // }
 
         if ((tmp1 < (tmp2 - 1e-5)) and is_pass)
         {
@@ -377,26 +377,26 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   if (global_config.buat_kombinasi)
   {
-    if(idx!=6)  
-    {
-      // cout << " attr idx sebelum " << idx << endl;
-      // proses_split_stat.cetak_block();
+    // if( (idx!=6) and (idx!=11) and (idx!=20) and (idx!=21) )  
+    // {
+    //   // cout << " attr idx sebelum " << idx << endl;
+    //   // proses_split_stat.cetak_block();
 
-      proses_split_stat.merge_single_label();
+    //   proses_split_stat.merge_single_label();
 
-      // cout << " attr idx sebelum " << idx << endl;
-      // proses_split_stat.cetak_block();
+    //   // cout << " attr idx sebelum " << idx << endl;
+    //   // proses_split_stat.cetak_block();
 
-      bool is_lanjut = true;
+    //   bool is_lanjut = true;
 
-      while ((proses_split_stat.get_block_size() > 2) and is_lanjut)
-      {
-        is_lanjut = proses_split_stat.merge_block();
-      }
+    //   while ((proses_split_stat.get_block_size() > 2) and is_lanjut)
+    //   {
+    //     is_lanjut = proses_split_stat.merge_block();
+    //   }
 
-      // cout << " attr idx sesudah " << idx << endl;
-      // proses_split_stat.cetak_block();
-    }
+    //   // cout << " attr idx sesudah " << idx << endl;
+    //   // proses_split_stat.cetak_block();
+    // }
   }
 
   proses_split_stat.merge_block1();
@@ -794,7 +794,7 @@ void Tproses_split_stat::merge_block1()
 
   if(_vec_split_stat.size()>2)
   {
-   /* for (size_t i = 0; i != _vec_split_stat.size(); ++i)
+    /*for (size_t i = 0; i != _vec_split_stat.size(); ++i)
     {
       Tsplit_stat tmp_split_stat = _vec_split_stat[i];
   
@@ -1042,20 +1042,21 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
 
     if (global_config.use_gain_ratio)
     {
-      is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
+      //is_pass = global_config.use_credal ? true : (hsl.gain_ratio > 0.0);
       is_pass = (_first_iteration and is_pass) or ((_max_gain_ratio < hsl.gain_ratio) and is_pass);
     }
     else
     {
 
       Tmy_dttype tmp("0.0", true);
-      tmp = hsl.gain - _threshCost;
-      if (hsl.gain < 0.0)
-      {
-        tmp = hsl.gain + _threshCost;
-      }
+      tmp = hsl.gain;
+      // tmp = hsl.gain - _threshCost;
+      // if (hsl.gain < 0.0)
+      // {
+      //   tmp = hsl.gain + _threshCost;
+      // }
 
-      is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
+      //is_pass = global_config.use_credal ? true : (hsl.gain > 0.0);
       is_pass = (_first_iteration and is_pass) or ((_max_gain < tmp) and is_pass);
     }
 
@@ -1064,11 +1065,12 @@ Tmetric_split_value Tproses_split_stat::get_max_gain_ratio()
       _first_iteration = false;
       _tmp_split_value = tmp_split_stat.get_split_value();
       _max_gain_ratio = hsl.gain_ratio;
-      _max_gain = hsl.gain - _threshCost;
-      if (hsl.gain < 0.0)
-      {
-        _max_gain = hsl.gain + _threshCost;
-      }
+      _max_gain = hsl.gain;
+      // _max_gain = hsl.gain - _threshCost;
+      // if (hsl.gain < 0.0)
+      // {
+      //   _max_gain = hsl.gain + _threshCost;
+      // }
       _max_split_info = hsl.split_info;
       _jml_below = tmp_split_stat.get_jml_below();
       _jml_above = tmp_split_stat.get_jml_above();
