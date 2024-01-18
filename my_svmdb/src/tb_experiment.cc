@@ -211,7 +211,7 @@ void tb_experiment::end_experiment()
 	global_query_builder.close_connection();
 }
 
-train_test_data tb_experiment::get_train_test_data(time_t id_experiment)
+train_test_data tb_experiment::get_train_test_data_old(time_t id_experiment)
 {
 	train_test_data data;
 	global_query_builder.open_connection();
@@ -229,6 +229,35 @@ train_test_data tb_experiment::get_train_test_data(time_t id_experiment)
 			data.id_dt_test = stoi(tmp[16]);
 			data.jns_dt_test = stoi(tmp[17]);
 			data.partition_test = tmp[18];
+		}
+	}
+
+	global_query_builder.close_connection();
+	return data;
+}
+
+train_test_data tb_experiment::get_train_test_data(int id_dt_train,int jns_dt_train,string partition_train,int id_dt_test,int jns_dt_test,string partition_test,int depth,int sample,double threshold,double credal)
+{
+	train_test_data data;
+	
+    data.id_dt_train = id_dt_train;
+	data.jns_dt_train = jns_dt_train;
+	data.partition_train = partition_train;
+    
+	data.id_dt_test = id_dt_test;
+	data.jns_dt_test = jns_dt_test;
+	data.partition_test = partition_test;
+
+	global_query_builder.open_connection();
+	string sql = "select * from detail_experiment where (id_dt_train="+to_string(id_dt_train)+" and jns_dt_train="+to_string(jns_dt_train)+") and (id_dt_test="+to_string(id_dt_test)+" and jns_dt_test="+to_string(jns_dt_test)+") and (depth="+to_string(depth)+" and minsample="+to_string(sample)+" and threshold="+to_string(threshold)+" and credal="+to_string(credal)+") limit 1";
+
+	if (global_query_builder.query(sql))
+	{
+		if (global_query_builder.get_result())
+		{
+			vector<string> tmp = global_query_builder.fetch_row();
+			data.id_experiment_dt=(time_t) atoll(tmp[1].c_str());
+            data.id_detail_experiment_dt=(time_t) atoll(tmp[0].c_str());
 		}
 	}
 

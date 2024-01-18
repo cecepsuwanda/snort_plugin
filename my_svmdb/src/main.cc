@@ -45,19 +45,35 @@ int main(int argc, char *argv[])
 
   // config.svm_path = config.path_model + "/" + argv[9];
 
-  double gamma_awal  = strtod(argv[3], &endptr);
-  double gamma_akhir = strtod(argv[4], &endptr);
-  double gamma_step  = strtod(argv[5], &endptr);
+  int id_dt_train  = stoi(argv[1]);
+  int jns_dt_train = stoi(argv[2]);
+  string partition_train = argv[3];
+  int id_dt_test  = stoi(argv[4]);
+  int jns_dt_test = stoi(argv[5]);
+  string partition_test = argv[6];
 
-  double nu_awal = strtod(argv[6], &endptr);
-  double nu_akhir = strtod(argv[7], &endptr);
-  double nu_step = strtod(argv[8], &endptr);
+  int depth  = stoi(argv[7]);
+  int sample = stoi(argv[8]);
+  double threshold = strtod(argv[9], &endptr);
+  double credal = strtod(argv[10], &endptr);
 
-  global_config.id_experiment_dt = (time_t) atoll(argv[1]);
-  global_config.id_detail_experiment_dt = (time_t) atoll(argv[2]);
+  double gamma_awal  = strtod(argv[11], &endptr);
+  double gamma_akhir = strtod(argv[12], &endptr);
+  double gamma_step  = strtod(argv[13], &endptr);
+
+  double nu_awal = strtod(argv[14], &endptr);
+  double nu_akhir = strtod(argv[15], &endptr);
+  double nu_step = strtod(argv[16], &endptr);
+
+  // global_config.id_experiment_dt = (time_t) atoll(argv[1]);
+  // global_config.id_detail_experiment_dt = (time_t) atoll(argv[2]);
 
   tb_experiment experiment;
-  train_test_data train_test = experiment.get_train_test_data(global_config.id_experiment_dt);
+  // train_test_data train_test = experiment.get_train_test_data_old(global_config.id_experiment_dt);
+  train_test_data train_test = experiment.get_train_test_data(id_dt_train,jns_dt_train,partition_train,id_dt_test,jns_dt_test,partition_test,depth,sample,threshold,credal);
+  
+  global_config.id_experiment_dt = train_test.id_experiment_dt;
+  global_config.id_detail_experiment_dt = train_test.id_detail_experiment_dt;
 
   pesan.cetak("Menyiapkan Data Latih :\n");
 

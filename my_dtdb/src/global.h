@@ -81,8 +81,8 @@ public:
     continue_attr_only = false;
     buat_kombinasi = false;
     gunakan_rata2gain = true;    
-    one_agains_many_only = false;
-    unique_rule = true;
+    one_agains_many_only = true;
+    unique_rule = false;
     
     use_gain_ratio = false;
     use_gain_ratio_1 = false;    

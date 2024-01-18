@@ -19,6 +19,9 @@ struct train_test_data
     int jns_dt_test = -1;
     int id_dt_test = -1;
     string partition_test = "";
+
+    time_t id_experiment_dt;
+    time_t id_detail_experiment_dt;
 };
 
 class tb_experiment
@@ -60,7 +63,8 @@ public:
     time_t get_id_detail_experiment();
     time_t get_id_more_detail_experiment(int no_svm);
 
-    train_test_data get_train_test_data(time_t id_experiment);
+    train_test_data get_train_test_data_old(time_t id_experiment);
+    train_test_data get_train_test_data(int id_dt_train,int jns_dt_train,string partition_train,int id_dt_test,int jns_dt_test,string partition_test,int depth,int sample,double threshold,double credal);
 };
 
 #endif

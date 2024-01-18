@@ -52,7 +52,7 @@ void Tbase_dataframe::set_parent(int depth, int branch, int branch_number)
 {
 	_parent_depth = depth;
 	_parent_branch = branch;
-	_parent_branch = branch_number;
+	_parent_branch_number = branch_number;
 	_data.set_child(_parent_depth, _parent_branch, _parent_branch_number);
 }
 

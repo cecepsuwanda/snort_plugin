@@ -377,29 +377,29 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   if (global_config.buat_kombinasi)
   {
-    // if( (idx!=6) and (idx!=11) and (idx!=20) and (idx!=21) )  
-    // {
-    //   // cout << " attr idx sebelum " << idx << endl;
-    //   // proses_split_stat.cetak_block();
+    if( (idx!=6) and (idx!=11) and (idx!=20) and (idx!=21) )  
+    {
+      // cout << " attr idx sebelum " << idx << endl;
+      // proses_split_stat.cetak_block();
 
-    //   proses_split_stat.merge_single_label();
+      proses_split_stat.merge_single_label();
 
-    //   // cout << " attr idx sebelum " << idx << endl;
-    //   // proses_split_stat.cetak_block();
+      // cout << " attr idx sebelum " << idx << endl;
+      // proses_split_stat.cetak_block();
 
-    //   bool is_lanjut = true;
+      bool is_lanjut = true;
 
-    //   while ((proses_split_stat.get_block_size() > 2) and is_lanjut)
-    //   {
-    //     is_lanjut = proses_split_stat.merge_block();
-    //   }
+      while ((proses_split_stat.get_block_size() > 2) and is_lanjut)
+      {
+        is_lanjut = proses_split_stat.merge_block();
+      }
 
-    //   // cout << " attr idx sesudah " << idx << endl;
-    //   // proses_split_stat.cetak_block();
-    // }
+      // cout << " attr idx sesudah " << idx << endl;
+      // proses_split_stat.cetak_block();
+    }
   }
 
-  proses_split_stat.merge_block1();
+  //proses_split_stat.merge_block1();
 
   // if (!global_config.one_agains_many_only)
   //   {
@@ -645,15 +645,15 @@ bool Tproses_split_stat::is_equal(int attrindex, string attrvalue)
     hsl = (attrvalue == "SF");
   }
 
-  if (attrindex == 1)
-  {
-    hsl = (attrvalue == "tcp") or (attrvalue == "udp") or (attrvalue == "icmp");
-  }
+  // if (attrindex == 1)
+  // {
+  //   hsl = (attrvalue == "tcp") or (attrvalue == "udp") or (attrvalue == "icmp");
+  // }
 
-  if (attrindex == 6)
-  {
-    hsl = (attrvalue == "0");
-  }
+  // if (attrindex == 6)
+  // {
+  //   hsl = (attrvalue == "0");
+  // }
 
   return hsl;
 }
@@ -790,11 +790,11 @@ void Tproses_split_stat::merge_block1()
 {
   _jml_attr = _vec_split_stat.size();
 
-  //_label.clear();
+  _label.clear();
 
   if(_vec_split_stat.size()>2)
   {
-    /*for (size_t i = 0; i != _vec_split_stat.size(); ++i)
+    for (size_t i = 0; i != _vec_split_stat.size(); ++i)
     {
       Tsplit_stat tmp_split_stat = _vec_split_stat[i];
   
@@ -809,7 +809,7 @@ void Tproses_split_stat::merge_block1()
       {
         _label[tmp_split_stat.get_max_label_below()].push_back(i);
       }
-    }*/
+    }
     
     if(_label.size()>1)
     {  
@@ -893,6 +893,7 @@ void Tproses_split_stat::merge_block1()
      } 
   
     _label.clear();
+    
   }
 
   if (_jml_attr < _vec_split_stat.size())

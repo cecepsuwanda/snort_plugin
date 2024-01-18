@@ -50,7 +50,7 @@ struct Tglobal_config
     save_test = false;
 
     train_svm = false;
-    normal_only = true;
+    normal_only = false;
 
     gamma = 0.0;
     nu = 0.0;
