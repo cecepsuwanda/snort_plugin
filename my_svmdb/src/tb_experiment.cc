@@ -17,9 +17,19 @@ time_t tb_experiment::get_id_experiment()
 	return _id_experiment;
 }
 
+void tb_experiment::set_id_experiment(time_t id_experiment)
+{
+  _id_experiment = id_experiment;
+}
+
 time_t tb_experiment::get_id_detail_experiment()
 {
 	return _id_detail_experiment;
+}
+
+void tb_experiment::set_id_detail_experiment(time_t id_detail_experiment)
+{
+	_id_detail_experiment = id_detail_experiment;
 }
 
 time_t tb_experiment::get_id_more_detail_experiment(int no_svm)
