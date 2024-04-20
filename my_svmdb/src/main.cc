@@ -65,6 +65,11 @@ int main(int argc, char *argv[])
   double nu_akhir = strtod(argv[15], &endptr);
   double nu_step = strtod(argv[16], &endptr);
 
+  bool is_experiment_svm = stoi(argv[17]) == 1;
+  time_t id_experiment_svm = (time_t) atoll(argv[17]);
+  bool is_detail_experiment_svm = stoi(argv[18]) == 1;
+  time_t id_detail_experiment_svm = (time_t) atoll(argv[18]);
+
   // global_config.id_experiment_dt = (time_t) atoll(argv[1]);
   // global_config.id_detail_experiment_dt = (time_t) atoll(argv[2]);
 
@@ -109,7 +114,15 @@ int main(int argc, char *argv[])
 
   Tdec_tree dec_tree;
 
-  experiment.insert_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, gamma_awal, gamma_akhir, gamma_step, nu_awal, nu_akhir, nu_step);
+  if(is_experiment_svm)
+  {
+    experiment.set_id_experiment(id_experiment_svm);
+  }
+  else
+  { 
+    experiment.insert_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, gamma_awal, gamma_akhir, gamma_step, nu_awal, nu_akhir, nu_step);
+  }
+  
   global_config.id_experiment = experiment.get_id_experiment();
 
   string str_id_experiment_dt = to_string(global_config.id_experiment_dt);
@@ -133,7 +146,14 @@ int main(int argc, char *argv[])
 
       pesan.cetak("gamma = %f nu = %f \n", i, j);
 
-      experiment.insert_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, global_config.gamma, global_config.nu);
+      if(is_detail_experiment_svm)
+      {
+         experiment.set_id_detail_experiment(id_detail_experiment_svm);
+      }
+      else{
+         experiment.insert_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, global_config.gamma, global_config.nu);
+      }
+
       global_config.id_detail_experiment = experiment.get_id_detail_experiment();
 
       string tmp_str1 = tmp_str + "/" + to_string(global_config.id_detail_experiment);

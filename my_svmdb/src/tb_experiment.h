@@ -60,7 +60,9 @@ public:
     void end_experiment();
 
     time_t get_id_experiment();
+    void set_id_experiment(time_t id_experiment);
     time_t get_id_detail_experiment();
+    void set_id_detail_experiment(time_t id_detail_experiment);
     time_t get_id_more_detail_experiment(int no_svm);
 
     train_test_data get_train_test_data_old(time_t id_experiment);
