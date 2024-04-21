@@ -361,7 +361,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
 
         string tmp_str2 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal"; 
         path v_path1(tmp_str2);
-        if (exists(v_path1))
+        if (!exists(v_path1))
         {
            mkdir(tmp_str2.c_str(), 0777);
         }   

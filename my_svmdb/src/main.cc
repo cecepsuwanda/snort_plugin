@@ -131,21 +131,21 @@ int main(int argc, char *argv[])
 
   string tmp_str = "hsl/" + str_id_experiment_dt;
   path v_path(tmp_str);
-  if (exists(v_path))
+  if (!exists(v_path))
   {
      mkdir(tmp_str.c_str(), 0777);
   }
   
   tmp_str = tmp_str + "/" + str_id_detail_experiment_dt;
   path v_path1(tmp_str);
-  if (exists(v_path1))
+  if (!exists(v_path1))
   {
      mkdir(tmp_str.c_str(), 0777);
   }   
   
   tmp_str = tmp_str + "/" + str_id_experiment;
   path v_path2(tmp_str);
-  if (exists(v_path2))
+  if (!exists(v_path2))
   {
     mkdir(tmp_str.c_str(), 0777);
   }
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
       string tmp_str1 = tmp_str + "/" + to_string(global_config.id_detail_experiment);
       
       path v_path3(tmp_str1);
-      if (exists(v_path3))
+      if (!exists(v_path3))
       {
         mkdir(tmp_str1.c_str(), 0777);
       }

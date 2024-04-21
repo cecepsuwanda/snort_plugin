@@ -105,8 +105,8 @@ bool tb_experiment::cari_detail_experiment(double gamma, double nu, time_t &id_d
 
 	global_query_builder.open_connection();
 
-	string sql = "select id_dt_train,jns_dt_train,depth,minsample,threshold,credal from detail_experiment_svm a inner join detail_experiment b on a.id_experiment_dt = b.id_experiment and a.id_detail_experiment_dt=b.id where a.id='" + to_string(_id_detail_experiment) + "' and a.id_experiment='" + to_string(_id_experiment) + "' limit 1";
-
+	string sql = "select id_dt_train,jns_dt_train,depth,minsample,threshold,credal from detail_experiment_svm a inner join detail_experiment b on a.id_experiment_dt = b.id_experiment and a.id_detail_experiment_dt=b.id where a.id='" + to_string(_id_detail_experiment) + "' and a.id_experiment='" + to_string(_id_experiment) + "' order by a.start_train limit 1";
+  
 	int id_dt_train = -1, jns_dt_train = -1, depth = -1, min_sample = -1;
 	double credal = 0.0, threshold = 0.0;
 
@@ -126,8 +126,8 @@ bool tb_experiment::cari_detail_experiment(double gamma, double nu, time_t &id_d
 	}
 
 
-	sql = "select a.id,a.id_experiment,a.id_experiment_dt,a.id_detail_experiment_dt from detail_experiment_svm a inner join detail_experiment b on a.id_experiment_dt = b.id_experiment and a.id_detail_experiment_dt=b.id where a.id<>'" + to_string(_id_detail_experiment) + "' and a.id_experiment<>'" + to_string(_id_experiment) + "' and id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal) + " and gamma=" + to_string(gamma) + " and nu=" + to_string(nu) + " order by a.start_train desc limit 1";
-
+	sql = "select a.id,a.id_experiment,a.id_experiment_dt,a.id_detail_experiment_dt from detail_experiment_svm a inner join detail_experiment b on a.id_experiment_dt = b.id_experiment and a.id_detail_experiment_dt=b.id where a.id<>'" + to_string(_id_detail_experiment) + "' and a.id_experiment<>'" + to_string(_id_experiment) + "' and id_dt_train=" + to_string(id_dt_train) + " and jns_dt_train=" + to_string(jns_dt_train) + " and depth=" + to_string(depth) + " and minsample=" + to_string(min_sample) + " and threshold=" + to_string(threshold) + " and credal=" + to_string(credal) + " and gamma=" + to_string(gamma) + " and nu=" + to_string(nu) + " order by a.start_train limit 1";
+  
 	if (global_query_builder.query(sql))
 	{
 		if (global_query_builder.get_result())
@@ -250,7 +250,7 @@ train_test_data tb_experiment::get_train_test_data(int id_dt_train,int jns_dt_tr
 {
 	train_test_data data;
 	
-    data.id_dt_train = id_dt_train;
+  data.id_dt_train = id_dt_train;
 	data.jns_dt_train = jns_dt_train;
 	data.partition_train = partition_train;
     
@@ -259,7 +259,7 @@ train_test_data tb_experiment::get_train_test_data(int id_dt_train,int jns_dt_tr
 	data.partition_test = partition_test;
 
 	global_query_builder.open_connection();
-	string sql = "select * from detail_experiment where (id_dt_train="+to_string(id_dt_train)+" and jns_dt_train="+to_string(jns_dt_train)+") and (id_dt_test="+to_string(id_dt_test)+" and jns_dt_test="+to_string(jns_dt_test)+") and (depth="+to_string(depth)+" and minsample="+to_string(sample)+" and threshold="+to_string(threshold)+" and credal="+to_string(credal)+") limit 1";
+	string sql = "select * from detail_experiment where (id_dt_train="+to_string(id_dt_train)+" and jns_dt_train="+to_string(jns_dt_train)+") and (id_dt_test="+to_string(id_dt_test)+" and jns_dt_test="+to_string(jns_dt_test)+") and (depth="+to_string(depth)+" and minsample="+to_string(sample)+" and threshold="+to_string(threshold)+" and credal="+to_string(credal)+")  order by start_train limit 1";
 
 	if (global_query_builder.query(sql))
 	{
@@ -267,7 +267,7 @@ train_test_data tb_experiment::get_train_test_data(int id_dt_train,int jns_dt_tr
 		{
 			vector<string> tmp = global_query_builder.fetch_row();
 			data.id_experiment_dt=(time_t) atoll(tmp[1].c_str());
-            data.id_detail_experiment_dt=(time_t) atoll(tmp[0].c_str());
+      data.id_detail_experiment_dt=(time_t) atoll(tmp[0].c_str());
 		}
 	}
 

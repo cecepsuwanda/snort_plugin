@@ -34,7 +34,12 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
     Tconf_metrix svm_conf_metrix;
 
     
-    string opt_nm_model = global_config.svm_path + "/optimal/svm_model_" + to_string(*i) + ".csv";
+    string str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+    string str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+    string str_id_experiment = to_string(global_config.id_experiment);
+    
+    string opt_nm_model = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
+    
     path v_path(opt_nm_model);
     if (exists(v_path))
     {
