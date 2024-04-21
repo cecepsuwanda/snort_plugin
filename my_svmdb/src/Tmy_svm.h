@@ -6,7 +6,11 @@
 #include "Twrite_file.h"
 #include "global.h"
 
+#include <experimental/filesystem>
+
 using namespace std;
+using std::experimental::filesystem::exists;
+using std::experimental::filesystem::path;
 
 #ifndef Included_Tmy_svm_H
 
