@@ -130,11 +130,25 @@ int main(int argc, char *argv[])
   string str_id_experiment = to_string(global_config.id_experiment);
 
   string tmp_str = "hsl/" + str_id_experiment_dt;
-  mkdir(tmp_str.c_str(), 0777);
+  path v_path(tmp_str);
+  if (exists(v_path))
+  {
+     mkdir(tmp_str.c_str(), 0777);
+  }
+  
   tmp_str = tmp_str + "/" + str_id_detail_experiment_dt;
-  mkdir(tmp_str.c_str(), 0777);
+  path v_path1(tmp_str);
+  if (exists(v_path1))
+  {
+     mkdir(tmp_str.c_str(), 0777);
+  }   
+  
   tmp_str = tmp_str + "/" + str_id_experiment;
-  mkdir(tmp_str.c_str(), 0777);
+  path v_path2(tmp_str);
+  if (exists(v_path2))
+  {
+    mkdir(tmp_str.c_str(), 0777);
+  }
 
   for (double i = gamma_awal; i <= gamma_akhir; i += gamma_step)
   {
@@ -157,7 +171,12 @@ int main(int argc, char *argv[])
       global_config.id_detail_experiment = experiment.get_id_detail_experiment();
 
       string tmp_str1 = tmp_str + "/" + to_string(global_config.id_detail_experiment);
-      mkdir(tmp_str1.c_str(), 0777);
+      
+      path v_path3(tmp_str1);
+      if (exists(v_path3))
+      {
+        mkdir(tmp_str1.c_str(), 0777);
+      }
 
       global_config.svm_path = tmp_str1;
 

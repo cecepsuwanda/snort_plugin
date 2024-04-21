@@ -352,12 +352,21 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
       path v_path(tmp_str);
       if (exists(v_path))
       {
+        pesan.cetak("---- Model optimal untuk no svm %d sudah ada !. \n", *i);
+
         str_id_experiment_dt = to_string(global_config.id_experiment_dt);
         str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
         str_id_experiment = to_string(global_config.id_experiment);
         str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
-        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
+        string tmp_str2 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal"; 
+        path v_path1(tmp_str2);
+        if (exists(v_path1))
+        {
+           mkdir(tmp_str2.c_str(), 0777);
+        }   
+
+        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
         
         sleep(10);
         experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
@@ -366,7 +375,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
         experiment.end_train_more_detail();
 
       } else {
-
+        
         string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
         str_id_experiment_dt = to_string(global_config.id_experiment_dt);
@@ -378,6 +387,8 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
 
         path v_path(tmp_str);
         if (exists(v_path)) {
+          pesan.cetak("---- Model untuk no svm %d sudah ada !. \n", *i);
+
           sleep(10);  
           experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
           fs::copy(tmp_str, tmp_str1);
