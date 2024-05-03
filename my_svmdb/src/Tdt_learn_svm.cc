@@ -218,7 +218,7 @@ void Tdt_learn_svm::thread_save_train(vector<vector<string>> table, int v_idx_sv
 
 void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm)
 {
-  sleep(10);
+  sleep(2);
   Tglobal_config global_config;
   tb_experiment experiment;
 
@@ -227,7 +227,7 @@ void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm
   my_svm.train(table);
   my_svm.save_model(global_config.svm_path + "/svm_model_" + to_string(v_idx_svm) + ".csv");
   table.clear();
-  sleep(5);
+  sleep(2);
   // time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(v_idx_svm);
   experiment.end_train_more_detail();
 }
@@ -242,7 +242,9 @@ void Tdt_learn_svm::f_train_svm(Tdataframe &df, int v_idx_svm)
   //   //thread_save_test(config,table,v_idx_svm);
 
   // }
-  worker.push_back(thread(&Tdt_learn_svm::thread_train_svm, table, v_idx_svm));
+  //worker.push_back(thread(&Tdt_learn_svm::thread_train_svm, table, v_idx_svm));
+  async_worker.push_back(async(std::launch::async, &Tdt_learn_svm::thread_train_svm, table, v_idx_svm));
+  
   table.clear();
 }
 
@@ -266,6 +268,26 @@ void Tdt_learn_svm::clear_worker(int limit)
     worker.clear();
     worker.shrink_to_fit();
   }
+}
+
+void Tdt_learn_svm::clear_async_worker(int limit)
+{
+  bool pass = limit == 0  ? true : async_worker.size() == limit ;
+
+  if (pass)
+  {
+    if (limit == 0) {
+      pesan.cetak("{clear worker} \n");
+    }
+
+    for (future<void> &th : async_worker)
+    {
+      th.wait();
+    }
+
+    async_worker.clear();
+    async_worker.shrink_to_fit();
+  }  
 }
 
 void Tdt_learn_svm::svm_dfs(int depth , int node_index , Tdataframe & df_train)
@@ -340,6 +362,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
   for (auto i = idx_svm.begin(); i != idx_svm.end(); ++i)
   {
     pesan.cetak("---- Train no svm %d \n", *i);
+    
     if (ada)
     {
       string str_id_experiment_dt = to_string(id_experiment_dt);
@@ -368,7 +391,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
 
         string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
         
-        sleep(10);
+        sleep(2);
         experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
         fs::copy(tmp_str, tmp_str1);
         //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
@@ -389,7 +412,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
         if (exists(v_path)) {
           pesan.cetak("---- Model untuk no svm %d sudah ada !. \n", *i);
 
-          sleep(10);  
+          sleep(2);  
           experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
           fs::copy(tmp_str, tmp_str1);
           //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
@@ -402,8 +425,10 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
     } else {
       df.filter_by_idx_svm(*i);
       f_train_svm(df, *i);
-      clear_worker(2);
+      //clear_async_worker(2);
+      //clear_worker(2);
     }
   }
-  clear_worker(0);
+  clear_async_worker(0);
+  //clear_worker(0);
 }

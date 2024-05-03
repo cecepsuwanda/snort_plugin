@@ -1,5 +1,6 @@
 #include "global.h"
 #include <thread>
+#include <future>
 #include <experimental/filesystem>
 #include "tb_experiment.h"
 #include "Tdataframe.h"
@@ -34,6 +35,7 @@ private:
 	Tglobal_config global_config;
 
 	vector<thread> worker;
+	vector<future<void>> async_worker;
 
 	static void thread_save_train(vector<vector<string>> table, int v_idx_svm);
 	static void thread_train_svm(vector<vector<string>> table, int v_idx_svm);
@@ -41,6 +43,7 @@ private:
     void f_train_svm(Tdataframe &df, int v_idx_svm);
 	
 	void clear_worker(int limit);
+	void clear_async_worker(int limit);
 	
 	void svm_dfs(int depth , int node_index , Tdataframe &df_train);
 
