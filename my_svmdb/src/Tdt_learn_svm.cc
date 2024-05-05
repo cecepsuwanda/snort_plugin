@@ -425,7 +425,7 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
     } else {
       df.filter_by_idx_svm(*i);
       f_train_svm(df, *i);
-      //clear_async_worker(2);
+      clear_async_worker(2);
       //clear_worker(2);
     }
   }
