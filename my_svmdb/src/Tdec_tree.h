@@ -22,6 +22,13 @@ using std::experimental::filesystem::directory_iterator;
 
 #define Included_Tdec_tree_H
 
+struct Thsl_test
+{
+  int idx_svm;
+  time_t id_more_detail_experiment;
+  map<string, string> data;
+};
+
 class Tdec_tree
 {
 
@@ -37,7 +44,7 @@ private:
 	int dfs(vector<string> &data, int treeIndex);	
 	
     
-	static void thread_test_attack(string label, vector<vector<string>> table, Tconf_metrix &dt_conf_metrix);	
+	static Thsl_test thread_test_svm(map<string,vector<string>> table, int v_idx_svm,tb_experiment v_experiment);	
 
 public:
 	Tdec_tree();
