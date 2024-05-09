@@ -66,9 +66,9 @@ int main(int argc, char *argv[])
   double nu_step = strtod(argv[16], &endptr);
 
   bool is_experiment_svm = stoi(argv[17]) == 1;
-  time_t id_experiment_svm = (time_t) atoll(argv[17]);
-  bool is_detail_experiment_svm = stoi(argv[18]) == 1;
-  time_t id_detail_experiment_svm = (time_t) atoll(argv[18]);
+  time_t id_experiment_svm = (time_t) atoll(argv[18]);
+  bool is_detail_experiment_svm = stoi(argv[19]) == 1;
+  time_t id_detail_experiment_svm = (time_t) atoll(argv[20]);
 
   // global_config.id_experiment_dt = (time_t) atoll(argv[1]);
   // global_config.id_detail_experiment_dt = (time_t) atoll(argv[2]);
