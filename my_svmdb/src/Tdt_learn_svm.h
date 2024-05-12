@@ -8,6 +8,7 @@
 #include "tb_tree.h"
 
 #include<unistd.h>
+#include <chrono>
 
 #ifndef Included_Tdt_learn_svm_H
 
@@ -36,14 +37,17 @@ private:
 
 	vector<thread> worker;
 	vector<future<void>> async_worker;
+	vector<future<string>> async_worker_1;
 
-	static void thread_save_train(vector<vector<string>> table, int v_idx_svm);
+	//static void thread_save_train(vector<vector<string>> table, int v_idx_svm);
 	static void thread_train_svm(vector<vector<string>> table, int v_idx_svm);
+	static string thread_copy_model(time_t id_experiment_dt,time_t id_detail_experiment_dt,time_t id_experiment,time_t id_detail_experiment,int idx_svm);
 
     void f_train_svm(Tdataframe &df, int v_idx_svm);
 	
 	void clear_worker(int limit);
 	void clear_async_worker(int limit);
+	void clear_async_worker_1(int limit);
 	
 	void svm_dfs(int depth , int node_index , Tdataframe &df_train);
 

@@ -191,30 +191,30 @@ void Tdt_learn_svm::read_tree()
 
 }
 
-void Tdt_learn_svm::thread_save_train(vector<vector<string>> table, int v_idx_svm)
-{
-  Tglobal_config global_config;
+// void Tdt_learn_svm::thread_save_train(vector<vector<string>> table, int v_idx_svm)
+// {
+//   Tglobal_config global_config;
    
-  Twrite_file tmp_wf;
-  tmp_wf.setnm_f(global_config.path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
+//   Twrite_file tmp_wf;
+//   tmp_wf.setnm_f(global_config.path_model + "/train/train_model_" + to_string(v_idx_svm) + ".csv");
 
 
-  for (int i = 0; i < table.size(); ++i)
-  {
-    string tmp_str = "";
-    for (int j = 0; j < (table[i].size() - 1); ++j)
-    {
-      tmp_str = tmp_str + table[i][j] + ",";
-    }
+//   for (int i = 0; i < table.size(); ++i)
+//   {
+//     string tmp_str = "";
+//     for (int j = 0; j < (table[i].size() - 1); ++j)
+//     {
+//       tmp_str = tmp_str + table[i][j] + ",";
+//     }
 
-    tmp_str = tmp_str + table[i][table[i].size() - 1];
-    tmp_wf.write_file(tmp_str);
+//     tmp_str = tmp_str + table[i][table[i].size() - 1];
+//     tmp_wf.write_file(tmp_str);
 
-  }
+//   }
 
-  tmp_wf.close_file();
+//   tmp_wf.close_file();
 
-}
+// }
 
 void Tdt_learn_svm::thread_train_svm(vector<vector<string>> table, int v_idx_svm)
 {
@@ -276,17 +276,74 @@ void Tdt_learn_svm::clear_async_worker(int limit)
 
   if (pass)
   {
-    if (limit == 0) {
-      pesan.cetak("{clear worker} \n");
+    if ((limit == 0) and (async_worker.size()>0)) {
+      pesan.cetak("{clear async worker} \n");
     }
 
-    for (future<void> &th : async_worker)
+    // for (future<void> &th : async_worker)
+    // {
+    //   th.wait();
+    // }
+
+    
+
+    future_status status;
+    vector<int> is_hapus;
+
+    for (int i=0;i<async_worker.size();i++)
     {
-      th.wait();
+       if(limit>0)
+       { 
+         status = async_worker[i].wait_for(chrono::seconds(2)); 
+         if (status == future_status::ready) {
+            is_hapus.push_back(i);  
+         }
+       } else{
+         async_worker[i].wait();         
+       }  
+
+
     }
 
-    async_worker.clear();
-    async_worker.shrink_to_fit();
+    if(limit == 0)
+    {
+
+      async_worker.clear();
+      async_worker.shrink_to_fit();
+
+    }else{  
+
+      if(is_hapus.size()>0)
+      {
+         for (int i = is_hapus.size()-1; i >=0 ; --i)
+         {
+           async_worker.erase(async_worker.begin() + i);
+         }
+      }
+   }
+
+
+  }  
+}
+
+void Tdt_learn_svm::clear_async_worker_1(int limit)
+{
+  bool pass = limit == 0  ? true : async_worker_1.size() == limit ;
+
+  if (pass)
+  {
+    if ((limit == 0) and (async_worker_1.size()>0)) {
+      pesan.cetak("{clear async worker 1} \n");
+    }
+
+    for (future<string> &th : async_worker_1)
+    {
+      string msg = th.get();
+      pesan.cetak("%s \n",msg.c_str());
+    }
+
+    async_worker_1.clear();
+    async_worker_1.shrink_to_fit();
   }  
 }
 
@@ -349,6 +406,71 @@ void Tdt_learn_svm::svm_dfs(int depth , int node_index , Tdataframe & df_train)
 
 }
 
+string Tdt_learn_svm::thread_copy_model(time_t id_experiment_dt,time_t id_detail_experiment_dt,time_t id_experiment,time_t id_detail_experiment,int idx_svm)
+{
+  sleep(2);
+  Tglobal_config global_config;
+  tb_experiment experiment;
+  string msg="";
+
+      string str_id_experiment_dt = to_string(id_experiment_dt);
+      string str_id_detail_experiment_dt = to_string(id_detail_experiment_dt);
+      string str_id_experiment = to_string(id_experiment);
+      string str_id_detail_experiment = to_string(id_detail_experiment);
+
+      string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(idx_svm) + ".csv";
+
+      path v_path(tmp_str);
+      if (exists(v_path))
+      {
+        msg = "---- Model optimal untuk no svm "+to_string(idx_svm)+" sudah ada !. ";
+
+        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+        str_id_experiment = to_string(global_config.id_experiment);
+        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
+
+        string tmp_str2 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal"; 
+        path v_path1(tmp_str2);
+        if (!exists(v_path1))
+        {
+           mkdir(tmp_str2.c_str(), 0777);
+        }   
+
+        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(idx_svm) + ".csv";
+                
+        experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, idx_svm, global_config.gamma, global_config.nu);
+        fs::copy(tmp_str, tmp_str1);
+        //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+        experiment.end_train_more_detail();
+
+      } else {
+        
+        string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(idx_svm) + ".csv";
+
+        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+        str_id_experiment = to_string(global_config.id_experiment);
+        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
+
+        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(idx_svm) + ".csv";
+
+        path v_path(tmp_str);
+        if (exists(v_path)) {
+          msg = "---- Model untuk no svm "+to_string(idx_svm)+" sudah ada !.";
+            
+          experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, idx_svm, global_config.gamma, global_config.nu);
+          fs::copy(tmp_str, tmp_str1);
+          //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+          experiment.end_train_more_detail();
+        } else {
+          msg = "model "+tmp_str+" tidak ada !.";
+        }
+      }
+
+  return msg;
+}
+
 void Tdt_learn_svm::learn_svm(Tdataframe &df)
 {
    
@@ -365,63 +487,64 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
     
     if (ada)
     {
-      string str_id_experiment_dt = to_string(id_experiment_dt);
-      string str_id_detail_experiment_dt = to_string(id_detail_experiment_dt);
-      string str_id_experiment = to_string(id_experiment);
-      string str_id_detail_experiment = to_string(id_detail_experiment);
+      // string str_id_experiment_dt = to_string(id_experiment_dt);
+      // string str_id_detail_experiment_dt = to_string(id_detail_experiment_dt);
+      // string str_id_experiment = to_string(id_experiment);
+      // string str_id_detail_experiment = to_string(id_detail_experiment);
 
-      string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
+      // string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
 
-      path v_path(tmp_str);
-      if (exists(v_path))
-      {
-        pesan.cetak("---- Model optimal untuk no svm %d sudah ada !. \n", *i);
+      // path v_path(tmp_str);
+      // if (exists(v_path))
+      // {
+      //   pesan.cetak("---- Model optimal untuk no svm %d sudah ada !. \n", *i);
 
-        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
-        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
-        str_id_experiment = to_string(global_config.id_experiment);
-        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
+      //   str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+      //   str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+      //   str_id_experiment = to_string(global_config.id_experiment);
+      //   str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
-        string tmp_str2 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal"; 
-        path v_path1(tmp_str2);
-        if (!exists(v_path1))
-        {
-           mkdir(tmp_str2.c_str(), 0777);
-        }   
+      //   string tmp_str2 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal"; 
+      //   path v_path1(tmp_str2);
+      //   if (!exists(v_path1))
+      //   {
+      //      mkdir(tmp_str2.c_str(), 0777);
+      //   }   
 
-        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
+      //   string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/optimal/svm_model_" + to_string(*i) + ".csv";
         
-        sleep(2);
-        experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
-        fs::copy(tmp_str, tmp_str1);
-        //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
-        experiment.end_train_more_detail();
+      //   sleep(2);
+      //   experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
+      //   fs::copy(tmp_str, tmp_str1);
+      //   //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+      //   experiment.end_train_more_detail();
 
-      } else {
+      // } else {
         
-        string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
+      //   string tmp_str = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
-        str_id_experiment_dt = to_string(global_config.id_experiment_dt);
-        str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
-        str_id_experiment = to_string(global_config.id_experiment);
-        str_id_detail_experiment = to_string(global_config.id_detail_experiment);
+      //   str_id_experiment_dt = to_string(global_config.id_experiment_dt);
+      //   str_id_detail_experiment_dt = to_string(global_config.id_detail_experiment_dt);
+      //   str_id_experiment = to_string(global_config.id_experiment);
+      //   str_id_detail_experiment = to_string(global_config.id_detail_experiment);
 
-        string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
+      //   string tmp_str1 = "hsl/" + str_id_experiment_dt + "/" + str_id_detail_experiment_dt + "/" + str_id_experiment + "/" + str_id_detail_experiment + "/svm_model_" + to_string(*i) + ".csv";
 
-        path v_path(tmp_str);
-        if (exists(v_path)) {
-          pesan.cetak("---- Model untuk no svm %d sudah ada !. \n", *i);
+      //   path v_path(tmp_str);
+      //   if (exists(v_path)) {
+      //     pesan.cetak("---- Model untuk no svm %d sudah ada !. \n", *i);
 
-          sleep(2);  
-          experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
-          fs::copy(tmp_str, tmp_str1);
-          //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
-          experiment.end_train_more_detail();
-        } else {
-          pesan.cetak(" tidak ada \n");
-        }
-      }
-
+      //     sleep(2);  
+      //     experiment.insert_more_detail_experiment(global_config.id_experiment_dt, global_config.id_detail_experiment_dt, *i, global_config.gamma, global_config.nu);
+      //     fs::copy(tmp_str, tmp_str1);
+      //     //time_t id_more_detail_experiment = experiment.get_id_more_detail_experiment(*i);
+      //     experiment.end_train_more_detail();
+      //   } else {
+      //     pesan.cetak(" tidak ada \n");
+      //   }
+      // }
+      async_worker_1.push_back(async(std::launch::async, &Tdt_learn_svm::thread_copy_model,id_experiment_dt,id_detail_experiment_dt,id_experiment,id_detail_experiment, *i));
+      clear_async_worker_1(4);
     } else {
       df.filter_by_idx_svm(*i);
       f_train_svm(df, *i);
@@ -430,5 +553,6 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
     }
   }
   clear_async_worker(0);
+  clear_async_worker_1(0);
   //clear_worker(0);
 }
