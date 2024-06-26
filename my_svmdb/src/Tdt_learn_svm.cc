@@ -544,11 +544,11 @@ void Tdt_learn_svm::learn_svm(Tdataframe &df)
       //   }
       // }
       async_worker_1.push_back(async(std::launch::async, &Tdt_learn_svm::thread_copy_model,id_experiment_dt,id_detail_experiment_dt,id_experiment,id_detail_experiment, *i));
-      clear_async_worker_1(4);
+      clear_async_worker_1(global_config.jml_thread);
     } else {
       df.filter_by_idx_svm(*i);
       f_train_svm(df, *i);
-      clear_async_worker(4);
+      clear_async_worker(global_config.jml_thread);
       //clear_worker(2);
     }
   }

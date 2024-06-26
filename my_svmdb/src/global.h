@@ -34,6 +34,8 @@ struct Tglobal_config
   static bool train_svm;
   static bool normal_only;
 
+  static int jml_thread;
+
   static double gamma;
   static double nu;
 
@@ -51,6 +53,8 @@ struct Tglobal_config
 
     train_svm = false;
     normal_only = false;
+
+    jml_thread = 2;
 
     gamma = 0.0;
     nu = 0.0;

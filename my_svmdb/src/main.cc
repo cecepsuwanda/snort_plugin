@@ -26,6 +26,8 @@ bool Tglobal_config::save_test;
 bool Tglobal_config::train_svm;
 bool Tglobal_config::normal_only;
 
+int Tglobal_config::jml_thread;
+
 double Tglobal_config::gamma;
 double Tglobal_config::nu;
 
@@ -69,6 +71,9 @@ int main(int argc, char *argv[])
   time_t id_experiment_svm = (time_t) atoll(argv[18]);
   bool is_detail_experiment_svm = stoi(argv[19]) == 1;
   time_t id_detail_experiment_svm = (time_t) atoll(argv[20]);
+
+  global_config.normal_only = stoi(argv[21]) == 1;
+  global_config.jml_thread = stoi(argv[22]);  
 
   // global_config.id_experiment_dt = (time_t) atoll(argv[1]);
   // global_config.id_detail_experiment_dt = (time_t) atoll(argv[2]);

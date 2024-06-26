@@ -119,23 +119,90 @@ vector<string> Tdataframe::get_record_svm()
         vec.push_back((_data.get_col_val(i) == "tcp" ? "1" : "0" ));
         vec.push_back((_data.get_col_val(i) == "udp" ? "1" : "0" ));
         vec.push_back((_data.get_col_val(i) == "icmp" ? "1" : "0" ));
-
-        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "0" : "1");
-        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
-
-        // vec.push_back(((_data.get_col_val(i) == "tcp") or (_data.get_col_val(i) == "udp")) ? "1" : "0");
-
         break;
-      case 2:
-        //vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "1" : "0");
+      case 2:        
+        vec.push_back((_data.get_col_val(i) == "http" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "ecr_i" ? "1" : "0" ));
+        vec.push_back((_data.get_col_val(i) == "private" ? "1" : "0" ));
         
-        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or (_data.get_col_val(i) == "http")) ? "0" : "1");
-        vec.push_back(((_data.get_col_val(i) == "private") or (_data.get_col_val(i) == "ecri") or (_data.get_col_val(i) == "ecr_i") or  (_data.get_col_val(i) == "http")) ? "1" : "0");
+
+        // vec.push_back((_data.get_col_val(i) == "domain_u" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "smtp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ftp_data" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "other" ? "1" : "0" ));        
+        // vec.push_back((_data.get_col_val(i) == "ftp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "telnet" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "urp_i" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "finger" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "eco_i" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "auth" ? "1" : "0" ));        
+        // vec.push_back((_data.get_col_val(i) == "IRC" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "pop_3" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ntp_u" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "time" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "X11" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "domain" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "urh_i" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "red_i" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "tim_i" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ssh" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "shell" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "tftp_u" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "imap4" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "link" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "remote_job" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "Z39_50" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "uucp_p" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "whois" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "nnsp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "vmnet" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ctf" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "courier" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "bgp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "iso_tsap" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "uucp_path" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "csnet_ns" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "supdup" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "http_443" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "discard" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "gopher" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "daytime" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "sunrpc" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "efs" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "systat" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "exec" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "name" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "hostnames" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "mtp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "echo" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "login" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "klogin" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "netbios_dgm" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ldap" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "netstat" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "netbios_ns" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "netbios_ssn" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "ssh" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "kshell" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "nntp" ? "1" : "0" ));
+        // vec.push_back((_data.get_col_val(i) == "sql_net" ? "1" : "0" ));
+
+
+        // vec.push_back((_data.get_col_val(i) == "ecri" ? "1" : "0" ));        
+        
         break;
-      case 3:
-        //vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
-        vec.push_back((_data.get_col_val(i) == "SF") ? "0" : "1");
+      case 3:        
         vec.push_back((_data.get_col_val(i) == "SF") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "REJ") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "RSTO") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "S0") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "S1") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "RSTR") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "S3") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "S2") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "OTH") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "SH") ? "1" : "0");
+        vec.push_back((_data.get_col_val(i) == "RSTOS0") ? "1" : "0");
         break;
       default:
         vec.push_back(_data.get_col_val(i));

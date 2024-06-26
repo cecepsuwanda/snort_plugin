@@ -138,30 +138,30 @@ void Tdec_tree::test(Tdataframe &df_test, tb_experiment &experiment)
       
     //   svm_conf_metrix.add_jml("normal", tmp_label_svm, 1);
     //   total_svm_conf_metrix.add_jml("normal", tmp_label_svm, 1);
-      bool pass = (async_worker.size() % 4)==0 ;
+      bool pass = async_worker.size()==global_config.jml_thread;
       
        if (pass)
         {
-          //Thsl_test hsl;
-          future_status status;
+          Thsl_test hsl;
+          //future_status status;
           for (future<Thsl_test> &th : async_worker)
           {
-            status =  th.wait_for(chrono::seconds(2));
+            //status =  th.wait_for(chrono::seconds(2));
 
-            // hsl = th.get();
+            hsl = th.get();
             
-            // for (auto j = hsl.data.begin(); j != hsl.data.end(); ++j)
-            // {
-            //   df_test.set_label_svm(j->first,j->second);
-            //   total_svm_conf_metrix.add_jml("normal", j->second, 1);
-            // }
+            for (auto j = hsl.data.begin(); j != hsl.data.end(); ++j)
+            {
+              df_test.set_label_svm(j->first,j->second);
+              total_svm_conf_metrix.add_jml("normal", j->second, 1);
+            }
 
-            // df_test.detail_dtsvm_stat(global_config.id_experiment,global_config.id_detail_experiment,hsl.id_more_detail_experiment,global_config.id_experiment_dt,global_config.id_detail_experiment_dt,hsl.idx_svm); 
+            df_test.detail_dtsvm_stat(global_config.id_experiment,global_config.id_detail_experiment,hsl.id_more_detail_experiment,global_config.id_experiment_dt,global_config.id_detail_experiment_dt,hsl.idx_svm); 
 
           }
 
-          // async_worker.clear();
-          // async_worker.shrink_to_fit();
+          async_worker.clear();
+          async_worker.shrink_to_fit();
         }  
 
       
