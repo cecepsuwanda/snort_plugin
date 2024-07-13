@@ -401,10 +401,10 @@ Tmetric_split_value Tdataframe::handle_non_continuous(int idx)
 
   //proses_split_stat.merge_block1();
 
-  // if (!global_config.one_agains_many_only)
-  //   {
-  //     tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
-  //   }
+  if (!global_config.one_agains_many_only)
+    {
+      tmp_hsl1 = proses_split_stat.get_gain_ratio_kategori();
+    }
 
   // cout << " attr idx sesudah " << idx << endl;
   // proses_split_stat.cetak_block();

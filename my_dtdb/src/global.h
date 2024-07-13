@@ -79,9 +79,9 @@ public:
     skala_pruning = 0.5;
 
     continue_attr_only = false;
-    buat_kombinasi = false;
+    buat_kombinasi = true; //false
     gunakan_rata2gain = true;    
-    one_agains_many_only = true;
+    one_agains_many_only = false; //true
     unique_rule = false;
     
     use_gain_ratio = false;
